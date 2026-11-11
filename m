@@ -1,62 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=180.181.231.80
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794395182;
-	b=yoqJPtQFFFmA5LQ4MuFd/u+EjNffqZe7W25gcJSsaWIAoNqJWFWxkfcjNj5/HcQPH4rc
-	 1+Y+1ptuBv2BlzIpLZ7O+Anu+wKdCjG1nXJDxzn3l3ngrx88hxN04EGaz0yNoW6Swc+5z
-	 tbq42i/qg84IJARQzmqYdYrnyt71RtZd8FBYR1JmHwzVxgCxlatHkWiO5OZAw3D8nGTr5
-	 C+D3XD6YEfuO9Wg4E6pMOGXTjjAN6wKDYWKvas+17JQ8JR0z55nUDy1ex4UAuJNPRJixM
-	 2gBcl2LKlF33X+gX4ATIqIuojsrI62UCodda76x0zFN43CnDHaqFqFdkxhLj2QGlNXw==
+	t=1794395554;
+	b=tJZHM4TcL5MDTHOW8lG6Sx+EWkjEbMYiolzVgtGfCwGDK1BOKgaLR9kYAcyuq7Gl9EZb
+	 kzl9zV7UK0gGEIa2x+ICxmVO2IJ1DrQMOpCPdsSlwjuYEGwX3kNfIuS+/GipG/AToqm4y
+	 JnkWrMxDf7zLKdOO6ibt3t4pzLbnMXILxfWTnhYUT/6/v6xzCPMXL851rTiCHkU8RyBpa
+	 dZfceVtAceEyZ4bpQPcT1GCQ0i/Y3QwnVodK9XNhlNFBHsWz+gFeRLNr9S4cwxzXMD0e7
+	 i6DZC9l/AR6jisYDww0M6jJEe8EKBWFKoAInD+lkLtg8J/iwXX2F2T6NhX12QgJbAzA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794395182;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=NzHMhcU+vPiMdliqp2dflnrsyBQs8fZSDxc9nDiFNAU=;
-	b=qGZj+K2dRX/FnVE503kkN+UBOtDWv2ihgZRRTw/n1RfJyLCBvhCFSjihFzr/B75TAFHE
-	 P3zwsFkqRdKir8GBjVrnobXujcAmAEE4TSiwei6ZnFWZAQuF6jK4Qsbaxt4PDdKjTqw2E
-	 6B3SGUBkzt1QRwv3y4yjdm9qzxFFANUxnAZLemEUchEDIvKqAHDtwe6PzXF4cgVIY7yFg
-	 57vXywNh+gcXMbSxEu1ur9q2ihfqdFmG3qzkemZDfpnGHIUf42j5UX4y1lJ7u66MFAiy/
-	 E+ALN0A7cfz0frW2w5T8ugIfd4db9PA7obY91ktk5/SYqooDYgXjuEdH6mjpn60Qj3g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794395554;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=M7i7qeV9UiDvx6/zhRopZZexL1OUHkXEsmKT4YMKLAA=;
+	b=TWoP7QH7wAa4fbgCxQkQ4TDFkJN5KgYEYPcidM43+93YLvc+XFoPFlQ4gPa5wn34d7Vc
+	 mvZyRKGGyiV+R9q104Cl4g2huNbT2pE5ggqA1PSCtv47/rUxun/MJW0j4rgrAIrvIo1Nm
+	 DYnNgbpr4HjvoH7EilpsuBUR0zqCITepc5GpkQagJQZFgE1/LJrq33Qz0zIB1uGpqI0NX
+	 juVJAL+KlFyH6lHXJWhRZGaq5GKXWJ7Y0AdMT6XPeGrlyp/sM7OirLIoabCs7HD+0Sw5l
+	 2mlrIZE39RwQZpc0BsOb6sjliubBK5ejO6b7dWbu4ou8ePvN/udpAANkSkqn/duBhfQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f0A+0ObF;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=gondor.apana.org.au;
+	spf=pass smtp.mailfrom=gondor.apana.org.au;
+	dkim=pass header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=bgQrcmHp;
+	arc=none smtp.remote-ip=180.181.231.80
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ABD5606A334;
-	Wed, 11 Nov 2026 11:06:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3F63606A31C;
+	Wed, 11 Nov 2026 11:12:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D3F63606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f0A+0ObF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55B01F00A05;
-	Wed, 11 Nov 2026 11:06:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794395181;
-	bh=NzHMhcU+vPiMdliqp2dflnrsyBQs8fZSDxc9nDiFNAU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=f0A+0ObFzxtqt5RTDymvHQ0Jgz3VPVvid9hhX0m4CKnMG1ey1riT3j4cfns0YlQbW
-	 /fpWhX2EwvzhDHWSm0r8z9Am+FM6DXMrYUVK7TN04Z7WTtW4YJNKEeOdzBx8PJ6WGA
-	 t3+GwtMKtR0FyHZ2I+ZJJJvWsY34hiefVKerffEkrM1pG7kprb3YZLwraFwi+LM60r
-	 TQhv1XENZwY7v5QhP7Hpd9bFJcLmtceg6ygYkou6jI5FYm9Y4ahtIkorF7zvfaSB5G
-	 0Cng8EjDiFtX2I7MTbNehaDLud9ByNW+awhQmJ7WpzZKy0PKctQbHbx9bdSYbS00E4
-	 P/2wSixuXZzBA==
-Date: Wed, 11 Nov 2026 12:06:11 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Kiryl Shutsemau (Meta)" <kas@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
-	Jan Kara <jack@suse.cz>, "David Hildenbrand (Arm)" <david@kernel.org>, 
-	Matthew Wilcox <willy@infradead.org>, Zi Yan <ziy@nvidia.com>, Bernd Schubert <bschubert@ddn.com>, 
-	Hugh Dickins <hughd@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-fsdevel@vger.kernel.org, 
-	fuse-devel@lists.linux.dev, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com
-Subject: Re: [PATCH 0/4] splice: remove pipe buffer stealing
-Message-ID: <20261111-betrachen-schindel-gefroren-4c01e5f9ca1d@brauner>
-References: <20261110145241.536019-1-kas@kernel.org>
- <CAHk-=wgPq1g-kt_n4-crr0qs3rBNkat5OgLxLLeMjKirevRuSA@mail.gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=bgQrcmHp
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
+	from:content-type:reply-to; bh=M7i7qeV9UiDvx6/zhRopZZexL1OUHkXEsmKT4YMKLAA=; 
+	b=bgQrcmHpxO0L6OeF4AkdJV1Lhdt6AsVN5XB3qO6PdaBYwdVOmz0i+Y/O4iob7RQhObqkGWLZRWx
+	onBORGIkeUIa6vOLisJB2mkIIKvnF7L9MnNhdH8QWdnCGNKs/kfuFo/AcOivPvFQN97+LLmN/Inaj
+	2NUmQmJJu9biCkO+XFcLU+Htxx1NbLsV+BQf5Ck1M+Zs7bjgl7hbn8o0zWxYq7Dxp5NFHkvprZJ/v
+	QdlKH3Fgaegfi34AGMnpZn8zUQtj0t0qb1VU8wGi02neLY5gOwVssPp4VPh8yKMALujvlVqv9lash
+	1R3XQIyl9Notz83Vw1599nUlmBbJHuidfNVw==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
+	id 1xR6Fb-0000000DmSI-1cF5;
+	Wed, 11 Nov 2026 19:12:24 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 11 Nov 2026 19:12:23 +0800
+Date: Wed, 11 Nov 2026 19:12:23 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Thorsten Blum <blum@kernel.org>
+Cc: Laurent Vivier <lvivier@redhat.com>,
+	Olivia Mackall <olivia@selenic.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, Amos Kong <akong@redhat.com>,
+	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hwrng: virtio - prevent use-after-free after a failed
+ restore
+Message-ID: <avRNl36r1eiO7Ofu@gondor.apana.org.au>
+References: <20261016103640.4989-2-blum@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,17 +68,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wgPq1g-kt_n4-crr0qs3rBNkat5OgLxLLeMjKirevRuSA@mail.gmail.com>
+In-Reply-To: <20261016103640.4989-2-blum@kernel.org>
 
-On Tue, Nov 10, 2026 at 07:59:47AM -0800, Linus Torvalds wrote:
-> On Tue, 10 Nov 2026 at 06:52, Kiryl Shutsemau (Meta) <kas@kernel.org> wrote:
-> >
-> >  11 files changed, 26 insertions(+), 360 deletions(-)
+On Fri, Oct 16, 2026 at 12:36:40PM +0200, Thorsten Blum wrote:
+> remove_common() frees the driver data during freeze, but does not clear
+> vdev->priv, which points to freed memory. If probe_common() then fails
+> during restore, a later remove or freeze can dereference the dangling
+> pointer.
 > 
-> Ack. Lovely. I'm considering just taking this as-is now, rather than
-> delaying it. Comments?
+> Clear vdev->priv on the probe_common() error cleanup path and before
+> freeing the driver data in remove_common(). Also reset the device and
+> return early from remove_common() if vdev->priv is already NULL for a
+> safe teardown after a failed restore.
+> 
+> Fixes: 08e53fbdb85c ("virtio-rng: support multiple virtio-rng devices")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Thorsten Blum <blum@kernel.org>
+> ---
+>  drivers/char/hw_random/virtio-rng.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 
-I'll pull it into vfs.fixes and send you a pull request today.
-I have more stuff anyway.
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
