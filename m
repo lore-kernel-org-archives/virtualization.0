@@ -1,66 +1,65 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794423236;
-	b=Kr0CFiqR3Q0A38oKr1Jd2/SxoocXEWvhAor6d2zhmflXTmMJSsI8ofwzGlvR7zXViesk
-	 3zBBw8DXMAWBi507YlUjQkUygYWbPr7w8hivY6vFqmmB00t/2k1ZIYmNneT9C0VGlGSr6
-	 roujWTu8pucBHkIgzeRM34VtZkm93b+wKzt8q3TS6GN7fXwhUcxNkSplriuZ6No/5SvaE
-	 fvUjY4gKMxi6UW/IGVtO7S9rbhaLo2K55YKEkA30NAzwbRAqwp27Gn3vCGw0+cmdaN68V
-	 881Ccp/rzXUqTADMvRQpdFaNx294XScTsbmwjlXX6M9nnefs8lsPNlSEHLHwkNIJhIQ==
+	t=1794424188;
+	b=Gw3ZmTBURt76F8PvkpweS+JqonrTUtVS7t0oweTnv0l6dAjXafsCkuA8ZPzPedyd9j+9
+	 dZKNRTXewmuULBF0ZppCd+t8P2bsAUBtwHEHuLgpMLuPoTYdO+UaqxvLLSvAffr/EB1K/
+	 hZUscPII6oMEhOlZtEsULe06EFgD/ULXgyjyVgCJVf/rsh6Y9pfIEGXrWyl/XQxeywntS
+	 bwDlQj79Qql+/v/12s7DrU5agLBnn4ZHFMjpGang2TKpObmW3GqNdtPIKrqDdYfKyoNnw
+	 kCXbFldVQs3eVyq8e8EAVrQYm++hth99qsBtCGt4TGjJKsI2oaXefFjCHtzOapfUYRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794423236;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794424188;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=+5n1VoXqaGtyr2AYAd3HrKxaDIwkNj4GWqnIam41N0U=;
-	b=r6c4HgTl0isrwHCZztRrEWPF8AshkwL2Sm5b0MLponYR9F6T4wArLUq2x7ElRolwDFOS
-	 jtkaQlf72HYWhvLATPm1HdcGWdAnTFLh+i7WNvHwneqsrosTv8fXLFMyEprg7LIS7nedZ
-	 VqI0sXxbpUDU8hjhfNQZOPrjXnoVJwCSA0n4Ctuw981MzBGx/t10J4BqETHmICprBp1Wh
-	 UC26Va8q9MsYS3zek8d3sAwD/mbRsuSbH6Fs1cVyTe1JXLDHlry7Pjm8pU6MnRlIn+fZB
-	 ykcDlN4j4GyZGIia10yNSNzgADDiZYnwoIJEP0ksHK8DEAQIhtBl3dUVxM2Ke58XjkQ==
+	bh=9nXz4XsFyxf6p/xbkIeQCjsAjClLO9LnUnA+aL97b8k=;
+	b=GeQPvfCVVQftNZifYkVVlyNaDTga95F9K2IuxtjcPuvR1hRSixLybwKqmx5gMLKzMGL7
+	 rp1m2iqsdbtCV1TekH4w/rgB9gRbEGfqR+pQcewnT5WAwxdsOGwTU0Ux9aJ6Y9JowFqEz
+	 144JKh4/F2z/7fLyzh8N93IRsapeVV3ySgeLZbuU2Er9yM80CqrzapjrPQ8Ro3n6greRk
+	 SOh2/aVWGAG8fkbvkseGElSrXsecolGhbUY3DazwXxUysjw4P/0R3HQCjwRjg/UQyJHhT
+	 W1Y8MHpqZeBLUKxZhXf+QLhU9e4Il3EmFChrEhZ+vJpr9JkjMFsztqfBDLJpCI+S+gg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X0vd4Ds2;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WFzKR564;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7843606A889;
-	Wed, 11 Nov 2026 18:53:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67BE7606A339;
+	Wed, 11 Nov 2026 19:09:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X0vd4Ds2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9700B1F00A06;
-	Wed, 11 Nov 2026 18:53:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WFzKR564
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46EBD1F00A06;
+	Wed, 11 Nov 2026 19:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794423235;
-	bh=+5n1VoXqaGtyr2AYAd3HrKxaDIwkNj4GWqnIam41N0U=;
+	s=k20260515; t=1794424187;
+	bh=9nXz4XsFyxf6p/xbkIeQCjsAjClLO9LnUnA+aL97b8k=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=X0vd4Ds2ttFc1KZuSjD/KbzjkMEx7L2o6Kd1wX5ida9swtkXa0xSt666pNbbQeM8Z
-	 xQIW1QRIiqrsFABQxrUFj1k2xiGwV7gqqYc57CANRAxCrBuQTst6+aWo5TTQhzwZNt
-	 at3dNhbfeDgocuOCIMvoNJLEKUNeIGVmhT04Gr5E+uppy2SWXEDmThX1j+Cxq45MuR
-	 SbdA8xtTxyjKpum9y4AhIPNvIJy+TvuMQqTS3D4HVw5dYfCXsqqIcR+wZUaZw2UUPq
-	 ZIU9/IihDSQEQdcY+/Nl/VPc+sLsLpFVJO+tm/sFwzJcbovN8eRM4qVtbx7y7mFCGZ
-	 wCA9RGzWsZbVQ==
-Date: Wed, 11 Nov 2026 19:53:47 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matthew Wilcox <willy@infradead.org>, 
-	"Kiryl Shutsemau (Meta)" <kas@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, Jan Kara <jack@suse.cz>, 
-	"David Hildenbrand (Arm)" <david@kernel.org>, Zi Yan <ziy@nvidia.com>, Bernd Schubert <bschubert@ddn.com>, 
-	Hugh Dickins <hughd@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-fsdevel@vger.kernel.org, 
-	fuse-devel@lists.linux.dev, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com
-Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
-Message-ID: <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
-References: <20261110145241.536019-1-kas@kernel.org>
- <20261110145241.536019-2-kas@kernel.org>
- <avNuQqLf9CG9dSsE@casper.infradead.org>
- <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
- <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
- <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+	b=WFzKR564G0UiQUdYOgmFp64Zc7kQghLq8rSQs9/kVQoM9daXgTwgHOIJBA4tmvZrP
+	 pl6NoDuycNPmuZKQC+tzUKJ2vWwXQC8zrvj43OVZP4oWYZL0WyxpI2BufbHbJlKfq4
+	 bRR+95WaVEV3bPIzkVBgR7D0CKAjDBkeQVBHCeXQOgYJMybl3r3qHb/DPBqfzrvX05
+	 H0X7U6M4JViBLSxAaSrZ1etmocb0hrvAPh0WYJUIMVJu6D4nAtCFOLHOKh5QBJk04L
+	 R3LUfJh51xF61ypZxQbgdKSrvD7fx1TIlT+f7bxfa8TknOwtlBSn1q/knjPjUE/X5U
+	 d6pzS9gcNa1iQ==
+Date: Wed, 11 Nov 2026 21:09:42 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: "Popov, Pavel E" <pavel.e.popov@intel.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>,
+	Logan Gunthorpe <logang@deltatee.com>,
+	Lukas Wunner <lukas@wunner.de>, Jim Chow <jim.chow@broadcom.com>,
+	Radu Rugina <radu.rugina@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
+	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
+Message-ID: <20261111190942.GT8635@unreal>
+References: <20261020173736.81755-1-pavel.e.popov@intel.com>
+ <LV2PR11MB6070064A9E674EBDFB1A3B20B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261111081057.GP8635@unreal>
+ <LV2PR11MB6070A8BA690DEA91D6675682B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -70,48 +69,163 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+In-Reply-To: <LV2PR11MB6070A8BA690DEA91D6675682B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
 
-On Wed, Nov 11, 2026 at 08:43:53AM -0800, Linus Torvalds wrote:
-> On Wed, 11 Nov 2026 at 05:42, Christian Brauner <brauner@kernel.org> wrote:
-> >
-> > So the fix below is what we've done before for pipes and I think it's
-> > the right thing to do here too. I put the following on vfs.fixes:
+On Wed, Nov 11, 2026 at 03:37:13PM +0000, Popov, Pavel E wrote:
+> On Wed, Nov 11, 2026 at 10:10:57AM +0200, Leon Romanovsky wrote:
+> > Peer-to-peer is a general concept, and the code should reflect that. It is
+> > reasonable to expect you to join the effort and help clean it up.
 > 
-> Please no.
-> 
-> > -       src = kmap_local_page(buf->page);
-> > -       memcpy(page_address(page) + offset, src + buf->offset, len);
-> > -       kunmap_local(src);
-> 
-> This boils down to one memcpy.
-> 
-> HIGHMEM is dead. Nobody sane uses it. It *will* go away. It's already
-> effectively never ever used.
-> 
-> There are some broken 32-bit arm setups that use it, and legacy museum
-> 32-bit x86.
-> 
-> Don't make one memcpy() that can be inlined become this garbage:
-> 
-> > +       /* The buffer can span several pages of a compound page. */
-> > +       kv.iov_base = page_address(page) + offset;
-> > +       kv.iov_len = len;
-> > +       iov_iter_kvec(&to, ITER_DEST, &kv, 1, len);
-> > +       if (copy_page_to_iter(buf->page, buf->offset, len, &to) != len) {
-> > +               __free_page(page);
-> > +               return -EFAULT;
-> > +       }
-> 
-> just because of broken shit that nobody has ever complained about or ever hit.
+> I'm in. My proposal is to do it after this series, since this one
+> unblocks P2PDMA in guests and the cleanup is out of PCI scope: even
+> the minimal fix for p2pdma.c alone means changes under arch/x86, so it
+> would no longer be a P2PDMA patch but an x86 header series with its
+> own maintainers and review. That x86 header series is also the right
+> place to drop the same guard from six other files, and I'm ready to
+> do it:
 
-If that's the official new stance than I'm very happy.
+If you are ready, why hasn't it been done until now?
 
-I went by what we have historically done and very recent history still
-has us fixing HIGHMEM shit.
+The claims of urgency are hard to take seriously: `SKYLAKE_X` was added to
+`arch/x86/include/asm/intel-family.h` in 2016, and now, ten years later,
+you are asking us to "do it urgently." I strongly suspect that if I don't
+bring up P2P at LPC, we won't see this patch for another ten years.
 
-So if this is an official thing that we can now say: "Fuck it, we don't
-care about HIGHMEM and will ignore bugs because". Then why can't we just
-completely kill it for say v7.5?
+Even now, despite being asked to clean this up before the merge
+window, you still haven't done so. Trust is built by following
+through, not by making promises.
+
+> 
+>   drivers/acpi/mipi-disco-img.c
+>   drivers/cpufreq/cpufreq_ondemand.h
+>   drivers/gpu/drm/i915/intel_cpu_info.c
+>   drivers/char/tpm/tpm.h
+>   drivers/crypto/ccp/ccp-dev.c
+>   include/linux/platform_data/x86/soc.h
+> 
+> Bjorn, is v4 OK for v7.5 as is? The x86 header series will follow on
+> top.
+
+I disagree. You can't build this on top, as it would need to go through
+different trees and would likely cause merge conflicts. The cleanup series
+would have to touch the same lines in the PCI subsystem that you are
+changing now.
+
+The only sane approach is to do the cleanup first and then build the p2p
+changes on top of it.
+
+Thanks
+
+> 
+> Thanks,
+> Pavel
+> 
+> > -----Original Message-----
+> > From: Leon Romanovsky <leon@kernel.org>
+> > Sent: Wednesday, November 11, 2026 1:11 AM
+> > To: Popov, Pavel E <pavel.e.popov@intel.com>
+> > Cc: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
+> > <logang@deltatee.com>; Lukas Wunner <lukas@wunner.de>; Jim Chow
+> > <jim.chow@broadcom.com>; Radu Rugina <radu.rugina@broadcom.com>;
+> > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
+> > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
+> > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
+> > list@broadcom.com; virtualization@lists.linux.dev; linux-
+> > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
+> > kernel@vger.kernel.org
+> > Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
+> > server CPUs
+> > 
+> > On Wed, Nov 11, 2026 at 03:48:07AM +0000, Popov, Pavel E wrote:
+> > > Hi Bjorn,
+> > >
+> > > Gentle ping on this series. Is this OK for v7.5?
+> > 
+> > I would say no. An Intel employee was asked to clean up an Intel-created mess
+> > while upstreaming an Intel-specific patch.
+> > 
+> > Peer-to-peer is a general concept, and the code should reflect that. It is
+> > reasonable to expect you to join the effort and help clean it up.
+> > 
+> > Thanks
+> > 
+> > >
+> > > Thanks,
+> > > Pavel
+> > >
+> > > > -----Original Message-----
+> > > > From: Popov, Pavel E <pavel.e.popov@intel.com>
+> > > > Sent: Tuesday, October 20, 2026 10:38 AM
+> > > > To: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
+> > > > <logang@deltatee.com>
+> > > > Cc: Popov, Pavel E <pavel.e.popov@intel.com>; Leon Romanovsky
+> > > > <leon@kernel.org>; Lukas Wunner <lukas@wunner.de>; Jim Chow
+> > > > <jim.chow@broadcom.com>; Radu Rugina
+> > <radu.rugina@broadcom.com>;
+> > > > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
+> > > > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
+> > > > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
+> > > > list@broadcom.com; virtualization@lists.linux.dev; linux-
+> > > > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
+> > > > kernel@vger.kernel.org
+> > > > Subject: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
+> > > > server CPUs
+> > > >
+> > > > VMware and Hyper-V expose passthrough devices to guest VMs without
+> > > > an explicit host bridge device. Consequently,
+> > > > host_bridge_whitelist() cannot automatically identify the underlying
+> > > > host bridge structure, causing Peer-to- Peer DMA (P2PDMA) requests
+> > > > to be rejected unless the device IDs are explicitly listed in
+> > > > pci_p2pdma_whitelist[]. To enable P2PDMA on Intel hosts, this series
+> > > > extends cpu_supports_p2pdma(), which so far covers AMD Zen and
+> > newer, with an explicit list of Intel Xeon server generations.
+> > > >
+> > > > Patch 1 moves the CONFIG_X86 #ifdef out of cpu_supports_p2pdma().
+> > > > Patch 2 is the v3 patch rebased on it, with Logan's Reviewed-by
+> > > > carried over; the Xeon list and the check are unchanged.
+> > > >
+> > > > Changes in v4:
+> > > > - Add 1/2, moving the CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
+> > > >   (Logan Gunthorpe, Leon Romanovsky)
+> > > > - Keep the #ifdef around the asm/ includes, as these headers exist
+> > > >   only on x86 (Bjorn Helgaas)
+> > > >
+> > > > Changes in v3:
+> > > > - Drop the hypervisor check and move the Xeon list into
+> > > >   cpu_supports_p2pdma(), next to the AMD check, as suggested by Logan
+> > > >   Gunthorpe and Leon Romanovsky [1]
+> > > > - Fold the VMware and Hyper-V patches into one, as the check no longer
+> > > >   depends on the hypervisor
+> > > >
+> > > > Changes in v2:
+> > > > - Replace the Skylake-and-newer threshold with an explicit list of Intel
+> > > >   Xeon server generations, from Skylake-SP to Diamond Rapids (Logan
+> > > >   Gunthorpe)
+> > > > - Move the CONFIG_X86 #ifdef out of hypervisor_supports_p2pdma()
+> > > >   (Logan Gunthorpe)
+> > > > - Rebased on current mainline
+> > > >
+> > > > [1] https://lore.kernel.org/r/20261016153147.GC219304@unreal
+> > > >
+> > > > v3: https://lore.kernel.org/r/20261020151305.65218-1-
+> > > > pavel.e.popov@intel.com
+> > > > v2: https://lore.kernel.org/r/20261016223402.19991-1-
+> > > > pavel.e.popov@intel.com
+> > > > v1: https://lore.kernel.org/r/20261009154034.82321-1-
+> > > > pavel.e.popov@intel.com
+> > > >
+> > > > Pavel Popov (2):
+> > > >   PCI/P2PDMA: Move CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
+> > > >   PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
+> > > >
+> > > >  drivers/pci/p2pdma.c | 33 +++++++++++++++++++++++++++++++--
+> > > >  1 file changed, 31 insertions(+), 2 deletions(-)
+> > > >
+> > > >
+> > > > base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
+> > > > --
+> > > > 2.53.0
+> > >
+> 
