@@ -1,64 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794395554;
-	b=tJZHM4TcL5MDTHOW8lG6Sx+EWkjEbMYiolzVgtGfCwGDK1BOKgaLR9kYAcyuq7Gl9EZb
-	 kzl9zV7UK0gGEIa2x+ICxmVO2IJ1DrQMOpCPdsSlwjuYEGwX3kNfIuS+/GipG/AToqm4y
-	 JnkWrMxDf7zLKdOO6ibt3t4pzLbnMXILxfWTnhYUT/6/v6xzCPMXL851rTiCHkU8RyBpa
-	 dZfceVtAceEyZ4bpQPcT1GCQ0i/Y3QwnVodK9XNhlNFBHsWz+gFeRLNr9S4cwxzXMD0e7
-	 i6DZC9l/AR6jisYDww0M6jJEe8EKBWFKoAInD+lkLtg8J/iwXX2F2T6NhX12QgJbAzA==
+	t=1794398285;
+	b=t/cZbQRkVPBrBDlAfx6FxSOqIZlZF579EOln8t1Qn5hl0wcUHAVESit3ZwOIzTzaqFUy
+	 ov6zR1ZY10lihNPuAJPAJaZIpuNDL1iH/gydwag5EU1karo4UWjyZpozoFRyEwiDZgQWy
+	 MORlMxvPLmcAwyR52N5oOeQwXyKzGUDXq9UcU8dW/CBvua177Lz8ujAShAAKaw+g9x8nM
+	 nj4a5jWr1qoUbdeUkUoTKZY7i4vWV2ap0/r49JvOHYyWongqxQ/2WUTfPlg+eWRVlwqeP
+	 MQllA0xY/01KGiJ1CIiE3IzUtMoNOjTvCAsfDDFzZh9DkIHSM07QePJ2Me8bTSdpdCQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794395554;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=M7i7qeV9UiDvx6/zhRopZZexL1OUHkXEsmKT4YMKLAA=;
-	b=TWoP7QH7wAa4fbgCxQkQ4TDFkJN5KgYEYPcidM43+93YLvc+XFoPFlQ4gPa5wn34d7Vc
-	 mvZyRKGGyiV+R9q104Cl4g2huNbT2pE5ggqA1PSCtv47/rUxun/MJW0j4rgrAIrvIo1Nm
-	 DYnNgbpr4HjvoH7EilpsuBUR0zqCITepc5GpkQagJQZFgE1/LJrq33Qz0zIB1uGpqI0NX
-	 juVJAL+KlFyH6lHXJWhRZGaq5GKXWJ7Y0AdMT6XPeGrlyp/sM7OirLIoabCs7HD+0Sw5l
-	 2mlrIZE39RwQZpc0BsOb6sjliubBK5ejO6b7dWbu4ou8ePvN/udpAANkSkqn/duBhfQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794398285;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
+	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=QAtpX+mYswT5tfILpPnNE2GO/1nDfiulyO5xnYGFX+Y=;
+	b=nVxh9rfwnv9qOZ9RYN84DGvMFVPZIb+RAy/nQp0d8ePesVEQfBNK3HqUjYCV+klD+ZOU
+	 kece3TtqyDNH2c/zAXdh5NazjUEMMEEw9NoOWYvLDsFHtjS+2fvRB5d5vvpD/55HcmPwN
+	 r8FBM5BqnX9h1f4qYnDEeVyzslZCYIoAPpbVrnnwycUhkZ/XnDVgVk/evSTuk8UiaafOR
+	 wf62umuaG1uAs692dfd+tSO87g+4nax9gdZkNypM1Ih7Icu5VG/E+bDQfMVIULv4B+Oz+
+	 26N50jBFtNe4KhiXBIzBUPdV2J87VfWHtDdANzq7LoBKuosQ5+4RdJ+tl56KnJdAWEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gondor.apana.org.au;
-	spf=pass smtp.mailfrom=gondor.apana.org.au;
-	dkim=pass header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=bgQrcmHp;
-	arc=none smtp.remote-ip=180.181.231.80
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CZZZt+iD;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3F63606A31C;
-	Wed, 11 Nov 2026 11:12:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D3F63606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A6D606A324;
+	Wed, 11 Nov 2026 11:58:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=bgQrcmHp
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=M7i7qeV9UiDvx6/zhRopZZexL1OUHkXEsmKT4YMKLAA=; 
-	b=bgQrcmHpxO0L6OeF4AkdJV1Lhdt6AsVN5XB3qO6PdaBYwdVOmz0i+Y/O4iob7RQhObqkGWLZRWx
-	onBORGIkeUIa6vOLisJB2mkIIKvnF7L9MnNhdH8QWdnCGNKs/kfuFo/AcOivPvFQN97+LLmN/Inaj
-	2NUmQmJJu9biCkO+XFcLU+Htxx1NbLsV+BQf5Ck1M+Zs7bjgl7hbn8o0zWxYq7Dxp5NFHkvprZJ/v
-	QdlKH3Fgaegfi34AGMnpZn8zUQtj0t0qb1VU8wGi02neLY5gOwVssPp4VPh8yKMALujvlVqv9lash
-	1R3XQIyl9Notz83Vw1599nUlmBbJHuidfNVw==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1xR6Fb-0000000DmSI-1cF5;
-	Wed, 11 Nov 2026 19:12:24 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 11 Nov 2026 19:12:23 +0800
-Date: Wed, 11 Nov 2026 19:12:23 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Thorsten Blum <blum@kernel.org>
-Cc: Laurent Vivier <lvivier@redhat.com>,
-	Olivia Mackall <olivia@selenic.com>,
-	Rusty Russell <rusty@rustcorp.com.au>, Amos Kong <akong@redhat.com>,
-	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hwrng: virtio - prevent use-after-free after a failed
- restore
-Message-ID: <avRNl36r1eiO7Ofu@gondor.apana.org.au>
-References: <20261016103640.4989-2-blum@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CZZZt+iD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578831F00A05;
+	Wed, 11 Nov 2026 11:58:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794398284;
+	bh=QAtpX+mYswT5tfILpPnNE2GO/1nDfiulyO5xnYGFX+Y=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=CZZZt+iDaXV26+WhMHROR42F2LIOSWiP08Yj50yMgautwfxUqBPhYZhBoclbGVxne
+	 yRzQeLwPX0eG0h+9Yna4HkzNVKJI4bEc3LL0ssL70JgtaP3pnKmWupe1yyF7BiILaO
+	 6x3cRKxoQtLNkIWsX5g2uKno0nXbMORIfO3ZV1EcYwKZ6tJCp5whTbJPbW153lxl04
+	 aLJ7llyakMlfSNeLi5UV5ou50l1lLYLmyF6F2nO3+Lu8+qXe9uIfag4b3Q06VBzgU+
+	 Tq1T58X5vncislAwYcO8PSP/IYsi+H6iHzgk+o72oCsf5RWzWpkcW0pj/TI2OawL33
+	 CCCmL82f2301Q==
+From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
+To: raoxu <raoxu@uniontech.com>, mst@redhat.com
+Cc: jasowangio@gmail.com, eperezma@redhat.com, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, raoxu@uniontech.com
+Subject: Re: [PATCH] vhost/net: Fix receive queue test in busy poll
+In-Reply-To: <005FA5F7354482C7+20261110051642.249640-1-raoxu@uniontech.com>
+References: <005FA5F7354482C7+20261110051642.249640-1-raoxu@uniontech.com>
+Date: Wed, 11 Nov 2026 03:58:00 -0800
+Message-ID: <87tslna8c7.fsf@all.your.base.are.belong.to.us>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -68,30 +58,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261016103640.4989-2-blum@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 16, 2026 at 12:36:40PM +0200, Thorsten Blum wrote:
-> remove_common() frees the driver data during freeze, but does not clear
-> vdev->priv, which points to freed memory. If probe_common() then fails
-> during restore, a later remove or freeze can dereference the dangling
-> pointer.
-> 
-> Clear vdev->priv on the probe_common() error cleanup path and before
-> freeing the driver data in remove_common(). Also reset the device and
-> return early from remove_common() if vdev->priv is already NULL for a
-> safe teardown after a failed restore.
-> 
-> Fixes: 08e53fbdb85c ("virtio-rng: support multiple virtio-rng devices")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thorsten Blum <blum@kernel.org>
-> ---
->  drivers/char/hw_random/virtio-rng.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+raoxu <raoxu@uniontech.com> writes:
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> From: Xu Rao <raoxu@uniontech.com>
+>
+> sock_has_rx_data() returns a positive result when receive data is
+> available. Socket implementations with a peek_len() callback follow
+> that convention, but the fallback for sockets without one returns
+> skb_queue_empty(), which has the opposite meaning.
+>
+> This makes busy polling stop when a raw packet socket has no queued data
+> and fail to recognize queued data through the fallback path. Return the
+> negated queue-empty result so the fallback matches the callback and its
+> callers.
+>
+> Signed-off-by: Xu Rao <raoxu@uniontech.com>
+
+This fix is valid, but you need to carry a Fixes: tag. You should also
+state what netdev tree you're targeting. Please see
+Documentation/process/maintainer-netdev.rst
+
+Could the changelog also state how the bug was found and confirmed, and
+how the fix was tested?
+
+Bj=C3=B6rn
