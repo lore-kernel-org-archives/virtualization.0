@@ -1,73 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=216.40.44.13
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.9
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794438928;
-	b=lUhMVFoYYTqsBhJ0pYkJ2vWVO9pNoowdSBTV314/q4qiK0RS/1LTmrNemeyG/w1e1ili
-	 Z0RFockqnkP6QZiG/I/ZQ8wNjq1M9J9IZfb6m6YujzQIqRbIx3MClISRKbwZCzFCFm594
-	 bG3+QNQ91cgJi84rHnC0sod67o00ne52UEdQWsgvGpIdVIR9WUTdxLPmtp5fls0I1RnTn
-	 e/kjvyI2eARS1P3o6rl7CPsYAqcccvsV4+POSdgbM/2iQUd1YbHFDCOjhE8tvXStCkJuo
-	 2OH9emsPTYTKk3GgE+fSnvuML4rPlwvwO6zAAfwVF/fY6qafJrMuhlHA/no1LiLtYfg==
+	t=1794440687;
+	b=SjGK01QWVXFSdMsngv32AdIrmIQ05khQHbRP+pkqgGN8QZtEUcsL2pSk1VTFnN9Euyk/
+	 VqLMD6+33aXlQLYsVWh9lwicZB65sTiSwI+up0JouhVNX55uHi3laE6V75mwXgHIinEkf
+	 MusYflJ8BzZr7P2uk0WTZT45Cn2H+cpqEnuL1z/r6CE7n0oYpbklTwWHsUD7qOxH0le+R
+	 ZvPv7aWryGLAuWhMSHWmYnWgGDkTsUFvVRUN9NWJaq2brD8nkF0PPa402DULoRk5i0P2w
+	 ea3/aABkxMOdSLe0+L0pubvpFPLC34wguq+Z41Iy0J1Psmv7QWYc7WN46pJ+bIUS3Yg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794438928;
-	h=DMARC-Filter:Received:Received:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Rspamd-Server:X-Rspamd-Queue-Id:
-	 X-Stat-Signature:X-Spam-Status:X-Session-Marker:X-Session-ID:
-	 DKIM-Signature:X-HE-Tag:X-HE-Meta;
-	bh=gmDNsQ8h2wciKasKQCbqVP3maaL4qbrw5sZmT7BnjeA=;
-	b=eOfeixwZIkf6SIftVtw1EdiOIEU+nIQOgfE2CpZchAOKpVAy9wd/pgloFLxmQXgCR7/+
-	 PAyzEWGV9HQAjb0bTy6W6WvuWvCiad8t1nj6gNgnrEDFLhOj4HzhT/4ZUtIXLaJxBgsD6
-	 uY556a7HrUZ2wmB85BheF5JhjjpLOjyKTVw3Sbg9ffkJpaUow97v+jf26IvvQhhCWpJRf
-	 jTSgDLp4HaU03tqcdSn3sB4UtYwzEsnU1fBF/GnL+JGtC715uQmSN7XNn9fd+n1O0OqJR
-	 6RljlXwj8s5yiYONAcnLCmvsMc/VD9wgMscFPpUlGN3u3w9bT2VJ5Ru+/TyXH5JQxwg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794440687;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=I0fFVuwofq/UFgVDjwtEw5LgWKHDdS/HD+gmpNBafaU=;
+	b=GvJP20psgYfFw3FJ51BQ00xCeWf3W5LYTyO7bRz0RboBro88aS7XyUtuU9U3cPbj5OWD
+	 aJGTbZ4DwTnJhN/6Gg3+qwx4aS07th/9tnE7eUn2KxZ3UhC73RrJE0STdhrtYUha5//8f
+	 ld6pISbZoMJBp0wmZS7wUPG3NphP+YdW4/G+nXeC/ZOyQuBsTGkGPwTCj/mxYl/2fH0l/
+	 94rX8XWNlzRoRT0pBhQGi5t9EGvERmNhWVjmazA018s0IXiZanC0ro2k+sap9o3r1fVch
+	 HTP8OKeAeZJ2ao3UsuZWve/zmJP9nOuB6UzQ1OrfNOHW/I4neJ/avCO6J0zJ3qBqwfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=goodmis.org;
-	spf=pass smtp.mailfrom=goodmis.org;
-	dkim=pass header.d=goodmis.org header.i=@goodmis.org header.a=rsa-sha256 header.s=dkim1 header.b="7BpeV/CN";
-	arc=none smtp.remote-ip=216.40.44.13
-Received: from relay.hostedemail.com (smtprelay0013.hostedemail.com [216.40.44.13])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Nv9QrP71;
+	arc=none smtp.remote-ip=192.198.163.9
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1E85606A338;
-	Wed, 11 Nov 2026 23:15:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E1E85606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0788606A8B6
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 23:44:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0788606A8B6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=goodmis.org header.i=@goodmis.org header.a=rsa-sha256 header.s=dkim1 header.b=7BpeV/CN
-Received: from omf12.hostedemail.com (lb01a-stub [10.200.18.249])
-	by unirelay05.hostedemail.com (Postfix) with ESMTP id 42BF340216;
-	Wed, 11 Nov 2026 23:15:15 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf12.hostedemail.com (Postfix) with ESMTPA id 7DEE41A;
-	Wed, 11 Nov 2026 23:14:54 +0000 (UTC)
-Date: Wed, 11 Nov 2026 18:14:47 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Vincent Donnefort <vdonnefort@google.com>
-Cc: Tao Cui <cui.tao@linux.dev>, akpm@linux-foundation.org,
- dgilbert@interlog.com, mkp@kernel.org, loberman@redhat.com,
- jmeneghi@redhat.com, kraxel@redhat.com, vivek.kasireddy@intel.com,
- mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com,
- stefanha@redhat.com, sgarzare@redhat.com, mhiramat@kernel.org,
- jgg@ziepe.ca, kevin.tian@intel.com, axboe@kernel.dk, linux-mm@kvack.org,
- James.Bottomley@hansenpartnership.com, sumit.semwal@linaro.org,
- christian.koenig@amd.com, phasta@kernel.org, joro@8bytes.org,
- will@kernel.org, linux-scsi@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, linux-trace-kernel@vger.kernel.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- linux-kernel@vger.kernel.org, bobbyeshleman@meta.com,
- mathieu.desnoyers@efficios.com, robin.murphy@arm.com, mason@kernel.org,
- aesteve@redhat.com, tjmercier@google.com, harry@kernel.org, vbabka@suse.cz,
- cuitao@kylinos.cn
-Subject: Re: [PATCH 4/7] tracing: account ring buffer pages and trace_array
- metadata to memcg
-Message-ID: <20261111181447.3c483a50@fedora>
-In-Reply-To: <avScKhR22kFOQ1z4@google.com>
-References: <20261106131829.3228926-1-cui.tao@linux.dev>
-	<20261106131829.3228926-5-cui.tao@linux.dev>
-	<avScKhR22kFOQ1z4@google.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Nv9QrP71
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794440685; x=1825976685;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=PkDXqhiJGj1+9nHIcsbg58aoG97zoWIJiMiw7qrLzFM=;
+  b=Nv9QrP71IxDtTMoyGZDYFlUBm4uI+P81lbGw7829NrnCn05UZR9kh8f3
+   Gqleh7z0tL0lTfEXzbenDzMXMtRE7MitaijRGGEXITK0wqGZzAB1XyzJR
+   A7NGdIrSuk7kvpR08dHdJy7I+xybL+1TFsEjD/kLrER6/NMDJQ9MkWT8k
+   28pyIcOMJs8mko3c4heEkJxBDzELCFvjU267/Tn3JwJQEU7U+ghcoPMtj
+   SpSbZxqfyEFaVZqcZ/cC0qlB0uPev9SEVaIFPNPK3AjX+usoz4Xfjn5r0
+   GqsMq1EVNN95EWIt9hz9zDOjCdxlzxozNDI1fzpJM8W7997A3MtHoizRW
+   A==;
+X-CSE-ConnectionGUID: 1/2ZQ0jpSS+dEl0y41cswQ==
+X-CSE-MsgGUID: 4HuayEybRZW5jVNQ1VIKMg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11963"; a="3099114"
+X-IronPort-AV: E=Sophos;i="6.27,208,1787036400"; 
+   d="scan'208";a="3099114"
+Received: from fmviesa012.fm.intel.com ([10.60.135.152])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2026 15:44:44 -0800
+X-CSE-ConnectionGUID: PNnPqmP1Q7yHiP3QKAKyFg==
+X-CSE-MsgGUID: 499YSC7UQfmiBrqt/kz+nQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,208,1787036400"; 
+   d="scan'208";a="10241293"
+Received: from pavel-dev.sc.intel.com (HELO pepopov-mobl2.intel.com) ([10.3.206.11])
+  by fmviesa012.fm.intel.com with ESMTP; 11 Nov 2026 15:44:43 -0800
+From: Pavel Popov <pavel.e.popov@intel.com>
+To: Bjorn Helgaas <bhelgaas@google.com>,
+	Logan Gunthorpe <logang@deltatee.com>,
+	Arnd Bergmann <arnd@arndb.de>
+Cc: Pavel Popov <pavel.e.popov@intel.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Lukas Wunner <lukas@wunner.de>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	Jim Chow <jim.chow@broadcom.com>,
+	Radu Rugina <radu.rugina@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Michael Kelley <mhklinux@outlook.com>,
+	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+	bcm-kernel-feedback-list@broadcom.com,
+	virtualization@lists.linux.dev,
+	linux-hyperv@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 2/3] PCI/P2PDMA: Move CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
+Date: Wed, 11 Nov 2026 16:44:38 -0700
+Message-ID: <20261111234439.4098-3-pavel.e.popov@intel.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20261111234439.4098-1-pavel.e.popov@intel.com>
+References: <20261111234439.4098-1-pavel.e.popov@intel.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -77,88 +100,50 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Server: rspamout05
-X-Rspamd-Queue-Id: 7DEE41A
-X-Stat-Signature: d4cfzmoxk13pg5m5ihp4akmy4hyu64j7
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX18kGGg1w/ZySP1UptBt2yyJGC8WbNBioPU=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=goodmis.org; h=date:from:to:cc:subject:message-id:in-reply-to:references:mime-version:content-type:content-transfer-encoding; s=dkim1; bh=gmDNsQ8h2wciKasKQCbqVP3maaL4qbrw5sZmT7BnjeA=; b=7BpeV/CNBK0xn7L5qTZRDTfRvQV7U2cQp/mCdojV1+x96AlRZ9rtulOhbTPnbSonEkl9dmgz3eGjHb8p+E0h3XDjeebpimn+FH/g477dsAXlpcaBL9IKpa4sWBqls3LUz3Nl8QeSDhvVfF3uaAU+FhhTMPtyWJPI5tA4IvX91lQ=
-X-HE-Tag: 1794438894-129449
-X-HE-Meta: U2FsdGVkX1+FAoSScfo676HReBJlhh89iBeR1SRWVaCqtKRtwKahRcTeRtp0PW6X+8tP0+cIcuPmi2dveZHq+M/PfpnjBQfOKdRrGrE6L6XJMKcHrkYMPwWfT5W0HZpH0ZA4Tjcgp99PZuSv7mPL4a7u5MFDGa5PSeaKjEeGZ88gtDz4qBX9Zmj8tooxKlDTcIzzVtZdHTNqYaysHU8krqFFZhQV25li+r73imgz99krf7wx8TB68OGyy17GR6OQunJdYHkV2EjKXilR7+DL4H7NvH48tc6IGNBrCqnO6wIQzDRZ3F+KJfPb6Hec+mdDc+COvRxaHejVamxGg/o8L4iQ0lpkg48J
+Content-Transfer-Encoding: 8bit
 
-On Wed, 11 Nov 2026 16:47:38 +0000
-Vincent Donnefort <vdonnefort@google.com> wrote:
+cpu_supports_p2pdma() has an #ifdef CONFIG_X86 block inside the
+function body. Put the whole function under #ifdef CONFIG_X86 instead,
+with a stub returning false for !CONFIG_X86.
 
-> On Fri, Nov 06, 2026 at 09:18:26PM +0800, Tao Cui wrote:
-> > From: Tao Cui <cuitao@kylinos.cn>
-> > 
-> > Creating an instance immediately allocates two full sets of per-cpu
-> > ring buffers, array buffer plus snapshot, about 1.375MB per cpu per set
-> > on the default config, plus the trace_array and its name.  None of it
-> > is charged: neither trace.c nor ring_buffer.c passes __GFP_ACCOUNT,
-> > while user_events in the same directory accounts everything it
-> > allocates.
+No functional change.
 
-As the name suggests, "user_events" are for users and are special.
+Suggested-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Pavel Popov <pavel.e.popov@intel.com>
+---
+ drivers/pci/p2pdma.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-> > 
-> > Instance creation is currently gated by tracefs file permissions
-> > alone, so a
-> > rootful container with the host tracefs bound in can create instances
-> > until the host runs out of memory.
-
-You mean, "works as expected"?
-
->  Charge the ring buffer pages and
-> > the trace_array metadata to the creating cgroup.
-> > 
-> > Signed-off-by: Tao Cui <cuitao@kylinos.cn>
-> > ---
-> >  kernel/trace/ring_buffer.c | 8 +++++++-
-> >  kernel/trace/trace.c       | 6 +++---
-> >  2 files changed, 10 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-> > index 1fd28a72e6ee..676c059c112c 100644
-> > --- a/kernel/trace/ring_buffer.c
-> > +++ b/kernel/trace/ring_buffer.c
-> > @@ -441,7 +441,13 @@ static struct buffer_data_page *alloc_cpu_data(int cpu, int order)
-> >  	 * gracefully without invoking oom-killer and the system is not
-> >  	 * destabilized.
-> >  	 */
-> > -	mflags = GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_COMP | __GFP_ZERO;
-> > +	/*
-> > +	 * The subbuffers are charged to the memcg of whoever caused the
-> > +	 * allocation: the creator of a trace instance, or root at boot for
-> > +	 * the global trace.
-> > +	 */
-> > +	mflags = GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_COMP | __GFP_ZERO |
-> > +		  __GFP_ACCOUNT;
-> >  
-> >  	page = alloc_pages_node(cpu_to_node(cpu), mflags, order);
-> >  	if (!page)  
-> 
-> Hum, by default tracefs is root only. 
-> 
-> And even if made accessible to other users: 
-> 
->   1. The life span of a trace instance is not tied to the caller.
->   2. The ring buffer is shared by multiple users.
-
-Right. Is there a use case out there that allows non-admin to create an
-instance? Tracing ring buffers can expose a lot and should not be given
-to unprivileged users.
-
-What exactly is this trying to achieve?
-
--- Steve
-
-
-> 
-> Overall I am not convinced charging the creator makes much sense.
-> 
-> Eventually a few allocations for iterators could be GFP_ACCOUNT.
-> 
+diff --git a/drivers/pci/p2pdma.c b/drivers/pci/p2pdma.c
+index 9e6e22542a9..180fe5d6228 100644
+--- a/drivers/pci/p2pdma.c
++++ b/drivers/pci/p2pdma.c
+@@ -520,18 +520,23 @@ static void seq_buf_print_bus_devfn(struct seq_buf *buf, struct pci_dev *pdev)
+ 	seq_buf_printf(buf, "%s;", pci_name(pdev));
+ }
+ 
++#ifdef CONFIG_X86
+ static bool cpu_supports_p2pdma(void)
+ {
+-#ifdef CONFIG_X86
+ 	struct cpuinfo_x86 *c = &cpu_data(0);
+ 
+ 	/* Any AMD CPU whose family ID is Zen or newer supports p2pdma */
+ 	if (c->x86_vendor == X86_VENDOR_AMD && c->x86 >= 0x17)
+ 		return true;
+-#endif
+ 
+ 	return false;
+ }
++#else /* !CONFIG_X86 */
++static bool cpu_supports_p2pdma(void)
++{
++	return false;
++}
++#endif /* CONFIG_X86 */
+ 
+ static const struct pci_p2pdma_whitelist_entry {
+ 	unsigned short vendor;
+-- 
+2.54.0
 
