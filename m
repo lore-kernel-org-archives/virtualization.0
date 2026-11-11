@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794375813;
-	b=BnMEYfdB8/LUbZ3EjMspZtEhvdRZBbW8OtICC6vJakUzYsmAmlY+MQ+1TfUM17epaXzr
-	 L7Z7/Yen+Zp8hEy7s/Rb8YrlaXICm9sn82Rhf+JRnaD35yDSdDFqqxxsJq3WkpqYjBSmy
-	 6Vb9ZxJcTKzIpHQSYdRxOOeRXOOccPynh2d9wpl5kCntN/7fHacvay4RVUZ+pnAfOpNPw
-	 hSmZIK3zJDJnO5qYB1imuiBBwB0uXjuJjCoJ3LJUqsPHzgfdrbd76v54vbP5x6w1Jbkub
-	 CqH+iWk56eoO4bYkMJajHQkvtkBLubbl5MNEsy9LF9+7Q1fWUGImjdejkgFjMkU/M2w==
+	t=1794376754;
+	b=Nrh9VPXVMOLM+ljrNeRfwlf9XLup1eIQHamZ3iKABDSB8RofLuiclkutgA1llsqs53NK
+	 WMuZw9d+5G/sNR4h7oFdkCkMzYNzoIUhxeypt00/ezAjNDF5mCZM1LrqUdT5MZYYzx7CZ
+	 PFdNDTBSndt3J2kB0i6dFBqBlJ97MK6YzibPNSqSKFfIe7Q4nnluwmqnlT3oY5VftNv6G
+	 S1hhbBV3knjmbJORUBUXYnG05S5D3FvdwEv3mXHTVg5UDVWqfT8Y0YQ3NNkKdsW4Xg4wB
+	 NtpKwQBEprIg/oD2KuE87Srf3HX1Dm7785nNKxw+usLwU+o4uYe8QRhovOghGoKaeRA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794375813;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794376754;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ndE+zt+XoSGRVzV93adymNpNbfIulGvsCMMwy+hQV7I=;
-	b=GtWoeEdh/rQpoRO52IJR5Iq+mlmSFK8nIO9AtH7f+C1KBHrLOGtW+cwvd5rpE7JFODSY
-	 KIn8B5OgtESbHxinzmCZ1IeQ+T9OlxRlamhKR7vDVioq/zASmAjnqZ3Ixin6RvK6eURsX
-	 aIevIJmeGkKpHt2qvOghBnKI373ycGk6JKzCWWu4EHgRyN4zXf7eQOTGWwxN877Pol1tp
-	 xKFeqONzUPEMkuVPpChyfDXcb+Ncxsjq74zx86zGx8/f4+P6E0+v7PFVaZsvkIlEoIMln
-	 sqf76NPzfHGFmJZyHGVVb65hggp01yLmefvSMduGyoEH5tt/Oohx8on0Ya6fvfSb81A==
+	bh=t1enuN0N67V1YsurNTtIubG5dzmgTRuFhVcHHblsE7c=;
+	b=GXsFVQUUVpuzr6NSn6pATygecCp8NBvAAQ6UxKdUmMJINF3NGO0nQ3wwBBrOqcMwrifX
+	 Enkcea6USnF5Bk3MKo3ypbYs6MtZM0TqVRpZjtTF3tP9Yx5j4No7KH5jfsu87nq3LgOVq
+	 PxVtYPMMi8RFj5z6ti7dHlpaLTz60pj6Tdunq9CaIBO5RfXT2RyTf+mATlzsz1dmVWJVH
+	 m7SvhJXSb2kOuzl9esqv8Tbqevjztm3+z0u+TZgN4ma0AsoG+PR9Je/D41XyqqOAr95AO
+	 bRV5QaDVJ3pf/g1uE/2iBlR+mxwX5Ct8I4WN6/2jUjfzwp5lNknsoiTfpqcTsvS89+Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GFUeMxX5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=afSk6CrV;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA9FE606A320
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 05:43:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A6C2606A332
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 05:59:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GFUeMxX5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528E31F0089F;
-	Wed, 11 Nov 2026 05:43:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=afSk6CrV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32CDE1F00A0A;
+	Wed, 11 Nov 2026 05:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794375812;
-	bh=ndE+zt+XoSGRVzV93adymNpNbfIulGvsCMMwy+hQV7I=;
+	s=k20260515; t=1794376754;
+	bh=t1enuN0N67V1YsurNTtIubG5dzmgTRuFhVcHHblsE7c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GFUeMxX5RvlBZ81f1zFDRwxXmB6s6F5su6h+ZJ6PU84weRMS42SNFg2dgI//fc6l5
-	 F9HiiOi82FgDRpclgR7+etvctb3K1cxliGAIs4C87jMlpUxP7laFABlyen4NuJpw9G
-	 tfHClYn9M95sFbWoq4YycPJ+snbaXTN4ging9w/Qh013/T6QykIXZVsqQVcC+26sQQ
-	 xcjd+2QbvguYXbE0TMqT6b8k/HuLvNdB9OgaIx+fh1H8WXhwecH/w3C9yCkmvYtH4i
-	 4ttwO0biWrDoobkV1TPlrqD0ZomX74h4Rx9nMU16U/FE7yC7yXVrgWiRi7UAzFZtJk
-	 jUhCdqW04jOsw==
-Message-ID: <sashiko-outbox-208362@kernel.org>
+	b=afSk6CrVzMsCromjkQzUK/p4lgQaDwBlfUxoeeojykP9j5yf7IocUBemRF5djm1lE
+	 8Ua2J4VooLS8R4eNsE+MknYfqxlqXyOEQvhojOLjwi6MvNQ5C1eM5uoUZE6rv1bK0T
+	 9Axe+9x4cj3lde2Aq1G8cAHTnD8xWs0EMNCLlDIQGPbf8Abwy2TUH7H2USGTgQU3gl
+	 GuD03Jd5Ps3jWFMJCrDvXc0fN8kv8k9EfJW9ZuufFtAMORtTvoDB4QdGgJ4//gDOzI
+	 OOXKRvF6L11vF0swnDb5KAYYfvdLy2DBEFoZnlNzWrHSUjakiIlP2CEA7U1EBcJNqG
+	 YdyhGKzQAZRNQ==
+Message-ID: <sashiko-outbox-208374@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v25 10/16] ALSA: virtio: Keep control payloads alive
- through DMA completion
+Subject: Re: [PATCH v25 11/16] ALSA: virtio: wait through signals for PCM
+ teardown
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261111025655.63951-11-mynameisjune111@gmail.com>
+In-Reply-To: <20261111025655.63951-12-mynameisjune111@gmail.com>
 References: <20261111025655.63951-1-mynameisjune111@gmail.com>
- <20261111025655.63951-11-mynameisjune111@gmail.com>
+ <20261111025655.63951-12-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 05:43:31 +0000
+Date: Wed, 11 Nov 2026 05:59:13 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,26 +62,16 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Control requests can expose caller-owned payloads to the device after a
-> synchronous send times out. Keep request and response headers and
-> payloads in the reference-counted message so caller cleanup cannot
-> invalidate DMA.
+> A signal can end the interruptible wait while a STOP or RELEASE request
+> is still pending. A later teardown may then submit another RELEASE
+> before the first request completes.
 >=20
-> Keep the queue reference until device completion or post-reset cleanup,
-> even when the caller times out or is interrupted. Consume the caller's
-> reference on every send path, and let response readers retain an extra
-> reference through copyout. Check payload sizes and allocation arithmetic
-> before building the scatterlists.
+> Keep both waits non-interruptible and use the existing message timeout.
+> Other control requests remain interruptible. Device reset still cancels
+> the pending request and wakes the waiter.
 >=20
-> A control value payload is also read by the CPU as a typed structure.
-> DMA cacheline alignment alone does not guarantee the structure's CPU
-> alignment. Align regions to the greater of the DMA cacheline and
-> control-value type alignment, and reserve prefix slack from the buffer
-> base so typed accesses remain aligned while scatterlist regions stay on
-> cacheline boundaries.
->=20
-> Keep response values in a separately allocated aligned response buffer
-> so INTEGER64 control accesses are aligned from this patch onward.
+> Keep timeout and wait results in the types returned by the kernel wait
+> APIs.
 >=20
 > Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
@@ -91,5 +81,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111025655.6395=
-1-1-mynameisjune111@gmail.com?part=3D10
+1-1-mynameisjune111@gmail.com?part=3D11
 
