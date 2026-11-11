@@ -1,183 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.15
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794411441;
-	b=rMpQVqNj6pKW25Ci981yEuwFplku4hMRlXxXwcnjrXsnQ9evis0zd/UZmwEpvAjXyRdo
-	 RVByBiuCPuMbnBqKZjR5xnIUHQkvWF2HfoDLvA6Niwf8A8DuNTH9GfDIThlCbCLFPznK0
-	 xJOs3EgmgqQ1RU+0fGuj8Az6Yw2cmS7om69pY5MWIZQkDolG36gCI4RF/cOttIAtvqvPs
-	 JGXNBVDw21ZpbrYTr9dfwS6M/+LXixX9uJiqK0MZxeqTCnd2lCqX/FKkhGei1WVxZUH+w
-	 E89a6qdKx1NPYJVKPQ3+WMBjILrsQZWLwE+59i7J4/f4vyF8tNWvvKPOxY2I4P0UQTA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794411441;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
-	 Received:Received:Received:From:To:CC:Subject:Thread-Topic:
-	 Thread-Index:Date:Message-ID:References:In-Reply-To:Accept-Language:
-	 Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
-	 x-ms-publictraffictype:x-ms-traffictypediagnostic:
-	 x-ms-office365-filtering-correlation-id:x-ms-exchange-senderadcheck:
-	 x-ms-exchange-antispam-relay:x-microsoft-antispam:
-	 x-microsoft-antispam-message-info:x-forefront-antispam-report:
-	 x-ms-exchange-antispam-messagedata-chunkcount:
-	 x-ms-exchange-antispam-messagedata-0:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version:
-	 X-Exchange-RoutingPolicyChecked:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-AuthSource:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-originalarrivaltime:
-	 X-MS-Exchange-CrossTenant-fromentityheader:
-	 X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
-	 X-MS-Exchange-CrossTenant-userprincipalname:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
-	bh=FpzDRhDWdTKAeB+tOYxD+5HRX0oo7aJP8K1eewJyEE0=;
-	b=QIcUcpNQIhDz+BcFQMm6iHJgh+bR44V7poNU/5htPQD8pDzs2ciENFbRW62AP0HhsZtG
-	 sD3pSzGPobRM7IYmeAX29NZeOdIdgWSOn/IU5AWNTO0eufqLwi4p7TtlYNbTEsR9RKUsH
-	 8tGeiCr6KjQKb6Mcg1qyxXy8TWMdXbHUIaq4J+0BVvN6wL6d/P5RDZKu3CCI/CBLVEXv0
-	 VV6/Bun2lcl7CYxPJQRegxAEWmjVtX/u65nL2XzQupiQd+AA2UphVd7IXXIpgdUaXMPkJ
-	 JAD+LlQjQX36a8SeAUIKD4TLggyXT1qpnAdestPZ7mvgEOJmMe9G/sypKcHZ+l9EfcA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=EWWHf9sh;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.15
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.53
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794415459;
+	b=GulrEReUM2k784wXe6BpFTcO+RJfPin7GSwS5JBrkfxmcHflctnm1guTFF3ftB2ysIUR
+	 qORqNbXtjCzre5U0ZPMhE0SQHsQs7QV8rBwVJkxhVAPBuleuvA0FWUGjkEM+DFlzG0rlv
+	 EYY8Mg1nE6PH9mjdmb9Y97h02t4PJp+P1ZFWsJYR9qKxCMyGIcLhrygaSSq0FKMDcluvT
+	 KTZF04HLZjoqkBTgbq77EvvEvNsIkwSoUxVxrbVHPtD88tTYlNRlL6dCPBeHE7USSlVMT
+	 COc3ltvyrMWqBffiBG/v3MnP9sfbpSABNxbpMJ+YJZhGDoHdV0eNovKStMYYYW4aQCQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794415459;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=eZsD1auAFGH9focpKeQLt7lmstuziSR0maGDEOD7IaE=;
+	b=fEP+Ftmr4Br3XOUKawB9HfyIEkYebuVplb523JTZFl/6YWvS4vPP5AlOScTilsApnJt4
+	 VfdhHdBx9rFGiwxU4p6zDv4ZqbbiaBCa1ybyWUdeBtgWhUKqGdNbKqmoyvchx+wBB+rv2
+	 mYshgTP9nIJmfrfCYK+zZVXe7DuvJ9/wHKWQfmSk7NNuioBl3YCNkfip8fwyOGuGncTtX
+	 xPgoKUnXxbHj/ktunb2UDfMBOYW/pueNhSDK8J7W/aougOXOt3qVuQLnxYUzYZvdcJDjX
+	 iCWMHaJiIXTonVPjB9uO8fvLFo9ZVJgKF0IWjDbimEcfKdDBQtQ40I0WJeGoor8P1jQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=linux-foundation.org;
+	spf=pass smtp.mailfrom=linuxfoundation.org;
+	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=VurcQ5Mi;
+	arc=none smtp.remote-ip=209.85.216.53
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CFDB606A331
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 15:37:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9CFDB606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 399CF606A881
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 16:44:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 399CF606A881
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=EWWHf9sh
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794411439; x=1825947439;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=TKNh57U5yGZJsZZQJ2AIYukssVnRgY0e3EDOGi1Jdzg=;
-  b=EWWHf9shWV6UTW1KPdR+NurS9P+EL1m4LhgHCTshwwSTHwLzQu+HV1nR
-   kGAm9ybJ6FNguMguCu/oG2OQFmYlcpjmDKCeb/tNUYhKjKunp6cW7ng9l
-   1+UPYKQ/dRmOWi9VvVM6Yk+awtt/pO/5alarQxs6SOPgZcFqKsf+dzh7M
-   eyOYaBsLse0lrcQoR0V6yKt9UkEBFs8O7B9Ngyp+KxL68vh7SLAYedx7/
-   136CgTCVJNLA31icJES9o4y9W4F1mywrZBvAOAP2TyP+T1nHWhPtAnpZv
-   tsXsuRAfpZ3g8t5un9X1zW6aqY6qaDTAXyR/jcpPuwb1tEnwlpb/Z7+1m
-   w==;
-X-CSE-ConnectionGUID: FJHUwyyqTqewJqC12394CQ==
-X-CSE-MsgGUID: QAJ2SUO+RrO7AWiHRT1/ww==
-X-IronPort-AV: E=McAfee;i="6800,10657,11963"; a="3189537"
-X-IronPort-AV: E=Sophos;i="6.27,208,1787036400"; 
-   d="scan'208";a="3189537"
-Received: from fmviesa012.fm.intel.com ([10.60.135.152])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2026 07:37:18 -0800
-X-CSE-ConnectionGUID: wVGpTUKfRmyn23wgblR8mw==
-X-CSE-MsgGUID: iCWsoianRnipK0gohuAo8w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,208,1787036400"; 
-   d="scan'208";a="10164013"
-Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
-  by fmviesa012.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2026 07:37:19 -0800
-Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
- fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56; Wed, 11 Nov 2026 07:37:18 -0800
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56 via Frontend Transport; Wed, 11 Nov 2026 07:37:18 -0800
-Received: from CH1PR05CU001.outbound.protection.outlook.com (52.101.193.57) by
- edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56; Wed, 11 Nov 2026 07:37:17 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=rnLOFEFWVaZGV3ecjPGnrlNaI35Fhsf4FINR1bjFUBb9kgTVxxpe3+aF8eT2x/tPJ3xPfsFbKU6oVg+Ako4ZOCDtfF4n5+S6/S62KYDGG9iD/BvpN4QK5bIw9KTt6H3k61wLnqnuvAEYraUkhP7qoclZSLr36BeHcpR9alX/8RSpYrBugjUdIdOB0vW0EDUvZAClSll3FXfcHKDtUWRK+7tBqGhJYzAMP5BHqM1dmVDCa/Kcvb/M4Gk4E2FnNz2O7GRfnX0GEJOkmOBLGGw0Q0kiXHXU/apL86tR7TYRbnvOA5GmTepkgeutOAVRWF7VJa+yqhY6C6XLM5/MmS9h6A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FpzDRhDWdTKAeB+tOYxD+5HRX0oo7aJP8K1eewJyEE0=;
- b=Ivt52bI2M2yXNza+hw+aJsvOTPMZ7kAReIAFJOyOJhu85s0aVJ9sl29wg5/A6+zl67VDfldeQDSogzlaJqP3nweghhsTXLnLQPeJfa7TS95bDezIMD+7VGpIfBDoTNf+DbJTs1NMZPOMUnvLgDz+io0HUOyV/ShwW2HkkrQ2s5JTg4b4Y/hUMgWOBRZzhZ/HXkCWsx1fE6OW6K0YTjSREl/nu6fTEWZnfF/DK51tbBHh94W2yGOaTWXOc2xXQSBTdhmJPGo6Tkfh8W6fQN6x58cZWb6kkCy/IU2Z70dUgeE6316I1yNY0+nGipm0aJnr2s2+VQ9ZdWP/HECtC3lXUQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
- by SN7PR11MB6900.namprd11.prod.outlook.com (2603:10b6:806:2a8::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.8; Wed, 11 Nov
- 2026 15:37:13 +0000
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0615.008; Wed, 11 Nov 2026
- 15:37:13 +0000
-From: "Popov, Pavel E" <pavel.e.popov@intel.com>
-To: Bjorn Helgaas <bhelgaas@google.com>, Logan Gunthorpe
-	<logang@deltatee.com>, Leon Romanovsky <leon@kernel.org>
-CC: Lukas Wunner <lukas@wunner.de>, Jim Chow <jim.chow@broadcom.com>, "Radu
- Rugina" <radu.rugina@broadcom.com>, Alexey Makhalov
-	<alexey.makhalov@broadcom.com>, Wei Liu <wei.liu@kernel.org>, Michael Kelley
-	<mhklinux@outlook.com>, Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
-	"bcm-kernel-feedback-list@broadcom.com"
-	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
-	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-Thread-Topic: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server
- CPUs
-Thread-Index: AQHdYLm3Eu3+F6ITg0+VFiHnE2F7qrcoXBEQgABK14CAAG7WMA==
-Date: Wed, 11 Nov 2026 15:37:13 +0000
-Message-ID: <LV2PR11MB6070A8BA690DEA91D6675682B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
-References: <20261020173736.81755-1-pavel.e.popov@intel.com>
- <LV2PR11MB6070064A9E674EBDFB1A3B20B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261111081057.GP8635@unreal>
-In-Reply-To: <20261111081057.GP8635@unreal>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|SN7PR11MB6900:EE_
-x-ms-office365-filtering-correlation-id: 6d9a5208-0906-4337-f084-08df4009a85a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|23010399003|376014|1800799024|366016|7416014|22082099003|18002099003|6133799003|261009221227099003|261009221727099003|261009220027099003|11063799006|56012099006|261009223327099003|261102123227099003|261009223027099003|261026121527099003|261021121427099003|261021123027099003|261022075727099003|261022105027099003|10067099003|261028144727099003|38070700021|4143699003|261026140227099003;
-x-microsoft-antispam-message-info: fUq5FrXqQzTzrXXxcjb/QM8g/UdIq5/HEahv78LJgjAHFMy/dfJ9n7xsALLRIbGTpvs7y7WrjApyryxoczdAwE+mqSuHsjHsuwY0eciPoYuJemZcPua6dYJAvXh8w7bfdwP2OqW6oVViIMbg1ibGD7ny4pXiMo/9H9h740/GGSKtjI6bfbbk3z24+GYDScOIJY8z79ChNqGqGlw0/9NjlIBuSi9djn2QOh79JaHD02SnNakvfUaWAMZDHZ+5+5gF4pd+GSmgq9is+Q4Jf/H3M6Y+JaKAgBv94D2SmvigQYMg4kAKuo3ca/ONqHZk8RXAlBJi+7ro0aj8a7Y8yDpYOQdsxhNjL452GjAcL4PaNyc9f4Lu4u+EmJ/7hfNAToeD11OkcIA7VISLVVolyBLj4uRRSO/qIdtrbV/mTxQsYoiE/ymBCxW57q0XloKqzGPoIwesfiR/Pqw8N21VBD40sH5mWmLnP/aH2mAbPomkgegz77D9YL6HeCEeiADdoPZQaHz2OZi9HWi5YTN8HcUC+c053LPtNCselaR2VD3S+od/incr9T9qN7UpeE1sE06DNWnbxiGNaJB5FQJNipA8D0qj5xjMd/S+Autq2/20ylwc/CaUd/vdfVKQwNzAQmc2IbIWFCB7V6WVUKUZbkUSm1nxw0ugqD8S7uq1FU4/75M=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(376014)(1800799024)(366016)(7416014)(22082099003)(18002099003)(6133799003)(261009221227099003)(261009221727099003)(261009220027099003)(11063799006)(56012099006)(261009223327099003)(261102123227099003)(261009223027099003)(261026121527099003)(261021121427099003)(261021123027099003)(261022075727099003)(261022105027099003)(10067099003)(261028144727099003)(38070700021)(4143699003)(261026140227099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?J11chx1tMkt+IHMFyhdYR25Df0yQbDwPqSXb41+SU5YS1otzt/WL8b2lnyB2?=
- =?us-ascii?Q?auE0k4b/RjPWm/KWfjMS5IwZuwGnpN5UpmOdt6c2PBx47m9RK6OuLeukpa8W?=
- =?us-ascii?Q?5nXFFoIqM6EiupE4a7Dfg+hv2I3z//bvIIen3d8Kof8r6bLIyug0azmkWgYP?=
- =?us-ascii?Q?BHcccwXmTtn3YS1EtUGtEOaG/MQeJ21HrrhPquO4f+kdjm99mAVXua51Ze5a?=
- =?us-ascii?Q?QI7TakanquNSKjiPOcS0vLgti0adqWqZndYK6qzem+8eBGHU1GCP0oW70erH?=
- =?us-ascii?Q?OQ2zNc2JWXloZ2s9Fi4Tg9IvrpjcXjRFPPuHGEWoeZnwEnjvfD/lj2LjuBJC?=
- =?us-ascii?Q?StzqYfmCO8MkYUzsuFPB/x2xlLbJaiA5lkIWcq6ReXivpoKtHrzpz7q8yr2J?=
- =?us-ascii?Q?UACsVnWJe1uGeHmzaHxVK0adb4w267SuLgaWtr0QpV+Fy0Ng8OZPH1pCoeNy?=
- =?us-ascii?Q?Gf1cOJxCgmBrP0BqMsNEVMoNttGgK/IXqg2wkcJWYOUPu89QNK2UezocZCYc?=
- =?us-ascii?Q?Mj7uZFBsI8O3uMqg5A5ecpPqtkAcq0rc/5FMvoGvfxkSTrrbjQnWnj/ddMxK?=
- =?us-ascii?Q?vBc7k2P5jDCRKP6nHJSs0sjLdSFaWOewxXPEEO5cWzeHkMa57Vyz7Ck5Q8qb?=
- =?us-ascii?Q?mDcm9i8LzqHjiKIM35GN84b1D/+kuhHiVHeBuA34TmNzrI6MZInrKi8r3x/V?=
- =?us-ascii?Q?Ub1pWc6Tp3o3D+/UqXhMDFZt88Tc+JoisPGR5fIORbvLqu0qKpzTYvYmM5gT?=
- =?us-ascii?Q?OvfJufZxWGq5VmgMIfSFdi5GRudk30GmjvMcp7WgB3OyD3Xzx0sg4FfR5pkA?=
- =?us-ascii?Q?yUAkhhQPge4DMhw8+D4rSpbOjfnpq3m25LeoIKZiq6zFZs9HyuvLi81QkjSH?=
- =?us-ascii?Q?m8YmwxiLnSTbh8XYKDAYdHXd0vdKBR4BQ5AYKDly0o96z3zu06bLoKBdgzMw?=
- =?us-ascii?Q?Q+dou7a9Cj9QB4rG36MWStKXzUaAdYsA1M5qVm345rrpPAAZl2ZzqutudExb?=
- =?us-ascii?Q?Rp1e5oKC2LguxaMm4o33bnLHbsEXW2wforjMtBKiA6QsDkxafHrVx4Zynedn?=
- =?us-ascii?Q?G78FDNwjber3xPmQ7E90ll6pEsg/fucW81dRN4+H+k1m0oRwSdjBkFxSzX2f?=
- =?us-ascii?Q?M459JxIUtpvZlM9+LTs32tXcqIXwLuGARzCoEOKWtreqTxW7/JXBDZmAObRU?=
- =?us-ascii?Q?i0EdQk7GNUyf/gPzrNVAazpmNt4Yq9fz3JVzc/qZ6Iq2xsvf0IeITkC2A0k2?=
- =?us-ascii?Q?CWk78xoRUqL1U1Ln3pnUMYI4z1/l5ID0or0+CPT2Nq/Hjyw27oZYY48J5UmP?=
- =?us-ascii?Q?dNqIGQVpsURwNimwH++lOQm3Sz1XpdO/9QU0DksoIb09E7D/wCp2uVEo34Ap?=
- =?us-ascii?Q?GquDOjd/2U/Bhg5+apGkUQ2LJs+UnLP0A+sehOI/j52gZWNXbFjr459m4AsL?=
- =?us-ascii?Q?tQ2+GZkm5qwA1osn8h68Ej2VfpffKILDlZFhmxeO0J2W6pPxlhHFMGMElJbh?=
- =?us-ascii?Q?HLyqZMZrZ28qA9xjkPEfvbjwQ1ym95/e05E2Qu7e/+FY2DexLO9FIJgJzLCv?=
- =?us-ascii?Q?aPM39XOGB4HJXV9wgCMbhiB09YLK5t5yk+zTNeNns9LAXInuul7Ju+dAVPDG?=
- =?us-ascii?Q?0L9lvP8oD+C38242fOvl17KUiGXOfmtFHHB/P7kvQmv6Yhs4vAP5rQlYTwAG?=
- =?us-ascii?Q?kp21Rn02dLMROXY5ZzhzbEqlyhln92l1bA1WjccNxeRoupBuWSVDI7wwwvOp?=
- =?us-ascii?Q?Yh1kYWumKg=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=VurcQ5Mi
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3ae691283ecso12931a91.0
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 08:44:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1794415459; x=1795020259; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=eZsD1auAFGH9focpKeQLt7lmstuziSR0maGDEOD7IaE=;
+        b=VurcQ5MijIwk100lzvsvlQl3xrZ7r4/OkVGhBoktc98J8bCioyluLnTwrN7rUpAVAG
+         CPpFydwm8g6UM5HGNyNDVmnqWrLlgBeDHa03ZWEIk8PSc57nja1sGm9a0wr99WCB8Q6O
+         PKnyo9rbV47zYPTH8+Mg2WuPUWKp8txvQp2RM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794415459; x=1795020259;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=eZsD1auAFGH9focpKeQLt7lmstuziSR0maGDEOD7IaE=;
+        b=EBcDw8LUGf3AgIX+RY2xG2ybBlOED5SWhlOJ5ywBAocSBYxKfNuGFMckIf4a8J5QOX
+         /r7zncvsLUPZYh3IX7i7+NdJB/3gSI/VRcRKz6DGLx0zKezzt4idZhfH4JsGqD4aG3YF
+         QZ70t0V4vJT7ql0z8XNCB6n3Y9rlm2R8NL3w1VgrQOig/sThBQiqAuaQE0unOMkj1fWr
+         HAi3t6wj8Pg0yI9QQ9BZ2leuuDzPq05R5xOea2HhHz0d5cWIZX66pUBiQckriCs+Sjk5
+         M6oMOIllHLa3a99Z+ahxNTcNxpyNeDVnkmfH1dkXfbR1RE/yz16+YArV3gZw+MIthZVo
+         0+jQ==
+X-Forwarded-Encrypted: i=1; AL+hErHzke2G6O0wxoL7DSNGMO2cL2K3LZBVVXZ7opDRi6JTtZQzzvt7GBgyqyb+3ZMjYxh1qMl2an843x7Kv+nFfA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+pm4lL81A1ayVFjYUqC434Z/SBL/hI61xociZEXfIFzyaOJwo9
+	efLce8AQzrhZoZV6iJJLL7UPx7GXpAZvnD+S27JuX7JBW/9ceSWSrwgdAXWkO295ZA0tzKrNiB8
+	ZcP6JiwgYgw==
+X-Gm-Gg: AYBFou2Q2oMc4FmsNoLwI/JO5uU10axhZg0UcgpyNLPLuBPsK7t1VgcSGUjVYlwEOvW
+	cZCkD717hA2Wh0llEwtWiaFPthEiS21J/N14S2WKjFKCM/e34dmnTiur2FiCz1dR+lwp77jrSNr
+	Uu3v4ywA4JAKl8zg1RGEijq+eHUAv/pd7sGfCATQD8YLL1wo4jaLAkMR2f2DmuDUJDGWGWnqHxC
+	mdPnvNhR8RJKoRmG6p2IHIUnUrt32rGCS1qY0JA0rH8TWpYmq45EM1IGAYZEh5q8wAJyMVX1GZD
+	4d95p7sdLfZzrI/ivk8awgUtgDQi85lQgGrT07HpcMySO9IWHu1sWV+6KEwIPFoia4474tuzB6w
+	92KNvOjzZ2ZBpVuks4x48zL491+GSGHTYdWOb3VFW5GO71b83Yhw+ow7N1xY4L2CNEbnQdy0hM/
+	I7XGCRrCOVFwdegJGojwdGmVBLLsY/ECaLyQREo1MJ914PJzCOSnUctBecGA0HTrYxEWWS+KBOS
+	af+0jsDUXSw+fXbWoo8385du49YSGzURcyHeSTENeRrfkc3IbaSPOWvEpbibdE+2beDq+/wLBKP
+	OoOCyWps6244YqFOprg786GkiEifJNtAQiqx2+Q7EaKRUJwl3rKHqh/H7AhNQMKA82mL10qDRiI
+	nfouhfaXQdrbLc3lVwjNdFZCE
+X-Received: by 2002:a17:90a:c2cc:b0:3a7:9ec3:ea0e with SMTP id 98e67ed59e1d1-3b197caa440mr22529a91.22.1794415458565;
+        Wed, 11 Nov 2026 08:44:18 -0800 (PST)
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com. [209.85.216.45])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b197d0f497sm16556a91.8.2026.11.11.08.44.16
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 Nov 2026 08:44:16 -0800 (PST)
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3ae6b4c669fso16067a91.0
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 08:44:16 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErH+EN6pSgilFoczfKHvlhNROmwv3xkYsG/SpUxiq0UoK2s4GDLP8PHNsDltOLceJObvS+KuUoHbepHRPzHU6g==@lists.linux.dev
+X-Received: by 2002:a17:90b:1d45:b0:3a0:cca0:4a8c with SMTP id
+ 98e67ed59e1d1-3b197c817dbmr35589a91.7.1794415456305; Wed, 11 Nov 2026
+ 08:44:16 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -187,152 +94,60 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: f7qyUs0dQpxPGmh5m9s1VxrVLpqrZla34j6pu+XkMZCBT2RxaBKI+BjTAWKpGicfwkkE4wDPBtFLa3ZZQKVaCioK1icsS1Ehk0iryoOoNIDv3XBsT+LVe3PMvpacqAZHOnLlNqkhRcLXziTDtK+TiED2poxAxWt0FxbAUt3KRxu4r66Dwd7UYUmZWj0CawbIuRyFO/VQS/o/RFH6k3hlDK4/u2xMoWaKIn8qNkcn5ywhQQbJEcB5OfDZsFs+BtUdP8N5EMFSXWYnx2/bfjXpwiNjl1pT4aDhA2DSV7KpbiijomabGJAhLXiblGZ35lPdDztnjRktqsSe5XdLi1z8kQ==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6d9a5208-0906-4337-f084-08df4009a85a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Nov 2026 15:37:13.3077
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: AF6hVwqjLGMaQaNrs3t1INouw2OYftqSx0U6JIA2WhTtk5s9pVLL/WrdaMuY0p9U0WnpT0zeeggUWAdKXOe4tg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB6900
-X-OriginatorOrg: intel.com
+References: <20261110145241.536019-1-kas@kernel.org> <20261110145241.536019-2-kas@kernel.org>
+ <avNuQqLf9CG9dSsE@casper.infradead.org> <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
+ <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
+In-Reply-To: <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Wed, 11 Nov 2026 08:43:53 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+X-Gm-Features: AclHuK9b6hltBFcCGqxpbtG8UmrJwldogvwXrVDW7-YQ5_XK3IWVlpv59flts7k
+Message-ID: <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
+To: Christian Brauner <brauner@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>, "Kiryl Shutsemau (Meta)" <kas@kernel.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
+	Jan Kara <jack@suse.cz>, "David Hildenbrand (Arm)" <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Bernd Schubert <bschubert@ddn.com>, Hugh Dickins <hughd@google.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, kernel-team@meta.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Nov 11, 2026 at 10:10:57AM +0200, Leon Romanovsky wrote:
-> Peer-to-peer is a general concept, and the code should reflect that. It i=
-s
-> reasonable to expect you to join the effort and help clean it up.
+On Wed, 11 Nov 2026 at 05:42, Christian Brauner <brauner@kernel.org> wrote:
+>
+> So the fix below is what we've done before for pipes and I think it's
+> the right thing to do here too. I put the following on vfs.fixes:
 
-I'm in. My proposal is to do it after this series, since this one
-unblocks P2PDMA in guests and the cleanup is out of PCI scope: even
-the minimal fix for p2pdma.c alone means changes under arch/x86, so it
-would no longer be a P2PDMA patch but an x86 header series with its
-own maintainers and review. That x86 header series is also the right
-place to drop the same guard from six other files, and I'm ready to
-do it:
+Please no.
 
-  drivers/acpi/mipi-disco-img.c
-  drivers/cpufreq/cpufreq_ondemand.h
-  drivers/gpu/drm/i915/intel_cpu_info.c
-  drivers/char/tpm/tpm.h
-  drivers/crypto/ccp/ccp-dev.c
-  include/linux/platform_data/x86/soc.h
+> -       src = kmap_local_page(buf->page);
+> -       memcpy(page_address(page) + offset, src + buf->offset, len);
+> -       kunmap_local(src);
 
-Bjorn, is v4 OK for v7.5 as is? The x86 header series will follow on
-top.
+This boils down to one memcpy.
 
-Thanks,
-Pavel
+HIGHMEM is dead. Nobody sane uses it. It *will* go away. It's already
+effectively never ever used.
 
-> -----Original Message-----
-> From: Leon Romanovsky <leon@kernel.org>
-> Sent: Wednesday, November 11, 2026 1:11 AM
-> To: Popov, Pavel E <pavel.e.popov@intel.com>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> <logang@deltatee.com>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> <jim.chow@broadcom.com>; Radu Rugina <radu.rugina@broadcom.com>;
-> Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> list@broadcom.com; virtualization@lists.linux.dev; linux-
-> hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> server CPUs
->=20
-> On Wed, Nov 11, 2026 at 03:48:07AM +0000, Popov, Pavel E wrote:
-> > Hi Bjorn,
-> >
-> > Gentle ping on this series. Is this OK for v7.5?
->=20
-> I would say no. An Intel employee was asked to clean up an Intel-created =
-mess
-> while upstreaming an Intel-specific patch.
->=20
-> Peer-to-peer is a general concept, and the code should reflect that. It i=
-s
-> reasonable to expect you to join the effort and help clean it up.
->=20
-> Thanks
->=20
-> >
-> > Thanks,
-> > Pavel
-> >
-> > > -----Original Message-----
-> > > From: Popov, Pavel E <pavel.e.popov@intel.com>
-> > > Sent: Tuesday, October 20, 2026 10:38 AM
-> > > To: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> > > <logang@deltatee.com>
-> > > Cc: Popov, Pavel E <pavel.e.popov@intel.com>; Leon Romanovsky
-> > > <leon@kernel.org>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> > > <jim.chow@broadcom.com>; Radu Rugina
-> <radu.rugina@broadcom.com>;
-> > > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> > > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> > > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> > > list@broadcom.com; virtualization@lists.linux.dev; linux-
-> > > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> > > kernel@vger.kernel.org
-> > > Subject: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> > > server CPUs
-> > >
-> > > VMware and Hyper-V expose passthrough devices to guest VMs without
-> > > an explicit host bridge device. Consequently,
-> > > host_bridge_whitelist() cannot automatically identify the underlying
-> > > host bridge structure, causing Peer-to- Peer DMA (P2PDMA) requests
-> > > to be rejected unless the device IDs are explicitly listed in
-> > > pci_p2pdma_whitelist[]. To enable P2PDMA on Intel hosts, this series
-> > > extends cpu_supports_p2pdma(), which so far covers AMD Zen and
-> newer, with an explicit list of Intel Xeon server generations.
-> > >
-> > > Patch 1 moves the CONFIG_X86 #ifdef out of cpu_supports_p2pdma().
-> > > Patch 2 is the v3 patch rebased on it, with Logan's Reviewed-by
-> > > carried over; the Xeon list and the check are unchanged.
-> > >
-> > > Changes in v4:
-> > > - Add 1/2, moving the CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> > >   (Logan Gunthorpe, Leon Romanovsky)
-> > > - Keep the #ifdef around the asm/ includes, as these headers exist
-> > >   only on x86 (Bjorn Helgaas)
-> > >
-> > > Changes in v3:
-> > > - Drop the hypervisor check and move the Xeon list into
-> > >   cpu_supports_p2pdma(), next to the AMD check, as suggested by Logan
-> > >   Gunthorpe and Leon Romanovsky [1]
-> > > - Fold the VMware and Hyper-V patches into one, as the check no longe=
-r
-> > >   depends on the hypervisor
-> > >
-> > > Changes in v2:
-> > > - Replace the Skylake-and-newer threshold with an explicit list of In=
-tel
-> > >   Xeon server generations, from Skylake-SP to Diamond Rapids (Logan
-> > >   Gunthorpe)
-> > > - Move the CONFIG_X86 #ifdef out of hypervisor_supports_p2pdma()
-> > >   (Logan Gunthorpe)
-> > > - Rebased on current mainline
-> > >
-> > > [1] https://lore.kernel.org/r/20261016153147.GC219304@unreal
-> > >
-> > > v3: https://lore.kernel.org/r/20261020151305.65218-1-
-> > > pavel.e.popov@intel.com
-> > > v2: https://lore.kernel.org/r/20261016223402.19991-1-
-> > > pavel.e.popov@intel.com
-> > > v1: https://lore.kernel.org/r/20261009154034.82321-1-
-> > > pavel.e.popov@intel.com
-> > >
-> > > Pavel Popov (2):
-> > >   PCI/P2PDMA: Move CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> > >   PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-> > >
-> > >  drivers/pci/p2pdma.c | 33 +++++++++++++++++++++++++++++++--
-> > >  1 file changed, 31 insertions(+), 2 deletions(-)
-> > >
-> > >
-> > > base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
-> > > --
-> > > 2.53.0
-> >
+There are some broken 32-bit arm setups that use it, and legacy museum
+32-bit x86.
+
+Don't make one memcpy() that can be inlined become this garbage:
+
+> +       /* The buffer can span several pages of a compound page. */
+> +       kv.iov_base = page_address(page) + offset;
+> +       kv.iov_len = len;
+> +       iov_iter_kvec(&to, ITER_DEST, &kv, 1, len);
+> +       if (copy_page_to_iter(buf->page, buf->offset, len, &to) != len) {
+> +               __free_page(page);
+> +               return -EFAULT;
+> +       }
+
+just because of broken shit that nobody has ever complained about or ever hit.
+
+              Linus
