@@ -1,90 +1,109 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794415459;
-	b=GulrEReUM2k784wXe6BpFTcO+RJfPin7GSwS5JBrkfxmcHflctnm1guTFF3ftB2ysIUR
-	 qORqNbXtjCzre5U0ZPMhE0SQHsQs7QV8rBwVJkxhVAPBuleuvA0FWUGjkEM+DFlzG0rlv
-	 EYY8Mg1nE6PH9mjdmb9Y97h02t4PJp+P1ZFWsJYR9qKxCMyGIcLhrygaSSq0FKMDcluvT
-	 KTZF04HLZjoqkBTgbq77EvvEvNsIkwSoUxVxrbVHPtD88tTYlNRlL6dCPBeHE7USSlVMT
-	 COc3ltvyrMWqBffiBG/v3MnP9sfbpSABNxbpMJ+YJZhGDoHdV0eNovKStMYYYW4aQCQ==
+	t=1794415664;
+	b=WyEWznXPcRA502TfDiocuBrYHtu2O+hNu8qmQzYuCKwAkX/mvcef2r1aDmTk49qfTiZ3
+	 Njcnk6OXVTwwpFYY9+rrYBOTqoRTLe6j1MgKqCRISI0Xe64HCzKrl9g5QyeXvC1jR7a7F
+	 s2oUXKZyVLt45m7ohjkidReMm12VrhMLUCEN39sclfukirSpj6L4ZMdFlu+M3SQr2LKzB
+	 hD0Xol9VEHRJFHZk8wvASN2kT3pEs6ghbq+lKjt08X0EcvKfOBtvviqrLW/vbOguulMIK
+	 OIgDs2KAhmogvtdlMPx4kJU2eGTw4ylJYgfQeqi/ud2LpoGT0GeaeMK575/eOaKFBmg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794415459;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794415664;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=eZsD1auAFGH9focpKeQLt7lmstuziSR0maGDEOD7IaE=;
-	b=fEP+Ftmr4Br3XOUKawB9HfyIEkYebuVplb523JTZFl/6YWvS4vPP5AlOScTilsApnJt4
-	 VfdhHdBx9rFGiwxU4p6zDv4ZqbbiaBCa1ybyWUdeBtgWhUKqGdNbKqmoyvchx+wBB+rv2
-	 mYshgTP9nIJmfrfCYK+zZVXe7DuvJ9/wHKWQfmSk7NNuioBl3YCNkfip8fwyOGuGncTtX
-	 xPgoKUnXxbHj/ktunb2UDfMBOYW/pueNhSDK8J7W/aougOXOt3qVuQLnxYUzYZvdcJDjX
-	 iCWMHaJiIXTonVPjB9uO8fvLFo9ZVJgKF0IWjDbimEcfKdDBQtQ40I0WJeGoor8P1jQ==
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=JEN1we3zUbJ34wQgamBpttlVbDethKWGuPURScqYgfU=;
+	b=0mGhN2KfRewuGIro2n9QwEd7QShX7HLnSZNRB6twlPizcDOyQEAoLBagW/r/yy/FLpCk
+	 f1+Vm3RhMN6bTdw9P4K/qcPl0xPEc2oQejqQlPs+yt+8GXcuWtCvAXdxhQVh9k0GFPivx
+	 5GltOiIQ0ISC25UDcwoKzG9LMqD2HPUwZ0Tu3xkNKgi7EQyDlRyGJ/DxdlAenfS6InqJV
+	 StukHlVDfhLRanjB1csrC+lCwMAfprpyEKJFqOwogMFt8jjDhmThEeg4y5kLNUBL2M/gB
+	 trQqjYuAPzOcxts9yDt2Z8jxuXXew+ROR+CTyQaRVgrHAxmabK+rbYjNrGIMpxZZIdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-foundation.org;
-	spf=pass smtp.mailfrom=linuxfoundation.org;
-	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=VurcQ5Mi;
-	arc=none smtp.remote-ip=209.85.216.53
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=pxV0d1bK;
+	arc=none smtp.remote-ip=209.85.128.48
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 399CF606A881
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 16:44:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 399CF606A881
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 740F9606A330
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 16:47:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 740F9606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=VurcQ5Mi
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3ae691283ecso12931a91.0
-        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 08:44:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=pxV0d1bK
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a549cd7fd2so252125e9.0
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 08:47:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1794415459; x=1795020259; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=eZsD1auAFGH9focpKeQLt7lmstuziSR0maGDEOD7IaE=;
-        b=VurcQ5MijIwk100lzvsvlQl3xrZ7r4/OkVGhBoktc98J8bCioyluLnTwrN7rUpAVAG
-         CPpFydwm8g6UM5HGNyNDVmnqWrLlgBeDHa03ZWEIk8PSc57nja1sGm9a0wr99WCB8Q6O
-         PKnyo9rbV47zYPTH8+Mg2WuPUWKp8txvQp2RM=
+        d=google.com; s=20260707; t=1794415663; x=1795020463; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=JEN1we3zUbJ34wQgamBpttlVbDethKWGuPURScqYgfU=;
+        b=pxV0d1bKyYUe1+xmb+QH9TTW/DktKeNIDnHt+AkmmCoTokOXse5avDBLuBhKr1+lFM
+         1dt2Bt1+bx68ANjER7DiZeo1NoSfxWV/ii5NVjHJ1HBD8aWAmo/828eWqRgxhvD/H9RG
+         jUmhJfrvQNuDeR7v8bPCsSDP3GcENj0i2XD/vKba56ZxIVXLPXDhZTQhn3Sf4XQUs9WU
+         XvJs1Bv4iROFpViYH3GT7nq0BvQm9ihxCmioGVJwbtrVYGeP/H2bFnwGtjijnaCE2+g/
+         G522IBicYbSodCoZjLkGhtrTcPAJvhv2DeYXL9HpvTRXi/eJzX71VBHffCXvJlJWJ0rJ
+         1EcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794415459; x=1795020259;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=eZsD1auAFGH9focpKeQLt7lmstuziSR0maGDEOD7IaE=;
-        b=EBcDw8LUGf3AgIX+RY2xG2ybBlOED5SWhlOJ5ywBAocSBYxKfNuGFMckIf4a8J5QOX
-         /r7zncvsLUPZYh3IX7i7+NdJB/3gSI/VRcRKz6DGLx0zKezzt4idZhfH4JsGqD4aG3YF
-         QZ70t0V4vJT7ql0z8XNCB6n3Y9rlm2R8NL3w1VgrQOig/sThBQiqAuaQE0unOMkj1fWr
-         HAi3t6wj8Pg0yI9QQ9BZ2leuuDzPq05R5xOea2HhHz0d5cWIZX66pUBiQckriCs+Sjk5
-         M6oMOIllHLa3a99Z+ahxNTcNxpyNeDVnkmfH1dkXfbR1RE/yz16+YArV3gZw+MIthZVo
-         0+jQ==
-X-Forwarded-Encrypted: i=1; AL+hErHzke2G6O0wxoL7DSNGMO2cL2K3LZBVVXZ7opDRi6JTtZQzzvt7GBgyqyb+3ZMjYxh1qMl2an843x7Kv+nFfA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+pm4lL81A1ayVFjYUqC434Z/SBL/hI61xociZEXfIFzyaOJwo9
-	efLce8AQzrhZoZV6iJJLL7UPx7GXpAZvnD+S27JuX7JBW/9ceSWSrwgdAXWkO295ZA0tzKrNiB8
-	ZcP6JiwgYgw==
-X-Gm-Gg: AYBFou2Q2oMc4FmsNoLwI/JO5uU10axhZg0UcgpyNLPLuBPsK7t1VgcSGUjVYlwEOvW
-	cZCkD717hA2Wh0llEwtWiaFPthEiS21J/N14S2WKjFKCM/e34dmnTiur2FiCz1dR+lwp77jrSNr
-	Uu3v4ywA4JAKl8zg1RGEijq+eHUAv/pd7sGfCATQD8YLL1wo4jaLAkMR2f2DmuDUJDGWGWnqHxC
-	mdPnvNhR8RJKoRmG6p2IHIUnUrt32rGCS1qY0JA0rH8TWpYmq45EM1IGAYZEh5q8wAJyMVX1GZD
-	4d95p7sdLfZzrI/ivk8awgUtgDQi85lQgGrT07HpcMySO9IWHu1sWV+6KEwIPFoia4474tuzB6w
-	92KNvOjzZ2ZBpVuks4x48zL491+GSGHTYdWOb3VFW5GO71b83Yhw+ow7N1xY4L2CNEbnQdy0hM/
-	I7XGCRrCOVFwdegJGojwdGmVBLLsY/ECaLyQREo1MJ914PJzCOSnUctBecGA0HTrYxEWWS+KBOS
-	af+0jsDUXSw+fXbWoo8385du49YSGzURcyHeSTENeRrfkc3IbaSPOWvEpbibdE+2beDq+/wLBKP
-	OoOCyWps6244YqFOprg786GkiEifJNtAQiqx2+Q7EaKRUJwl3rKHqh/H7AhNQMKA82mL10qDRiI
-	nfouhfaXQdrbLc3lVwjNdFZCE
-X-Received: by 2002:a17:90a:c2cc:b0:3a7:9ec3:ea0e with SMTP id 98e67ed59e1d1-3b197caa440mr22529a91.22.1794415458565;
-        Wed, 11 Nov 2026 08:44:18 -0800 (PST)
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com. [209.85.216.45])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b197d0f497sm16556a91.8.2026.11.11.08.44.16
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Nov 2026 08:44:16 -0800 (PST)
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3ae6b4c669fso16067a91.0
-        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 08:44:16 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErH+EN6pSgilFoczfKHvlhNROmwv3xkYsG/SpUxiq0UoK2s4GDLP8PHNsDltOLceJObvS+KuUoHbepHRPzHU6g==@lists.linux.dev
-X-Received: by 2002:a17:90b:1d45:b0:3a0:cca0:4a8c with SMTP id
- 98e67ed59e1d1-3b197c817dbmr35589a91.7.1794415456305; Wed, 11 Nov 2026
- 08:44:16 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794415663; x=1795020463;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JEN1we3zUbJ34wQgamBpttlVbDethKWGuPURScqYgfU=;
+        b=BBhMeUppqwaALeAQ7izs6FsI6Z22ZBr9NSiR2PX6nnyuglgyB6hDwh/ZhlSIpXvs7H
+         jWO7hENFCVstNz33+wvvrZQAmnkNpiKRgxP14QNJWux/91A3wu665vx0n6kUJc13GVGG
+         zNjWXgpgotAz26GAXi1i1EBEmC8VhS1mW/rzxH3Y9PBLgbZjcJBdw4H2QvWbkmJZ99OT
+         NhgX6jHML5CBhLT3CnsA6Pn47V5/1aJ9z4y6jKMZ0EgfvS01bU045UvEnwJFlfzP6T8J
+         1Dm92tao9hi+W6MYTQGNea2OC2yW2RFFkmxPmABcPsALK1V+XAM8ksWEqGxog/gJ08N0
+         ARlg==
+X-Forwarded-Encrypted: i=1; AL+hErGVjR14ZlTk8XckMQno4H4yISYlRrno+GSRyZqcjsqjhmA4CCpTNlvViUpfTr7QJTTMN6OsQ3g8sZ8H9G++2A==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8JAUi65lE6Ds5RlmB+2kmA/wuUIDNS7YhqdweKOX/Os1Gxwms7
+	lW7tiaWZErP9Gj6dhdUlaOHl6zaJO3K05cZv/wGOnniMn0O8d4+aGqOSt38BiTD1Lw==
+X-Gm-Gg: AYBFou2xM50hQK+Pt4fJlby1MFjHLx7w3o06EcZUe1uQ+2PqtQWm275CX1f12TCWsI/
+	deB2sZHgi9BnkDfeNkOZXxyO9122v725E5tWL9tIJSxD03Zo5jDExta5A2i/Ft7X8g0SUap08Q5
+	V3Z5u6rBkNo4j61CSvLxNtO+2YvDdOau2yWd9MDJR9iFtFw+g0Mxq/stDjlyitKzurDlcYdeheE
+	j4IrrU3MNZuOMNRq4j9pEkYsIKMQuhqjg6gJ9jRJoW2Kd+SW8T/qMioffVdbF2XG5swGmcxyseF
+	XJV6Vwqoozmtb0jtZRJKOrlxUacjtnuaBwkGTNjKwWLZyi0iiiooYPCZ1Kt+5oBGu0eT92xAgc6
+	I9KO6oDpySkMhkc+Lobtev0jqA/9l0weqdUFraBL6Q0oLwboEzHatIV9Gd0yx7dOrtJJCo+0Kn4
+	/1KCzouXBYXVTsJSVaBHM/tHZ2WtH09odDA9saTw0LGEMPimUmLRRLdsYBfRs/JE2MIK6aMa6lM
+	mCkJweYVxTqy+4CSZgJC9GmBLdKYxJeOF92leY7mmXmUThCyePY4q1xQ321mT1cWdfDkW1MOOWT
+	3MOyFWulquu4pQMRBZonNam9RmZ/PPh2pVsf9kOqRrZfNx/lu5jnhoc/Njq21UXFoQ==
+X-Received: by 2002:a05:600c:3f07:b0:4a2:18c4:61a5 with SMTP id 5b1f17b1804b1-4bb4e27994emr1100895e9.6.1794415662004;
+        Wed, 11 Nov 2026 08:47:42 -0800 (PST)
+Received: from google.com (0.182.34.34.bc.googleusercontent.com. [34.34.182.0])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-498365cd06fsm11724877f8f.40.2026.11.11.08.47.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Nov 2026 08:47:41 -0800 (PST)
+Date: Wed, 11 Nov 2026 16:47:38 +0000
+From: Vincent Donnefort <vdonnefort@google.com>
+To: Tao Cui <cui.tao@linux.dev>
+Cc: akpm@linux-foundation.org, dgilbert@interlog.com, mkp@kernel.org,
+	loberman@redhat.com, jmeneghi@redhat.com, kraxel@redhat.com,
+	vivek.kasireddy@intel.com, mst@redhat.com, jasowangio@gmail.com,
+	eperezma@redhat.com, stefanha@redhat.com, sgarzare@redhat.com,
+	rostedt@goodmis.org, mhiramat@kernel.org, jgg@ziepe.ca,
+	kevin.tian@intel.com, axboe@kernel.dk, linux-mm@kvack.org,
+	James.Bottomley@hansenpartnership.com, sumit.semwal@linaro.org,
+	christian.koenig@amd.com, phasta@kernel.org, joro@8bytes.org,
+	will@kernel.org, linux-scsi@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+	linaro-mm-sig@lists.linaro.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-trace-kernel@vger.kernel.org,
+	iommu@lists.linux.dev, io-uring@vger.kernel.org,
+	linux-kernel@vger.kernel.org, bobbyeshleman@meta.com,
+	mathieu.desnoyers@efficios.com, robin.murphy@arm.com,
+	mason@kernel.org, aesteve@redhat.com, tjmercier@google.com,
+	harry@kernel.org, vbabka@suse.cz, cuitao@kylinos.cn
+Subject: Re: [PATCH 4/7] tracing: account ring buffer pages and trace_array
+ metadata to memcg
+Message-ID: <avScKhR22kFOQ1z4@google.com>
+References: <20261106131829.3228926-1-cui.tao@linux.dev>
+ <20261106131829.3228926-5-cui.tao@linux.dev>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -94,60 +113,93 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110145241.536019-1-kas@kernel.org> <20261110145241.536019-2-kas@kernel.org>
- <avNuQqLf9CG9dSsE@casper.infradead.org> <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
- <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
-In-Reply-To: <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Wed, 11 Nov 2026 08:43:53 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
-X-Gm-Features: AclHuK9b6hltBFcCGqxpbtG8UmrJwldogvwXrVDW7-YQ5_XK3IWVlpv59flts7k
-Message-ID: <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
-To: Christian Brauner <brauner@kernel.org>
-Cc: Matthew Wilcox <willy@infradead.org>, "Kiryl Shutsemau (Meta)" <kas@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
-	Jan Kara <jack@suse.cz>, "David Hildenbrand (Arm)" <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
-	Bernd Schubert <bschubert@ddn.com>, Hugh Dickins <hughd@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, kernel-team@meta.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261106131829.3228926-5-cui.tao@linux.dev>
 
-On Wed, 11 Nov 2026 at 05:42, Christian Brauner <brauner@kernel.org> wrote:
->
-> So the fix below is what we've done before for pipes and I think it's
-> the right thing to do here too. I put the following on vfs.fixes:
+On Fri, Nov 06, 2026 at 09:18:26PM +0800, Tao Cui wrote:
+> From: Tao Cui <cuitao@kylinos.cn>
+> 
+> Creating an instance immediately allocates two full sets of per-cpu
+> ring buffers, array buffer plus snapshot, about 1.375MB per cpu per set
+> on the default config, plus the trace_array and its name.  None of it
+> is charged: neither trace.c nor ring_buffer.c passes __GFP_ACCOUNT,
+> while user_events in the same directory accounts everything it
+> allocates.
+> 
+> Instance creation is currently gated by tracefs file permissions
+> alone, so a
+> rootful container with the host tracefs bound in can create instances
+> until the host runs out of memory.  Charge the ring buffer pages and
+> the trace_array metadata to the creating cgroup.
+> 
+> Signed-off-by: Tao Cui <cuitao@kylinos.cn>
+> ---
+>  kernel/trace/ring_buffer.c | 8 +++++++-
+>  kernel/trace/trace.c       | 6 +++---
+>  2 files changed, 10 insertions(+), 4 deletions(-)
+> 
+> diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+> index 1fd28a72e6ee..676c059c112c 100644
+> --- a/kernel/trace/ring_buffer.c
+> +++ b/kernel/trace/ring_buffer.c
+> @@ -441,7 +441,13 @@ static struct buffer_data_page *alloc_cpu_data(int cpu, int order)
+>  	 * gracefully without invoking oom-killer and the system is not
+>  	 * destabilized.
+>  	 */
+> -	mflags = GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_COMP | __GFP_ZERO;
+> +	/*
+> +	 * The subbuffers are charged to the memcg of whoever caused the
+> +	 * allocation: the creator of a trace instance, or root at boot for
+> +	 * the global trace.
+> +	 */
+> +	mflags = GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_COMP | __GFP_ZERO |
+> +		  __GFP_ACCOUNT;
+>  
+>  	page = alloc_pages_node(cpu_to_node(cpu), mflags, order);
+>  	if (!page)
 
-Please no.
+Hum, by default tracefs is root only. 
 
-> -       src = kmap_local_page(buf->page);
-> -       memcpy(page_address(page) + offset, src + buf->offset, len);
-> -       kunmap_local(src);
+And even if made accessible to other users: 
 
-This boils down to one memcpy.
+  1. The life span of a trace instance is not tied to the caller.
+  2. The ring buffer is shared by multiple users.
 
-HIGHMEM is dead. Nobody sane uses it. It *will* go away. It's already
-effectively never ever used.
+Overall I am not convinced charging the creator makes much sense.
 
-There are some broken 32-bit arm setups that use it, and legacy museum
-32-bit x86.
+Eventually a few allocations for iterators could be GFP_ACCOUNT.
 
-Don't make one memcpy() that can be inlined become this garbage:
+-- 
+Vincent
 
-> +       /* The buffer can span several pages of a compound page. */
-> +       kv.iov_base = page_address(page) + offset;
-> +       kv.iov_len = len;
-> +       iov_iter_kvec(&to, ITER_DEST, &kv, 1, len);
-> +       if (copy_page_to_iter(buf->page, buf->offset, len, &to) != len) {
-> +               __free_page(page);
-> +               return -EFAULT;
-> +       }
-
-just because of broken shit that nobody has ever complained about or ever hit.
-
-              Linus
+> diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+> index e8c4efa8107b..04b60b9cc4f5 100644
+> --- a/kernel/trace/trace.c
+> +++ b/kernel/trace/trace.c
+> @@ -8693,11 +8693,11 @@ trace_array_create_systems(const char *name, const char *systems,
+>  	int ret;
+>  
+>  	ret = -ENOMEM;
+> -	tr = kzalloc_obj(*tr);
+> +	tr = kzalloc_obj(*tr, GFP_KERNEL_ACCOUNT);
+>  	if (!tr)
+>  		return ERR_PTR(ret);
+>  
+> -	tr->name = kstrdup(name, GFP_KERNEL);
+> +	tr->name = kstrdup(name, GFP_KERNEL_ACCOUNT);
+>  	if (!tr->name)
+>  		goto out_free_tr;
+>  
+> @@ -8708,7 +8708,7 @@ trace_array_create_systems(const char *name, const char *systems,
+>  		goto out_free_tr;
+>  
+>  	if (systems) {
+> -		tr->system_names = kstrdup_const(systems, GFP_KERNEL);
+> +		tr->system_names = kstrdup_const(systems, GFP_KERNEL_ACCOUNT);
+>  		if (!tr->system_names)
+>  			goto out_free_tr;
+>  	}
+> -- 
+> 2.43.0
+> 
