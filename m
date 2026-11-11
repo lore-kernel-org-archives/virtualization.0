@@ -1,86 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794398570;
-	b=zi5J5Bu8git/TyQOUcfGEPE+oD7mv7HezSojjYfbOijPxlz53YRooqv719dwy5WUq4WV
-	 cse2rDGVquQcY+bXfHbCqjCgung7y9PrpEDp7ob3KSY+jNDO+UsvkV+rybzHVeJwSrhtV
-	 SKEGZjdz048kTka2Lav3yT8IozyBr4KqG1AAdzlYMHzDaxF7/OhSkbgmkuI3sp0pjCo/t
-	 Hu7QlB8b2DORNntHRtMUOMHNWmFE2he28rbqPnJ8WwuF9J1f08uJFXDOXI1QRV39wORdK
-	 SNmnTrUDTWE3+nJEPjAHIc8JgUmO+oGb578VliCh4VnwTo1JZQG3ik4IAcvi3Yx/cnQ==
+	t=1794400606;
+	b=ZoDbn4XkpgmfRRBknpJTsq99LYjPgEBr+cgkP65nfFGdDjUEhh0/xntY8ajwXfnFpzvN
+	 ET96UJZSLtuBsOv4Y8qnVgnLa8m84ppmxTOu83zpOloougy6qEq2+WJDfbZkQnYhsWcxp
+	 ZdJce/3CCIRbTs2/lQWD+33LPklquLl8Nu1uXjkyTDuxqAumJy2TAz2Fe4In6Ufpx4kzW
+	 qLoEc1Dl85Ndv6hqErt7NHqDvLUy3i+VosCfyNudvln51DDrFlWMQWv4klySqGVkaH6RC
+	 T+JXn0xFJ7YtCb2MLviVhShrAQC0Ey7nAwXJrl5EdGEgaUqUEvFDeMOVldFN+a2UZKQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794398570;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=Mf3ojcAaOl5Wd2bB/OvSpA9q4iDAVUFZx+UCDfwTy74=;
-	b=JT5HojCOpNB1+I15VtJc7O1EcgjVUzcOzgVxC316T+YxdeEZebidE99Fd//LQnUAD8GK
-	 TPRysehw+6F0ZbyzU83ueooKgvC4MSagb7982tEwXTIYaLtV3iYX+VZ3kQOLCjYy03sEr
-	 8Hj41J5NCJN89AEh17xJx29H30Wp2iguBWU2GoOv31R4aOFZP94WIAeKn27z07a96KhE1
-	 slOoIyNu3Et3oDTT2/KPedREYN2AZqn1gRuuTibJaXp04oR9NCNYVUWAz2nMd+bkCMHZq
-	 cmXsBSrNYg3qcCKYCisD6gk9XvvwW0roqjEToYIbZkPZKYof8V3vQRYf8FoOXcsjmcw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794400606;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=NA3S0+TcajF90K5hGXvldMp+JqFlXBnQmtQs2Oovhrc=;
+	b=VtCKViELcXU2I9OTdpwvzQ5v2aKf5PsWsd+d0u5vH14anhyJ/FE+rLBBctXGPqrKAz+N
+	 tXPWthOZvHYw490LL6cMrUFihHD9hFBhsz267NuNSY7pId/gtAuj60p1/PPoCOIaDAovR
+	 q5hoynHjS1AbKJUio++b1xB/tY0UtWPMlReIMEspLbM7KQdVldvHdjCg3kLKQmikuwH2u
+	 wLst+STG3D8iszJceaDqmZByfRdqHxQarDgGU072507rUmjfa4jvI1ws+s7/UjeUpM3cC
+	 TIp161rr9eKadbVyTLTp9S+aD2NVr0ClQY1AA587/s/woPaUknq0u0paXT+tsdSUSDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linaro.org;
-	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=sQJ9qyCW;
-	arc=none smtp.remote-ip=209.85.221.52
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H9+vLzd2;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E4C606A321
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 12:02:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4E4C606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9873A606A326;
+	Wed, 11 Nov 2026 12:36:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=sQJ9qyCW
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4922dbcee23so1781709f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 04:02:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1794398568; x=1795003368; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Mf3ojcAaOl5Wd2bB/OvSpA9q4iDAVUFZx+UCDfwTy74=;
-        b=sQJ9qyCWCjiDPKGsUjshl6uKUDnBFfmrw1fZ0bAebnifEUU3RGh7N90jS0xvmqtT98
-         6+BvaV06eigvIds8ZC8isnDR+LU+3HvbN8qAA7BfO+pTRmcgNfPlEFs6XH/V+dMFSlsF
-         VVZj+G5cKg8dN96e5WhvlRX+HWRVMPR13mM7z2Oney5BCA0ohnQyiC9oEW9XsDHNtyIQ
-         bmdW0/m9MlAJPmDEMox1Eir4fOCX/pXhvE4qrMIbAWzcT7TeLCR7R/+qtDtN6VfKJjRp
-         ZgUYOt7/syRMN7w1f77BDXh6vco4zb6vMWpPmcDVfY7Rewav4J2rKepksLfzKwySbvRV
-         +Bog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794398568; x=1795003368;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Mf3ojcAaOl5Wd2bB/OvSpA9q4iDAVUFZx+UCDfwTy74=;
-        b=tLQIfRCjoVS0vgkhXEY+rC5l84u9ryvRAJnnP0zH1KVZwsfoiUJSrKKWo7N86DqlC7
-         iDdHCBniTusnL7VTtGIeDjDvI0fuvOwAhO3TrDGqjcATCeYYkAPrnc3Yn+MUzWNlz8xQ
-         7GcFBipTTj2CyV31uvZkzLdDyy1r6pn2Ud4KPwjARCncV7rFRLUf2Wjmt5oAc2hqZsGD
-         3Q8BbDwYDZUaiLS5ikdknSxUVhROMb2qrqeNxuXGblwCherQo1n5KhcPAXtHP2tuGKs3
-         bfn/o9jxZd5kMgYHsDBD6nMJ+n5y2lt1s8CW7KoepSQPduLEICeQi6YEXLhoqhOtnYLd
-         ky2A==
-X-Forwarded-Encrypted: i=1; AL+hErF/j3OgJv9ruZFneGRr8+gnHU9jkrjp5WOy6OnLS8fO3uawso1PicllZqPLKPipdUeLqJZ+BMQ8FbysuKj/Iw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9/SRJUaoLU58MI2xusItfB1eetJfe35pXETDXH5PX3SV6NtstU
-	vjvZJTlFVz9n3mikonBauNg91pqJmrSI/Hi2n9KDkO1E71EkGQ6UmcHcUc0jm70rtbs=
-X-Gm-Gg: AYBFou120+56qgkBo4v6ALXwU6NRHfdShNw7mza4ZrERiLbsOTCR8lKL4Qfvl9ijr1o
-	LcdqZ4TiMTL9xU1i/a/6RJYrfmsA2rVhV15WjZrzNezRM1L8nwHOpi30KolVkPjXwlMO8P1mFwM
-	vc30eQzbef4vJoDxTnCIPRboa0NWGMIgRrqzUq9/vAQeaUNFwIp8w5r/bFaFRBvQlC+gmFvX+RM
-	nmOhESfFEZygLUiWc2NI/oPY4i/QWCiwQm6Kv01ExQQzrFK9hm9+7vF4EQ2dLZmADYsFCtTOKyI
-	S9vH0GLng2p1sKOHi0sxBHxQesLvOWLXK6R699UzGE7NNpLf4FU2jF/pj293AIjNdtTR+UG2vrx
-	Em/h5z9f7QZE+gKO8eYA8gdlAT+TE22MXUjUhk9dL3qOiQmCmP88tTs51Baf8e8iPxv75P7AG/e
-	O+ue+9C8rcj8xpehpixIPnZHxqh1pyZI87o9W3dxLyr3xu1pzVU5PeVYf/KF0ym8Q1GNjgMPF9+
-	qGJB6zfG7WwmK0hSY1E2syPRrCyebI+V85LJHOvR1njZ87OkRR+nSVjBdsqfKYiwabSnS0wi/wn
-	/t0cc9rLbCjkXy5erouGPzCnoFOJIG8ohq3yORCx
-X-Received: by 2002:a05:6000:420d:b0:48b:1a0:5630 with SMTP id ffacd0b85a97d-499c86a10f6mr3780756f8f.41.1794398567805;
-        Wed, 11 Nov 2026 04:02:47 -0800 (PST)
-Received: from [192.168.0.167] ([109.76.11.16])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49835c377fdsm8869991f8f.21.2026.11.11.04.02.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Nov 2026 04:02:47 -0800 (PST)
-Message-ID: <3713bf13-cec6-4b02-a29b-8f76070f03b3@linaro.org>
-Date: Wed, 11 Nov 2026 12:02:45 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H9+vLzd2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB07A1F00A07;
+	Wed, 11 Nov 2026 12:36:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794400606;
+	bh=NA3S0+TcajF90K5hGXvldMp+JqFlXBnQmtQs2Oovhrc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=H9+vLzd2Lhu/eWWmeDsvRPseso8wUf+PyA2D4q8090P92qb4NNccLDohXyYUMEpnb
+	 hf7xzk8PyBrRkszUciwVXEBszNLjVAruA91NZhWmmuH5klyj2fPK3lz/jjQ3qtjSJ5
+	 QWvEGKlnB7uHH5OepDSKp0OOexS+hkY4/i5H8NWFyVE617U/vDgqHpECZ9GypiMXft
+	 ZhndU/e1LMyGF1CC/qVU0NGj7ESGf5Won6mywMD0lED3dPbzw5yjdvNRqjQzl0N+6E
+	 mPPllJ+h5ALbxOucIniGOXGpeJ6E92tSJu/75MFcA7ofbbBw23SCOC2LT23EMRNqKl
+	 rxKTcpqwbMw0Q==
+Date: Wed, 11 Nov 2026 13:36:37 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Matthew Wilcox <willy@infradead.org>, 
+	Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Kiryl Shutsemau (Meta)" <kas@kernel.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
+	Jan Kara <jack@suse.cz>, "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Zi Yan <ziy@nvidia.com>, Bernd Schubert <bschubert@ddn.com>, 
+	Hugh Dickins <hughd@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	fuse-devel@lists.linux.dev, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com
+Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
+Message-ID: <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
+References: <20261110145241.536019-1-kas@kernel.org>
+ <20261110145241.536019-2-kas@kernel.org>
+ <avNuQqLf9CG9dSsE@casper.infradead.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -90,47 +68,62 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 4/5] iommu/of: Require reg for iommu-addresses
-To: Vikash Garodia <vikash.garodia@oss.qualcomm.com>,
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Vasant Hegde <vasant.hegde@amd.com>,
- Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>,
- Jean-Philippe Brucker <jpb@kernel.org>, Rob Herring <robh@kernel.org>,
- Saravana Kannan <saravanak@kernel.org>,
- Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
- Eric Auger <eric.auger@redhat.com>, Joerg Roedel <jroedel@suse.de>,
- Srinath Mannam <srinath.mannam@broadcom.com>,
- Oza Pawandeep <quic_poza@quicinc.com>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Alex Williamson <alex@shazbot.org>
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, devicetree@vger.kernel.org,
- kvm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-media@vger.kernel.org, Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-References: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
- <20261106-add_iommu_ranges-v7-4-5c0f72083e52@oss.qualcomm.com>
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Content-Language: en-GB
-In-Reply-To: <20261106-add_iommu_ranges-v7-4-5c0f72083e52@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <avNuQqLf9CG9dSsE@casper.infradead.org>
 
-On 06/11/2026 17:14, Vikash Garodia wrote:
-> @@ -257,6 +252,9 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
->   				}
->   				type = iommu_resv_region_get_type(dev, &phys, iova, length);
->   
-> +				if (type != IOMMU_RESV_DIRECT)
-> +					continue;
-> +
+On Tue, Nov 10, 2026 at 07:19:30PM +0000, Matthew Wilcox wrote:
+> On Tue, Nov 10, 2026 at 02:52:36PM +0000, Kiryl Shutsemau (Meta) wrote:
+> > +	src = kmap_local_page(buf->page);
+> > +	memcpy(page_address(page) + offset, src + buf->offset, len);
+> > +	kunmap_local(src);
+>
+> 	memcpy_from_page(page_address(page) + offset, buf->page, buf->offset,
+> 			len);
 
-This change is not about requiring a reg though, which is why it should 
-be a standalone patch with its own justifications.
+I don't think that works. pipe_to_sg() only clamps len to the
+destination page. A pipe buffer however can span multiple pages of a
+compound page iircu. And buf->offset can point past the first one.
 
-Basically the patch should state why a mismatch is dropped instead of 
-being reserved.
+I found two exmples:
 
----
-bod
+(1) skb_splice_bits() for AF_UNIX and TCP
+(2) tracing_buffers_splice_read() with buffer_subbuf_size_kb > 4,
+
+And virtio-trace splices that stuff.
+
+Which means VM_BUG_ON() in memcpy_from_page() fires:
+
+kernel BUG at include/linux/highmem.h:542!
+Oops: invalid opcode: 0000 [#1] SMP NOPTI
+RIP: 0010:pipe_to_sg+0x130/0x150
+Call Trace:
+ <TASK>
+ __splice_from_pipe+0x92/0x1e0
+ port_fops_splice_write+0x13f/0x1a0
+ do_splice+0x3b6/0x8e0
+ __do_splice+0x20a/0x230
+ __x64_sys_splice+0x97/0x130
+ do_syscall_64+0xde/0x4b0
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+Fwiw, the open-coded copy is broken as well. Just on HIGHMEM...
+
+Starting with b46e09667411 ("fuse: enable large folios")
+fuse_dev_splice_read() hands out large page cache folios and
+kmap_local_page() only maps the first page.
+
+So a fuse server on a 32-bit HIGHMEM guest that splices a WRITE request
+into a virtio port crashes mainline:
+
+BUG: unable to handle page fault for address: fffab000
+#PF: supervisor read access in kernel mode
+#PF: error_code(0x0000) - not-present page
+EIP: pipe_to_sg+0x184/0x2b0
+Call Trace:
+ __splice_from_pipe+0xd6/0x1f0
+ port_fops_splice_write+0xf9/0x170
+ do_splice+0x2c1/0x810
+ __ia32_sys_splice+0x2e7/0x310
+
+So we need to copy per page which would fix both.
