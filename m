@@ -1,102 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.56.87.11
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794433908;
-	b=Tkt8u8xGwrbGCYbUHQwIab7kZOXNV9T9TyFmYKcc/nFvEp+WavGxwzgQDjGSwkWFLIzZ
-	 8QHiJwcXPEHWLx4co4UlN3TiBkNPrq8awI8YPlsFWHv6I5ZTf3fyc5FIVhDGDVkGOoahd
-	 OkSxIfJaFsL4iMqS8LtWl7YfyvGNRRfrmnEdnYDaoeRwg958iN9Bveygr/D5Tj9k02gbU
-	 s0MGLMAJGVywaYEXPzSxS5Ufe7HceWxOxbjwzj5JBWbjTNdeh1bC4t1VCDWUKVCIgIOj6
-	 X/SUdNiUob3MqOh8HVR4/uRvesBF/6WQ1U4gU7C21Sp3eJik8JrBisQHhwgqrFYmIOA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794433908;
-	h=DMARC-Filter:DKIM-Signature:Received:DKIM-Signature:Received:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-Source:X-Source-Args:X-Source-Dir:
-	 X-SGantispam-id:X-AntiAbuse:AntiSpam-DLS:AntiSpam-DLSP:AntiSpam-DLSRS:
-	 AntiSpam-TS:CFBL-Address:CFBL-Feedback-ID;
-	bh=Vbx0Meut0QWhwLY5JReWROPpzdfMrBn/4+QeVAVvMPI=;
-	b=vGdUqPJvUCN41PtNsI1VbvyO4ZPxeEB5FZjpcvxUVvPAXQKMRFSkxi3we/SZE36aGoeW
-	 jwQYh0Dyi3kdOEyP+IDO4S/YibX3KtWd/Zj+ftd+EB/+JjOfnypcS+Kx7rd/YezgMOoXh
-	 MIIB5l64haOhN225IM9Pah14iQcIr3geXLcrWqHJICB68GOMy/LI6AUsIeAwbW1VQeeC4
-	 vS9aSTh/dIsvxxt78inXnfpdVpqRP+NsaQ4eA7Dm9Zyepi2jv5wGM93HR5u8ebp+cXZ5/
-	 WyKyXzoizIZEygKS3BRfw0j2U4H//USy3SCvpbn06K3YFn4m5bE0hfZ0BSaTtl8fPxA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=valla.it;
-	spf=pass smtp.mailfrom=valla.it;
-	dkim=pass header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.a=rsa-sha256 header.s=default header.b=N1lUvULp;
-	dkim=pass header.d=valla.it header.i=@valla.it header.a=rsa-sha256 header.s=default header.b=Aq6+g+6A;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=185.56.87.11
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.11])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794436911;
+	b=wXrKmy7OMGz1FQnaeqsAT5QMH+GqTR/6tDhwd3/6zidY+0bahB38nfhM0ZDS/3iprcJZ
+	 k14sgWiL6hgqNhhzIsgCMM2i6H5dlYrCIn58cjl2YqgW6mCHuSCrXlUddIOCn1LAV5C45
+	 iFKcN+KIcZWiBSD1im0sk6YS//1mAB6TwDMCW+hqm2Fg5LqSbu4e4wn6FzG0/eRrPy3FU
+	 cKL6BakiLlT/XgFJwwhlUGzsgJ8vRHnNw4f1Ngc1ij9r47x3VPpOvIU2xvP1WhIWPtDhp
+	 B+ue85Jj0JuCAgbBQu5fvEiGGHxLjKeBJxnVGPwnSBhdfnwyCqtEt1ab2Kl8vghl4Rg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794436911;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=xIIn3V9P0kvomPcqYmph69rmh1CiZzPmlRG5882C640=;
+	b=AQA8jFacD9dYyyOExQZgt3ExIX6+EfbkNDy+61x06EKl/4A2kcUsj0Kxrgcj35lXFzUS
+	 xexvDbqrVzP5gWYYnRTvJZWqlw8LIK+B3IS+OolM8YykT/lgalCw2K899TacPnkWaV0Jt
+	 qkV4V7JyyaOnftM1Bgf1oZYoooayNfVm063JHB0EBUBAreobJtXeR3+we5dQoiFuGtdNj
+	 mFOCLK/QOqe285CFBL5YIL0o59x7BjCWMbGyEMBxdo55lrnDsiIHfydEnSN1/jRViWgpi
+	 ln7dfpnzNkS1ZtDPj1oAt1zKpwQC2nVyBkq/kVo6z8c8JW4MRY6XJUHSd08Ak6PyyVw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="St6nQ/0F";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BB83606A332
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 21:51:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8BB83606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD071606A88B;
+	Wed, 11 Nov 2026 22:41:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.a=rsa-sha256 header.s=default header.b=N1lUvULp;
-	dkim=pass (1024-bit key, unprotected) header.d=valla.it header.i=@valla.it header.a=rsa-sha256 header.s=default header.b=Aq6+g+6A
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com; s=arckey; t=1794433907;
-	 b=IUrBP3+nnsqpIMXDMemnIM/Ox8qcCcNzjkp75tZpGwCcVxyd7kJPnFgeItxjlhoHMEMsyRE02/
-	  gzaIrz3YSCOZJ3B6KJgHq7op3ucOmho3J0gu9DzhFl8lFJydSkEzepYZwbZU4Y7bB4Li4jaK8N
-	  +A3kUmfuCMDFAcZkjPOt0Gh4oMSFa86lagrjWDWDk7bSg4v7sZDc55SLh61H4sFLtCRWzLRAjn
-	  5mQ2+id+CNa2z+itG/JFjXHx/NTyXZ2NtxhGPtbNuRe413kk+V75LiEmuWr0YLMVrpIQA+jGt+
-	  aKKXU+Z5jIzYIE+OzSlFkGq6zXs2KvIAoa1ZIotVnEzsXw==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com; s=arckey; t=1794433907;
-	bh=wE06SBMMCgOMrEf8HNYFL5BLe2cwoz+SLDUxZoCq3sc=;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:
-	  From:Date:DKIM-Signature:DKIM-Signature;
-	b=PxdAUx3jsXsBWanhNxEZbxy1mMYJGNTMOyzCHOZi2KoTQpTaUM7uxWHDHtgio4U+yOkdAd3wIS
-	  LgYJAojHKY0TkniNkjiCllDSS01HgeahAKZq+iVv2yieT/JWC2tjiDxTsHYlHE0e9PFdu/0EPB
-	  ZHyUQJz1XXJDaMDgXTYO++dDU/zq+C5N4LHvCURGLlh3MagYpossZVpKvKNhIy2HltDEZGeL9W
-	  /ikhBd76Aoxd0bHo972qz4l+fNL4YYphCp2bDL4zR5WjaI3RdMbMITcMbqA5SL/5OW02rD78ik
-	  4IZxGgc+w9M5k5+u2SkVQj7DzT3jm5m8d33zvylGgjZrSQ==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	List-Unsubscribe:Content-Transfer-Encoding;
-	bh=Vbx0Meut0QWhwLY5JReWROPpzdfMrBn/4+QeVAVvMPI=; b=N1lUvULpAKD9sh9rCkkqTGJBS5
-	UVP3q5EnV7N1yDcgGZTKSmAb1LJIPrgQNTVUtozbQPNOoc8G6+tob0zRFlYqnVyQUK9VEG9bYH1gy
-	6ZxZYSqLe7At5iY9sw0ztFdi4nizaU7lCuqfGtxV2niBLaQVRh2zlJGjh0sdJyPNeH7A=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <francesco@valla.it>)
-	id 1xRGEF-00000000Ojb-0Me3
-	for virtualization@lists.linux.dev;
-	Wed, 11 Nov 2026 21:51:39 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=Vbx0Meut0QWhwLY5JReWROPpzdfMrBn/4+QeVAVvMPI=; b=Aq6+g+6AcHy0QLhEQnG/yUlCbN
-	CN0yTZsZx+Zj6ueBMau198JKdMwt1qNMDLPZa8wVpCgFLb6/3vxBsGUp82I0GXJKh6jC695S/sZC7
-	2fnHDs2IBrpXpoUzinQ4bDzc9c2KQd0cn0zP9fc23wgnB0h/ULmL5PsxnPAZBeVCu8yw=;
-Received: from [79.17.15.196] (port=62469 helo=bywater)
-	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <francesco@valla.it>)
-	id 1xRGE6-00000000FIH-21LM;
-	Wed, 11 Nov 2026 21:51:30 +0000
-Date: Wed, 11 Nov 2026 22:51:28 +0100
-From: Francesco Valla <francesco@valla.it>
-To: Stjepan Poljak <stjepan.poljak@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowangio@gmail.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andy Lutomirski <luto@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
-	virtualization@lists.linux.dev, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] virtio_ring: reject a split ring size that is not a
- power of two again
-Message-ID: <avThD0u2WQx8drWl@bywater>
-References: <20261111172947.3579982-1-stjepan.poljak@gmail.com>
- <20261111172947.3579982-2-stjepan.poljak@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=St6nQ/0F
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42131F00A05;
+	Wed, 11 Nov 2026 22:41:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794436911;
+	bh=xIIn3V9P0kvomPcqYmph69rmh1CiZzPmlRG5882C640=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=St6nQ/0Fpg8GjtI3V195lQd0hmTrcEiQt9GelJFtAshaHLqFftxmdx4tyJ9Hs4WVc
+	 qxRc7l+cfudfne7Xb4GUV0FNcohNSZtRlcQz43HN4zVTt7A11rstEkF2zThclZyURf
+	 vCIWcnm4PXf+fAHOoxtz+tPHcoXDMdyaAUDjA3FIPCw+Cy9ZG2abWOBv40b+wFBgh+
+	 90phhu2QPtJinrSIPq4lMUqzgrfxhjb7gjItn6+YxlZCb7SLxJ91sxI2+Bb2zLBvN3
+	 Y2rvf+jGI2rvZTlyPm/S1Haku/LKz2CE4/2mEjsZZV458von1OtksD+XD6SNNMs4rV
+	 DH55pX9XMpktg==
+Subject:
+ Re: [PATCH net v6 2/3] tun: clear stale skb->protocol of NAPI frags skbs
+From: netdev-bot+sashiko@kernel.org
+To: edumazet@kernel.org
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ netdev@vger.kernel.org, willemb@google.com, horms@kernel.org, mst@redhat.com,
+ jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ hassansultan@google.com, virtualization@lists.linux.dev
+Date: Wed, 11 Nov 2026 22:41:50 +0000
+Message-ID: <179443691047.2199510.8260837937494054513@kernel.org>
+In-Reply-To: <20261110213628.3476051-3-edumazet@kernel.org>
+References: <20261110213628.3476051-3-edumazet@kernel.org>
+X-sashiko-severity: Low
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,101 +64,79 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261111172947.3579982-2-stjepan.poljak@gmail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: 1dd1656ad9c6d0c1c7d5c7e284a28435
-X-AntiAbuse: ID - 1dd1656ad9c6d0c1c7d5c7e284a28435
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1xRGEF-00000000Ojb-0Me3-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
 
-Hi Stjepan,
+Thank you for your contribution! Sashiko AI review found more severe
+issue(s) in other patches of this series. This mail is only an FYI, in case
+you want to address the nit picks below when you respin.
 
-On Wed, Nov 11, 2026 at 06:29:37PM +0100, Stjepan Poljak wrote:
-> The split ring indexes its avail and used rings with num - 1 as a mask,
-> so its size must be a power of two. Commit 2a2d1382fe9d ("virtio: Add
-> improved queue allocation API") moved that check from
-> vring_new_virtqueue() into the new allocation path, which
-> vring_new_virtqueue() does not use.
-> 
-> remoteproc calls vring_new_virtqueue() with a ring size from the
-> firmware, checked only to be non-zero. With 100 entries, for example,
-> the driver would put buffers 4 and 8 in avail slot 0. The device would
-> look for them at slots 4 and 8, possibly reading the wrong data.
->
+Low priority / nit picks for your consideration:
 
-Good catch - I think I encountered something like this during my
-experiments with virtio-over-remoteproc and ascribed it to a different
-cause.
+- [Low] The commit message understates what the bug does in the tree as
+  it stands.
 
-> Put the check back for the split ring; the packed ring has no such
-> restriction.
-> 
-> Fixes: 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-> Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
-> ---
-> remoteproc still reports this as -ENOMEM, although the "Bad virtqueue
-> length" warning names the cause. Returning an error pointer from
-> vring_new_virtqueue() is left for later; the same change for
-> vring_create_virtqueue() is here:
-> https://lore.kernel.org/r/20261106055635.3019889-1-stjepan.poljak@gmail.com
-> ---
->  drivers/virtio/virtio_ring.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index f683a2d6a200..8da9bd0e70f4 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -3513,6 +3513,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
->  						    name, map);
->  	}
->  
-> +	/* The split ring indexes its rings with num - 1 as a mask. */
-> +	if (!is_power_of_2(num)) {
-> +		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
+--
 
-This is definitely and error, and should be logged as such (I know, the
-same message is printed as a warn in vring_alloc_queue_split(), but we
-have no ABI to align to here).
+tun: clear stale skb->protocol of NAPI frags skbs
 
-Also, consider to adopt a message a bit more descriptive; maybe
-something like this is sufficient:
+This commit clears skb->protocol in tun_napi_alloc_frags(). After a
+GRO_MERGED_FREE merge, the skb recycled by napi_reuse_skb() still holds
+the previous frame's ethertype. The virtio header checks in tun_get_user()
+run before eth_type_trans(), so without this change they see that stale
+value.
 
-   "Bad virtqueue length %u (not a power of two)\n"
+Closes: https://lore.kernel.org/netdev/179386753589.488856.11455181721004759454@kernel.org/
 
-> +		return NULL;
-> +	}
-> +
->  	vring_init(&vring_split.vring, num, pages, vring_align);
->  	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
->  				     context, notify, callback, name,
-> 
-> base-commit: 1a577f9402c1780cc1e663f48d5dd54c02051b09
-> -- 
-> 2.53.0
-> 
-> 
+> tun_get_user() calls tun_vnet_hdr_tnl_to_skb() before eth_type_trans(),
+> so the virtio header checks see the protocol of the previous frame:
+> GSO packets without VIRTIO_NET_HDR_F_NEEDS_CSUM are dissected with the
+> wrong protocol. A following change checks the outer protocol of UDP
+> tunnel GSO packets, which would then reject a valid frame when the two
+> ethertypes differ.
 
-Thank you!
+[Severity: Low]
+This isn't a bug, but could the commit message say more about the impact
+in the current tree? As written, the visible failure seems to depend on
+the follow-up change. The stale protocol looks like it already causes
+problems without that change.
 
-Regards,
-Francesco
+In __virtio_net_hdr_to_skb(), the GSO branch without NEEDS_CSUM only
+parses the real ethertype when skb->protocol is zero:
 
+include/linux/virtio_net.h:__virtio_net_hdr_to_skb() {
+    ...
+	} else if (gso_type) {
+		...
+		if (!skb->protocol) {
+			skb->protocol = dev_parse_header_protocol(skb);
+			if (!skb->protocol)
+				virtio_net_hdr_set_proto(skb, hdr);
+		}
+retry:
+		if (!skb_flow_dissect_flow_keys_basic(NULL, skb, &keys,
+    ...
+}
+
+When napi_frags_skb() has left a non-zero value from the previous frame,
+the dissector starts at the network offset and uses the previous frame's
+ethertype.
+
+After that, the only check is virtio_net_hdr_match_proto() on the
+dissected n_proto. Nothing compares it with the frame's real ethertype.
+
+Two outcomes seem possible today:
+
+  - A valid frame is rejected with -EINVAL. For example, a TCPV4 GSO
+    frame arrives after an IPv6 frame was merged. The IPv4 header is then
+    parsed as IPv6, and either ip_proto or n_proto fails to match.
+
+  - A GSO frame whose real ethertype does not match its GSO type is
+    accepted, because the stale ethertype makes the payload parse as the
+    expected protocol. eth_type_trans() then sets an skb->protocol that
+    disagrees with gso_type.
+
+Could these effects be mentioned in the message? That would show stable
+backporters that the fix matters on its own, not only once the follow-up
+change lands.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261110213628.3476051-1-edumazet%40kernel.org
