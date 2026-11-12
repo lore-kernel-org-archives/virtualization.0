@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794462595;
-	b=jG29yUMMp93B4vNmKvw/S0ORvJVuhOqb5nbLf2EVIHW+wbIoTABTmJZATOW9ZNg3AnKE
-	 vmtB5/JWmGmU5EE0Q4BNk8pG7sGyP7RhOkVzleAJcXRs2/S9gQQRYsRFgNaU6xAzm/Gsa
-	 Ewi4gKn7gSKidSz8VvKWgMwQnvKzF0xS8EsGFINYnZSMntdoFuhYaJB0LBdhpJ2rEf64I
-	 cBaZUs3gRFcldltFpCqMoW4ICwITQLK4DpxC8zE/s40tNJNCpXsLA07jPvlsg6zEKqgDN
-	 M241kONTrDe2UbIFQASaQygV+HzM/AJ7hVz2qArcPRGfr7KMLY9D/l0vCjzzMX0Lx9A==
+	t=1794462691;
+	b=o5MvKwQHGPXP8Cn0/rg+0hJr+atc8U23kw3yz72ToebzBygOhcRFaEXy38blhBoWEZGu
+	 ub25ooBiH30ftK5rdhpxcnw0BlFeZgBluoHtgYN2HXRblEE0Wtdhs6ONiWITNA4VUahIt
+	 XWwe570BrWDlzGvMitzKdmENSvdJvmIjtymSPJSSycFGH0G9Xpu5zLA1in1Qh4lCvL8wd
+	 N/RQ+AhzfmhCPLAjwdX8yOWDhyLgbEXC8vBUNguvoGYt4CDU18cyn2eLnU02jk0IsSr/O
+	 21Jxed3K3/WdPQ8G+HwlGblXSjM6POH+hhQvRHpRr6v6PgFgbBaq8w6y6x92G3A2yTg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794462595;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794462691;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ZC/GhqwUzG4/S+lnqZ22MIoXMGawowOMEATE1tQdGYU=;
-	b=nJOZX6kZg1S9k+GoL+bcrNeUXIcjL9gnIPHK0klUdKjUfvmEYhhoekep7cYrXue8MaR1
-	 05KymOmthrbmpg/QgTcksJKYq3HDe8uvY/pDcRW50FBaZOigXUv3NxwLuSujRrMz7so9w
-	 6jEpIkpwly83E4UxFFGU/AHyFEDZ0cmsUYKFTsoYZh4u3inrO+/Ga3YmOSJTmFJNKzqmF
-	 8RCQakKJUSRALrfJ4jFd3wYFBfOJZV/rEqmWE1fuJkEfzqNTI+kYQjx3oUVPBwPPIvVzh
-	 0CprDwrhqjd8016VZO4MwMkpmoik8abKAbRh8hBOe0+0fsXLrFUfLdz5GMEmLH+Hi2Q==
+	bh=UUjMnRBuU0Fh/rSw70zHrQI/AjCjxGaNjydeFjv+iVI=;
+	b=FyCZ6mtHqJCOD7+PaVsanzA9RTix0TQuSwx4lo4iPtK7e9gbvrsbFab/p/82DDFcEpQP
+	 mrNaExhU1kiKuMevXbm/ApVdDtdDVJf0oo+YVLRXtwEoJzRodH0mKog9uEQExKBlfoXhR
+	 ljtbmORd6t+38EVgt+WC1xsL1SSgnWkLPVmoG9hdVm+l7YbXvrbp2WPnZNrbUuCPGsJTg
+	 nDyuIbiZxIW9lBaESakOrzr1Do0YxaaPSp3N2EHW4h9w13CTbfJLIlkwe+W0V+m7dsFOM
+	 jDAn+mVhxB8qW947fTGZMeh0NQ73GFc0/MDvMxDbUoadUNeJlHnordYlkcdlq6t8Jgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oHCUJH2M;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T39d0T4C;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26AAA606A31C
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:49:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAB13606A31C
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:51:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oHCUJH2M
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B671F00A05;
-	Thu, 12 Nov 2026 05:49:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T39d0T4C
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 423291F00A05;
+	Thu, 12 Nov 2026 05:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794462594;
-	bh=ZC/GhqwUzG4/S+lnqZ22MIoXMGawowOMEATE1tQdGYU=;
+	s=k20260515; t=1794462690;
+	bh=UUjMnRBuU0Fh/rSw70zHrQI/AjCjxGaNjydeFjv+iVI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oHCUJH2M7TpHHhVy9GgEq7YTgK3FKvGl5Bc4Ick/BxOA/dhCzPOu9ZMvA7BgEHmFx
-	 bLtaR2hZl0C2bb7sn/3RFZOvbIh4ceJkK3X97//pgCQbjntAaRglamPiwq7ptCt3oE
-	 DnGMJfVup6xqe6Zgo/XrP1HuuDCAgFAMK/+puf67QRLojzKqzoWkduOF3GARWD7/cB
-	 gC+4i3Livtg3sFyUh8AL1U+kzteCSovzFGOjUbba/nWnpeCgZ3eO5yw79d0iizcE+S
-	 DcD6iDLR/AR0g6Pq986JHlVEqnqubHv66JRZfH4HJldcyLYDsRkEi70eO4rWsra2Dg
-	 OPG5el5ZuUypg==
-Message-ID: <sashiko-outbox-210482@kernel.org>
+	b=T39d0T4CF+kXRVrJBtqAiX87OI41uiVbi66OivJSt5mzJYpsUWdn9a/U1lJw5rs5x
+	 AvrhQXXUPEwIX+p7g4uUvzJETDuA70MZsdz6LIubynleZnNyRbiFRn6p5WtG0IjpvN
+	 TwBDX00NCcW3eRqn4WhvIhPr0xBPBc7A8sjkk2jtwEvmCagkwjC+bLDa31MM/VuYhm
+	 zmqkOdyaEoJ/8KcUvq/JOlR9b7Cj9/Z+aR4FOFJd/Q7HQLDxywT6xXH3QmK4S3f3WQ
+	 +hE9Tg0hZYjU3OfyHm6nNAt2EIApWEhuBoti282VNWWvJqLnjwKinqmNh9HzIz7lq/
+	 fkl5rgaWUNFrg==
+Message-ID: <sashiko-outbox-210483@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v29 11/17] ALSA: virtio: wait through signals for PCM
- teardown
+Subject: Re: [PATCH v29 16/17] ALSA: pcm: add an explicit application
+ pointer to indirect playback transfer
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112053446.73504-12-mynameisjune111@gmail.com>
+In-Reply-To: <20261112053446.73504-17-mynameisjune111@gmail.com>
 References: <20261112053446.73504-1-mynameisjune111@gmail.com>
- <20261112053446.73504-12-mynameisjune111@gmail.com>
+ <20261112053446.73504-17-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 05:49:54 +0000
+Date: Thu, 12 Nov 2026 05:51:29 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,18 +62,19 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> A signal can end the interruptible wait while a STOP or RELEASE request
-> is still pending. A later teardown may then submit another RELEASE
-> before the first request completes.
+> The indirect playback transfer helper samples runtime->control->appl_ptr
+> internally. A driver that needs to refill already committed data from a
+> pointer callback cannot pass the application-pointer snapshot used for
+> ACK validation.
 >=20
-> Keep both waits non-interruptible and use the existing message timeout.
-> Other control requests remain interruptible. Device reset still cancels
-> the pending request and wakes the waiter.
+> Add snd_pcm_indirect_playback_transfer_appl_ptr() so callers can supply
+> that snapshot. Keep snd_pcm_indirect_playback_transfer() as a wrapper
+> that samples the runtime pointer as before, preserving existing callers.
 >=20
-> Keep timeout and wait results in the types returned by the kernel wait
-> APIs.
+> The explicit-pointer form lets virtio refill accepted data without
+> accepting new application progress while the ALSA buffer-access gate is
+> closed.
 >=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -81,5 +82,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112053446.7350=
-4-1-mynameisjune111@gmail.com?part=3D11
+4-1-mynameisjune111@gmail.com?part=3D16
 
