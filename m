@@ -1,58 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794465930;
-	b=xKkXk6yS1neyzDvcUSsTICSDMv7bhc8AFCfik+jrskPVINgZVSTnxI/GNSgBM7S19xdi
-	 3FCevh7mjtmG565Bnrs8HtynmDlDZnfmNlXpfi40Cci4p1rdCjMXRabuxoD2udexqNY9d
-	 60ONbOXi9AXWow6LddRm9C5Hj4TFkSTf2UfdY9ietIXJPp/qJ7F2C7HenJl3L18vNk1Ql
-	 1wMXr9lpvzuw8zFdA0l4Cszg2edLPpNdIQMIkczpUbVR8MomxGVNRlLqTb+bQff9qZygO
-	 TELv2qc3X6obwzEWhO1mKZiSTsdUhnH+TtRfn2RseEeEhCzBlsWZrFGiM2NXpZAknXw==
+	t=1794466180;
+	b=OLY8DmgiytdVVPkPWs3kzoFglvPE3DIN1K0t0ETaw5ubq/vtRIeKArWL5VAlM0Tth5DA
+	 9SJccLZWDZKYHAhnNWnNlplYmh0OoCGtv03/KON7+kf6+7a2qPjsUzhshUWUGqbP6zuqw
+	 hc+pNu+lHfUEF2+anpqNPoCLwNTaJJQ6BOnPEhx8wGjklkAA5hyj6ztKLyTY4TIqCvjFW
+	 ckSgu5/2dn1YmCawl25u5omhVvdbAjhKqnpadaYK4FeLZ5pgeMSDz92oOJxDoHXNOKzL1
+	 Pnvs+QLMvhO/p9IiWTsV4psKvTzQs/GiR+K92ayh6LeiwqbPN25JFctit8lXY9XnHWA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794465930;
-	h=DMARC-Filter:X-UUID:X-CID-P-RULE:X-CID-O-INFO:X-CID-META:X-CID-BVR:
-	 X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=9rH+QHGG1hI3dNzLf5B98rCFYXMdN76eY5FQVLDUIlw=;
-	b=eLzcS01Cd/1z/tBpNP8W6Q2xToHhdkRxKfk6t+dToXpjsw2Inq5fbYhm9EutXMFhAg1f
-	 T29BISOVqxt4arOp6rwxMDlC+3XPp19VZBNiPBgjPBHYUQSKjvDLdefcIznJGqHBC6tYQ
-	 vjaZxzuAJz2CI0lWCPPHeQ1qxLUoT1I9zl1a1lJjgHXb30TkyPeX8bvPDvDIbCq39I4Sz
-	 6KYghebKfD1oWQgHmA5RaXOXXQA/41ju/jNrDzoQT/xGiDCf8/SzUULHXFoG90ZdEfcV3
-	 CeVk9RRw8wfIu2MIRvYuopDJqqFe9aE4+S8/7E83MSYVyMK+IDys6mHi2AKIFqUFsWw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794466180;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=Bu79jnLYOYZ0lwXrvvCFZpjbtsmUaJ7g+2H7bpOxRio=;
+	b=qE2F5Op8Qkt7ouk7ni9/jbi7HEc3Cih4yt6pyocwWCZ8KcOQJAI7Y0Zuqka0Inmw9Sw5
+	 QOiV1yjA73sxscyGLrSD3ZPS3bmUCe4fnrfWFT2ECQpo2R2dEb+OUFOlkNCHCDujgM82o
+	 opxviH3VNRbQvh2pzExqdPoUG2f7BR+GqAcOOGm095sz4NbRwGWcOd1b9eLDY00/9uQLc
+	 D+53M45PgMiOYiYCdIgNIpCZspeUOVuWTERnhqZk8Zn//GopRt9OFLGz8ahDSZSv4iJRh
+	 9vdUi/Y6qbEct6nM+Mtw8BjZ0a8cfZyCl6z/5MkyV+stsVsThQS2FihrBMg2QD6buOg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=kylinos.cn;
-	spf=pass smtp.mailfrom=kylinos.cn;
-	arc=none smtp.remote-ip=124.126.103.232
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RA6u1Mgv;
+	arc=none smtp.remote-ip=209.85.210.178
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB9A606A88D;
-	Thu, 12 Nov 2026 06:45:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2BB9A606A88D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: a09ee23ede6411f19a56ed5b684f684d-20261112
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:3e25d55a-35bc-44a9-a24c-fb5988da5f1e,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:7db8b62,CLOUDID:ef66694e734ea29c88e66421930224fb,BulkI
-	D:nil,BulkQuantity:0,SF:80|81|82|83|102|136|865|898,TC:nil,Content:0|15|50
-	|99,EDM:-3|-100,IP:nil,URL:1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
-	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULS
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: a09ee23ede6411f19a56ed5b684f684d-20261112
-X-User: liwang@kylinos.cn
-Received: from [10.42.16.85] [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <liwang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
-	with ESMTP id 1954828798; Thu, 12 Nov 2026 14:45:19 +0800
-Message-ID: <ce113884-82ae-4f3d-8f0e-c4499b8f1dfd@kylinos.cn>
-Date: Thu, 12 Nov 2026 14:45:17 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE47A606A883
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 06:49:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE47A606A883
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RA6u1Mgv
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8b2382bf051so2256032b3a.3
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 22:49:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794466179; x=1795070979; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Bu79jnLYOYZ0lwXrvvCFZpjbtsmUaJ7g+2H7bpOxRio=;
+        b=RA6u1MgvSi+ckNhy3/LE01Md7QMvMCk8nJDfnwcK7EKXgaQiat2cMKfQvIlsU2eeI6
+         UPfQ0WoquMhONp072QfBDa66Kp+SKrNl2HMReGa1mihbXiXYG9CHwXOA1yPrKJYr/Y3p
+         BwiguIi0TgRBva2AUJgVThLWO/LUyfArt0f385gYKoBg2LiZN7c246hRabGacY5aAZsJ
+         wRrsedg08c82hs/Vs4r9vhB3dgLyRHLWLrDh/xnKr3nHflTE9ddQL42NIHalECMrgkq5
+         RaNn/pj2OIMywpH1hHRDzd3TouPwX1WVxHeZJVSURgx+cHK8dwDU9kzXV9j6lZBdXpfm
+         SyIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794466179; x=1795070979;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Bu79jnLYOYZ0lwXrvvCFZpjbtsmUaJ7g+2H7bpOxRio=;
+        b=wprXvI0Fu+oZAbb+2YhiWMMT5tJ4Mr5dh7j91X9+QUBeAwh38OwB2c7AaTGlsk7Uls
+         Rj2rltuDXy0J1ikfEtUtPU7neIbetjfjW/FXEEOw95yPvdTyIcZLE6XLVWnEUAsb8O4X
+         3vmvDdLtpJWIo7oydUmenggjA/zZ+E39KQeUpTCIvGoHDrigUFE8Nb/bFSqo7tXEarPo
+         j4F0tbbeBnnTlRKGzpFhUGGhXboKz9mIK4CackDk0zlRcc4jlFH3SMW4VMmATxnXGzMT
+         om7DxEUvGu5RAxuN26wh5z26C4VwSPksHv/01OzEG+oGGErOLcIemwwfFYspUtzwLnet
+         wdVA==
+X-Forwarded-Encrypted: i=1; AL+hErG9Fz1d/feZ3rK3Jus6gAUHQTotHWZY+x9sE07UwvpqO8FmBY6T+aUYGJFfAoURgDybuv6Nfy8BM+Vdols2aQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/5XqnjODymVcI0ncV2hRmaCdtffUXRWDkyqpuXinBIR1QdbxPG
+	5+f6CMAdeS0t/b6rfqvxgkoelPTwzMllk1AeM0Kcb7aQ9ScIdjkb9mpq
+X-Gm-Gg: AYBFou2OaINuvSJHQWByVOTbT0pP0pkxifL4z5x48WsTuccZeXQ3uwXQ1nZWMyGELtY
+	QteaOWcNKiik8RDz9cR7cCL4TbkK1jgS+Urrf6EZYfJpKtdkloHwU1z/P2kKdGuX+wUk1ZO6tp8
+	Iu+qqFPzHNuP8ix81EcM8/1r2imQtZc+BnyjhgV6CMxVwdkhItD10cqAYGaOPhpjHWFCgkXJKp8
+	7ft8xptFCKtlHPlRF7oNL5Y1hQ39ZpTxmt74cigjFbA9pkF1sKVAdCyQZE+qkmOIBrHzsmjZhff
+	zC68cUbLm4YKZ7j1/rOaPGgl0zZ26K+/UTZZ08jNi06oSiiIUQ3Nwps8JgCcGEGIeOqfvmQGsG6
+	uFgSumNw0vQ+SgH3UcvZ+gQkRq3Z1p+qB9bt+CKVKFPgr+SNpDMmg0tkEIWieAmheXQiD81gHdG
+	47Qlh4RqxR5x8zKsyn+fDztqScqjdeLSzLK/cljaxNHI0itN1YtjViAoXF7ok/HKE0vJ6BfDPMr
+	Q6vsZf+E6Yo+wVg2rjXyUcw2qujgwfKYhn6g2AtrDWgU0sxfSVJU5z88y88HL15hPle3W2BgNY7
+	caQC25hUrMPRAGLL+lZQh1zmOP/SgBV2ZzHAFx+MnCRdmC0DTZH5ySMzFPZmtbBXY5pP4IHGmB6
+	kKKvbRtW/1vGW6NWB2+4QvcriXRz3tBp2vFmsj/NiQ/bGlCg=
+X-Received: by 2002:a05:6a00:3390:b0:8a0:76ea:36a2 with SMTP id d2e1a72fcca58-8bc1deef1damr4766908b3a.54.1794466179289;
+        Wed, 11 Nov 2026 22:49:39 -0800 (PST)
+Received: from localhost.localdomain ([183.96.175.225])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8baab1228e2sm3097511b3a.41.2026.11.11.22.49.35
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 11 Nov 2026 22:49:38 -0800 (PST)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: linux-sound@vger.kernel.org
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	anton.yakovlev@opensynergy.com,
+	mst@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	corbet@lwn.net,
+	skhan@linuxfoundation.org,
+	rdunlap@infradead.org,
+	linux-doc@vger.kernel.org,
+	Joonho Lee <mynameisjune111@gmail.com>
+Subject: [PATCH v31 01/17] ALSA: pcm: mark stop-threshold accesses for capture policy sampling
+Date: Thu, 12 Nov 2026 15:49:13 +0900
+Message-ID: <20261112064929.11211-2-mynameisjune111@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20261112064929.11211-1-mynameisjune111@gmail.com>
+References: <20261112064929.11211-1-mynameisjune111@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,94 +107,73 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] fuse: Don't use request timeouts on virtiofs
-To: Yuho Choi <oss.patchbox@gmail.com>, Miklos Szeredi <miklos@szeredi.hu>
-Cc: Joanne Koong <joannelkoong@gmail.com>, Jeff Layton <jlayton@kernel.org>,
- Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- German Maglione <gmaglione@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, fuse-devel@lists.linux.dev,
- virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20261112052208.1248312-2-oss.patchbox@gmail.com>
-Content-Language: en-GB
-From: Li Wang <liwang@kylinos.cn>
-In-Reply-To: <20261112052208.1248312-2-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi Yuho,
+The staged virtio-snd capture path needs to sample stop_threshold from
+completion context to distinguish free-running capture from bounded
+capture. Software parameters can update this field while capture runs.
 
-On 12/11/2026 13:21, Yuho Choi wrote:
-> virtiofs cannot abort a request once it has been added to a virtqueue,
-> because the device owns its buffers until it returns them on the used
-> ring. This is why virtiofs sets no_control and no_force_umount; see
-> commit 15c8e72e88e0 ("fuse: allow skipping control interface and
-> forced unmount"), which says that "virtio-fs does not support aborting
-> requests which are being processed".
-> 
-> The request timeout added by commit 0f6439f61a6e ("fuse: add
-> kernel-enforced timeout option for requests") aborts them anyway. When
-> a request takes longer than the timeout, fuse_check_timeout() calls
-> fuse_chan_abort(), which moves the requests on each virtqueue's
-> fpq->processing list to its end list and ends them, so they are freed.
-> The device can then still write the reply into the freed request and
-> its pages, and virtio_fs_requests_done_work() later gets the freed
-> request back from virtqueue_get_buf().
-> 
-> The timeout is armed when the server sets FUSE_REQUEST_TIMEOUT in its
-> INIT reply, or when the fs.fuse.default_request_timeout or
-> fs.fuse.max_request_timeout sysctl is set, for example for other FUSE
-> mounts on the same system. A slow host is then enough to hit it.
-> 
-> Don't arm the request timeout, and don't offer FUSE_REQUEST_TIMEOUT, on
-> connections that set no_force_umount.
-> 
-> Fixes: 0f6439f61a6e ("fuse: add kernel-enforced timeout option for requests")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
-> ...
-> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-> index 1341b681d0ed..f1aae9b5475c 100644
-> --- a/fs/fuse/inode.c
-> +++ b/fs/fuse/inode.c
-> @@ -1451,7 +1451,14 @@ static void process_init_reply(struct fuse_args *args, int error)
->  			fc->no_flock = 1;
->  		}
->  
-> -		fuse_init_server_timeout(fc->chan, timeout);
-> +		/*
-> +		 * A request timeout aborts the connection, which ends the
-> +		 * requests that are still in flight. A transport that cannot
-> +		 * take back requests it has handed to the device, such as
-> +		 * virtiofs, sets no_force_umount for the same reason.
-> +		 */
-> +		if (!fc->no_force_umount)
-> +			fuse_init_server_timeout(fc->chan, timeout);
->  
->  		fm->sb->s_bdi->ra_pages =
->  				min(fm->sb->s_bdi->ra_pages, ra_pages);
-> @@ -1502,8 +1509,10 @@ static struct fuse_init_args *fuse_new_init(struct fuse_mount *fm)
->  		FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT | FUSE_INIT_EXT |
->  		FUSE_SECURITY_CTX | FUSE_CREATE_SUPP_GROUP |
->  		FUSE_HAS_EXPIRE_ONLY | FUSE_DIRECT_IO_ALLOW_MMAP |
-> -		FUSE_NO_EXPORT_SUPPORT | FUSE_HAS_RESEND | FUSE_ALLOW_IDMAP |
-> -		FUSE_REQUEST_TIMEOUT;
-> +		FUSE_NO_EXPORT_SUPPORT | FUSE_HAS_RESEND | FUSE_ALLOW_IDMAP;
-> +	/* See process_init_reply() */
-> +	if (!fm->fc->no_force_umount)
-> +		flags |= FUSE_REQUEST_TIMEOUT;
->  #ifdef CONFIG_FUSE_VDAX
->  	if (fm->fc->vdax)
->  		flags |= FUSE_MAP_ALIGNMENT;
+Mark the runtime stop-threshold assignments with WRITE_ONCE and the proc
+status read with READ_ONCE. This pairs the assignments with the driver's
+staged-capture policy sampling.
 
-Miklos has already posted a patch addressing the same issue [1]. Personally, 
-I feel it would be better to introduce a separate parameter to avoid semantic 
-confusion with whether forced unmount is allowed.
+These annotations do not provide a transaction for the entire sw_params
+update. The driver serializes its cached policy and accounting with its
+own substream lock.
 
-[1] https://lore.kernel.org/fuse-devel/16a0bf8f-8c30-415e-a35e-9551c78b8dcc@
-    kylinos.cn/T/#m34d62acd7887a86ec32e9091145e4b19fdbb3fc3
+Assisted-by: LLM
+Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
-Thanks,
-Li Wang
+---
+sound/core/oss/pcm_oss.c |    2 +-
+ sound/core/pcm.c         |    3 ++-
+ sound/core/pcm_native.c  |    5 +++--
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
+diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -2958,7 +2958,7 @@
+ 	       runtime->oss.mmap_bytes);
+ #endif
+ 	/* In mmap mode we never stop */
+-	runtime->stop_threshold = runtime->boundary;
++	WRITE_ONCE(runtime->stop_threshold, runtime->boundary);
+ 
+ 	return 0;
+ }
+diff --git a/sound/core/pcm.c b/sound/core/pcm.c
+--- a/sound/core/pcm.c
++++ b/sound/core/pcm.c
+@@ -422,7 +422,8 @@
+ 	snd_iprintf(buffer, "period_step: %u\n", runtime->period_step);
+ 	snd_iprintf(buffer, "avail_min: %lu\n", runtime->control->avail_min);
+ 	snd_iprintf(buffer, "start_threshold: %lu\n", runtime->start_threshold);
+-	snd_iprintf(buffer, "stop_threshold: %lu\n", runtime->stop_threshold);
++	snd_iprintf(buffer, "stop_threshold: %lu\n",
++		    READ_ONCE(runtime->stop_threshold));
+ 	snd_iprintf(buffer, "silence_threshold: %lu\n", runtime->silence_threshold);
+ 	snd_iprintf(buffer, "silence_size: %lu\n", runtime->silence_size);
+ 	snd_iprintf(buffer, "boundary: %lu\n", runtime->boundary);
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -871,7 +871,7 @@
+ 	runtime->period_step = 1;
+ 	runtime->control->avail_min = runtime->period_size;
+ 	runtime->start_threshold = 1;
+-	runtime->stop_threshold = runtime->buffer_size;
++	WRITE_ONCE(runtime->stop_threshold, runtime->buffer_size);
+ 	runtime->silence_threshold = 0;
+ 	runtime->silence_size = 0;
+ 	runtime->boundary = runtime->buffer_size;
+@@ -1062,7 +1062,8 @@
+ 		runtime->period_step = params->period_step;
+ 		runtime->control->avail_min = params->avail_min;
+ 		runtime->start_threshold = params->start_threshold;
+-		runtime->stop_threshold = params->stop_threshold;
++		/* Drivers may sample the stop policy from completion context. */
++		WRITE_ONCE(runtime->stop_threshold, params->stop_threshold);
+ 		runtime->silence_threshold = params->silence_threshold;
+ 		runtime->silence_size = params->silence_size;
+ 		params->boundary = runtime->boundary;
