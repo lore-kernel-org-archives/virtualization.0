@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794462691;
-	b=o5MvKwQHGPXP8Cn0/rg+0hJr+atc8U23kw3yz72ToebzBygOhcRFaEXy38blhBoWEZGu
-	 ub25ooBiH30ftK5rdhpxcnw0BlFeZgBluoHtgYN2HXRblEE0Wtdhs6ONiWITNA4VUahIt
-	 XWwe570BrWDlzGvMitzKdmENSvdJvmIjtymSPJSSycFGH0G9Xpu5zLA1in1Qh4lCvL8wd
-	 N/RQ+AhzfmhCPLAjwdX8yOWDhyLgbEXC8vBUNguvoGYt4CDU18cyn2eLnU02jk0IsSr/O
-	 21Jxed3K3/WdPQ8G+HwlGblXSjM6POH+hhQvRHpRr6v6PgFgbBaq8w6y6x92G3A2yTg==
+	t=1794462803;
+	b=MNx5KQIfLdPbrBtKAs8b9PU682P4rKxTZuZLjbf4/IAOEqne3gFydIqCypqHA96x530t
+	 P2mt8+sDrE/Q+6MWObqngu91XB7NV9UA/dWWhAndiOA6mmRKxHRJfXj7l99+Llg0+LcdH
+	 3peE/TXAegTifBq/MMT3DwOp4FyDOD3z7Krnr2XOOiYnsKxewTGhPjVQQsc1ohPU+Xz57
+	 c7TyEmzLDnW4WSPWUyMREjZB1E6tixG0oeSpUJu2NJiCQtgKUYnzBmpPoDbo6lsTs0R1s
+	 KeXwSgwpbUxy2OStAJLXi809mFGbxIylhcsgt4wFEBOy27SpSBWM4WGk3rkUxhzHa1Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794462691;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794462803;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=UUjMnRBuU0Fh/rSw70zHrQI/AjCjxGaNjydeFjv+iVI=;
-	b=FyCZ6mtHqJCOD7+PaVsanzA9RTix0TQuSwx4lo4iPtK7e9gbvrsbFab/p/82DDFcEpQP
-	 mrNaExhU1kiKuMevXbm/ApVdDtdDVJf0oo+YVLRXtwEoJzRodH0mKog9uEQExKBlfoXhR
-	 ljtbmORd6t+38EVgt+WC1xsL1SSgnWkLPVmoG9hdVm+l7YbXvrbp2WPnZNrbUuCPGsJTg
-	 nDyuIbiZxIW9lBaESakOrzr1Do0YxaaPSp3N2EHW4h9w13CTbfJLIlkwe+W0V+m7dsFOM
-	 jDAn+mVhxB8qW947fTGZMeh0NQ73GFc0/MDvMxDbUoadUNeJlHnordYlkcdlq6t8Jgw==
+	bh=i+niMTkUfzgNm7gWTjXpcvH0X1PD8MjNHIb1H8kUgF8=;
+	b=iDM1Pcw/J6Jj5zIqjW+x6WekcFc0q7aQ/t9fhuKpbN08F6PEh+MDGApsgkOcMDhEyNhx
+	 qME09KP6EQEwsXhDflSfiu95epwiYV0Ny7HxsLisVT3fJ/wfCGw2lkdBwlGgvAntw1Ikj
+	 C58e7TkBRyDygdp6aoQHI+qwZyI0fo8qKKmCQ18PO4S/Y1sQmU54ZuotqB2noR3dNUh+x
+	 qM7V0mEai2JtERzCra7pSr06nDvVn+8u7ir40N3/v1ry69uqLjncTI6jUs/lMftnw6+N3
+	 dAGn7Nygi+wf1ALiCjj36l5GJr1Y6UqAYs0tD6lMNGQuv40rSusLfOuF8B9+PHw++SQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T39d0T4C;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kOXc+8sh;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAB13606A31C
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:51:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D894E606A321
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:53:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T39d0T4C
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 423291F00A05;
-	Thu, 12 Nov 2026 05:51:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kOXc+8sh
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 458B71F00A05;
+	Thu, 12 Nov 2026 05:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794462690;
-	bh=UUjMnRBuU0Fh/rSw70zHrQI/AjCjxGaNjydeFjv+iVI=;
+	s=k20260515; t=1794462803;
+	bh=i+niMTkUfzgNm7gWTjXpcvH0X1PD8MjNHIb1H8kUgF8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T39d0T4CF+kXRVrJBtqAiX87OI41uiVbi66OivJSt5mzJYpsUWdn9a/U1lJw5rs5x
-	 AvrhQXXUPEwIX+p7g4uUvzJETDuA70MZsdz6LIubynleZnNyRbiFRn6p5WtG0IjpvN
-	 TwBDX00NCcW3eRqn4WhvIhPr0xBPBc7A8sjkk2jtwEvmCagkwjC+bLDa31MM/VuYhm
-	 zmqkOdyaEoJ/8KcUvq/JOlR9b7Cj9/Z+aR4FOFJd/Q7HQLDxywT6xXH3QmK4S3f3WQ
-	 +hE9Tg0hZYjU3OfyHm6nNAt2EIApWEhuBoti282VNWWvJqLnjwKinqmNh9HzIz7lq/
-	 fkl5rgaWUNFrg==
-Message-ID: <sashiko-outbox-210483@kernel.org>
+	b=kOXc+8shJduOdZ75mPyh7tfx5RbfNgGzPqKJ2DmR2bZIZ16bwFWYXHIyYVGRJxEPC
+	 NPsdARbBD2DFdmfSGbZR4oPizofH8KzQoQC9kO1lCioIgYaEs3fxmAzsYzXknQH+a4
+	 Ru9b5rB9leLWL3FXe67e3EvrgIABGgA6Y1bw15/I5i+ImJgu7335azH0O9ENVosmOE
+	 1stch3TBkF/xvSZMtvbqC7UsnEu2LW1ngFdNkn91/XDrOzYaxt74mVyZJsP2uxwNS/
+	 BYGESxmyBYjsP1O6BQLUVOf1ezAMoE5YaCNP+AfAK1OK06Jcac7JfrggX2vMRJd1Z6
+	 O0EkZWQLOKfSg==
+Message-ID: <sashiko-outbox-210485@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v29 16/17] ALSA: pcm: add an explicit application
- pointer to indirect playback transfer
+Subject: Re: [PATCH v29 04/17] ALSA: pcm: notify drivers after linked
+ prepare completes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112053446.73504-17-mynameisjune111@gmail.com>
+In-Reply-To: <20261112053446.73504-5-mynameisjune111@gmail.com>
 References: <20261112053446.73504-1-mynameisjune111@gmail.com>
- <20261112053446.73504-17-mynameisjune111@gmail.com>
+ <20261112053446.73504-5-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 05:51:29 +0000
+Date: Thu, 12 Nov 2026 05:53:22 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,18 +62,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The indirect playback transfer helper samples runtime->control->appl_ptr
-> internally. A driver that needs to refill already committed data from a
-> pointer callback cannot pass the application-pointer snapshot used for
-> ACK validation.
+> A linked prepare can finish one member before another member's driver
+> prepare or reset fails. Drivers that admit transfers after their own
+> prepare callback can then accept an ACK while the group action is still
+> incomplete.
 >=20
-> Add snd_pcm_indirect_playback_transfer_appl_ptr() so callers can supply
-> that snapshot. Keep snd_pcm_indirect_playback_transfer() as a wrapper
-> that samples the runtime pointer as before, preserving existing callers.
+> Add an optional prepare_complete callback. After all sleeping prepare
+> and reset actions have succeeded, take the group and member PCM locks,
+> publish every PREPARED state, and notify opted-in drivers before
+> releasing those locks. Keep the buffer locks and access gates held
+> throughout the operation. A concurrent DROP observes the group before or
+> after this commit point.
 >=20
-> The explicit-pointer form lets virtio refill accepted data without
-> accepting new application progress while the ALSA buffer-access gate is
-> closed.
+> On a driver error, notify only the attempted prefix, including the
+> failing member. On any revoked prepare, opted-in members in the affected
+> prefix or group return to SETUP. Preserve DISCONNECTED members and keep
+> SUSPENDED members suspended, but set both saved suspended-state fields
+> to SETUP so a later prepare can recover. Leave unreached members
+> untouched after a driver error. Preflight failures have no completion
+> callback. A successful driver action canceled by a terminal state
+> returns -ESTRPIPE or -EBADFD, respectively. A driver error keeps its
+> original return value. DISCONNECTED takes precedence when a linked group
+> contains both terminal states.
+>=20
+> Do not generate a stop-timer event while closing prepare admission.
+> Ordinary legacy drivers keep their existing successful preparation and
+> pointer rebasing. The new callback runs with the group and member locks
+> held and must neither sleep nor acquire another PCM stream lock.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -82,5 +97,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112053446.7350=
-4-1-mynameisjune111@gmail.com?part=3D16
+4-1-mynameisjune111@gmail.com?part=3D4
 
