@@ -1,55 +1,113 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794476792;
-	b=zKbu2W2LwTKIKpL67GL7hh5L1mPLwG9ifHUF0AIrBjbeJyFfAeq95h3dSw0Ugfm7F4xv
-	 tDGYAoWzhhxrSv1P6KafFPfWcbwsdHnOpVPEXPyhYmJlhVl2+Z8gZvgb5waTPg/KPxqGP
-	 /+utNGZAoLj5IpKSyy8Atny1L8HHt4uBPA0gfo4fKZ5a5FAF6E0AqAGJfK/xqE5RGAJys
-	 Vhf05Sw7yurMDTkT8ISqqGzI83oSO329VBZ9+4s2GgQ9Om8R21kYUuwXxB3PfPjipderS
-	 41am6qwdnI+1QRjSjGmoOo9TCDhA+wrvcAJnGWZNruemZWVrEKKLVdWBZRjgdOCIVEA==
+	t=1794476891;
+	b=A3QpI972AUn54VGftZSWU+tym4No+0WwtzR/pqoB4lKChrvrObFtrSy7FxljN3dnPtwf
+	 sDaNj+xamKaZhkUPE0j5OgxVfPsFP5OuDhIMJa1K8l4pMA92CmiXIEkW7svOvSlBtcZD7
+	 J0FMGPrSzaqh+lanP1pTFezsNcP1vTeFkxuTUKgWxB3Gfbx9VRVW0tauz+GIzP7/kl2OZ
+	 dsrp5ybGrtU+Q+FM9SkXg/cvLC+LS7b8PQXZY/TLdbttm91AQhuAo1KLfGJCUcmEerApk
+	 eMyT9HKBnj30/z+0TFE+bKGvNXzf8EZIJfrABICUiy0rqOSXO2mIRBv25hmPuYIn7Aw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794476792;
-	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=j6eZ4aCZFTS/utwlBgKhOAgoPY6BL5WxRnVfSRhjSzs=;
-	b=MQiIfGhCgKHqwP8Bx1wrp17HrBAa8CqnSo5fVnlFI2PfwACx3AwoUOJ66pfplUeZaDFA
-	 Ovh22pILD5Mvp392tt70+suT0yL2OGsZiT81mgI7YS1Q7d4W+GhSFobdm3zSOVnmukrFK
-	 PdVY1yObXG61U/Sj+kzndHi1UdoohroLNg4vTLEF7+oHD43UH5jutQ1y3oVFFgVrM827M
-	 FlwmCBlMOdrjN5uKchnyVBaCXnZz0h2o5YrKHxLpmsjTd3ZV/7kTWwa48Vj+et+qSGv5Y
-	 I64GlC/uiyk8NxXATO/6a+WVwAyhxOC8XUnnop+idyq+n2ATj5rW6Gsk3BRiZqMtPvw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794476891;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
+	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:
+	 X-Google-Original-From:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=rQ0S0zFJsG83541wAchvZ00WuoVJfA2hSRmQg4ozNH0=;
+	b=A6uHwYpyCtbWk3/JvoqlU+Nl5V6aszaVilScLsZ1xtZLHwVMm7OsXEta4agVU7NgnMJx
+	 LeHb1yNOMFR0bFuVH8kZ+tlMtAeloQHD9ooYNHgIPL+5xhXa/UIKwkR2F3KTjN3AwUtmE
+	 dR28wZvUaoRnDl9Eh/M+bD9c1ylnwz9Q7Q7rZ48pFVxltDUQ8zGpFptntIvD3wrgJ+rZP
+	 8dPyNIW8eoMyeFXSz0Txni4hdy2+S9Q3IXvcBKuI/csg43qhnMPov+/A2DmtQU+GJNti0
+	 7Sdyz9ToGJ5qu2kmmJoBbbnFzgeUfgPy5LoFNFjVifdDKX8cf0CYYBgC5RIJLc9GI4g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LzBOJKST;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=oss.qualcomm.com;
+	spf=pass smtp.mailfrom=oss.qualcomm.com;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=lEYzziPz;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=g1GVq4hp;
+	arc=none smtp.remote-ip=205.220.168.131
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8035606A321
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:46:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D03E606A32A
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:48:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6D03E606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LzBOJKST
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 775941F00A05
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:46:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794476791;
-	bh=j6eZ4aCZFTS/utwlBgKhOAgoPY6BL5WxRnVfSRhjSzs=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=LzBOJKST07DI6OhKR9d/bV/f+EcOgB7DduaD1YvU39zKFCS/rJIAybY5s0taxn405
-	 uR/pdQZZhAznLyB7nOQ+cufnEQqKOpnC5K0IJVR8Oq4IxawDfO2+KxuFEU6KobDRy6
-	 EOZWHtZNf+OLv0tNVW6jMaW/GWbjjOuzvORsPft5nBryny0+60SKlJ07TJjbTwzLEh
-	 pjJBoCVwl/3jcz1gV6z+XyIygjzLHbRCaM5QXVTAEZLwQrWwdNKlLILuk1WzQEkX1d
-	 ehaHHedwd+Iu1lXkg6DteBdRHuHqE488DOHu9T2Z0S4T/EYfciiaMdmLUIH0JkfTHM
-	 TPz9SulQgW1vg==
-Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-705cb6cedd5so463614eaf.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 01:46:31 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErGxZZAByx9DCVeS4n7cdh2FXtwONDwCMpdNM8x9xqPS5cb4lVzZ8G3gC2DcAC2HO9zeSq+EUbMG2KYhzu/big==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+AdS0sr6/euy4ymfas8au6p2elVk8WujfMtgsXnQFLxOCA+cAV
-	mnLQ4iwgDo6hUY1mJDLHKbSNZKwFneTqy7mk9pGad3n2uwthkQYjjzsfva81qmllytuIy0UJOrc
-	dK35qt3kVEnKa3qTywY0afP4UaKat6Wo=
-X-Received: by 2002:a05:6820:c2d1:20b0:716:f44b:2dcc with SMTP id
- 006d021491bc7-719740e76c8mr830715eaf.15.1794476790507; Thu, 12 Nov 2026
- 01:46:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=lEYzziPz;
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=g1GVq4hp
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC5484A3477432
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:48:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	rQ0S0zFJsG83541wAchvZ00WuoVJfA2hSRmQg4ozNH0=; b=lEYzziPz3E3wXE1N
+	/r8Q21KLI0GSOoZbw37IOQi+XRe64yyHxO4KJMKXyD6wHBr3+uN2A2DqG1aZFVCb
+	td0orAtjRp1dC4j/KyPqG5d96q5y7vKMm2BKTOKsdt1dlyUwp24z+1cEnebHmiba
+	lsmQibx194c8rA9m2TXh3aOD9i7AI6KxyLK00WTHqjhvlhD4uAN/bB+W+ouD9DVf
+	YFu1UNcSm+Up02WumBc+r6ikblrY5kMlzpu37riEDvTPfzmaBSpLyb+pCef3TTpE
+	LJnjDCjjnF+Cz0U9C2aBPvT6jwMkRiiKlKn3l4dQXbHdnu8pkdbQTpnhKR5UBEBO
+	sdPQmg==
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com [209.85.216.72])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hw6yugyk5-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:48:09 +0000 (GMT)
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-3ae7faf4ff7so5118971a91.3
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 01:48:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1794476889; x=1795081689; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rQ0S0zFJsG83541wAchvZ00WuoVJfA2hSRmQg4ozNH0=;
+        b=g1GVq4hpNj+LUfMCV9Lz5qYRX3uiYuuTl4+rd9E3cC69OFVyt6p7jtdQ8WnFHaNq8V
+         gFLwwViLDLoVG2F4brQUDsj7SzZoUlD5oXzn1AFBNRGURnwfyX6OHqHVQIy16nJNdsEZ
+         yRI15YFfcIaMLCH5fzljmQ3Qvfl09jIk1F3g1bS0o/ENZDHgNw66ewQ4gZO4elWnVfws
+         oWFD8OzXIN2ilbnxaXRrdrn5HHPoIwBTpNTKEhYTyCBkpnPzhw3se9DNDe06SOMt/jmp
+         LTGhpHl0/u2b7KEOMGrY6dmEHByjC7CAYjmLkGQxMKfywa72E2bJdDRjj5nAW5f1OnoJ
+         a+tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794476889; x=1795081689;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=rQ0S0zFJsG83541wAchvZ00WuoVJfA2hSRmQg4ozNH0=;
+        b=uUsSZCJNtCCWYnAPj3TSwL2FvWFadaZOiRoaLfQkOnDh0gSK9ojgBgVOT7Gwvd9PjH
+         9M2MR6Enu8YGuI85vYTRtjCape9YkA8rrQfj93cfEPN5KHxyN+hSd8wyBNCK7Fh5zHKN
+         Bym+ouIG5e8zySbbg/eFRNXlCxIXTnIcRwkiOgsP9RYrX0Hvmg7kQZ5fMUIK3DZUBKKC
+         c/KBg37qsotfkEZZdIO0oqV/sdU0dnS4ZwLTZcodOBOakeR6L9i7N+dvvFX4pGIob57N
+         42UkYGBguOsNBooEfdZJ+knZO6S/pzXdfHcYPTN1JYEpazHSA/oh4PAgw4tl2Ivse5l6
+         f27A==
+X-Forwarded-Encrypted: i=1; AL+hErHVPRuNrKPtJVSzjmq5Z50H5GCto65kqTn9LEtdih673B6FYh7rk4kWlv26kzUNJdcW4ERzwdVHJ6gzIYvOWQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8vZP9/lBci/ND1Qzoocxc3tJCOac5jXSGO8Gr9eD73b3voPCAD
+	nrwqr+6M9pjlfDOUYEXOeUVlGCfhwwhn+dm2nfWk6B+ekTEqhvLkF7VWaf+V3+QRFR1IAwxRRfu
+	Bm+q9wjNXIvLpQbzqne1jlNBUOdNFp+ay7dp+sA36XMouN/+Md88sBY53leQYb4j6gikGRw==
+X-Gm-Gg: AYBFou1O7V7nz+Pc4JPjCkyLsumZINsIx3NlpR2OOt9waSnTvSmupB7w49JqAFo1A+D
+	anda6cGxbn5g6xqa9mOWWo1YqOhhI2SFwMbZVUSdGNrBxN4HK9bDZz0G5xsPeVsIG9DLerduwJO
+	zH5aSciKuFTobyDEqdpl2Y1EACsaj9owPAPXu5jYIXVUyQDo9EeT5sCMxTC/1jYISb3roXK6XQE
+	F8Xwd/SLpcbS6/g3DGoWewBRy7SYZGaKLPCUfD/iFIFkQ7QMp4gL5tILlCnTJfkQxiR2drSi/gb
+	iXUdOqAwbgVd6vc+t9h1fk1fIlfZY/5RLgjjyND4hXOJWEZECxNdZgCJqs6mBD8gKWZ55t0dJ41
+	l1ILor222IhEw973dTnW32/wkFOXbRSs9zebm6nI8OqnSLxubpwlWvDuJA8jPq+MuwG/VY/Lbxw
+	LdkjjCBrk=
+X-Received: by 2002:a17:90b:5247:b0:3b0:a9de:9886 with SMTP id 98e67ed59e1d1-3b182e9457fmr5003624a91.12.1794476888794;
+        Thu, 12 Nov 2026 01:48:08 -0800 (PST)
+X-Received: by 2002:a17:90b:5247:b0:3b0:a9de:9886 with SMTP id 98e67ed59e1d1-3b182e9457fmr5003594a91.12.1794476888303;
+        Thu, 12 Nov 2026 01:48:08 -0800 (PST)
+Received: from [10.204.79.28] ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b197d0fdbdsm3913394a91.10.2026.11.12.01.47.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Nov 2026 01:48:07 -0800 (PST)
+From: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
+X-Google-Original-From: Jayant Shekhar <jshekhar.shekhar@oss.qualcomm.com>
+Message-ID: <2932200c-d930-4d5f-a308-0bde202af349@oss.qualcomm.com>
+Date: Thu, 12 Nov 2026 15:17:55 +0530
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,205 +117,124 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110213628.3476051-4-edumazet@kernel.org> <179443691180.2199510.148246238688217560@kernel.org>
-In-Reply-To: <179443691180.2199510.148246238688217560@kernel.org>
-From: Eric Dumazet <edumazet@kernel.org>
-Date: Thu, 12 Nov 2026 10:46:19 +0100
-X-Gmail-Original-Message-ID: <CAL4WiipcxHnbZye9P8_NySU=pLfQoSrMWF3PahgSQvfeuOgmsA@mail.gmail.com>
-X-Gm-Features: AclHuK_cZ9ao9G0cYjqdJ9o0VFbuRHG2Gy61oDEJ6kFhBEJLvS-rEY_T6EP_Vvc
-Message-ID: <CAL4WiipcxHnbZye9P8_NySU=pLfQoSrMWF3PahgSQvfeuOgmsA@mail.gmail.com>
-Subject: Re: [PATCH net v6 3/3] net: virtio: validate outer protocol of UDP
- tunnel GSO packets
-To: netdev-bot+sashiko@kernel.org
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
-	netdev@vger.kernel.org, willemb@google.com, horms@kernel.org, mst@redhat.com, 
-	jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	hassansultan@google.com, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-Le mer. 11 nov. 2026 =C3=A0 23:41, <netdev-bot+sashiko@kernel.org> a =C3=A9=
-crit :
->
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue(s) to consider.
->
-> Critical: 0 =C2=B7 High: 0 (1) =C2=B7 Medium: 1 =C2=B7 Low: 0
->
-> If you believe none of the issues are legitimate, please reply to each
-> issue of Medium severity or higher and explain why the AI is wrong.
-> If any of them are legitimate and you plan to respin, please let patchwor=
-k
-> know by including "pw-bot: cr" as a separate line at the end of your repl=
-y
-> (one such reply per series is enough).
->
-> - [Medium] The new has_eth=3Dfalse path in virtio_net_hdr_tnl_to_skb()
->   (include/linux/virtio_net.h) rejects almost every valid frame, so it=E2=
-=80=A6
->
-> Pre-existing issues:
-> - [High] This problem wasn't introduced by this patch, but it is a
->   sibling of the injection the patch closes.
->
-> --
->
-> net: virtio: validate outer protocol of UDP tunnel GSO packets
->
-> This patch makes virtio_net_hdr_tnl_to_skb() check that a UDP tunnel GSO
-> frame really carries the outer IPv4 or IPv6 header it claims, with UDP at
-> outer_th_offset. Callers now pass a has_eth argument that says whether th=
-e
-> frame starts with an Ethernet header. tun_get_user() passes false for
-> IFF_TUN devices.
->
-> Link: https://lore.kernel.org/netdev/93d0e37c99711bebdf60c120af03010455c2=
-f2e2.1793276116.git.mst@redhat.com/
->
-> > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> > index d1fcb25ab026b..ced5a1596e609 100644
-> > --- a/drivers/net/tun.c
-> > +++ b/drivers/net/tun.c
-> > @@ -1950,7 +1950,8 @@ static ssize_t tun_get_user(struct tun_struct *tu=
-n, struct tun_file *tfile,
-> >               break;
-> >       }
-> >
-> > -     if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
-> > +     if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr,
-> > +                                 (tun->flags & TUN_TYPE_MASK) =3D=3D I=
-FF_TAP)) {
-> >               atomic_long_inc(&tun->rx_frame_errors);
-> >               err =3D -EINVAL;
-> >               goto free_skb;
->
-> [ ... ]
->
-> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > index 83f801ff57006..fc9667176f23c 100644
-> > --- a/include/linux/virtio_net.h
-> > +++ b/include/linux/virtio_net.h
->
-> [ ... ]
->
-> > @@ -338,6 +504,9 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
-> >       if (ret)
-> >               return ret;
-> >
-> > +     if (!virtio_net_tnl_offsets_ok(skb, has_eth, outer_isv6, outer_th=
-))
-> > +             return -EINVAL;
-> > +
->
-> [Severity: Medium]
-> Can the has_eth =3D=3D false path be reached by ordinary IFF_TUN frames?
->
-> On IFF_TUN, tun_get_user() resets the network header to offset 0 and now
-> passes has_eth =3D=3D false. virtio_net_l3_start() then takes the L3 head=
-er
-> from skb_network_offset(), so virtio_net_tnl_offsets_ok() needs outer_th
-> to be 20 for a plain IPv4 outer header, or 40 for plain IPv6.
->
-> Earlier in virtio_net_hdr_tnl_to_skb(), the offset floor still assumes a
-> 14-byte Ethernet header, whatever has_eth says:
->
->         outer_l3min =3D ETH_HLEN + virtio_l3min(outer_isv6);
->         ...
->         if (outer_th < outer_l3min ||
->             inner_nh < outer_th + sizeof(struct udphdr) ||
->             inner_th < inner_nh + inner_l3min)
->                 return -EINVAL;
->
-> So an outer_th of 20 or 40 fails against 34 or 54 before the new check
-> runs. The only IFF_TUN frames that can pass both checks have IPv4 options
-> (ihl >=3D 9) or at least 14 bytes of IPv6 extension headers.
->
-> On the TX side, virtio_net_hdr_tnl_from_skb() computes outer_th relative
-> to skb->data:
->
->         outer_th =3D skb->transport_header - skb_headroom(skb) + vlan_hle=
-n;
->
-> On IFF_TUN, skb->data points at the IP header, so this emits 20 or 40.
-> set_offload() also enables NETIF_F_GSO_UDP_TUNNEL without checking the
-> device type. As a result, IFF_TUN devices advertise tunnel GSO, but their
-> ordinary tunnel GSO frames get -EINVAL and increment rx_frame_errors.
->
-> The ETH_HLEN floor predates this patch and comes from a2fb4bc4e2a6.
-> However, the commit message relies on the has_eth =3D=3D false path:
->
->   "tun_get_user() passes whether the device is IFF_TAP."
->
-> Should outer_l3min follow has_eth, for example:
->
->         outer_l3min =3D (has_eth ? ETH_HLEN : 0) + virtio_l3min(outer_isv=
-6);
-
-Same answer as for v4 and v5: UDP tunnel GSO over IFF_TUN has never
-worked since a2fb4bc4e2a6, and this series does not change that.
-has_eth only makes sure IFF_TUN frames are not parsed as Ethernet.
-
-Relaxing the floor enables a path that has never run. I prefer to do
-that in a separate patch, with selftests covering IFF_TUN in both
-directions, and not in this painful series.
-
->
-> [Severity: High]
-> This is a pre-existing issue, not one introduced by this patch, but it is
-> closely related to the injection fixed here. Plain (non-tunnel) GSO
-> frames return early and never reach the new check:
->
->         gso_tunnel_type =3D hdr->gso_type & VIRTIO_NET_HDR_GSO_UDP_TUNNEL=
-;
->         if (!gso_tunnel_type)
->                 return virtio_net_hdr_to_skb(skb, hdr, little_endian);
->
-> In __virtio_net_hdr_to_skb(), the VIRTIO_NET_HDR_F_NEEDS_CSUM branch only
-> checks pskb_may_pull(), skb_partial_csum_set() and the transport offset
-> against nh_min_len. virtio_net_hdr_match_proto() and the flow dissector
-> run only in the branch without NEEDS_CSUM.
->
-> So can a tap writer, or a guest via vhost-net, still send an Ethernet
-> frame with ethertype ETH_P_NSH, gso_type TCPV4, TCPV6 or UDP_L4, and
-> NEEDS_CSUM set? eth_type_trans() would then set skb->protocol to
-> ETH_P_NSH.
->
-> Suppose such a frame is forwarded, by a bridge or tc mirred, to a device
-> that segments in software. Could the segmentation then recurse without
-> limit?
->
-> skb_mac_gso_segment()
->   nsh_gso_segment()
->     proto =3D tun_p_to_eth_p(nsh_hdr(skb)->np);   /* TUN_P_NSH -> ETH_P_N=
-SH */
->     __skb_pull(skb, nsh_len);
->     skb->mac_len =3D proto =3D=3D htons(ETH_P_TEB) ? ETH_HLEN : 0;
->     skb_mac_gso_segment()
->       nsh_gso_segment()
->         ...
->
-> Neither nsh_gso_segment() nor skb_mac_gso_segment() limits the depth.
-> Commit 006c8b834aed ("net: gso: limit recursive IP-in-IP segmentation")
-> added the SKB_GSO_CB(skb)->recursion_counter check in
-> gso_recursion_inc_test(). It is called only from inet_gso_segment() and
-> ipv6_gso_segment().
->
-> A frame of about 64KB made of stacked 8-byte NSH headers could recurse
-> thousands of levels deep and overflow the kernel stack.
-> TUN_P_ETHERNET -> ETH_P_TEB -> NSH appears to be a second route into the
-> same recursion.
->
-> Should nsh_gso_segment() use gso_recursion_inc_test()? Or should the
-> plain NEEDS_CSUM path also validate the outer protocol?
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 01/23] dt-bindings: display: msm: Add Qualcomm DCP
+To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+        Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
+Cc: Rob Clark <robin.clark@oss.qualcomm.com>,
+        Dmitry Baryshkov <lumag@kernel.org>,
+        Abhinav Kumar
+ <abhinav.kumar@linux.dev>,
+        Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowangio@gmail.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+        Philipp Stanner <phasta@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Abel Vesa <abelvesa@kernel.org>,
+        "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Flemin Jose <flemin.jose@oss.qualcomm.com>,
+        Mahadevan P <mahap@oss.qualcomm.com>, virtualization@lists.linux.dev,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        linaro-mm-sig@lists.linaro.org, iommu@lists.linux.dev
+References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
+ <20261026-jshekhar-dcp-hlos-v2-1-7cf014efdee1@oss.qualcomm.com>
+ <fzchmbho74ii6d2zhzni4qy4g74hiwv4fwf5xudrqdrstt6klm@7wdoo4acr6fm>
+ <0bf2075b-e507-4b81-a563-f7b4e7e2cbc1@oss.qualcomm.com>
+ <34hgm3yw4z4kbulvgpg7c2iunyui5ljn2l6fqq47prc7s6hycn@c2rnwvhcn5x6>
+Content-Language: en-US
+In-Reply-To: <34hgm3yw4z4kbulvgpg7c2iunyui5ljn2l6fqq47prc7s6hycn@c2rnwvhcn5x6>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: pn7kcZOAHHeVC0cIJOPIu0s0WIvyrjDY
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDAzOCBTYWx0ZWRfXyGg1jaD+Yb/+
+ GeN9R0/SpiVKJ+1GZucguZCZuYeJkr5W7f8RHKCf51bR3PdpBRzpWWn7v0NjfnB8h8QRrbmWo3P
+ tzDDhMLtTNGI558Wbf49XFWj9ts9JL4=
+X-Proofpoint-ORIG-GUID: pn7kcZOAHHeVC0cIJOPIu0s0WIvyrjDY
+X-Authority-Analysis: v=2.4 cv=d49gWhjE c=1 sm=1 tr=0 ts=6af58b59 cx=c_pps
+ a=RP+M6JBNLl+fLTcSJhASfg==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
+ a=EUspDBNiAAAA:8 a=8VBehk7qD7xQtsfHT0kA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=iS9zxrgQBfv6-_F4QbHw:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDAzOCBTYWx0ZWRfX2TD+g0pALEFM
+ kVoKnQXGjKjq3FWaXq9kQFiKsb37MtRyy96rTtGNBvVV1zYDOo6N/D+jR1/xPPMf0kJOuojFknv
+ q5iNcoC095H0pbF7VijuejE6e+JLSeyEus82U4fL+9WRChR/DN+k1+8sBeCODwxgxoSIkFL2ILa
+ SSmHX2viRJZgF1/1fp1Lk9SHnPdxGtp4+jsMEmMsP8RG7V0dOQnGpbcH1feJWu1w4puyhHYOsMl
+ hWhHjB6XPWWLdxLHCUHi7zenFIlAHkCSjim7YXj8AovYqUZGqzv/IsY5SBliecPBDptuBtJwQXf
+ zt9mQOMsab086qML8+ISc7UVE3N64CzTp2PqnPeAYRQqjA+ko54Itr2OrD/rt53IqFHjZ3eJDO4
+ PFX456iOQMKwzrxkdOkQk49Z6MzhtdNr/5+AyV0zTo+FKsQ4Tqo1seYJGFFO/w+gQL8P0QjnQrP
+ 2FotBDvKID9IoqWHjQA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-12_01,2026-11-11_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 spamscore=0 malwarescore=0 clxscore=1015 suspectscore=0
+ adultscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611120038
 
 
-This one looks real, and is independent of this series:
-nsh_gso_segment() can call itself through skb_mac_gso_segment() with
-no depth limit, whatever the way the packet entered the stack.
+On 11-11-2026 19:43, Dmitry Baryshkov wrote:
+> On Wed, Nov 11, 2026 at 12:38:54PM +0530, Jayant Shekhar wrote:
+>> On 26-10-2026 15:27, Dmitry Baryshkov wrote:
+>>> On Mon, Oct 26, 2026 at 11:51:11AM +0530, Jayant Shekhar wrote:
+>>>> DCP platforms place the display pipeline under firmware control, so Linux
+>>>> cannot discover display resources through direct register access. The DRM
+>>>> driver therefore needs device-tree descriptions of the Qualcomm transport
+>>>> wrapper, display topology, IOMMU contexts, and panel connections.
+>>>>
+>>>> Add bindings for the Qualcomm DCP transport wrapper and VirtIO display
+>>>> subsystem. Document the IPCC power-notify resources, transport and
+>>>> framebuffer IOMMU contexts, firmware-visible IOVA range, INTF graph, and
+>>>> DSI panel connections. The wrapper creates a standard VirtIO-MMIO child
+>>>> after the IPCC power-notify sequence has completed.
+>>>>
+>>>> Assisted-by: LLM
+>>>> Signed-off-by: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
+>>>> ---
+>>>>    .../bindings/display/msm/qcom,dcp-dsi.yaml         |  79 ++++++++++++
+>>>>    .../devicetree/bindings/display/msm/qcom,dcp.yaml  | 123 +++++++++++++++++++
+>>>>    .../bindings/virtio/qcom,dcp-virtio.yaml           | 132 +++++++++++++++++++++
+>>>>    3 files changed, 334 insertions(+)
+>>>>
+>
+>
+>>>> +
+>>>> +patternProperties:
+>>>> +  "^dsi@[0-9a-f]+$":
+>>>> +    $ref: qcom,dcp-dsi.yaml#
+>>> When adding DP support, would you add more devices at the same level? If
+>>> so, we risk getting a warning about multiple devices using the same
+>>> address.
+>>>
+>> Is it good to model each firmware INTF as a single interface@N node carrying
+>> the INTF reg, with the protocol-specific DSI or DP description nested
+>> beneath it?
+>> The driver can then obtain the INTF index from the common parent, avoiding
+>> duplicate addresses across protocol types.
+> Yes, it might be good, but it's not what is happening here. You are
+> adding dsi@0, although, I guess, INTF is 1.
+>
 
-I will send a separate fix for nsh_gso_segment(), with a selftest.
+I raised that approach before v3, but the patch still uses dsi@0 
+directly. I’ll update it to use a common interface@N node keyed by the 
+INTF index, with the protocol-specific DSI/DP description nested beneath it.
 
-The remark on the changelog of patch 2 is noted, I do not plan to
-respin for it.
 
-Let's merge this series and move on.
