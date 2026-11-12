@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794463215;
-	b=WBKSOPWWMsUo2Pmzp9dT6JPZCtCYSI/AWwFqklW0+s8W/p3jqNbW6iG3wNnEzuVu7zqS
-	 NO5zJ5JKRWSbVaEqmgiFxmpFqJpCnFivc20PSFkRH+ORTccDB37HWKdTKFJIysTLsCNw4
-	 XX6p75coMaiLSbkDDJDrv004tIfAKzcr7DrAsK6fcnmtak3wJJjCW/J7YLsiKrj5F/PV7
-	 L1L+xjQWHaeXG1nE+XyZzZiMu1o5FFFkcLZgyz8wkfsRVs3rPg6NRTswtvVbOW7IaH9m2
-	 Im8palzQGJIyWU8zt+OsVihbQa2JlcDzlaYdoBkHfuGSDTXCcadeHgDd+vJ+/KGF8sQ==
+	t=1794463231;
+	b=0XnN6at2oj32HZPMLv0U5c59kcrBAwd5RWlNRyqUgPan/P7Bqmj/VpmKeluCdtRlMnPO
+	 N4Djqw+22bLROCx2ahUPRT0464v2MB6w3bJtU1yhVTjFoDddUPOU3VF1bltLk7+p53FIV
+	 Zw3ZpAChbwn18uyQAjJQH2ACG1dguDnGoheNyhyORm5bAcaQBCy4BMlTywm6vhdGd3Gsc
+	 Adxjy5cYYgij47xzdmc35cFXTtc3H11EoNoCqq5J7u3OWHtQY1QkWcqP+/0J2rAtH3xLw
+	 cVQJqd2ERS4xe4eOPmbJmNN9mxuXduqQBW1tLY9HdZekjGn4K4ZoEFR9bFWnjbWr2+A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794463215;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794463231;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=wBpwafzi7aK/0ze8suzFQ3BOFx7jrwYiJiOwpqI6hQQ=;
-	b=5nL8HJ9r78UuRjW3uFFmEQ1BdsLh0mKZruIuwM04v/gx9rejMwJ6CKE+ndMyN4nZSr+z
-	 6gWMEfL8Lozt9cm9TpUwqyShn8koQMAMiR5O0uWcQfi+mWHn/o29VQUvhb2Zr3GaNc1cm
-	 wDnWPr0+Mwuv7lBjgb7e5vcPiUM3b51NUktC4OydoRGN4m2qLnhQ0nfN+1tdKNiOPWjj4
-	 0K7m37qy6pyKU0bMPcOozS0AEdDLnZQOGUDvrjY7jaRmnipk5gi0tS2Rsh+Edm2WGzc7T
-	 TNY87YCma38hJ9K1Ua7OG43ozg/N3/hy3ltXSwFq3xrU8mV3+bTNIB067I/KHC+pJzA==
+	bh=udfRgTkSUTDPlxhd/YR11XMjwGzUBaKPK2sJp6PmThY=;
+	b=FDsX7ap+ffg/vdL+FwRB5yscptDTAdLaXsbCy84UnrYs4rlgbVhxBjlVIQ33VsIOxgBL
+	 sMTwwllRGZOk6fyNk4+rYMdEbm5xduYUjxu0iHcWvgGYvEeXrXiMA5eGEDPpz7omC76mn
+	 +R5W1JqscO+ubKQ5Y/8xKDB8UO61ZBQ3krmoWFRRgyk3VEyqU2nmS87CVxxaspbTABWuo
+	 6C84gtpVNwLSjC9OMkDUCTPeosYudlgGkFHQBTHJN9pjXac+SLt2ALGGIxfepGEyZiy4U
+	 IzsofchC086VY6QGrEjjhxUnGMFcOEFN11GUfSh9JjuiU6A2nQQUNr4VzwczXStJ4IQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nRKWLo0f;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M2+1fE5q;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46600606A323
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 06:00:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB49B606A31C
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 06:00:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nRKWLo0f
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF0D1F00A05;
-	Thu, 12 Nov 2026 06:00:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M2+1fE5q
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B3661F00A05;
+	Thu, 12 Nov 2026 06:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794463214;
-	bh=wBpwafzi7aK/0ze8suzFQ3BOFx7jrwYiJiOwpqI6hQQ=;
+	s=k20260515; t=1794463230;
+	bh=udfRgTkSUTDPlxhd/YR11XMjwGzUBaKPK2sJp6PmThY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nRKWLo0f8gdzvdTlpnWf+eHD3y9Icxf+Yt/BGDnqxmIjrb55JKJARZinw4B5zc+ge
-	 Y+KoOfj5tPVg7RzT0KnX2jIClFj4hOJVCyqFanRVHZI0ffxk6qvIrmNBvgvYcQeFwf
-	 Twr6g5EnAs4zKsfEDWR3MeOd25WT0oVIKmL7/7mi9FZUGEB8T3T7f2Wfs4b9rUQfaw
-	 0jo9wV0LjxZnZm8TxhAcnKxWqpCmUCjqg7GlKLqwgTlOQMUd3OvVAfM0jOBRmwQxZD
-	 ypgr+qHcrFT8wJekXG6Tlrb8Zs4SZM8d8vJ/6FwEe1e5FQeAiiuUoiJ62qgLSK8MjU
-	 9E80q6bgCiozg==
-Message-ID: <sashiko-outbox-210489@kernel.org>
+	b=M2+1fE5qq+GvA9qNDaqq+JD+GnNY1EFdOTo8D/+tOuo95qZ6KszErydIxbTCZE5E/
+	 JtXzCzFxCMGJuLO6+u78qLaG3vv2dZuqpAXzhjhINcLR0ImfcFqM9FNz94oDYBoHeV
+	 cTFCjqKMAJfOs+Irp+/lG8gL8/EQCHDWbPwz03fuUQ6qaVbCQln+iKyb+ngcNlAkMv
+	 U9upeuvCBXbVetCF8aybzx/8WDFZlRJVW546KEARd4IUJgvzA5Kkapv1d8g4NWHKbU
+	 lqLUgWbBFuYI+5jrEFQ3JchXPSdS19nvjsM7Lci1SGYself1P1xhLtNQt8HO+W3rUz
+	 K6Z9ewFdmbaHA==
+Message-ID: <sashiko-outbox-210490@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v29 08/17] ALSA: virtio: Retain queued messages through
- device reset
+Subject: Re: [PATCH v29 09/17] ALSA: virtio: bound PCM transfers and retain
+ DMA buffers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112053446.73504-9-mynameisjune111@gmail.com>
+In-Reply-To: <20261112053446.73504-10-mynameisjune111@gmail.com>
 References: <20261112053446.73504-1-mynameisjune111@gmail.com>
- <20261112053446.73504-9-mynameisjune111@gmail.com>
+ <20261112053446.73504-10-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 06:00:14 +0000
+Date: Thu, 12 Nov 2026 06:00:29 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,29 +62,18 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Keep the control queue available through snd_card_free() so close-time
-> STOP and RELEASE commands can still be submitted. Block new control
-> requests and mark pending messages canceled before reset, then release
-> their queue references only after reset and queue deletion.
+> Validate ACK geometry, conversion bounds and queued-byte accounting
+> before submitting transfers. Retain the backing DMA pages until message
+> retirement. Check RX status and upper payload bounds while accepting
+> bounded short responses, including at STOP and PAUSE. Preserve the
+> legacy RX completion and ACK policy until the request-owned conversion,
+> including the legacy handling of empty PAUSE returns. The fixed-offset
+> layout still has short-response data gaps; request-owned capture and its
+> queue/accounting contract arrive together in patch 12. Non-MMU copies
+> use only the validated returned payload length.
 >=20
-> For PCM queues, detach each remaining virtqueue buffer after the device
-> has stopped DMA and retire its message without reporting a normal
-> completion. Detach all queues before deleting them so outstanding DMA
-> mappings are unmapped and no token remains for a late device completion.
->=20
-> Protect event callback admission with the event queue lock. Disabling
-> events waits for an active dispatch, and later callbacks see a closed
-> gate before ALSA objects are freed. Enable and pending-event draining
-> share the same lock.
->=20
-> Reclaim pending event buffers after a failed probe without dispatching
-> notifications into ALSA objects that have not been constructed. Record
-> the queue's prior enabled state under its lock before closing admission.
->=20
-> Track successful virtqueue initialization so teardown and failed restore
-> cleanup call del_vqs() only for an initialized queue set.
->=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
+> Fixes: f40a28679e0b ("ALSA: virtio: handling control and I/O messages for=
+ the PCM device")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -92,5 +81,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112053446.7350=
-4-1-mynameisjune111@gmail.com?part=3D8
+4-1-mynameisjune111@gmail.com?part=3D9
 
