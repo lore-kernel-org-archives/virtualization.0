@@ -1,111 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.157
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794481073;
-	b=hLVqM3UY9ezod1RSzvHoSkncFI2a1t83OIyNIjiSfa4u3b/R18Df5HsXYZbUU5GQ1xfd
-	 fi0v7TAoNTl919Ju7PmXIWHbv5vdjY4W02y9tf2/E+C7Okube3BMxjjqNfMyghJZgf8N6
-	 mG8ZRJY53Z2xVZqvo/mE6XkpSYvE9eqUoV553xCl07a1vpPNkCJrsjio6mAnAzZBlMJz+
-	 yEge6cOBjtYs2VWauNiunWAEufg2eSokhGg3IxfgNbSIPo3T3HyZ3bFPcWcxkSQpBnA8H
-	 J+ZJY+UJlAjRr5/96QZdIKA8bq8nboZqrk0itCOdXSO3mEfOQaS//pq8oZ2FjCaaXXg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794481073;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=7Meslkpa8R+PBS0DyHZFPRgLYTJh3HuHkb0AOxumEFg=;
-	b=r5V2TXOaPTnmSfk69icd/PK+CFGNue2QtSHW36eIalZ2z0sOc3pbgMMtVf+ZlOqGh+fs
-	 PZPt/16H4Qak18WjJr1go08gNKdWWInpTxBXY5Vqh/UFCsYejDwGjQWBcE9pLX0BFRTEe
-	 haBethov8jbwqVCGqFIbhMopfXIfDkDt6DDtTlSvj7BUvhsj1eMtQojDp0yJY447VAA4L
-	 Cpu5+0MDCONK1F8d4NLpg7CwvYM5tomJbj/wAKeQ2XSzqmMbvZKShbEzc9AkUfIf7/nz5
-	 32ned//Ud8U0Rli8sr7MEBZQNz4+0wvLFAJI+qV9X4cX4TWV0zhnrik3jho0GQyobDw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=Lx3oOVyr;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=5Tucp5Ch;
-	arc=none smtp.remote-ip=202.12.124.157
-Received: from fhigh-b6-smtp.messagingengine.com (fhigh-b6-smtp.messagingengine.com [202.12.124.157])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794482417;
+	b=HM+EzPFt923Db7yAVvyV0zOUI84/bRdlVA5pIDREMsLOzXCDjuEnkqvQyFV7xbQ6P1b5
+	 Cq/2H/Q7aBFUD6WmlN+5LcBr/7UPXnMO3SYpzIGi1eX02mOki9wI80/ETwn4oYoT8KeLB
+	 Zrwq+P+KC6c7KInV5zSP8y6j28W4PRDiXt/8uhtq6ADzQo3OF6ccAvAmCDdRbXHx+XTm5
+	 qEKPrOlwmEcIlUvbeoXOsWyiK6ARZLEQKvASRLc+y5LDe45GDwTtXr1Z1yHrcJuEOxD2b
+	 XNLvzAbW7VkJJGQo6p/oJgHHAMW7WqrDQUztOFObNsu6DxcJfkv8AyoLYm1mcbJvh7A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794482417;
+	h=DMARC-Filter:Received:DKIM-Signature:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
+	 In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=jJEqc0txbFg3AnSKt6d/iAEvzG1LMYZ3me1fSJksIWg=;
+	b=po6qyly3bNRmywvsrDgCy1AtyLzM8C5cQbxdtnqPYSyzTW2IxuNOM8Yfwo11R3UEAOta
+	 MFdHKTarOhRfdwiY9Sd9hUN6tZIrtL3h18MFelpH+eT9b2CzuIzWF9RoIGyL28pbH3DRZ
+	 aK/MOTLyOW7AmX6cf5SPDxEvvWL4ZuqDBU4/ULq989Jz4fQGoLB2Bq5OG4tpBEhuNCMNU
+	 MlyIwfABoCXInvl4/wPpcJNMN2vafBz+69X8VfwKiBqK0sSlocRGxSjgq/E5RtpxbReBZ
+	 Z37112qWQ25Uzn2d/RlY9+ZeH1NbYqODhwhmug85I/ArnPucffl9SHSkCNofgxROE9Q==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=pengutronix.de;
+	spf=pass smtp.mailfrom=pengutronix.de;
+	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=NnVeavj3;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A44E606A31C
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 10:57:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4A44E606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A770760A2635
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 11:20:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A770760A2635
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=Lx3oOVyr;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=5Tucp5Ch
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 91F677A015F
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:57:52 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Thu, 12 Nov 2026 05:57:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794481059;
-	 x=1794567459; bh=7Meslkpa8R+PBS0DyHZFPRgLYTJh3HuHkb0AOxumEFg=; b=
-	Lx3oOVyr7xrldDhNotY/Y44ZUkWpUbS/Sw15HoBIt7zwVfFUJYzuhwJE6hHBi/f8
-	72PdLUrfif3QbiaqWlxNR28c8e/kBp2q3B8JS74VmKGEIA51P5NyNwQU9UU2U8DZ
-	5hOupRTbk/Bo1YRYVjiwE79692Z2HaOFkRbUqn04C0dAknhoZ/XF/BqXISN8djmK
-	nzQpQlDPCzLVKROdNaK/NAazeqQ5iP1EORfBNzaq7ok9xgR2qwyEFHaDlF4Y9AlF
-	XYa4+Lf5XVm+Qhxd+suZVmkwWbJXRviGrqHovHUmcPfLOq6ZV/oylQQuwfeVvML/
-	U7opSxQSF50d5vGuJszB5Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794481059; x=
-	1794567459; bh=7Meslkpa8R+PBS0DyHZFPRgLYTJh3HuHkb0AOxumEFg=; b=5
-	Tucp5ChVCBDjhl4dk5C7F5X3LVKTFsMP8gnn9x0MuH2+7jMPa4Nj+SIQT2DVG8uJ
-	u5wupJm5rdstAzMZZInODnyvvfpTJfSSXwspucG8yFOI18XQA+xNSYU8OspFIhSc
-	LO/T82B7R1uppnjALZIhacMzde9ZBYWKSQzN44nG7+0vSBMXLzlZpyo2vVWuFYH0
-	fE8J7L53cCmOZj5msmFb4hnFvbEATEFuLAZdCbui2G1dPgjuzrWnaKOAF5Kwkf9e
-	8FQ0yTD33WASXijjLCTz8CpmqYu/XHq6UATYTYTvybNI0UcKwDFTUQ2UkVbC+N6n
-	CdlnYUUoCZMBRuGIDFwhA==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794481059; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LmRldj4=;
-	s=fm2:rsa-sha256:kIOCYcMWi6KJH1GfMoYdK/65JBE2RjnVPW1cBuvVjd3N4HX
-	mUgDLgW5/3sRttSmYcVQl94fTc9HSrOz/78PcWsRcoF5RsFIMZkCgO9h51Jq2fUs
-	x/Z9LoaxsEao5t1XBTkcMLr/86wPPYJNdBcMYcoldFzAegb9GpL+p/X1+2Fdsuvq
-	mfZGDd3Uw/DCLTVw/2zZDtobPswuYHSUCG0djPhl+SFRNoeKqfMxb/5/bJlv/U1K
-	S+tOnvKwrjcgf1U4yILeRVVbn9ve1NaYvrslIlzl3UOJ3LuitUoLG4ssq3YyXUQh
-	0nu3Ou1tZ9x/5RLHZTaPbCnqTiC2rxte41ZEj3w==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:QYGhyNrll/z2x43nzHbHMzcpokL6CuOf/GHVHHBnNG4=:9cBz8A60daXm+XxflR0ZEsASkUqul+qaMs0gX60bkz4=;
-X-ME-Sender: <xms:lZv1aulnwhqAVrU2ywlIhlQkx3jcr_mjJ1oOcF-oQALIJdbh9W2MSg>
-    <xme:lZv1agpofMLGq5k0IqsluYkWK-3JUTpfBoFK3L6DLiuUPYqcFGn2Enty4uF_-XQnJ
-    z94b6dWlBxsjyCv4Ip2kz_9V8gd6SZusy2huFR7jeXtsherYI7qUTdq>
-X-ME-Proxy-Cause: dmFkZTFPAb5ZVZzWlLcejKGx6E4VA3h8PqNfBXtLQtoFPOgpmgytfsUfOyDLCYXd2SSa4q
-    2EH8IJ2PPzcvWQUIF8rzpRv4eG4RNXvx0NBusK63EGFOtvbarh8wH0CGqL2blZX5LnwxGj
-    Bq7bb6BFYZpib28HfQC1ujCrw0Q8TBW7/48cz6euAfTCWQtTfGAuyvgN7GbpRZsmgRF2E4
-    TCaNzGWqT+dNqpflZRaBZXkZZtt4lBXqOUPXc/rjd4+dtSMM8lEb+r/hClV3R/o7Q+s5sd
-    1lcFl3GcCnNdnbplqVUVqfvmlm5/4bt3TMMk6ZNCk1/IOqRAfS2+h81eYDNbQMld/1X+lI
-    8+vvCIKZ1a4bZphSYeDPjCLmrTmXj+ipxN85OGTScj/sl7+Ut3TC/P8rMkVApR+7BygKid
-    SkK0hxv5G+rH+sog2zIEng3jqw0sOhQu7dCKfMZsvhYS/RJDLdeoB3JlbIKQ1Ys7dHJw2w
-    E1GTp+3yFqf73WGe3gAJZsZogHWBjRGFo1jLw+xcZHLP9MN34ZbJcYdMqQYR6DX3zmMqyt
-    U2s5m3k8BcCtol6aY9t+57PktWJnKsaEvlPS7qbnA2Qi397OHuVQYt2HBnl4g4gG0zdN1t
-    W74OFEbJGA5QHDn0M9LErHNZjmr7Zm0RyUqswJebH+zD/PZn3cfiGvgMm5gg
-X-ME-Proxy: <xmx:m5v1apYfRm6Zt7Y0f2U2u3xCBkE7OANuu7_SI_WuQKzpEBsoK_gakw>
-    <xmx:m5v1aqwe9cSnJzJz-zCoa-M5X9VKgGBOT0Z-GKILMaQBtdU6hxleOg>
-    <xmx:m5v1angYViALKmj2ClSkaSfBGAsOhh0oZTdF0LOqTWdiA7YmSiqtnA>
-    <xmx:m5v1ahr24wqldhEb8CE5VCD_MYmhCuogL16D5SqQjqcPObg2XEt3og>
-    <xmx:o5v1ag_90SnSwFh8o9nRP0b3a1tEHU8n2Te6e-_AnmGGK-27gNICHabi>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 82A8332A009E; Thu, 12 Nov 2026 05:57:25 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=NnVeavj3
+Received: from ratatoskr.trumtrar.info (unknown [IPv6:2a00:1f:f805:2b01:a03:2f4:308a:7b52])
+	(Authenticated sender: str@pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id A4A7C202C24;
+	Thu, 12 Nov 2026 12:20:14 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1794482415;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jJEqc0txbFg3AnSKt6d/iAEvzG1LMYZ3me1fSJksIWg=;
+	b=NnVeavj38hwC38y1nq5Uldp0BzR0qUg4EkbyoskrmKZ7CHOL2adE6yqhyzehAAd7gzT+hF
+	mkKTSbW+EF5hPWnL7GjiW5NXXc1b02KH6QquiE2rpnrk5kvcSigH10dVa1Nii0Nq1WFTQS
+	WdwAqnmCJnDQTkO7Qxi1UUDmqjOTabE6xVko2WWTYwev4h4904mpPv83RMmxpTdD7+wLqi
+	79Lk3S/ND1Jj8m6Vq8BshwKUA6k5G/utnhO8UrqJ8JPjWkr/rp4cbxlHMaplsnrWTql7ZV
+	xlpCfddHktd5c9g5E6Y6FTEDWy9w6yybdvLg/qDaH2AoWpsiayxeIQ1UnLudnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1794482415;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jJEqc0txbFg3AnSKt6d/iAEvzG1LMYZ3me1fSJksIWg=;
+	b=dI3K03otnt+mWSGe0F1nPtLp0U43phkPTtmfyEnd5STAXWbTwQG5R22LIwsrfZBO9qQCKO
+	Nk8TXa4jYFsUzeWbNN6fBHYkS2V8c1swp32QdiFKAne1SjGfD+bhaDTuPFP2RiCxXtyjQ2
+	7pQyWdkvWk5MPNEHOFMfGXQ1BN50h1xuPV0O1omeDcLQCK3t3XqGn3Byn/ueZStbvolzJC
+	aOkusMmvZQ97R8on5EcK2ixd+CT5P+OJ3lzjUVsMHwyaSES8UeRG+pBrFefRBRZviIv12J
+	/PgmG4VbB/T6nsNehdJlAkPFzzMDQ1wfqYIWM6q5EGBkxTpseUzEFhAFXMEzjA==
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1794482415; a=rsa-sha256;
+	cv=none;
+	b=Rz55HEKURFkCDCb8juqBsGX0H5yhtoA+/UjETvqgyvSyW4NxoLfJIJRHHf6Lw/4/IA26ry
+	N3APxXz1prof9cXx9Xz/2KonkQNiHP8VNdfTNNaXmYN2/0DI+3hs8BexKkW/S49c8/yUxK
+	zqAw6TolS/AtwFQJ+jyegSDTK6O1iprqt4RRIZm80UCa0ic4tl61BIKAIm9N2uVHnhP1yI
+	IP6YTyy+cBIYk2vdExBdjJQNW36rI40Uh2VBV/0KiqetQMWW0ZW631FC1+HjRhk1adqwQR
+	2clxDzz4wTSm4s6oA888r8bPH/068fagfjBw3rZrg2P0npz+ZqRJjgnIoZUNVw==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=str@pengutronix.de smtp.mailfrom=s.trumtrar@pengutronix.de
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Date: Thu, 12 Nov 2026 12:19:34 +0100
+Subject: [PATCH net-next v5 2/9] virtio-net: zero the whole tx header
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -115,82 +83,93 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AD8wiEBgakfZ
-Date: Thu, 12 Nov 2026 11:56:55 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>,
- "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Christian Brauner" <brauner@kernel.org>
-Cc: "Matthew Wilcox" <willy@infradead.org>,
- "Kirill A. Shutemov" <kas@kernel.org>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Miklos Szeredi" <miklos@szeredi.hu>, "Amit Shah" <amit@kernel.org>,
- "Jan Kara" <jack@suse.cz>, "Zi Yan" <ziy@nvidia.com>,
- "Bernd Schubert" <bschubert@ddn.com>, "Hugh Dickins" <hughd@google.com>,
- "Baolin Wang" <baolin.wang@linux.alibaba.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@kernel.org>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>, "Simon Horman" <horms@kernel.org>,
- linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev,
- virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com,
- "Malin Jonsson" <malin.jonsson@est.tech>,
- "Richard Weinberger" <richard@nod.at>,
- "Geert Uytterhoeven" <geert+renesas@glider.be>, "Nishanth Menon" <nm@ti.com>,
- "Frank Li" <frank.li@nxp.com>
-Message-Id: <bf186643-780c-40e0-bde6-f2af90404a18@app.fastmail.com>
-In-Reply-To: <4d6a3d68-3fc7-446e-9f59-f61d7475e22e@kernel.org>
-References: <20261110145241.536019-1-kas@kernel.org>
- <20261110145241.536019-2-kas@kernel.org>
- <avNuQqLf9CG9dSsE@casper.infradead.org>
- <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
- <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
- <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
- <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
- <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
- <e94bdf7c-eae6-4f64-bf93-0aeedca1a22e@app.fastmail.com>
- <32ad880e-5946-4703-9c6f-43ff59da39af@kernel.org>
- <3eb60948-8fc9-4682-87c2-c113e54e7d4e@app.fastmail.com>
- <4d6a3d68-3fc7-446e-9f59-f61d7475e22e@kernel.org>
-Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20261112-v6-7-topic-virtio-net-ptp-v5-2-7ab67b572f4f@pengutronix.de>
+References: <20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de>
+In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Richard Cochran <richardcochran@gmail.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
+ Daniel Borkmann <daniel@iogearbox.net>, 
+ Jesper Dangaard Brouer <hawk@kernel.org>, 
+ John Fastabend <john.fastabend@gmail.com>, 
+ Stanislav Fomichev <sdf@fomichev.me>, Eric Dumazet <edumazet@kernel.org>, 
+ Andrew Lunn <andrew@lunn.ch>, Simon Horman <horms@kernel.org>, 
+ Kory Maincent <kory.maincent@bootlin.com>, 
+ Liang Chen <liangchen.linux@gmail.com>, Heng Qi <hengqi@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org, kvm@vger.kernel.org, 
+ kernel@pengutronix.de, Steffen Trumtrar <s.trumtrar@pengutronix.de>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2081;
+ i=s.trumtrar@pengutronix.de; h=from:subject:message-id;
+ bh=iebGne0EFwpiZlMyi8WaoLIyhzb1vtv6eJH2r4FE9fM=;
+ b=owGbwMvMwCUmtVehiCsuTInxtFoSQ9bXBa8ZHSRr2TaJJB13uLI/Oe1l8MIP5RxXfpgaKLjk7
+ U9Pk63sKGVhEONikBVTZFFZWMEn6vHBM3KaCBfMHFYmkCEMXJwCMJE5sgz/KxU/dQps/lGWf+L4
+ fu1oc0eF91Y6HrFGLWcUbtrH/5qwiJHhpf33rl+LtV5WXwp8Gp42Izn0m8Ta2UYHFh7ZN118T8c
+ mFgA=
+X-Developer-Key: i=s.trumtrar@pengutronix.de; a=openpgp;
+ fpr=24A1780E1548F0495996140A1ABD20720A5E5622
 
-On Thu, Nov 12, 2026, at 10:28, David Hildenbrand (Arm) wrote:
-> On 11/12/26 10:25, Arnd Bergmann wrote:
->> On Thu, Nov 12, 2026, at 10:09, David Hildenbrand (Arm) wrote:
->>> On 11/12/26 09:55, Arnd Bergmann wrote:
->>>>
->>>> I tried to push for what I thought was an aggressive timeline
->>>> last year, but that would still keep the Arm bits for a couple more
->>>> LTS releases and only gradually reduce the scope of highmem in the
->>>> meantime, removing support from architectures, file systems, and
->>>> drivers where possible. See https://lwn.net/Articles/1051010/
->>>> for a summary of my talk in Tokyo, including the slides and
->>>> a link to the video for anyone wanting more details.
->>>>
->>>> I also prepared a number of patches towards this, but have so
->>>> far not been great at following up to get them merged, sorry
->>>> about that.
->>>
->>> I think we can already start at removing CONFIG_HIGHPTE now, right?
->> 
->> Yes, I think my patch from two years ago still applies, see
->> 
->> https://lore.kernel.org/all/20241210160556.2341497-4-arnd@kernel.org/
->> https://lore.kernel.org/all/20241210160556.2341497-5-arnd@kernel.org/
->> 
->> If not, I can send you an updated version.
->
-> yes, please, that also brings it up to reviewer's attention :)
+xmit_skb() builds the virtio-net header either in skb->cb or in the
+headroom in front of the packet. virtio_net_hdr_tnl_from_skb() only
+clears struct virtio_net_hdr (10 bytes) and, for tunnel GSO, the hash
+fields; num_buffers is cleared only with mergeable rx buffers. With a
+larger negotiated header the remaining bytes go to the device as they
+were in skb->cb or the headroom:
 
-Ok, I have rebased my old patches to 7.4-rc2 now and pushed them to
+  - num_buffers with VIRTIO_F_VERSION_1 but without
+    VIRTIO_NET_F_MRG_RXBUF (header size 12),
+  - hash_value, hash_report and padding with
+    VIRTIO_NET_F_HASH_REPORT (header size 20),
+  - additionally outer_th_offset and inner_nh_offset for packets
+    without tunnel GSO if a UDP tunnel GSO feature was negotiated
+    (header size 24).
 
-https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=highmem-7.4
+Clear the whole header before filling it in. This also covers
+num_buffers, so drop the separate assignment.
 
-I'll do some more build testing on this version before I post
-them to the list.
+The helpers still clear struct virtio_net_hdr and, for tunnel GSO, the
+hash fields themselves; that is now redundant here, but they are
+shared with tun, tap, af_packet and the UML vector driver and stay as
+they are.
 
-    Arnd
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
+ drivers/net/virtio_net.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index dd2c41ef6fbe7..4c740b403ad1e 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3326,14 +3326,16 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+ 	else
+ 		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
+ 
++	/* Fields the helper below does not fill in must not carry stale
++	 * skb->cb or headroom bytes to the device.
++	 */
++	memset(hdr, 0, hdr_len);
++
+ 	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
+ 					virtio_is_little_endian(vi->vdev), 0,
+ 					false, feature_hdrlen))
+ 		return -EPROTO;
+ 
+-	if (vi->mergeable_rx_bufs)
+-		hdr->hash_hdr.hdr.num_buffers = 0;
+-
+ 	sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
+ 	if (can_push) {
+ 		__skb_push(skb, hdr_len);
+
+-- 
+2.56.0
+
