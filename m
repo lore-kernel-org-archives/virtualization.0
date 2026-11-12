@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794474532;
-	b=fSPsNYBKbPalGjadr2jwnoA+LWfG5xYPt5wBo6HYR6JZ2o4IPSDAMTyhGqwxx4PXK4Qa
-	 vtN7l5BLK5r5s5PfYJRTC0OWXMYT7X8tZZZXnDtYgP1GyNBhrPi1r7tGAHMibIbXH1qpQ
-	 IFn53wYXTNU03kSUVEfMgZd/PfiZrBVZG02lMtzjJ1SpZXtIIM2rx+prTOVDQ1V0a2cg1
-	 TvaoBw3hhqmJc8vUAns5WtwRKirIlZZKDAqmQAcix67x6VUNoM1K1NHblSgShJGKo1q/V
-	 luQXm40Q3GbhryaOjdUnEQ9cyjtEPU/pyCWoaK2ihcyRu3PpHd4livVMKmg0KlNU58w==
+	t=1794474534;
+	b=saUjdu26pSqX1H8unnxGDJIS3xmioKaYL98dKt5AQ0aUuJduqkw1MWk3oWCyHeQVsNH4
+	 eLC78ivQD3jAm593A/Z52weQLcV0lZ4eW/KQk60NiGo+fni/qKdyOh92Z6iYcla3MstZf
+	 ayGqR9zhPWwoLtekKd2+pSX1ttgIuw4xJ9OPjrYc52vgm1qrHbSvtq35HLgSYdDzdrC92
+	 HnmU6U3xayrgX7coyvESEf8gRDyXVoXeYsyEnL/S8hawQ8ZsRAfFzukBqHdIuRAyNpPLB
+	 dv4YayFA4JU9RAxKQM1hPXqYRA/vyi6frFuL4tnV+lQp729U5F0MsGJGMELelAYHXLA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794474532;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794474534;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=jfur0JwGPP3YhrPF4AKl6ftPcUevfDuDAlgHaqXSrB0=;
-	b=QI0FYB/oK2+pFPhl9Vf8amNpBa1LT/Dzy625qipXBjGEqSixHQbCnkU4L+HaWXC75p2I
-	 f2SkrL3fkabOzM08F3K/XDkwqBPvD03uz0vNrFKylORRpMfTwkWCM1s/597Il3G4VJzJl
-	 WK5RldBjoEEr/Twyd+NQAx4moeHPRTjovwELMRlOLNSdkqjiWiPwSliAt01CkmSf3KKcM
-	 VQ9BFVuyygj6ARv2mzVWAl/SnR/9EHg8iMuE5sgf7GGmIHG1JSuE4pKKybhfuiUxuEjnS
-	 MeR2f1PN6gNIHsHAR2sQ0h0Pb4+XV5z5SGE+V1mKTCvqabEaUmQVhKex0lkwWarXZ1w==
+	bh=/9ww1N5nsdwVJ5jc9GGE9C0y9FZmcAfTmK8O0gHQ4iY=;
+	b=YlWD2HXoEmdO4q0C+W9ipQT6FHN9Obpq23ZrjocN5mx5/q4ubYK/XsXI43SFC4pFgbXG
+	 3o0C56hsZoVYa7R+zqq3k2QF3eL+93ewgyp64w7Lrya4V/FgnDzAr7f+F4KdxBUuPuSWJ
+	 cwjpzyMW9GGrIxfK2APpsFV58qMIyPd6Y7NKfAyjedCph1R42yg9ncn5ldgrqJ1xoYiSm
+	 EvsbzI7yFVBmaozQZPdsm9tLbG5WfpxZ0A8BH3YOldfpcKWJIF3NeaeKcyYK5O4JsiQcp
+	 sV3lnvF5ahkgjIRGrWNC2to5H5mWC1HVIHfj83/HMjHElGC3B4xMx+f3F1YTsDZz8Jw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iAKKtC7T;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i8FYY37D;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D0E606A331
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:08:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C665606A31C
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:08:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iAKKtC7T
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BD891F00A05;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i8FYY37D
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63071F00A06;
 	Thu, 12 Nov 2026 09:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794474532;
-	bh=jfur0JwGPP3YhrPF4AKl6ftPcUevfDuDAlgHaqXSrB0=;
+	s=k20260515; t=1794474534;
+	bh=/9ww1N5nsdwVJ5jc9GGE9C0y9FZmcAfTmK8O0gHQ4iY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iAKKtC7Tk8zdMDnrzzK6hEJGXxx/k/U7LYMClyBC/57swnvQrEKeTc9wWG0KuloP6
-	 JgyPmFrTpIs1aGA9Mw7DTNzgwlFVC2czV/GGrwgBlMOCdD9m0yUVqBHx8Aj+OE8EHQ
-	 9M5Qes3wXih/2CRiFerhaX9BUAv4WJCTF7bMBN3v7jMvQ+cOp/3QSKKN+wVmS22IR5
-	 zTj440twWbkfO03X1hipmFHfR2eDa45qsBRLTpeneBjA3gwvbpRbuxPjpgOZ2sJEbU
-	 x4Jl6ZZBKOSBmLqaHwFyEw3lhIO/uyvlqCCK3vyY5onBYFJSEtHRcfxJGdF67c0pp+
-	 KCqf4Op170zNg==
-Message-ID: <sashiko-outbox-210826@kernel.org>
+	b=i8FYY37Dojw27MA/CfkLnHoYxFIn4rZBKPwtX7yvmASujMK17nDbAv8AICrGkeoJ3
+	 qTFs0eZwywf4ZxfISbDxP4HJgzYJCKOWKPYXBn6f+n+X/H6nLdstIvrOvl0zqy2Dus
+	 pzY7bzPyKq+bpHhMU43XebZE13SjqbRgUkV6NPGzTKh6t1/J1It8o0MZNaiNlG28qw
+	 +3l+fz9GVGONwQCpwoDW0USsKOGGUzX9Sb/suCp/ZjVDHs/iWBl4nfsvQ2lF+UjYrQ
+	 +7MxmtSGgRhKLQ2M0GbBAikgkCigSiJiqULgPox9ftQgfJfR8ZOB2mZj7LYrWE2BvD
+	 1lVWgdk3VVbFA==
+Message-ID: <sashiko-outbox-210827@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] vhost: set dirty log bits without pinning pages on
- x86
+Subject: Re: [PATCH 2/2] tools/virtio: add a vhost dirty log test
 Reply-To: sashiko-reviews@lists.linux.dev
 To: zhaoguohan@kylinos.cn
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112085631.128819-2-zhaoguohan@kylinos.cn>
+In-Reply-To: <20261112085631.128819-3-zhaoguohan@kylinos.cn>
 References: <20261112085631.128819-1-zhaoguohan@kylinos.cn>
- <20261112085631.128819-2-zhaoguohan@kylinos.cn>
+ <20261112085631.128819-3-zhaoguohan@kylinos.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 09:08:51 +0000
+Date: Thu, 12 Nov 2026 09:08:52 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,33 +63,29 @@ Precedence: list
 
 > From: Khan Zhao <zhaoguohan@kylinos.cn>
 >=20
-> set_bit_to_user() pins the log page with pin_user_pages_fast(), maps it
-> with kmap_atomic(), sets one bit and then unpins the page and marks it
-> dirty. This runs for every bit set in the dirty log, e.g. on each used
-> ring update while logging is enabled for live migration.
+> Add vhost_log_test, which exercises used-ring dirty logging through the
+> existing vhost_test module. It sets a log base with VHOST_SET_LOG_BASE,
+> enables VHOST_VRING_F_LOG on the ring, submits descriptors and checks
+> the resulting bitmap from userspace. No new kernel interface is needed.
 >=20
-> log_write() always passes a byte address and a bit number in [0, 7], so
-> the update can be done as a byte-sized cmpxchg on the user address. On
-> x86, try that first using unsafe_try_cmpxchg_user() inside a
-> user_access_begin()/user_access_end() section with page faults disabled.
-> If the access faults (page not present, read-only or needing COW), or
-> the cmpxchg loses to concurrent updates of the same byte four times in
-> a row, fall back to the existing pin/kmap/set_bit path, which can fault
-> the page in.
+> The test covers:
 >=20
-> unsafe_try_cmpxchg_user() is only implemented on x86, so other
-> architectures keep using the existing path.
+>  - every bit in a byte, repeated sets, and neighbouring bytes being left
+>    untouched, including the last byte of a page followed by a PROT_NONE
+>    guard page
+>  - a log page that has not been faulted in yet, read-only, PROT_NONE
+>    and unmapped log pages, and logging after access is restored
+>  - private (COW) and shared file mappings, checking that the bit reaches
+> [ ... ]
+> A --bench mode reports ns per descriptor with logging disabled and
+> enabled. vhost_log_test.rst describes how to build and run the test.
 >=20
-> On an x86_64 KVM guest (i7-12800HX host), a synthetic used-ring
-> workload with logging enabled went from 243.60 to 171.11 ns per
-> descriptor, averaged over five alternating runs. This is the
-> end-to-end cost per descriptor, not live migration performance.
->=20
+> Assisted-by: Codex:gpt-6.1-sol
 > Signed-off-by: Khan Zhao <zhaoguohan@kylinos.cn>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112085631.1288=
-19-1-zhaoguohan@kylinos.cn?part=3D1
+19-1-zhaoguohan@kylinos.cn?part=3D2
 
