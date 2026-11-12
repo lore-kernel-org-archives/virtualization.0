@@ -1,86 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794493200;
-	b=WS+TU9nTJvvMRdfDwmAYRZ+cDETOOZYIvfbeOwEhSFv/lm0EdG5kCMqgNVuYaXotRzyQ
-	 hbUZnnLNhxlow6XkwVowirvEpfMmom1O5rQhgfm0BOV8Vlq/DF+2isvoZXzIOzCdnK4vS
-	 w0MAJlXR/C67RGRzJVAeZc/F2RVj1ZZP6lX/BgVDyejd2wSNYpANM207kVKJnLoH9IuX7
-	 0c+LNsmcoSFQgCokMF65/fRP2zo17CiMUrYJoQ+WxXsm18omzNLh3x/ymikDHkwdKN4b0
-	 xJRQ/Go8faNJE3ovuMBUigNdD576AliTL9vki2Av7hlDERV7oUnqDxblHBPG+tp4NNQ==
+	t=1794493337;
+	b=MA0yyKhFvjZnXc8p3WPKs3QAFjVxLEhv70YJnb4V84hfDPlaZo0f5nrFsdLHlU9IE02U
+	 Ol0AkzIFRss0mLXGIe5H/OWysDrdO0Wt6qFNns/hQhC6/k9ckuwmnS7lN/QqxyZ3187ZA
+	 ztVn4ZPZpp2wTMFHVc5NF/NhXto2mUG1D6IGePJczP7JR2BQxu924j9ChItdYCKaYG/ZY
+	 /eGJDhAg3AEOJZkBYa1gBQ44AAcafWE2kNgnqWfaqV6Tivpwtc9XHATz22qZx+5P7pvFJ
+	 K/QUDqaNY9/F9TXl06ZFJiNFo5vM5BFdcTbJ+T4NDMS+8PBPgtpW4lGwO0vvCJm6sKw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794493200;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=ycPyXlQxqPcynh4hgD5HOBjhMwhv2JiLkDDxXjwNZ6g=;
-	b=4/tz5zKsvTLeo/TpwsKgQmCNcBVgcuHrJ2wXOr0jJsp+uiAxpGQY08V+UKoQDJS5TzSc
-	 nOZpr7iRBKH8voyeVkOs9TPZTAAde0Jqn6wASPWh8P79COi1Wob4tS/fqXJcLLB++Fb5+
-	 YShGZ/CTeWxoNgmtlKMVXks7UFilIUWaYdZEeWZRUr/AJd57KBwgZW8WsVfaQsP3aWGKD
-	 73upAq1dv8ft4fRH/ZRkewM9xHy080yEWchJEAWAnsGa0Mg2baNNBlOfORTsLaJtQ8Ari
-	 EjBjNXEi4nYc6Z5W1CAlis4lGKY7SEsIiiQAJqIexg1LCIsGLq6Az268qIuN7nKxJNg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794493337;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=q5ycgM6KpIgl8GosUfIZQ6wJ8AxoFNABYsI2jhCC9jo=;
+	b=vsOHGgIaydLk41PDrQFWgcJXxLLnGsSdMsXlOQnObyEwjle4Uu7FHtvZbupmyhs8vmeH
+	 IIgyCLT8V3owbYeoGWtr8/0oQCeiaw4CI48Ud+S1+ZAxKxzBOTeHiwz2FNp0yLrBFdl/v
+	 JKZiVR+V0uSSC7txYQqi9xyytgsGpaGwPqXbkAm8+q16FyeHABs549yjL7Yynx2pT0yE/
+	 jceIgJ+B6F8quc26iyl9iQkkRbwit3I4ZNiJeLHVsTnie/IYc65U+O8PRE7jPcLL8tq4l
+	 8ey4+ZB3WtSREVxzq4sxEqPQ6NiN8GXfEAdt4F5Rj1Pllb4hHTlr2PgAUZkSCLZjg2A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linaro.org;
-	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=k6aQ8TBg;
-	arc=none smtp.remote-ip=209.85.128.53
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cKOSqlB7;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC19F6072A20
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 14:19:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC19F6072A20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E510C606D561
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 14:22:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E510C606D561
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=k6aQ8TBg
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4a2153c8525so33476715e9.3
-        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 06:19:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1794493198; x=1795097998; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ycPyXlQxqPcynh4hgD5HOBjhMwhv2JiLkDDxXjwNZ6g=;
-        b=k6aQ8TBgvOP81qK8evRjO1kfyLhq37qbBlEGMjRzMYGHxNtz+BFOCJGKr3+gPAtExr
-         K/8DJI+sKVNzR00NgxC69t1PwfynRjIf2+oh7dllbH8FG5RM4/Q96vp1B5lHIzdLccgi
-         CRZSBsLU4uwpzZSB319txOuHJU0WN6vU0SvJWx7YpHJb4mWmieOOpEa+umXiQTn53Hnr
-         VaxSyoM7oO53jHzZ+godH1VkcH8yZ9j4nzV0BYSqVLHlPp1o+Fx+lIM9+iZL2bS+HN6s
-         XRN/wlXmoHVPxj2nJd59UsEt2NthrFB2Ahzd9U2gVna7dWd38fraBnq6oZe2CJkw7o0e
-         N6Ng==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cKOSqlB7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794493336;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=q5ycgM6KpIgl8GosUfIZQ6wJ8AxoFNABYsI2jhCC9jo=;
+	b=cKOSqlB7r6419D3IqpSwULSv58sZTBwaBy8uhfqb5oVH8Acy5LKVouyAdgzOiJVGhayEi6
+	fC7TOpYzTi0bmAWMu0WvlZzW7KR2e6u4xX0l0LwIdwnK+Jy4KZZGQgjMPWhAKehZA+192J
+	P51UgTTjbEwXunCsGzrwSO44KFgXXv0=
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
+ [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-462-BaISpkriPVC-lDTxUy2ZXg-1; Thu, 12 Nov 2026 09:22:12 -0500
+X-MC-Unique: BaISpkriPVC-lDTxUy2ZXg-1
+X-Mimecast-MFC-AGG-ID: BaISpkriPVC-lDTxUy2ZXg_1794493331
+Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-8210034ccc0so5544108a34.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 06:22:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794493198; x=1795097998;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ycPyXlQxqPcynh4hgD5HOBjhMwhv2JiLkDDxXjwNZ6g=;
-        b=0La1cGgrbbgJZz8sDaQ1lcNyyj2Vt26RufPGQp6zdNzOnt/ZqwaAjC5/6rztHl9pyY
-         Z6Ge+3XeOsVBC7M+e6P2bWADLFJlDsuQMuX8m32xxUbjNqp5pspvJBHQpWOiRvWqvJim
-         x3Nu4qN169anF4lQk3dZL7h5l/rMJUNLQhBVnLIkSwAVER5e2ajZ6pCqYFBh56P9uazi
-         GJBFhrIfo+c6OrRmURljxg2R7uEWykrHm4kQpfq7KA/5Ovhwb4k+0eu8eOwDT2EoENlq
-         0dscgWL0PL8NKd56m+KmSaUn3rNKUELLsF2Nz7Jcw+hR9zMK/lvyIicnaubZ6fO44rDE
-         a7iQ==
-X-Forwarded-Encrypted: i=1; AL+hErF4cTVQ3ott1pNlIHxqjLQ/XRIV+rKdVpQwPVkwsjtVJ28WTKrbjr7g8kDTrj8bRyEg9EazFkHK+Hm4iIiS5A==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+T2jCSWVg189mAfGz8gzzXSDs71thEDmBHcX2FP9V4iE03Zo/K
-	ibWOTiKE2EvxGt+6cWitmdN320Le/dq5DXsAGzr5+KKO8Id32MxYcI5mvQ+Yty5p520=
-X-Gm-Gg: AYBFou3FBJxuKclnyPzHrOKqJN85lE5IjfxzZrPByRvvcW2dfJ0uptPlNHC1hoFf5e7
-	Q1lNJ9AU4UiyFSvmQXZzkssrun3x2GAcvIDCnvEXJZmXVrebzbbsSlWXVVP2hkQ3W++CZfjWpsO
-	/PhzKgzPas2SL1mV3v1zQRRiKC1kKu7EIa4fBojXsSCWnn3gY7Lsw779Pd8PbOmncqLjaSopmYU
-	YZbmww3GgV9RdC2TZElMQ4QYhH8/DTMBNVeJr8UW81LN+duFQFvmBnyb+SdM0OxqV7p9peEqBUU
-	SxiQlc4XP0s/cjVfjF/A38SVzMgjcM8LoMKcyfZ48z3ijJyoM8/yvFjDQBRbfyoGJMgubEW6kTX
-	imvV/lRViHQsqjiBDoXA0d6jnvVXzLdotK1A16U+vyYQLbCvrHkZr6WaqAG0VjX2XLK7/i92R0F
-	pFo9dXzibtWpnjGeZWTmZdHPu/V7kPaV0FZuUWkgZRH+11unpvywT2B/X+TXiNRsP25smRnBC3n
-	Z+c2NzQe88ZOzPi4dmNGyHhu/fjwSigKg7cgU5Vw0WRnSy4R+MQFVYp0bv5hltfUGK81t6yLdCd
-	qlViHukxrPsVoDCloDiW9qGFGugdW8hqptn5l+wUwrU=
-X-Received: by 2002:a05:600c:4f84:b0:4a3:59c2:b41e with SMTP id 5b1f17b1804b1-4ba0931ed6bmr104812575e9.4.1794493197930;
-        Thu, 12 Nov 2026 06:19:57 -0800 (PST)
-Received: from [192.168.0.167] ([109.78.26.158])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb4e29d24dsm75906065e9.11.2026.11.12.06.19.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Nov 2026 06:19:57 -0800 (PST)
-Message-ID: <a35530a0-3a4e-4975-8335-94898aa9abaa@linaro.org>
-Date: Thu, 12 Nov 2026 14:19:55 +0000
+        d=1e100.net; s=20260707; t=1794493331; x=1795098131;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=q5ycgM6KpIgl8GosUfIZQ6wJ8AxoFNABYsI2jhCC9jo=;
+        b=zqGpLDZCjdDhxb2RlOLk2Hh0xQceUpvTliuu4e2b8kbBZnN+EFBKiXK+1CLBwwjQlL
+         VW253Uwu1QYObIDBMXSIZrCxsF/ZraKhherj0VYnBjdC7/qXVU5CN9hfD+XitPmb2SwL
+         Ks7zCkOedcFw817uP3CdZslzgN6N7sSzsfJU4dbVneqOnSsKVZQr2iiECFXOvggjIfpc
+         nLBAcdXveIdf6HR2ZBnLVCdxr9oWfT4XkaJlbRI5GZjeo33WozOKvdaYF5PiFAnz0nRM
+         5x6Q8h9gdzJrMVnZIlVjPk1Q39THrwkJNFLL/ZsI6y5EfYBM2KQaB6tMVvHIzSuEdVNn
+         wxSA==
+X-Forwarded-Encrypted: i=1; AL+hErHAXy/XBKudSwvMwDkTNSzP5bVvLM6pFY8S+EiN7fugJWsnJdinpmP3YDIbPuIGeAd/IKmdcLyd0e0CeJ5UJw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9ECu6v8eptTspiNgBNbx3xb7m6t+08Cro5UB0pB+1jKGB/+LMt
+	yCVsGuGCsnYiZSh7vqjBIdKyQZ5uCB4rn2AL7omdEb5DQDsUBoh1ly7LlUAGs8Q24QQSG3pb/iR
+	80Oe1QAr89GKMNG4tJI7AeILiE2jM6z7vYQEHW5drkuEuJR2XSF/LdKpeKiX1ujTaxlDx
+X-Gm-Gg: AYBFou1WFOrXVWDPB5RruVSDux0E8q5STEL+uRttaL/oiAmdirXsAcGkecFe4EcrjJM
+	0ZApnjyMGlEdwq1qn2xdLJ+ed2xb+UpseSKWQA8HAaIub7EHEYghE0WWLmCD8DKbtVthk1GAQpd
+	IU/E4j/TCFIv8EdnCiVTtlwicxAInAscBPH1UHOD77yDmZ8iUCEGkxUsA2YxRc4gFcU8voQR8aK
+	b4HE+TKb6X8j3iKCfjOdGWdILDOa2zk7rsFUmr3VTV9zo0ZbK9AVGYNgdj8iJVkj/tm/6/337rw
+	akd0CuONxQ27lU8wLmT/bg0/fyFKr6Yn2o5yt/m4Gv73PSl7Sy4fzpFvfHDRcWlGBM9Co6q6j+N
+	p11hZBip/lc8BsBIIv/uZ9VIWJSqoAKyeD4Wl2N0ryib1OySCU9Ms
+X-Received: by 2002:a05:6808:5198:b0:4f4:9314:af39 with SMTP id 5614622812f47-56b96bd3b81mr4468309b6e.28.1794493331002;
+        Thu, 12 Nov 2026 06:22:11 -0800 (PST)
+X-Received: by 2002:a05:6808:5198:b0:4f4:9314:af39 with SMTP id 5614622812f47-56b96bd3b81mr4468260b6e.28.1794493329942;
+        Thu, 12 Nov 2026 06:22:09 -0800 (PST)
+Received: from sgarzare-redhat ([209.52.143.85])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4ae22fbc9c5sm5819481fac.9.2026.11.12.06.22.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Nov 2026 06:22:09 -0800 (PST)
+Date: Thu, 12 Nov 2026 15:21:53 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: stefanha@redhat.com, mst@redhat.com, jasowangio@gmail.com, 
+	eperezma@redhat.com, xuanzhuo@linux.alibaba.com, bobbyeshleman@meta.com, 
+	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, 
+	horms@kernel.org, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2 1/3] vhost/vsock: release the accounting of
+ packets dropped on rx errors
+Message-ID: <avXG51ibBiap9tG9@sgarzare-redhat>
+References: <20261106050244.602625-1-green@linuxhacker.ru>
+ <20261106050244.602625-2-green@linuxhacker.ru>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -90,80 +106,126 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 4/5] iommu/of: Require reg for iommu-addresses
-To: Vikash Garodia <vikash.garodia@oss.qualcomm.com>,
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Vasant Hegde <vasant.hegde@amd.com>,
- Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>,
- Jean-Philippe Brucker <jpb@kernel.org>, Rob Herring <robh@kernel.org>,
- Saravana Kannan <saravanak@kernel.org>,
- Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
- Eric Auger <eric.auger@redhat.com>, Joerg Roedel <jroedel@suse.de>,
- Srinath Mannam <srinath.mannam@broadcom.com>,
- Oza Pawandeep <quic_poza@quicinc.com>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Alex Williamson <alex@shazbot.org>
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, devicetree@vger.kernel.org,
- kvm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-media@vger.kernel.org, Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-References: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
- <20261106-add_iommu_ranges-v7-4-5c0f72083e52@oss.qualcomm.com>
- <3713bf13-cec6-4b02-a29b-8f76070f03b3@linaro.org>
- <97c4eabf-16b0-4e3f-8aab-1c56912c27d4@oss.qualcomm.com>
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Content-Language: en-GB
-In-Reply-To: <97c4eabf-16b0-4e3f-8aab-1c56912c27d4@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20261106050244.602625-2-green@linuxhacker.ru>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: UD5FONFDCwgXPnN1xTQ8Q0HIptK5A2u1FFczU4pDIQM_1794493331
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 12/11/2026 14:04, Vikash Garodia wrote:
-> 
-> On 11/11/2026 5:32 PM, Bryan O'Donoghue wrote:
->> On 06/11/2026 17:14, Vikash Garodia wrote:
->>> @@ -257,6 +252,9 @@ void of_iommu_get_resv_regions(struct device 
->>> *dev, struct list_head *list)
->>>                   }
->>>                   type = iommu_resv_region_get_type(dev, &phys, iova, 
->>> length);
->>> +                if (type != IOMMU_RESV_DIRECT)
->>> +                    continue;
->>> +
->>
->> This change is not about requiring a reg though, which is why it 
->> should be a standalone patch with its own justifications.
->>
-> 
-> This is about reg, which determines the direct mapping, hence the code 
-> is very much applicable to this patch. Please refer this code [1]
-> 
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/ 
-> tree/drivers/iommu/of_iommu.c#n223
-But this change is not about requiring a reg. It's about not reserving 
-when reg and IOVA don't match.
+On Fri, Nov 06, 2026 at 12:02:42AM -0500, Oleg Drokin wrote:
+>When vhost_transport_do_send_pkt() fails to deliver a packet to the guest
+>(unexpected output buffers, a buffer smaller than the header, a fault
+>while copying the header or the payload) it frees the skb with
+>kfree_skb() and gives up. The success path does more:
+>virtio_transport_consume_skb_sent() subtracts the payload from the
+>socket's bytes_unsent (SIOCOUTQ), and for a reply the queued_replies
+>counter is decremented, restarting the guest's tx queue once it drops
+>below the ring size.
+>
+>The error paths skip both. Every such drop leaves SIOCOUTQ too high for
+>the life of the socket, and every dropped reply permanently takes one
+>slot of the queued_replies budget, so that after a ring's worth of them
+>vhost stops processing the guest's tx queue for good.
+>
+>Release both on the error paths, as the success path does.
+>
+>Found by an LLM-assisted security review of vhost-vsock, done while
+>porting a project from Xen to KVM. These error paths were not
+>reproduced: they need a guest that posts malformed rx buffers.
+>
+>Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+>Fixes: e6ab45005772 ("vsock/virtio: add SIOCOUTQ support for all virtio based transports")
 
-So reading a patch entitled "Require reg for iommu-addresses" doesn't 
-actually transmit the information of what this second change does.
+Why this Fixes tag?
 
-Which is why that change should have its own patch.
+>Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
+>---
+> drivers/vhost/vsock.c | 23 +++++++++++++++++++----
+> 1 file changed, 19 insertions(+), 4 deletions(-)
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index 88a310390eb0..b0004cb48999 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -104,6 +104,21 @@ static bool vhost_transport_has_remote_cid(struct 
+>vsock_sock *vsk, u32 cid)
+> 	return found;
+> }
+>
+>+/* Undo the send accounting of an undelivered skb; true if tx may restart. */
+>+static bool vhost_vsock_drop_skb(struct vhost_vsock *vsock, struct sk_buff *skb)
+>+{
+>+	bool restart_tx = false;
+>+
+>+	if (virtio_vsock_skb_reply(skb)) {
+>+		int val = atomic_dec_return(&vsock->queued_replies);
+>+
+>+		restart_tx = val + 1 == vsock->vqs[VSOCK_VQ_TX].num;
 
-Require reg != don't reserve reg + non-matching IOVA.
+Can we add a comment to explain this check?
 
-A reasonable reviewer might ask "why is a mismatch dropped instead of 
-reserved" - which is the question I ask myself as I read and IMO isn't 
-answered - which is why I've asked for a patch which reasons that out.
+>+	}
 
-It may be that conjoining iommu-addresses/reg and !reserving mismatch 
-are in fact the same thing but I don't think that jumps out of the code 
-as you read it and I doubt adding to this commit log would make it much 
-clearer because it seems like two changes in one patch.
+nit: try to follow the style, e.g. leave a blank line here.
 
-It would be something like "require a reg and don't reserve on mismatch"
+>+	virtio_transport_consume_skb_sent(skb, false);
 
-The "and" part is the part I'm flagging as likely deserving its own 
-patch which explains what/why but "require reg" ain't it.
+mmm, this entire function is very similar to the code we have in 
+vhost_transport_do_send_pkt() where we also call 
+virtio_transport_consume_skb_sent() but with consume=true.
 
----
-bod
+What about renaming this entire function to vhost_vsock_release_skb(), 
+adding a new `delivered` parameter to be passed to 
+virtio_transport_consume_skb_sent() (and to be used to call or not 
+kfree_skb()) ?
+
+Thanks,
+Stefano
+
+>+	kfree_skb(skb);
+>+	return restart_tx;
+>+}
+>+
+> static void
+> vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 			    struct vhost_virtqueue *vq)
+>@@ -162,14 +177,14 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		}
+>
+> 		if (out) {
+>-			kfree_skb(skb);
+>+			restart_tx |= vhost_vsock_drop_skb(vsock, skb);
+> 			vq_err(vq, "Expected 0 output buffers, got %u\n", out);
+> 			break;
+> 		}
+>
+> 		iov_len = iov_length(&vq->iov[out], in);
+> 		if (iov_len < sizeof(*hdr)) {
+>-			kfree_skb(skb);
+>+			restart_tx |= vhost_vsock_drop_skb(vsock, skb);
+> 			vq_err(vq, "Buffer len [%zu] too small\n", iov_len);
+> 			break;
+> 		}
+>@@ -212,7 +227,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>
+> 		nbytes = copy_to_iter(hdr, sizeof(*hdr), &iov_iter);
+> 		if (nbytes != sizeof(*hdr)) {
+>-			kfree_skb(skb);
+>+			restart_tx |= vhost_vsock_drop_skb(vsock, skb);
+> 			vq_err(vq, "Faulted on copying pkt hdr\n");
+> 			break;
+> 		}
+>@@ -221,7 +236,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 					   offset,
+> 					   &iov_iter,
+> 					   payload_len)) {
+>-			kfree_skb(skb);
+>+			restart_tx |= vhost_vsock_drop_skb(vsock, skb);
+> 			vq_err(vq, "Faulted on copying pkt buf\n");
+> 			break;
+> 		}
+>-- 
+>2.56.0
+>
+
