@@ -1,104 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794516487;
-	b=MYXTXzUgZi5+bk24uxwDOeipcBe89rmVA5QDq4c3C9NcY7Z0Z4EevzsV8zlTGMUuoeCK
-	 LNYoequdVCnjsL+ZEYfE+xp2Zwz2/Ij32CDLeqk3eyPjatgwmrj2ttj8CpmlwK+q2YkxA
-	 EJsxwLMie30cHHx/Dd1lK1jaFRKLbj1hko105+D2D5apU7Ulpbgv5DqfuBp0ZC3k/zWAD
-	 owGVgniIGOz0NSJJxHRelMcsnX9086Xmy/Z6odQe/X0jRINWfMAOrLcN7WjPZ7q2otAbD
-	 LnwTmWwx6ul/uMM3QTiOyb20T1FmLdZQew+mGjzxFcunZG3+seL4SrwyLG12KwHNBxg==
+	t=1794523841;
+	b=LgrNkxTXegbbdC7fcA4p2w+0wM9XHy5GxL9g5yVYPbR9fqHTP7OMWjtufZFmSND65Y/A
+	 J9gdebkJlaVye/8MSg/RdlODi2M8htdufuqk93zSNmXxLqaLIfODLkmoqSmDifBOK+ZIx
+	 qU6StBhMBKlW19oc057/hNjosCCcMrWMeW7yMiOrhKVgx5YBqfkcxuT5bIYmCk3kF6pSW
+	 y+tXfLt14rnk/0ZfRw7zbyGqMXBqGVgAF3avMAoAoeB/3lfvNlN8yEuBb9whfvKXd2VKg
+	 Z1x1Saqj8aItRe/j6S2spTuK8d26lbjjLqTEEdlGdrqIn4TaluJPGIIdwvAn0X1SUqw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794516487;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794523841;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
 	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
 	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=lOwnGQXmS8evHlFVLwX0xtuDnhg6yBqOr9ZK8AmqtFQ=;
-	b=ktVPM0u/FC1eCzLpckzvHXlilKYe7Oc3Y4HWR+/NBd+4SC6uKdpxbSNa6BP/Ya0XzJbT
-	 Rrm0l8MEhtLOuUb3CC5D6K0kVVlP2pz9n1nZWdA54LwZyopb0b+nK5klqGMJJf+3cFBml
-	 JRjtzlO6246sPVPNS3t/07Irvv3n1aOC3iK+3NDRjhSc02X/DHrY210eAz5UcZPE5veo9
-	 yZZ4toGQ/yJQagKWeClcsSy3Z7R+4sC6kGW+1iSZhtFVGZjFJaQRWtGV4eeT5O7LwNHBX
-	 Rv18itNgQNI4W9AGoVHUvY7fChyBnctgV1Oiu3p6DXzRfK5yoO/Yfo0OGmiHRpMBjhA==
+	bh=Bbe/QF3Vlv0xyp1ygk/EdM2oUtmqFKixGf2vCzmUwiY=;
+	b=U784bUO/L4J52HiJQAkfzUNPyCxwCwGbbvtjZ1gw+s2hLkLnIp8PDtw0Cfl65ZbHjP8c
+	 d9DsT08K64cqnTgPR30nMwUKYa0UgZz4jzKYJAA6yjujAs1x9zhqUbBOhovG8l8N34IzK
+	 3QaZYHW1Yisl7AfUUa+aUkFe+6WGmoiXIS+lIX37KCSvjIY8J0o30rqNuqio5G+0ciEFL
+	 tEGEHTb4ccFgd56pgKSwnH7Ima6TK0m2EzFeeIgZzIvFX7nXzuimyXd3VE9CTEFcHPr1T
+	 LuUKSmfsvjNtjUMUr1pAAaUXKiWLQl1AIHi7OdYnP2GxXdgRY56BpKM+MCp4EZZVi5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="cWQ9MB/S";
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UYXVVPL8;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4BBD606B310
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 20:48:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4BBD606B310
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 182CA606A32E
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 22:50:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 182CA606A32E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cWQ9MB/S
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UYXVVPL8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794516485;
+	s=mimecast20190719; t=1794523840;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lOwnGQXmS8evHlFVLwX0xtuDnhg6yBqOr9ZK8AmqtFQ=;
-	b=cWQ9MB/SEV27c61OtK0XDaZhXEyPRk9nvugbvwcyhPM/lTzPwqGXApHVKcoYQ3HTkdkBDy
-	EyM429DPAKfjzq+8yWSO9I7z3cDfnoKEUh0Dh3i25uRqXFA/9XF/6gNQdbk0lj4pH7Q9Jh
-	heXh81knuYiSFewT3wdrfpJRqpvmsMw=
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
- [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Bbe/QF3Vlv0xyp1ygk/EdM2oUtmqFKixGf2vCzmUwiY=;
+	b=UYXVVPL8BiO5MyO8rDI6+r/V/LlAt+x4U0TElgGn9dhvuAWpS24H8Mcs+642XVWN/eFzI/
+	v33dzw+cUk9YNnQkkdR2yBPOvApMHhSVp9o0apMT2ZpaOPzoEuHDC6ODm4+XIJTHHgzPTy
+	VPqQtQPrBAyhLsaUTBBJ3G3yt0CKH6M=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-160-9VgpCOcxMgebifEoUH2r_g-1; Thu, 12 Nov 2026 15:48:02 -0500
-X-MC-Unique: 9VgpCOcxMgebifEoUH2r_g-1
-X-Mimecast-MFC-AGG-ID: 9VgpCOcxMgebifEoUH2r_g_1794516481
-Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-45952ce9ee0so347446fac.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 12:48:02 -0800 (PST)
+ us-mta-377-S244n5PNPDGwimlUDq4gpg-1; Thu, 12 Nov 2026 17:50:38 -0500
+X-MC-Unique: S244n5PNPDGwimlUDq4gpg-1
+X-Mimecast-MFC-AGG-ID: S244n5PNPDGwimlUDq4gpg_1794523837
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4b0a307487aso1085915e9.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 14:50:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794516481; x=1795121281;
+        d=1e100.net; s=20260707; t=1794523837; x=1795128637;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lOwnGQXmS8evHlFVLwX0xtuDnhg6yBqOr9ZK8AmqtFQ=;
-        b=2KS6OFGA3tDusyIDweqlxsmUjnBC7U7s52xLPZhiOpLCtWwnNk+5mjOq4/aIwPm1rO
-         5uILQsoYhSFBRYot/0IwUP+hwwk7J8iTYYiQv0qlsTdLnrMRJi8kHFP2djx2Bfb+xr5z
-         ABrug7WKu+ylZJwY/oqbGpSRnOR+ud8IunVrWQZSl/gcLHO1N8PzU3/Zqn0qsZ5skFuV
-         y1497IZtfvA0lsDB5kgZ1cwMeUZgEN4PwUPc8Z0M9dYFLZ99jiwNYLIGWetZKxg96Mw3
-         fta+Z0COjCjz8cVXWeu6bH4zX1hrDAyMW6p4u6ojPsM3XDtvMQ2tLlcdqaClDu9roDkG
-         pbAg==
-X-Forwarded-Encrypted: i=1; AL+hErERfyMgVBUg3FtzwbXkEoARI0frcUBLGq7Sed9gq9C2uhckdy7zeOWyoUVhe6a1TseZ/AUO80KD3GvHTy73yw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+l6AWvbiE9EU3RNsYMNU2NUNISaJdH785dGU8id1oVf+vnxICS
-	qmvQRv9giO/U6LANZHn6hUrLZlLh4UIUVUjPRuOAN/rtMMCc+bZpy8p3seiZ2XReBtESn00cgRT
-	2KQZM8fUJMjwZb011kryztwyU+GgO3OFqZw3StfnLcDUDmeZbs5YxVBI41Z5ehyrQXXj5
-X-Gm-Gg: AYBFou0so8I8jf83AbE3xBOzOuBltYOA9eBvaBO1lespKEz//WoDEtZacoUN2ixGl1j
-	nQ7+09dGl9bILIDhXEf9XhgHL+pJnjFzpCb2LQA/MWH403xH4c8xdCW2tqWcq0G39dKM74mYvbz
-	2MBdLFG9xsPuYv9msR9f9u55POWgOEgHpzlvn50THqmhWWLzglceqxu2bO/99sfwYOTtLw70PVc
-	RYpJtur+GUjlMsUAw/Al3RA3VR8Q24BugrD4/FnFw8026Kznk/3s+SgP5jmui2BW/wp+XYy6wNj
-	ZOA16KzrjzBP47G4a8ypC/+kidVXlphk98YsZi+yun/pHTNgC2okwY9fHV+QO1QPMw/MY4dQ+Hf
-	7tHzvj0g+gim53sUM86eL9XcjGX3wgs4cuBY1Zv/CiKe6Gf/Gaa5w
-X-Received: by 2002:a05:6871:7b0a:b0:49d:ff8c:205e with SMTP id 586e51a60fabf-4afdf2da638mr911061fac.29.1794516481391;
-        Thu, 12 Nov 2026 12:48:01 -0800 (PST)
-X-Received: by 2002:a05:6871:7b0a:b0:49d:ff8c:205e with SMTP id 586e51a60fabf-4afdf2da638mr911021fac.29.1794516480871;
-        Thu, 12 Nov 2026 12:48:00 -0800 (PST)
-Received: from sgarzare-redhat ([69.196.88.181])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-8628813465esm686251a34.16.2026.11.12.12.47.58
+        bh=Bbe/QF3Vlv0xyp1ygk/EdM2oUtmqFKixGf2vCzmUwiY=;
+        b=y61+Vc0JlUUdi9zMvwbjkBPZNXjOrNZwz7PU8iS1QGTbQ+k33KcYbzA4m9wpol4Fp+
+         Qj/KYrV+kFjjhlY8Ta7dv4t3hMKqitHlrt1WlLTvGbrkopLIQzwYruo16rNhRsguC0bT
+         I1XJQg+fqOwwwFesnYGKJXnjvaoXeQtHbH3DMW1kkL5DVm/xySYQ3OONsSQ2eDEx/DJM
+         yZYVFZP2Z5hnDB2K8pygF6+V1DpCeoNaVMJAFSRdxkFBPTbz7uewfteCkrwKH1e4ksOC
+         U2VpVtrL0/D2c3OGv3UPxCDjJCkrIskOIB+kEXsvnmZqJBt12rGYabxquIyZIodyOk2I
+         Y/mg==
+X-Forwarded-Encrypted: i=1; AL+hErEvD3V4/83k/e3w9cTPxcatfmxebM2cfd3wx/57opz8HEiSslscM8Ktc752zKyTi/1ACJSP9K29yOLRL5v0ZA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8DnssbyJN5JUJKUfVU/6g3Og2T/DVLLmFhq7IJk4/S1q8GDg70
+	8fvQstIdn8sFUGDS8qXs5pqyvtLl5KZctwDg57LJbdL+t4zjvegpS/OfuX25uRJCa357+fZjrN8
+	f8UbxBDIKwifNGNm2CqSCis5eZlTQFNbS8UsjcVEGRfYYP5Fp3a8314iRRFh/uM2FkXxF9Bc8Jm
+	m+
+X-Gm-Gg: AYBFou3N63LcPKY59CBq5BdnXodK/HVxsaNWg/a8VYb4zgNcucn+csGU1V1CWlwtvoS
+	adaicBgs3TK3jaBHQZBf5f/BjDUtLIQ43wUsGp08ajtQdzdZ3RbbPsfSBQfSRnYjlYePswzJlKj
+	z3BEqw0Y24YH06MZMCZl2lfKEeeZsUkcG4NmDLM+CrU9NbqtDZ6/YNvMAT/KtaVL2vKRGNc0ghW
+	fdcscTLE7mztzfSz+rlkNQscG+h1MnAONDXFQFdocJO+1KEBjjyuPY6PaZ1m3k56VV9XmdODeE0
+	GqqCcBNAWSQDzDiYjEgdU6GAGL5P2LvOGyIppf9C2e9GTcHKKGOl+tEdXHUf0rzCPl6O9qjWOHE
+	fwELGRdlakQW3WYd9e6X/uqLU/QJGONmjxBDmUhWP0w==
+X-Received: by 2002:a05:600c:310e:b0:4a2:c9b:9b98 with SMTP id 5b1f17b1804b1-4bb55a5212fmr12640235e9.17.1794523837312;
+        Thu, 12 Nov 2026 14:50:37 -0800 (PST)
+X-Received: by 2002:a05:600c:310e:b0:4a2:c9b:9b98 with SMTP id 5b1f17b1804b1-4bb55a5212fmr12639975e9.17.1794523836829;
+        Thu, 12 Nov 2026 14:50:36 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1511:2900:ff37:b35c:a97:952d])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb55ac1159sm12604485e9.4.2026.11.12.14.50.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 12:48:00 -0800 (PST)
-Date: Thu, 12 Nov 2026 21:47:54 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: jrmmhm.kernel@eldare.de
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v5] vsock/bpf: release sock lock while waiting for
- data in recvmsg
-Message-ID: <avYllBVgJg2AHYc0@sgarzare-redhat>
-References: <20261109-kbh3-1-022-fix-v2-v5-1-4d9af04f0fad@eldare.de>
- <avXyzxvIN3ngFepE@sgarzare-redhat>
- <179451283622.7.13355395779239029915.1767743913@eldare.de>
+        Thu, 12 Nov 2026 14:50:35 -0800 (PST)
+Date: Thu, 12 Nov 2026 17:50:33 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Longjun Tang <lange_tang@163.com>
+Cc: kuba@kernel.org, eperezma@redhat.com, jasowangio@gmail.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, tanglongjun@kylinos.cn
+Subject: Re: [PATCH 1/3] virtio: add virtqueue_get_last_used_idx() helper
+Message-ID: <20261112174936-mutt-send-email-mst@kernel.org>
+References: <20261109094310.103979-1-lange_tang@163.com>
+ <20261109094310.103979-2-lange_tang@163.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,51 +104,90 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <179451283622.7.13355395779239029915.1767743913@eldare.de>
+In-Reply-To: <20261109094310.103979-2-lange_tang@163.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: NcJCQauo3SOGCBAdPuOhZS7D49e6G3kD-UCmexzrtao_1794516481
+X-Mimecast-MFC-PROC-ID: s5DN_BDB_Y6r8lBsSWJ8--BnL53hSYsx3SeY_wBdHoo_1794523837
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Nov 12, 2026 at 07:47:11PM +0000, jrmmhm.kernel@eldare.de wrote:
->On Thu, Nov 12, 2026 at 06:23:00PM +0100, Stefano Garzarella wrote:
->>On Mon, Nov 09, 2026 at 09:08:29PM +0100, Jerome Mohm via B4 Relay
->>wrote:
->>>The loop
->>>and the zero-length check belong to the fix (without them the reader
->>>returns early or spins with the lock held), so this is one patch;
->>
->>I don't understand why that fix can't be in a fist patch of the
->>series...
->>
->>>+    if (unlikely(!len || (flags & (MSG_OOB | MSG_ERRQUEUE))))
->>>+        return __vsock_recvmsg(sk, msg, len, flags);
->>
->>... I mean, why this change ^^^ can't be in patch 1/2?
->>
->>BTW I'm not asking to split it (at least for now).
->
->It can: the loop is needed for the deadlock fix, since without it the
->reader returns -EAGAIN early when it wakes without data, but the early
->return isn't. A zero-length read with data in the psock queue already
->spins with the lock held on net, and as far as I can tell from the code
->the early return alone fixes that, plus the MSG_OOB and MSG_ERRQUEUE
->cases. In v4 those reads were patch 2/2. They went into one patch only
->because Alexei's diff replaced both, and my v5 sentence justified that
->badly. You said you're not asking for a split, but since the early
->return isn't needed for the deadlock, it would fit as its own patch:
->should v6 have it as 1/2 and the lock change as 2/2, or stay one patch?
+On Mon, Nov 09, 2026 at 05:43:08PM +0800, Longjun Tang wrote:
+> From: Longjun Tang <tanglongjun@kylinos.cn>
+> 
+> Export a read-only accessor for the last consumed used ring index.
+> It's useful for drivers that need to detect whether the device has
+> produced buffers that have not been consumed yet, by passing the
+> returned value to virtqueue_poll().
+> 
+> The split ring now writes the field with WRITE_ONCE() (the packed
+> ring already did) to document that the new reader can run concurrently
+> with the poll path.
+> 
+> Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
 
-Yeah, I'd prefer 2 patches with this change as first patch.
+This is not a good API, packed ring does not have a used ring at all.
 
->
->>I saw some comments from sashiko, can you reply to them?
->
->I'll wait for your answer before sending v6, and I'm replying to the
->Sashiko comments separately.
-
-Great, thanks for that!
-
-Stefano
+> ---
+>  drivers/virtio/virtio_ring.c | 18 ++++++++++++++++--
+>  include/linux/virtio.h       |  2 ++
+>  2 files changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index db678f5a80e0..6d8485c73881 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1001,7 +1001,7 @@ static void *virtqueue_get_buf_ctx_split(struct vring_virtqueue *vq,
+>  	/* detach_buf_split clears data, so grab it now. */
+>  	ret = vq->split.desc_state[i].data;
+>  	detach_buf_split(vq, i, ctx);
+> -	vq->last_used_idx++;
+> +	WRITE_ONCE(vq->last_used_idx, vq->last_used_idx + 1);
+>  	/* If we expect an interrupt for the next entry, tell host
+>  	 * by writing event index and flush out the write before
+>  	 * the read in the next get_buf call. */
+> @@ -1068,7 +1068,7 @@ static void *virtqueue_get_buf_ctx_split_in_order(struct vring_virtqueue *vq,
+>  	ret = vq->split.desc_state[last_used].data;
+>  	detach_buf_split_in_order(vq, last_used, ctx);
+>  
+> -	vq->last_used_idx++;
+> +	WRITE_ONCE(vq->last_used_idx, vq->last_used_idx + 1);
+>  	vq->last_used += (vq->vq.num_free - num_free);
+>  	/* If we expect an interrupt for the next entry, tell host
+>  	 * by writing event index and flush out the write before
+> @@ -3227,6 +3227,20 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned int last_used_idx)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_poll);
+>  
+> +/**
+> + * virtqueue_get_last_used_idx - get the last consumed used ring index
+> + * @_vq: the struct virtqueue we're talking about.
+> + *
+> + * Returns the index of the most recently consumed used buffer.
+> + */
+> +unsigned int virtqueue_get_last_used_idx(const struct virtqueue *_vq)
+> +{
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	return READ_ONCE(vq->last_used_idx);
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_get_last_used_idx);
+> +
+>  /**
+>   * virtqueue_enable_cb - restart callbacks after disable_cb.
+>   * @_vq: the struct virtqueue we're talking about.
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index f923e42cfd01..1aed4d9235c8 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -112,6 +112,8 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
+>  
+>  bool virtqueue_poll(struct virtqueue *vq, unsigned);
+>  
+> +unsigned int virtqueue_get_last_used_idx(const struct virtqueue *vq);
+> +
+>  bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+>  
+>  void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+> -- 
+> 2.51.0
 
