@@ -1,99 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794460736;
-	b=132YpnUfH6bkIy2xlb071eoNvnCnFdkqUpFPykon4SCjzbvCCzR+RCYHfD8WxV11OQtp
-	 lqeOvMdhL1bD37RUcEAKDeKwqmolMlYGzg/CbkEF1uDGxft+FYeMwM3AWKJFNklA0yR9M
-	 /M7RWaXan9oBBMfkA2VvQlJ6XicaVopy+tX1gX6eINnHtrbwDf1mcg6FQO6m66ScwcZX1
-	 cPglT5dqsUjz4BXUHAO4TTDK/aicsttf/nOcZqzbgPfSqpmODL9kS+2G/yrANShZ60Cqx
-	 16WjehkNSmkYc/z6Pgn0EArKyUJvxFSS5zJRcwG7IVGFkcAeahj+B/DMmhnUWrkROLg==
+	t=1794460934;
+	b=b1uM7ZhywTbPiB2fnAHeZdlJs2kwN11p+JgindbE/EQWFmpHWa0H8YdREf/heXbyDEdn
+	 YgLsgp0GZvY26rpZGBwCvxMVrsO8v/m7n75AwQdpdX858ufpMEHModB8WYxh58IgOIqs9
+	 M/eIlrQc1rCsEkMwUBympmgPo9xLo/LHBGS4XpkXcGg0heU7jJ52+8zWUM0rq1UmvO3XQ
+	 UK09+LxY0WpizcNGN5Zh7zJX4cBNdjadFEbj/XJTFhpFl45CztkyCiTm2tZ5NlJYPfmXf
+	 BBQk93MjVnbLCvCB1OnfCTeXNGZwwxRxqziBAsHRydm4fsYROVfHo73IE9iW+e0ME0A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794460736;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794460934;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Reply-To:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:Content-Transfer-Encoding:MIME-Version;
-	bh=PeZmCzba2M5Jt4hjT2xigzRftMQa1cn3KQXiYi9CbsM=;
-	b=sfMB2xkCfNXgv+i0THSrEfnf19aoGCF5Nue3zeXzo5KrfGMSw6gxY7j73YmTOP6zVthZ
-	 qliz6/jKCIf/+vt9y5c3xHUuzWiWHxpYklLEo5aaPOLuMnRd6cUAemrjbiYasGGwtF5zA
-	 JpQCZbEA9fWliayAqW8WY6Zo1kV3LfnUmvzSGGPVfZsgM5GZrHudawxD2uiM73HOIduO3
-	 AYzyepgf7yGLX+fNDn7O8Jsnh3TRAa3bt41L5ZxBctgnHi3MApl/7qUkYhJMng7d/Lsr2
-	 T4yKHgGWZQJLv/N5NvZ9b8i+7SVCXtZZhOcZrvSmCIWhwnKriq827qURa6+U+FNTMHA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=YIZv27tuCpRFyRmf/qdRg8hV9PDLwYKkb+ennGTxSNE=;
+	b=JF1GCDs5ip5mYYiuwJ8txaRG30pVncqn+ozi67QNQ747s7YHHxl9al9+Zk8756K92Zjz
+	 MI6LiZxRL5gFKGEsotJwCPQbmsXh5FEqb7Hvpc/VTHSlB1tc7VbnlC9K6crSwRlfE97Hl
+	 mfa3yJm2FH8FoW5XMVout0M7e3tugL1TePgZPvcKKghJ+UnpsXy6y7Gw6lWpkvSJql8Vg
+	 MmxRsCgD0mDLCK5aYEp4tnToWScP2voaqVq1UV6c3y20ywYdBvzcJh23zjix2ize2i8t4
+	 O6qSAZ4/0WujO4iirw/psTDCdZEx4Jiyy1hids+VW8bmNvE6Hs9hquw4t1zyxGZXhrQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=deeply.co.kr;
-	spf=pass smtp.mailfrom=deeply.co.kr;
-	dkim=pass header.d=deeply-co-kr.20260707.gappssmtp.com header.i=@deeply-co-kr.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=X9X34Ohd;
-	arc=none smtp.remote-ip=74.125.82.181
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tgR6gdTy;
+	arc=none smtp.remote-ip=209.85.222.175
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 288B7606A330
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:18:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 288B7606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=deeply.co.kr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=deeply.co.kr
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC10606A324
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:22:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1FC10606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=deeply-co-kr.20260707.gappssmtp.com header.i=@deeply-co-kr.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=X9X34Ohd
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-3645f0f3fcdso8225636eec.0
-        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 21:18:54 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tgR6gdTy
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-93f1e5d7450so389472685a.2
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 21:22:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=deeply-co-kr.20260707.gappssmtp.com; s=20260707; t=1794460734; x=1795065534; darn=lists.linux.dev;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:reply-to:from:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=PeZmCzba2M5Jt4hjT2xigzRftMQa1cn3KQXiYi9CbsM=;
-        b=X9X34OhdUrpqRuxd65sYFIfGaRVIfW2NGwSoy68e4HkVb44n+KcbT5IavgeIb34DQu
-         7LX2dCzNnpCpOh65aJ1yoQ9Ze4lFqH61QPPLONXgmfUeH4mq+pw3DM9xFSSY1KI02fqf
-         o+Q1k2uf9ty1NuVQMldI2YeMRzQGJ+MNKPVrNiLnPZgcVLcCP426PpTghst7XfoM+C57
-         XF+LKTAjE0H2jL4uojti6SQqzJp/IG7IKdtxnKAAYW2Jm4tUtC3n/9KejsPItS77X3cq
-         ZLFBs4FN/yg6qJZ+IpDnIebYYRalrnS5r9v6k4302KRDq8ZJfiPwiC5XHUDV670HIMH/
-         Qqyg==
+        d=gmail.com; s=20260707; t=1794460933; x=1795065733; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YIZv27tuCpRFyRmf/qdRg8hV9PDLwYKkb+ennGTxSNE=;
+        b=tgR6gdTyBZrXeIRZV91kL+EqLSFAvNK/cDAjzLAS70cp9nwoeBTKQzesAxHww2snNr
+         Qq2t833ZIxcxDTNT7HoDuXHo9epftoiy9m0owsboNPFDhSZaQAYrsx3ISs0MBtOV6fbc
+         0X/YQnhhrUOlM5DPzyWYpzumyaUHFw/LW2VsgHUGb8Bd0Q6dIVjjheM4fDNwhaqQ0u4S
+         oUKHtGJHhbU9UqpBfQSpIE4ajl0SdrKR+dYZrh1VK/tP+/dBB0Z4Z3a1+Lnm5CqEaIo7
+         NvI9QxtWZ3dErOHgCU9Qg9gR65OtGTDJ+dCOwwtso7Wh+5uiunaFHAxhS04ncxthREGw
+         X+Vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794460734; x=1795065534;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:reply-to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=PeZmCzba2M5Jt4hjT2xigzRftMQa1cn3KQXiYi9CbsM=;
-        b=PSFgf3hl0rrtwl/JIauQV5zCc+TEAR9mopYK4Lu+g1gYOkAjf7pyejZCK3gUw+SbIK
-         7lkiaz9NrPNmw5IZbogYAyFZnSVTT9Nb6eCxgu4chyGadb2UImzUn5ClCSPwIcusovxr
-         FogBR4CCWdwqlbiR94IEjJTnPn/L6EVO4OzpYFGfaZkhSDAsoyQJScjdJ0KHtnGNIQpe
-         1Wri0RwaxHQ6fCk7KVKw4MXZLMAVE44l4doueMykKKQudJMswTrFplh726gg/XTg+FJx
-         wf75W55U1N94PwGEbvQQ+iMd7JnAkPksE4pqz2SbWVYDP0aXXzTxfDq7uQZCW8A8hYDt
-         9LKg==
-X-Forwarded-Encrypted: i=1; AL+hErErLeSrHP2pVW7XaRmgpgCN14Y8cDSJ1QifWL9uq9jYikXxE/ahLIDRppglrxu2t+vOQqz+cWoH+XcZWJD42g==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/Y56g+0S0JILH0Vv6JI7JWCFF0Ejny0LCepBUSEQVzWjNGRBun
-	dumD2JNzeD8rl/7Csd8v5WNDuoEVwDSP0UKPEQr9YGTUZuqEXz3eNCzHZRQU429IPzg=
-X-Gm-Gg: AYBFou0BF4lXwqMbeU14G8bG+Vcx0PzSYAfMKmcRDdZDelEBLS0DJUERCW9JN5RPraa
-	i+YDV4dXuVAjOgvxTmHzkTJ1/712L7K2fBpBPcMCgFTZPFxj67agMvObZnXt7OJd/EeZF/kzuTi
-	2cbE9JHy7Rs3Pk5WSHaqaHzAtfZA2+kz9ZKvDhteSAoOUn5QJPPfvZQA2a82OLbPMBGX4rn8CMs
-	+V3hcAHIFnwux7jwv/Zwm7ZMrFL66ThvBKt4Hm7U5hpW0iV+XDA4+d/aDdcQJS0tTJMziEOfk4V
-	IPf+V+AyWyPY0FGm5gV0yphjOZaz72pwiD+7bEpofiCNyKo8N1JFJ7FFBwjqBVj40W+5sY7YIji
-	ZBGIWh/iJAfFSJVvvaHxyJOQVcLsV8Sbq366483Xa2EunJD5+q7+f0nJEVMLX3rnRxn3VEVwHqi
-	sf2nwrr3za+eFFT/1VVrh/9cXs2TfCv6njaqXbaCOof4LCVKSwzPYT4edX1sanbkNMgQZLZ/E+9
-	rmlg0vbY81HTOsH6dhiYu7Evzzhgdjdir52h4g40+gMkkwxoYOF6RI0OaQbJMnzAbkoVpOggbJq
-	CFuHCT5hNsjz+6+BlnRj2+9rLWoX3Eb4VnjWTy+bJ7zvA5zregwOUo5oZOWTeZVxh0Jp/bHD/+9
-	o+Qg4rW4USvQEt/KjhVSKu4nqF9TTKfcYNWymmW+kUbgwG6c=
-X-Received: by 2002:a05:701a:844d:20b0:163:c5eb:d42f with SMTP id a92af1059eb24-1b3c024ad18mr4159915c88.5.1794460733817;
-        Wed, 11 Nov 2026 21:18:53 -0800 (PST)
-Received: from 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b4b90csm19764527c88.14.2026.11.11.21.18.49
+        d=1e100.net; s=20260707; t=1794460933; x=1795065733;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=YIZv27tuCpRFyRmf/qdRg8hV9PDLwYKkb+ennGTxSNE=;
+        b=FGAywhSAdY3shMSBnm0zgeW0MivKqRntQoE48237vQzhUJaJkpu3dXXI71cHQ36MO5
+         bZL1cdgbxsMDbCSu6iSKlEVmZGu47UA8olsWWarN//Pp4Mw4/BCqQmctNGYsL+ftOyiS
+         xnQ94EXKLCgvECNpYuDGaqAJ0gyeI8VJ4e1Fse/oLS2xgJhHDMWrb3kNiIQGyQ3UaUkn
+         +7uyqtbPAw2uodOC8u56n5M99yb3x4/V/N6uWtYPjldLCe1IebAUzdfgF2efwFMJQXqi
+         jx8T2tW0GDH/lZGqu6WGR5yQNw9JkIkZ1FRAwcguFbTRT8DKGJkbD399gQhbGtb57ZI9
+         zZhw==
+X-Forwarded-Encrypted: i=1; AL+hErE6fH7l0sW0o0AfaY41MzjgmkyfWBpGyFt96lT48dpNMUnHIsBRgS40f0gCJb7ufuS4w3R8mmj0wW/LKFgllw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/5nBOH6c5+S2eXYOjMfK5vJaPS4MrUstIdixB83jgbqQc3US+u
+	l4Ti9Kqcw9lhV0W9qSTTnr7RfznEp3dxr/wQQfO9u+4+4uIjpnrjX9Gl
+X-Gm-Gg: AYBFou2oh36hqMXwhJlg1K6jby3dPg2NAZw6dCUeWXDCCUJu6XJum75OvFtxv4hJdBO
+	AwOvcBJelNw6etoCmEE0EYLwRrTjHU6Xl3s228x4nsS0IupC+oh2dmpRLHPj3Ryc9VyOq3r5wwB
+	56cagrDnxwbURlte/CTDMfoBZtsy99yDcobyODtNH8/+7yupS/aF4EuMitQy+uG8vt5ptCgfZhh
+	O/Kx2QS68IEW+1oRjD1hOFdql33Vev+ofkRNwCp5+pfUi+pcR4rWJE3dcMBcJSOaPXMBNIynFc7
+	I3Gk3aruJj3VNMrv4kJ6tbgLhO2wUNYgX2s2paqE+zl2n3BGqMQWm1uCbI5WoGl+695GTOhH6BN
+	M9a0+5aWy6DiCA9tzT4qW2e6c4I7akSHbRTT9MLn4sTiZ4kMm48SicttDWSmi2St5djUxlfjGOP
+	Qm2dqDBuB6eGYBaxTFXW00G56zxEoysFYeo8XOZEvQfX4eGg8zr6fEiv52g9tSOKcJmc7/lyaBd
+	EZJkLAr7yeIgxA/7mESu+fEMhJuvFpb1+S/ORwF73HRx3qYdKV8EndZO0MFsPFf0GvRAasKiP2R
+	aOQzniLbnmsMq85zd+OavUiLklhdiFIYwl041zk2uWd/PcpYFaoO
+X-Received: by 2002:a05:620a:4693:b0:93b:d7a3:45cf with SMTP id af79cd13be357-947affc2972mr765476985a.56.1794460932899;
+        Wed, 11 Nov 2026 21:22:12 -0800 (PST)
+Received: from i4-gl-tmk5904.ad.psu.edu ([130.203.156.186])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91f03ca6548sm37340956d6.9.2026.11.11.21.22.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 21:18:52 -0800 (PST)
-From: Joonho Lee <joon@deeply.co.kr>
-Reply-To: Joonho Lee <mynameisjune111@gmail.com>
-To: linux-sound@vger.kernel.org
-Cc: tiwai@suse.com, perex@perex.cz, anton.yakovlev@opensynergy.com,
- mst@redhat.com, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- corbet@lwn.net, skhan@linuxfoundation.org, rdunlap@infradead.org,
- linux-doc@vger.kernel.org, mynameisjune111@gmail.com
-Subject: [PATCH v28 14/17] docs: describe virtio-sound capture options
-Date: Thu, 12 Nov 2026 05:18:44 -0000
-Message-ID: <20261112043516.37010-15-mynameisjune111@gmail.com>
-In-Reply-To: <20261112043516.37010-1-mynameisjune111@gmail.com>
-References: <20261112043516.37010-1-mynameisjune111@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        Wed, 11 Nov 2026 21:22:12 -0800 (PST)
+From: Yuho Choi <oss.patchbox@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Joanne Koong <joannelkoong@gmail.com>,
+	Jeff Layton <jlayton@kernel.org>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	German Maglione <gmaglione@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	fuse-devel@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yuho Choi <oss.patchbox@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v1] fuse: Don't use request timeouts on virtiofs
+Date: Thu, 12 Nov 2026 00:21:50 -0500
+Message-ID: <20261112052208.1248312-2-oss.patchbox@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -103,88 +104,117 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-From: Joonho Lee <mynameisjune111@gmail.com>
+virtiofs cannot abort a request once it has been added to a virtqueue,
+because the device owns its buffers until it returns them on the used
+ring. This is why virtiofs sets no_control and no_force_umount; see
+commit 15c8e72e88e0 ("fuse: allow skipping control interface and
+forced unmount"), which says that "virtio-fs does not support aborting
+requests which are being processed".
 
-Document request-owned capture in the ALSA configuration guide. Describe
-`capture_packed_status` as default-off, reading a packed trailer after
-returned data while the fixed status scatterlist remains the default.
-Describe default-off `capture_pause_restart`: pause uses STOP and
-RELEASE, then resume uses PREPARE and START; disabled mode uses STOP and
-START while retaining the prepared stream.
+The request timeout added by commit 0f6439f61a6e ("fuse: add
+kernel-enforced timeout option for requests") aborts them anyway. When
+a request takes longer than the timeout, fuse_check_timeout() calls
+fuse_chan_abort(), which moves the requests on each virtqueue's
+fpq->processing list to its end list and ends them, so they are freed.
+The device can then still write the reply into the freed request and
+its pages, and virtio_fs_requests_done_work() later gets the freed
+request back from virtqueue_get_buf().
 
-Note that on MMU systems request buffers are vmalloc-backed and
-page-rounded individually. They remain allocated from hw_params through
-hw_free, and capture data is copied into the ALSA ring.
+The timeout is armed when the server sets FUSE_REQUEST_TIMEOUT in its
+INIT reply, or when the fs.fuse.default_request_timeout or
+fs.fuse.max_request_timeout sysctl is set, for example for other FUSE
+mounts on the same system. A slow host is then enough to hit it.
 
-Assisted-by: LLM
-Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+Don't arm the request timeout, and don't offer FUSE_REQUEST_TIMEOUT, on
+connections that set no_force_umount.
 
+Fixes: 0f6439f61a6e ("fuse: add kernel-enforced timeout option for requests")
+Cc: stable@vger.kernel.org
+Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
 ---
-Documentation/admin-guide/kernel-parameters.txt |   14 +++++++++++++
- Documentation/sound/alsa-configuration.rst      |   25 +++++++++++++++++++++=
-++
- 2 files changed, 39 insertions(+)
+I used no_force_umount to tell these connections apart, since virtiofs
+sets it for the same reason. A separate flag would work as well if you
+prefer that.
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/=
-admin-guide/kernel-parameters.txt
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -8344,6 +8344,20 @@
-=20
- 			Can be used multiple times for multiple devices.
-=20
-+	virtio_snd.capture_packed_status=3D [HW,ALSA]
-+			Read an explicitly enabled packed status trailer after
-+			the returned capture data. The fixed status scatterlist is
-+			used by default.
-+			Format: <bool>
-+			Default: false.
-+
-+	virtio_snd.capture_pause_restart=3D [HW,ALSA]
-+			Stop and release the stream when pausing capture. On
-+			resume, send PREPARE and START. If disabled, pause uses
-+			STOP and START while retaining the prepared stream.
-+			Format: <bool>
-+			Default: false.
-+
- 	vga=3D		[BOOT,X86-32] Select a particular video mode
- 			See Documentation/arch/x86/boot.rst and
- 			Documentation/admin-guide/svga.rst.
-diff --git a/Documentation/sound/alsa-configuration.rst b/Documentation/sound=
-/alsa-configuration.rst
---- a/Documentation/sound/alsa-configuration.rst
-+++ b/Documentation/sound/alsa-configuration.rst
-@@ -2537,6 +2537,31 @@
-=20
- This module supports multiple cards.
-=20
-+Module virtio-snd
-+-----------------
-+
-+Virtio-sound capture receives data into a separate request buffer for each
-+PCM period. The driver validates the responses and appends frame-aligned aud=
-io
-+to the ALSA ring in request order. Valid short responses are retained. Empty
-+responses are accepted only during bounded startup or for requests already in
-+flight at STOP or PAUSE.
-+
-+capture_packed_status
-+    Read an explicitly enabled packed status trailer after returned capture
-+    data. The fixed status scatterlist is used by default.
-+    (default =3D false)
-+
-+capture_pause_restart
-+    Stop and release capture on pause. Resume with PREPARE and START. When
-+    disabled, pause uses STOP and START while retaining the prepared stream.
-+    (default =3D false)
-+
-+On MMU systems, the request buffers are vmalloc-backed and page-rounded
-+individually. Allocator rounding can make total additional memory exceed the
-+ALSA ring size, especially with small periods. The request buffers remain
-+allocated from hw_params until hw_free.
-+Captured audio is copied from each request buffer into the ALSA ring.
-+
- Module snd-virtuoso
- -------------------
-=20
+Tested on x86_64 under KVM, on top of v7.4-rc1 (6628e7d4c6b2) with KASAN
+enabled, using QEMU's vhost-user-fs-pci and the C virtiofsd from QEMU 6.2:
+
+  1. In the guest, set fs.fuse.default_request_timeout=15 and mount
+     virtiofs.
+  2. On the host, stop virtiofsd with SIGSTOP.
+  3. In the guest, cat a file on the mount.
+  4. After 50 seconds, resume virtiofsd with SIGCONT.
+
+Without this patch, the cat fails with ECONNABORTED after about 26
+seconds. Once virtiofsd resumes, the guest reports:
+
+  BUG: KASAN: slab-use-after-free in virtio_fs_requests_done_work+0x7be/0xbc0
+  Read of size 8 at addr ffff888005176020 by task kworker/1:1/29
+  Workqueue: events virtio_fs_requests_done_work
+  ...
+  Allocated by task 81:
+   fuse_request_alloc+0x19/0x200
+   fuse_get_req+0x153/0x2d0
+   fuse_chan_send+0x4cf/0x840
+   fuse_do_getattr+0x23a/0x4b0
+  ...
+  Freed by task 81:
+   kmem_cache_free+0xbc/0x3e0
+   fuse_chan_send+0x4af/0x840
+   fuse_do_getattr+0x23a/0x4b0
+  ...
+  Oops: general protection fault, probably for non-canonical address 0xe012fc11a000000a
+  RIP: 0010:virtio_fs_requests_done_work+0x25a/0xbc0
+
+Setting fs.fuse.max_request_timeout=15 instead gives the same result.
+With this patch, under either sysctl, the cat waits until virtiofsd
+resumes and then returns the file contents, and the mount keeps working.
+
+I could not test the FUSE_REQUEST_TIMEOUT part, because this virtiofsd
+does not know about flags2.
+
+The tests above were run with help from an AI agent.
+
+ fs/fuse/inode.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 1341b681d0ed..f1aae9b5475c 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -1451,7 +1451,14 @@ static void process_init_reply(struct fuse_args *args, int error)
+ 			fc->no_flock = 1;
+ 		}
+ 
+-		fuse_init_server_timeout(fc->chan, timeout);
++		/*
++		 * A request timeout aborts the connection, which ends the
++		 * requests that are still in flight. A transport that cannot
++		 * take back requests it has handed to the device, such as
++		 * virtiofs, sets no_force_umount for the same reason.
++		 */
++		if (!fc->no_force_umount)
++			fuse_init_server_timeout(fc->chan, timeout);
+ 
+ 		fm->sb->s_bdi->ra_pages =
+ 				min(fm->sb->s_bdi->ra_pages, ra_pages);
+@@ -1502,8 +1509,10 @@ static struct fuse_init_args *fuse_new_init(struct fuse_mount *fm)
+ 		FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT | FUSE_INIT_EXT |
+ 		FUSE_SECURITY_CTX | FUSE_CREATE_SUPP_GROUP |
+ 		FUSE_HAS_EXPIRE_ONLY | FUSE_DIRECT_IO_ALLOW_MMAP |
+-		FUSE_NO_EXPORT_SUPPORT | FUSE_HAS_RESEND | FUSE_ALLOW_IDMAP |
+-		FUSE_REQUEST_TIMEOUT;
++		FUSE_NO_EXPORT_SUPPORT | FUSE_HAS_RESEND | FUSE_ALLOW_IDMAP;
++	/* See process_init_reply() */
++	if (!fm->fc->no_force_umount)
++		flags |= FUSE_REQUEST_TIMEOUT;
+ #ifdef CONFIG_FUSE_VDAX
+ 	if (fm->fc->vdax)
+ 		flags |= FUSE_MAP_ALIGNMENT;
+
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+-- 
+2.43.0
+
