@@ -1,47 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794475709;
-	b=4cX8j2A36OZYzMSQbKC+mZc47RNwbWR3qCcpPSdTTvtI6MOYc8sliB+EXCvyOyi0GiQY
-	 E/VTFAAUoBHvvQQfPSkpniYtC0psTniZwMA7NrDxWm7Yq312gGh8WnBN44SgUSdmZTA4c
-	 /KXp3LggJdHgstxK7wi6ECivA9d7/GGz4XRUIM2rgdH5SwEBNb7Yr0BSbk4AzFRrETNu2
-	 MCP40TNa4n5umiJ7T4QTYIarSTu6XmpWCnQvWfNb5cIjbVQzYbYUPgusMOyWb26r4llWz
-	 BuaXTWXasH661hc31zVLEigkOIvRtd7PvFvBzc9CBCautNBfF0Jm95mE40WvR3buxIQ==
+	t=1794476792;
+	b=zKbu2W2LwTKIKpL67GL7hh5L1mPLwG9ifHUF0AIrBjbeJyFfAeq95h3dSw0Ugfm7F4xv
+	 tDGYAoWzhhxrSv1P6KafFPfWcbwsdHnOpVPEXPyhYmJlhVl2+Z8gZvgb5waTPg/KPxqGP
+	 /+utNGZAoLj5IpKSyy8Atny1L8HHt4uBPA0gfo4fKZ5a5FAF6E0AqAGJfK/xqE5RGAJys
+	 Vhf05Sw7yurMDTkT8ISqqGzI83oSO329VBZ9+4s2GgQ9Om8R21kYUuwXxB3PfPjipderS
+	 41am6qwdnI+1QRjSjGmoOo9TCDhA+wrvcAJnGWZNruemZWVrEKKLVdWBZRjgdOCIVEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794475709;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=qhziwyxwKo5hta1/ka+DLwPNn82EMgx5i212ZpmjGxc=;
-	b=G6ti5OFYgv1tVXCrFZ5zaIrZlHale9ApshUTSZ4s1Ki7kxKY65uydzbKAZ+yy7ZJesCS
-	 3w75HV4T5vM2j8204SEl4qpgcuQ6W5BccVeB4UfgM+KZaQ3UFyXIp2kVDApb4sarDTmHS
-	 +5ymJMTOf0Z+Vw278K8lGN4/xLf2qH7kKhxzeJJQjean2XjUdD+OO0He6Tfx3/aBQOpP6
-	 /o4cESu8COEDvw+j4BA5YQGYBziZzo4ofy3DORD2j16AEGx15UeKsCtJBSSgu4mtMQYOQ
-	 Cry9ER/a1u5Bf3BKYez6sFonJCcD1LvxtxNiJ5cmENyrzO5u9AGhaYCQzVSJMx3u4eQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794476792;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=j6eZ4aCZFTS/utwlBgKhOAgoPY6BL5WxRnVfSRhjSzs=;
+	b=MQiIfGhCgKHqwP8Bx1wrp17HrBAa8CqnSo5fVnlFI2PfwACx3AwoUOJ66pfplUeZaDFA
+	 Ovh22pILD5Mvp392tt70+suT0yL2OGsZiT81mgI7YS1Q7d4W+GhSFobdm3zSOVnmukrFK
+	 PdVY1yObXG61U/Sj+kzndHi1UdoohroLNg4vTLEF7+oHD43UH5jutQ1y3oVFFgVrM827M
+	 FlwmCBlMOdrjN5uKchnyVBaCXnZz0h2o5YrKHxLpmsjTd3ZV/7kTWwa48Vj+et+qSGv5Y
+	 I64GlC/uiyk8NxXATO/6a+WVwAyhxOC8XUnnop+idyq+n2ATj5rW6Gsk3BRiZqMtPvw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ig67/Q5U";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LzBOJKST;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 088C7606A321;
-	Thu, 12 Nov 2026 09:28:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8035606A321
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:46:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ig67/Q5U
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D3221F00A05;
-	Thu, 12 Nov 2026 09:28:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LzBOJKST
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 775941F00A05
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794475708;
-	bh=qhziwyxwKo5hta1/ka+DLwPNn82EMgx5i212ZpmjGxc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ig67/Q5UyR7u+l7reMcBd+/6d+1hZBrZuflvI8fVlnKGwRPGSovuLhYFlD2XwshDx
-	 k4tWIwIpZxgVS+CnHDuNFmwz2y0IQR3KTMb/WgVe+IP5VJD50E8CqJuLwUg4OFGy7J
-	 /TdABenpbG+NFE26X1Tm6gzyn6qutTdeFFLriGI/xhqj9QTek90gHYvZIWgj/2lFXG
-	 2LildKJmwvPv8iFpkgWQS+ehmyT34Fvl+PtVOquGQFCrgIzpmgEXqq5UL/M8eqPCDe
-	 GBAG5HSArBfaL5Jmk6mQ/h0lgMQxHl0tiz5Vcr7wEwYGUgZ9RYFsQdEK4W/u5oxatR
-	 EKcCPEcC8JG7g==
-Message-ID: <4d6a3d68-3fc7-446e-9f59-f61d7475e22e@kernel.org>
-Date: Thu, 12 Nov 2026 10:28:17 +0100
+	s=k20260515; t=1794476791;
+	bh=j6eZ4aCZFTS/utwlBgKhOAgoPY6BL5WxRnVfSRhjSzs=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=LzBOJKST07DI6OhKR9d/bV/f+EcOgB7DduaD1YvU39zKFCS/rJIAybY5s0taxn405
+	 uR/pdQZZhAznLyB7nOQ+cufnEQqKOpnC5K0IJVR8Oq4IxawDfO2+KxuFEU6KobDRy6
+	 EOZWHtZNf+OLv0tNVW6jMaW/GWbjjOuzvORsPft5nBryny0+60SKlJ07TJjbTwzLEh
+	 pjJBoCVwl/3jcz1gV6z+XyIygjzLHbRCaM5QXVTAEZLwQrWwdNKlLILuk1WzQEkX1d
+	 ehaHHedwd+Iu1lXkg6DteBdRHuHqE488DOHu9T2Z0S4T/EYfciiaMdmLUIH0JkfTHM
+	 TPz9SulQgW1vg==
+Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-705cb6cedd5so463614eaf.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 01:46:31 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErGxZZAByx9DCVeS4n7cdh2FXtwONDwCMpdNM8x9xqPS5cb4lVzZ8G3gC2DcAC2HO9zeSq+EUbMG2KYhzu/big==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+AdS0sr6/euy4ymfas8au6p2elVk8WujfMtgsXnQFLxOCA+cAV
+	mnLQ4iwgDo6hUY1mJDLHKbSNZKwFneTqy7mk9pGad3n2uwthkQYjjzsfva81qmllytuIy0UJOrc
+	dK35qt3kVEnKa3qTywY0afP4UaKat6Wo=
+X-Received: by 2002:a05:6820:c2d1:20b0:716:f44b:2dcc with SMTP id
+ 006d021491bc7-719740e76c8mr830715eaf.15.1794476790507; Thu, 12 Nov 2026
+ 01:46:30 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -51,117 +59,205 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
-To: Arnd Bergmann <arnd@arndb.de>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Christian Brauner <brauner@kernel.org>
-Cc: Matthew Wilcox <willy@infradead.org>, "Kirill A. Shutemov"
- <kas@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>,
- Jan Kara <jack@suse.cz>, Zi Yan <ziy@nvidia.com>,
- Bernd Schubert <bschubert@ddn.com>, Hugh Dickins <hughd@google.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev,
- virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com,
- Malin Jonsson <malin.jonsson@est.tech>, Richard Weinberger <richard@nod.at>,
- Geert Uytterhoeven <geert+renesas@glider.be>, Nishanth Menon <nm@ti.com>,
- Frank Li <frank.li@nxp.com>
-References: <20261110145241.536019-1-kas@kernel.org>
- <20261110145241.536019-2-kas@kernel.org>
- <avNuQqLf9CG9dSsE@casper.infradead.org>
- <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
- <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
- <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
- <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
- <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
- <e94bdf7c-eae6-4f64-bf93-0aeedca1a22e@app.fastmail.com>
- <32ad880e-5946-4703-9c6f-43ff59da39af@kernel.org>
- <3eb60948-8fc9-4682-87c2-c113e54e7d4e@app.fastmail.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <3eb60948-8fc9-4682-87c2-c113e54e7d4e@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20261110213628.3476051-4-edumazet@kernel.org> <179443691180.2199510.148246238688217560@kernel.org>
+In-Reply-To: <179443691180.2199510.148246238688217560@kernel.org>
+From: Eric Dumazet <edumazet@kernel.org>
+Date: Thu, 12 Nov 2026 10:46:19 +0100
+X-Gmail-Original-Message-ID: <CAL4WiipcxHnbZye9P8_NySU=pLfQoSrMWF3PahgSQvfeuOgmsA@mail.gmail.com>
+X-Gm-Features: AclHuK_cZ9ao9G0cYjqdJ9o0VFbuRHG2Gy61oDEJ6kFhBEJLvS-rEY_T6EP_Vvc
+Message-ID: <CAL4WiipcxHnbZye9P8_NySU=pLfQoSrMWF3PahgSQvfeuOgmsA@mail.gmail.com>
+Subject: Re: [PATCH net v6 3/3] net: virtio: validate outer protocol of UDP
+ tunnel GSO packets
+To: netdev-bot+sashiko@kernel.org
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, willemb@google.com, horms@kernel.org, mst@redhat.com, 
+	jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	hassansultan@google.com, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/12/26 10:25, Arnd Bergmann wrote:
-> On Thu, Nov 12, 2026, at 10:09, David Hildenbrand (Arm) wrote:
->> On 11/12/26 09:55, Arnd Bergmann wrote:
->>>
->>> I tried to push for what I thought was an aggressive timeline
->>> last year, but that would still keep the Arm bits for a couple more
->>> LTS releases and only gradually reduce the scope of highmem in the
->>> meantime, removing support from architectures, file systems, and
->>> drivers where possible. See https://lwn.net/Articles/1051010/
->>> for a summary of my talk in Tokyo, including the slides and
->>> a link to the video for anyone wanting more details.
->>>
->>> I also prepared a number of patches towards this, but have so
->>> far not been great at following up to get them merged, sorry
->>> about that.
->>
->> I think we can already start at removing CONFIG_HIGHPTE now, right?
-> 
-> Yes, I think my patch from two years ago still applies, see
-> 
-> https://lore.kernel.org/all/20241210160556.2341497-4-arnd@kernel.org/
-> https://lore.kernel.org/all/20241210160556.2341497-5-arnd@kernel.org/
-> 
-> If not, I can send you an updated version.
+Le mer. 11 nov. 2026 =C3=A0 23:41, <netdev-bot+sashiko@kernel.org> a =C3=A9=
+crit :
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue(s) to consider.
+>
+> Critical: 0 =C2=B7 High: 0 (1) =C2=B7 Medium: 1 =C2=B7 Low: 0
+>
+> If you believe none of the issues are legitimate, please reply to each
+> issue of Medium severity or higher and explain why the AI is wrong.
+> If any of them are legitimate and you plan to respin, please let patchwor=
+k
+> know by including "pw-bot: cr" as a separate line at the end of your repl=
+y
+> (one such reply per series is enough).
+>
+> - [Medium] The new has_eth=3Dfalse path in virtio_net_hdr_tnl_to_skb()
+>   (include/linux/virtio_net.h) rejects almost every valid frame, so it=E2=
+=80=A6
+>
+> Pre-existing issues:
+> - [High] This problem wasn't introduced by this patch, but it is a
+>   sibling of the injection the patch closes.
+>
+> --
+>
+> net: virtio: validate outer protocol of UDP tunnel GSO packets
+>
+> This patch makes virtio_net_hdr_tnl_to_skb() check that a UDP tunnel GSO
+> frame really carries the outer IPv4 or IPv6 header it claims, with UDP at
+> outer_th_offset. Callers now pass a has_eth argument that says whether th=
+e
+> frame starts with an Ethernet header. tun_get_user() passes false for
+> IFF_TUN devices.
+>
+> Link: https://lore.kernel.org/netdev/93d0e37c99711bebdf60c120af03010455c2=
+f2e2.1793276116.git.mst@redhat.com/
+>
+> > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> > index d1fcb25ab026b..ced5a1596e609 100644
+> > --- a/drivers/net/tun.c
+> > +++ b/drivers/net/tun.c
+> > @@ -1950,7 +1950,8 @@ static ssize_t tun_get_user(struct tun_struct *tu=
+n, struct tun_file *tfile,
+> >               break;
+> >       }
+> >
+> > -     if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
+> > +     if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr,
+> > +                                 (tun->flags & TUN_TYPE_MASK) =3D=3D I=
+FF_TAP)) {
+> >               atomic_long_inc(&tun->rx_frame_errors);
+> >               err =3D -EINVAL;
+> >               goto free_skb;
+>
+> [ ... ]
+>
+> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > index 83f801ff57006..fc9667176f23c 100644
+> > --- a/include/linux/virtio_net.h
+> > +++ b/include/linux/virtio_net.h
+>
+> [ ... ]
+>
+> > @@ -338,6 +504,9 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+> >       if (ret)
+> >               return ret;
+> >
+> > +     if (!virtio_net_tnl_offsets_ok(skb, has_eth, outer_isv6, outer_th=
+))
+> > +             return -EINVAL;
+> > +
+>
+> [Severity: Medium]
+> Can the has_eth =3D=3D false path be reached by ordinary IFF_TUN frames?
+>
+> On IFF_TUN, tun_get_user() resets the network header to offset 0 and now
+> passes has_eth =3D=3D false. virtio_net_l3_start() then takes the L3 head=
+er
+> from skb_network_offset(), so virtio_net_tnl_offsets_ok() needs outer_th
+> to be 20 for a plain IPv4 outer header, or 40 for plain IPv6.
+>
+> Earlier in virtio_net_hdr_tnl_to_skb(), the offset floor still assumes a
+> 14-byte Ethernet header, whatever has_eth says:
+>
+>         outer_l3min =3D ETH_HLEN + virtio_l3min(outer_isv6);
+>         ...
+>         if (outer_th < outer_l3min ||
+>             inner_nh < outer_th + sizeof(struct udphdr) ||
+>             inner_th < inner_nh + inner_l3min)
+>                 return -EINVAL;
+>
+> So an outer_th of 20 or 40 fails against 34 or 54 before the new check
+> runs. The only IFF_TUN frames that can pass both checks have IPv4 options
+> (ihl >=3D 9) or at least 14 bytes of IPv6 extension headers.
+>
+> On the TX side, virtio_net_hdr_tnl_from_skb() computes outer_th relative
+> to skb->data:
+>
+>         outer_th =3D skb->transport_header - skb_headroom(skb) + vlan_hle=
+n;
+>
+> On IFF_TUN, skb->data points at the IP header, so this emits 20 or 40.
+> set_offload() also enables NETIF_F_GSO_UDP_TUNNEL without checking the
+> device type. As a result, IFF_TUN devices advertise tunnel GSO, but their
+> ordinary tunnel GSO frames get -EINVAL and increment rx_frame_errors.
+>
+> The ETH_HLEN floor predates this patch and comes from a2fb4bc4e2a6.
+> However, the commit message relies on the has_eth =3D=3D false path:
+>
+>   "tun_get_user() passes whether the device is IFF_TAP."
+>
+> Should outer_l3min follow has_eth, for example:
+>
+>         outer_l3min =3D (has_eth ? ETH_HLEN : 0) + virtio_l3min(outer_isv=
+6);
 
-yes, please, that also brings it up to reviewer's attention :)
+Same answer as for v4 and v5: UDP tunnel GSO over IFF_TUN has never
+worked since a2fb4bc4e2a6, and this series does not change that.
+has_eth only makes sure IFF_TUN frames are not parsed as Ethernet.
 
--- 
-Cheers,
+Relaxing the floor enables a path that has never run. I prefer to do
+that in a separate patch, with selftests covering IFF_TUN in both
+directions, and not in this painful series.
 
-David
+>
+> [Severity: High]
+> This is a pre-existing issue, not one introduced by this patch, but it is
+> closely related to the injection fixed here. Plain (non-tunnel) GSO
+> frames return early and never reach the new check:
+>
+>         gso_tunnel_type =3D hdr->gso_type & VIRTIO_NET_HDR_GSO_UDP_TUNNEL=
+;
+>         if (!gso_tunnel_type)
+>                 return virtio_net_hdr_to_skb(skb, hdr, little_endian);
+>
+> In __virtio_net_hdr_to_skb(), the VIRTIO_NET_HDR_F_NEEDS_CSUM branch only
+> checks pskb_may_pull(), skb_partial_csum_set() and the transport offset
+> against nh_min_len. virtio_net_hdr_match_proto() and the flow dissector
+> run only in the branch without NEEDS_CSUM.
+>
+> So can a tap writer, or a guest via vhost-net, still send an Ethernet
+> frame with ethertype ETH_P_NSH, gso_type TCPV4, TCPV6 or UDP_L4, and
+> NEEDS_CSUM set? eth_type_trans() would then set skb->protocol to
+> ETH_P_NSH.
+>
+> Suppose such a frame is forwarded, by a bridge or tc mirred, to a device
+> that segments in software. Could the segmentation then recurse without
+> limit?
+>
+> skb_mac_gso_segment()
+>   nsh_gso_segment()
+>     proto =3D tun_p_to_eth_p(nsh_hdr(skb)->np);   /* TUN_P_NSH -> ETH_P_N=
+SH */
+>     __skb_pull(skb, nsh_len);
+>     skb->mac_len =3D proto =3D=3D htons(ETH_P_TEB) ? ETH_HLEN : 0;
+>     skb_mac_gso_segment()
+>       nsh_gso_segment()
+>         ...
+>
+> Neither nsh_gso_segment() nor skb_mac_gso_segment() limits the depth.
+> Commit 006c8b834aed ("net: gso: limit recursive IP-in-IP segmentation")
+> added the SKB_GSO_CB(skb)->recursion_counter check in
+> gso_recursion_inc_test(). It is called only from inet_gso_segment() and
+> ipv6_gso_segment().
+>
+> A frame of about 64KB made of stacked 8-byte NSH headers could recurse
+> thousands of levels deep and overflow the kernel stack.
+> TUN_P_ETHERNET -> ETH_P_TEB -> NSH appears to be a second route into the
+> same recursion.
+>
+> Should nsh_gso_segment() use gso_recursion_inc_test()? Or should the
+> plain NEEDS_CSUM path also validate the outer protocol?
+
+
+This one looks real, and is independent of this series:
+nsh_gso_segment() can call itself through skb_mac_gso_segment() with
+no depth limit, whatever the way the packet entered the stack.
+
+I will send a separate fix for nsh_gso_segment(), with a selftest.
+
+The remark on the changelog of patch 2 is noted, I do not plan to
+respin for it.
+
+Let's merge this series and move on.
