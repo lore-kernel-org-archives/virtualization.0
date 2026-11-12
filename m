@@ -1,57 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794474534;
-	b=saUjdu26pSqX1H8unnxGDJIS3xmioKaYL98dKt5AQ0aUuJduqkw1MWk3oWCyHeQVsNH4
-	 eLC78ivQD3jAm593A/Z52weQLcV0lZ4eW/KQk60NiGo+fni/qKdyOh92Z6iYcla3MstZf
-	 ayGqR9zhPWwoLtekKd2+pSX1ttgIuw4xJ9OPjrYc52vgm1qrHbSvtq35HLgSYdDzdrC92
-	 HnmU6U3xayrgX7coyvESEf8gRDyXVoXeYsyEnL/S8hawQ8ZsRAfFzukBqHdIuRAyNpPLB
-	 dv4YayFA4JU9RAxKQM1hPXqYRA/vyi6frFuL4tnV+lQp729U5F0MsGJGMELelAYHXLA==
+	t=1794474588;
+	b=RuFrCsE7wgE+RdPiZo5rmGKblUNCzO4obtHuHkRScyP3sQrEaVN6sp57MCewJrVufH1U
+	 6NwOQgBtqCZFYy12G5MnjGhovSToUDuYqBdHuymRtKO7zbqN2shO2JrpnKNUbCSH51Otr
+	 T37DeKIIaZA0Eq5oZvU2SskW7xsBsY9qbYKQvhhPHHdBK+1gkB2t80j9OkgBrmVvYlV1r
+	 w6Bv8YCcxyS4k/J06GJR4mZUCwRdjod/3/3JaPqvfE03c+3G/yz94kyzNPTtdh1ym6Scq
+	 bcF/OYokCvBCj9js6+TARfATVv/o68JALspf154iU01ozXc911lBwc7Nldh61ViW7VA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794474534;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=/9ww1N5nsdwVJ5jc9GGE9C0y9FZmcAfTmK8O0gHQ4iY=;
-	b=YlWD2HXoEmdO4q0C+W9ipQT6FHN9Obpq23ZrjocN5mx5/q4ubYK/XsXI43SFC4pFgbXG
-	 3o0C56hsZoVYa7R+zqq3k2QF3eL+93ewgyp64w7Lrya4V/FgnDzAr7f+F4KdxBUuPuSWJ
-	 cwjpzyMW9GGrIxfK2APpsFV58qMIyPd6Y7NKfAyjedCph1R42yg9ncn5ldgrqJ1xoYiSm
-	 EvsbzI7yFVBmaozQZPdsm9tLbG5WfpxZ0A8BH3YOldfpcKWJIF3NeaeKcyYK5O4JsiQcp
-	 sV3lnvF5ahkgjIRGrWNC2to5H5mWC1HVIHfj83/HMjHElGC3B4xMx+f3F1YTsDZz8Jw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794474588;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=j/okRcwCmJah376/pTXlDGHeTd3yv114IA7qsrwTRhM=;
+	b=JeO9NJIRzLWV/3fywxCgr3jv2YXP8m5lBny3wdKRxZBGoB/++ETN51TxrVoFbj8yDLSK
+	 rmhIF7aTY4mglPydjRKfPfEDtvpzTaYIXv6aQ9sZoT4Ctt8eSIefv9p6nY0zIoU7EyHUZ
+	 3I6l5xnwNQUwayRgh6kE1GPtfv9DxRtetQ9gZXIzprEBuZ3R8WAVrHUXVE2nEVkUWHDln
+	 cIgMxoe/cJwAlvwutOMKnIrZZHmTTI/qDMtzm77mfl4Wc/1g2APwQ3NksdUyxaPRFytDv
+	 muFewGbHKIq5XSOOSbkFXdT1b6Oqkbw4Wr9M8PtWXTOZoyH4OrgrvR4Yzz09IHmo16g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i8FYY37D;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eHxjzh9f;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C665606A31C
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:08:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B96D9606A31C;
+	Thu, 12 Nov 2026 09:09:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i8FYY37D
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63071F00A06;
-	Thu, 12 Nov 2026 09:08:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eHxjzh9f
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307DE1F00A05;
+	Thu, 12 Nov 2026 09:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794474534;
-	bh=/9ww1N5nsdwVJ5jc9GGE9C0y9FZmcAfTmK8O0gHQ4iY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=i8FYY37Dojw27MA/CfkLnHoYxFIn4rZBKPwtX7yvmASujMK17nDbAv8AICrGkeoJ3
-	 qTFs0eZwywf4ZxfISbDxP4HJgzYJCKOWKPYXBn6f+n+X/H6nLdstIvrOvl0zqy2Dus
-	 pzY7bzPyKq+bpHhMU43XebZE13SjqbRgUkV6NPGzTKh6t1/J1It8o0MZNaiNlG28qw
-	 +3l+fz9GVGONwQCpwoDW0USsKOGGUzX9Sb/suCp/ZjVDHs/iWBl4nfsvQ2lF+UjYrQ
-	 +7MxmtSGgRhKLQ2M0GbBAikgkCigSiJiqULgPox9ftQgfJfR8ZOB2mZj7LYrWE2BvD
-	 1lVWgdk3VVbFA==
-Message-ID: <sashiko-outbox-210827@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] tools/virtio: add a vhost dirty log test
-Reply-To: sashiko-reviews@lists.linux.dev
-To: zhaoguohan@kylinos.cn
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112085631.128819-3-zhaoguohan@kylinos.cn>
-References: <20261112085631.128819-1-zhaoguohan@kylinos.cn>
- <20261112085631.128819-3-zhaoguohan@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 09:08:52 +0000
+	s=k20260515; t=1794474588;
+	bh=j/okRcwCmJah376/pTXlDGHeTd3yv114IA7qsrwTRhM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=eHxjzh9fX6/euYdOb/lVF0eGeyRB12MW7G+QY46JREN7vpgh9olDCgsYLX/pAzEQX
+	 IGV5dxMZ7b0c/DriZU6Eme05voULqlWWyL3IXZnyQuLunihl0MdTtGN8aeINL0bNWG
+	 Vm79nqp0mr4XhYQNoFSuzkSP/JNGzToHNTIe1C4Q8AqHz6YasMr9/u7NXCsOdcxrmr
+	 qlsPUcih2RuGYOTdpHqFhif7yvJqhVUn10NeLQxRNQA1wgBo2pXA0iV8g9cNF8it3I
+	 BAI5M6gxZVmyY0MT0oebPTr+QHkn1U6hPQGcF4Fxua1lNp6LLOh76Ogg8tgrazzQuo
+	 l0nwe7VmuIDqw==
+Message-ID: <32ad880e-5946-4703-9c6f-43ff59da39af@kernel.org>
+Date: Thu, 12 Nov 2026 10:09:37 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,32 +50,134 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
+To: Arnd Bergmann <arnd@arndb.de>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ Christian Brauner <brauner@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>, "Kirill A. Shutemov"
+ <kas@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>,
+ Jan Kara <jack@suse.cz>, Zi Yan <ziy@nvidia.com>,
+ Bernd Schubert <bschubert@ddn.com>, Hugh Dickins <hughd@google.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com,
+ Malin Jonsson <malin.jonsson@est.tech>, Richard Weinberger <richard@nod.at>,
+ Geert Uytterhoeven <geert+renesas@glider.be>, Nishanth Menon <nm@ti.com>,
+ Frank Li <frank.li@nxp.com>
+References: <20261110145241.536019-1-kas@kernel.org>
+ <20261110145241.536019-2-kas@kernel.org>
+ <avNuQqLf9CG9dSsE@casper.infradead.org>
+ <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
+ <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
+ <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+ <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
+ <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
+ <e94bdf7c-eae6-4f64-bf93-0aeedca1a22e@app.fastmail.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <e94bdf7c-eae6-4f64-bf93-0aeedca1a22e@app.fastmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-> From: Khan Zhao <zhaoguohan@kylinos.cn>
->=20
-> Add vhost_log_test, which exercises used-ring dirty logging through the
-> existing vhost_test module. It sets a log base with VHOST_SET_LOG_BASE,
-> enables VHOST_VRING_F_LOG on the ring, submits descriptors and checks
-> the resulting bitmap from userspace. No new kernel interface is needed.
->=20
-> The test covers:
->=20
->  - every bit in a byte, repeated sets, and neighbouring bytes being left
->    untouched, including the last byte of a page followed by a PROT_NONE
->    guard page
->  - a log page that has not been faulted in yet, read-only, PROT_NONE
->    and unmapped log pages, and logging after access is restored
->  - private (COW) and shared file mappings, checking that the bit reaches
-> [ ... ]
-> A --bench mode reports ns per descriptor with logging disabled and
-> enabled. vhost_log_test.rst describes how to build and run the test.
->=20
-> Assisted-by: Codex:gpt-6.1-sol
-> Signed-off-by: Khan Zhao <zhaoguohan@kylinos.cn>
+On 11/12/26 09:55, Arnd Bergmann wrote:
+> On Wed, Nov 11, 2026, at 20:26, Linus Torvalds wrote:
+>> On Wed, 11 Nov 2026 at 10:53, Christian Brauner <brauner@kernel.org> wrote:
+>>>
+>>> If that's the official new stance than I'm very happy.
+>>
+>> I definitely want to remove HIGHMEM entirely in the not too distant
+>> future. And before we remove it, we can most definitely document the
+>> fact that we will not be worried about insane users.
+>>
+>> And things like security issues count as "insane user": if you use
+>> HIGHMEM outside of controlled embedded setups or museum pieces you get
+>> to keep both pieces when it breaks.
+>>
+>> IOW, it's legacy. We should aim to not introduce *new* bugs to it, but
+>> if there are pre-existing bugs they very much count as "don't care",
+>> this will be removed soon.
+> 
+> Agreed. There is also the option of adding Kconfig dependencies to
+> mark things that are known broken with highmem when we either know
+> that it is buggy, or we have a good reason to break something that
+> none of those remaining users should be using.
+> 
+>> I think the only reason it wasn't removed a couple of years ago
+>> already is basically a few old 32-bit ARM platforms that still used
+>> it.
+>>
+>> Those platforms still exist, and I predict that they'll still exist
+>> next year, but if those users have to stay at the current LTS kernel,
+>> that's fine.
+> 
+> I tried to push for what I thought was an aggressive timeline
+> last year, but that would still keep the Arm bits for a couple more
+> LTS releases and only gradually reduce the scope of highmem in the
+> meantime, removing support from architectures, file systems, and
+> drivers where possible. See https://lwn.net/Articles/1051010/
+> for a summary of my talk in Tokyo, including the slides and
+> a link to the video for anyone wanting more details.
+> 
+> I also prepared a number of patches towards this, but have so
+> far not been great at following up to get them merged, sorry
+> about that.
 
-Sashiko has reviewed this patch and found no issues.
+I think we can already start at removing CONFIG_HIGHPTE now, right?
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112085631.1288=
-19-1-zhaoguohan@kylinos.cn?part=3D2
+-- 
+Cheers,
 
+David
