@@ -1,111 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.147
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794473807;
-	b=ZZPexh/kqpWJfpvShC6ny71kki/aLgLo22KgDWxNJlL5VdJ0wFhHL3VDGNoaHKApgiAM
-	 peNdoHHEbrHt7ZiSdjh0AU/kGOtbNQf+wMIbpTFxajRG4sgxWmIjOKHh4wnigypSmK9iF
-	 kdnwd07em4r4dQzD81sHXNfl9mUaKnU9EwvmC6ciyPX0ZuKIf6BVUPYpsOJGY47mGDRHY
-	 0d006yk9FV8fndClaOqvkH9MU2nTA38afJiPObdKmWO+CvciqlUesPLvaK1BfbGtRglE+
-	 SakEpHdIbetTfovc0odHIl7kpyMed+wmGoBaxz/I9uvvkgYTvtJHm/dFFOmd5PLT0cg==
+	t=1794473809;
+	b=RFFQJjQYS07LvFs+DJTsBGW+gZuHLGpK+svry734y2nScRg6qqvB3TILnwyNf+QMJ8XZ
+	 FuXGlvdLNb9RbNCE4bT3dczt2dK7C3r5843APLbwXZSV0jHvqKlzJh71KJnG6Z3dqeyvB
+	 XTcMal02XQdnRVPxp3gJ1aRhDVRkMVVp0XWz2Awg181RKAKUWOlMH04kRCTppX0D7DOwK
+	 kaBQ2+AeL0Of8jfgwPOg/JUXu0tReGaeqI9SW3sarI61Zc2nJ00Dqj451gejar5BY/4M6
+	 iLmrfi/L+8ycS4cEE7NW105b4Kfl6Lag8E8yzpClw15X75s4t4vhFg7pC5DyzLdDqAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794473807;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=rEDyzDvctiKMCWHEwGxzSSTUsEjyrAP4XO5pemqaf/w=;
-	b=MHnwkbt36iVVK9wrjeKF4BB0W1r9w7sm/jh08SGUAHasary/cb854iWAky0ZGnaP+Fj0
-	 oLNieju3hG3wtmunrPDqC+Wu+F2PLbDY1XqlYSCc/RCFMcgl8L2gzfzY3IoDmujMrS6bj
-	 iI+Gl1sPRLXJu/kczdCkGBLaV74g6j1kTkVINhLuzd2GxP+54NTmbcfTP4tnQ2rDrpLvF
-	 UMJaKm3W8Rq16qNyo10Gr+kWaxUDOc4vq78P23Gs0umJvv9QIAauU82kCqVNQp4O58Q5i
-	 4H7ny6py7ANfTVGxUBtm8sOuUbvHGolJQzqdBW0BizCEPMNKY8h1yMgDlMEMM/7nOWA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794473809;
+	h=DMARC-Filter:X-UUID:X-CID-CACHE:X-CID-P-RULE:X-CID-O-INFO:X-CID-META:
+	 X-CID-BVR:X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=LLxGScaXX5G8dV943PMhCr2QGRrEbX3LWpwoAeEQMvU=;
+	b=zaIQimRA3TvsgL0uJKA5CESnQjdeQpZ0OOafEcOZJPlxgnLcipIuoGi/2uPBTqgUB7U6
+	 5BMZmQk0RPjjcVbtfNSsfjl7LXfjfpqz89qJ2sKbTRx7SdwkRBvtLQoznmDn2oEXKYB+L
+	 EGv4aiMfWg1q5G6AjUwOnZuVk5uu3lX5R6jFkcP6dJ3UdNyb3TPkVYWYQeuTrpSS4QWaf
+	 4hTJZ4mYN1XXBfAE/oV+ATDB6YM2Kloef3jzIfhTFkLgIk0xlA/ACkR13aYsHy28DMxK/
+	 aw15BtKdS62WwJ65v3RU1kIcmcJBSfWg/wXGRtZbkQak34uVwRV/wu9y13CA7yo02Ow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=B3knZGFb;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=1UQSHGCM;
-	arc=none smtp.remote-ip=202.12.124.147
-Received: from fout-b4-smtp.messagingengine.com (fout-b4-smtp.messagingengine.com [202.12.124.147])
+	dmarc=none header.from=kylinos.cn;
+	spf=pass smtp.mailfrom=kylinos.cn;
+	arc=none smtp.remote-ip=124.126.103.232
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3A6A606A8AF
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 08:56:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D3A6A606A8AF
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=B3knZGFb;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=1UQSHGCM
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfout.stl.internal (Postfix) with ESMTP id 2A6871D00245
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 03:56:46 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Thu, 12 Nov 2026 03:56:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794473793;
-	 x=1794560193; bh=rEDyzDvctiKMCWHEwGxzSSTUsEjyrAP4XO5pemqaf/w=; b=
-	B3knZGFbJoyqxhvAjg5ey4pgvXQ0+dX+2yrqxypUpfmLl52FvtNsp7+AX8SbQ/eD
-	QB4o9/31f8xFXCXe56hraiMz96Up0KKZvOb2Y5C65VShVM0pPaDafBjDrSUg42VY
-	tu9bgejyvmqkt1Sc9Y32autzBDXmungVYOYMmKlWzY8ke9h7yX3aXbw7wQqSIKs3
-	owqqHduQlPeKvwCMeJG/2LJco0+TSA+EyuE40Mo+9A/AlkXjnBpb4ObaqIe0Doxc
-	7R11bWCv4vRYIh1QpCl5N1NsJgYyvfBQVk0IZtDm5jfVeuHETVudImiaPHrGdr9O
-	vc7/hsrU2ooBu9I+vxQIQA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794473793; x=
-	1794560193; bh=rEDyzDvctiKMCWHEwGxzSSTUsEjyrAP4XO5pemqaf/w=; b=1
-	UQSHGCMZ2A3z8bSIkkWxeq6RnxTXCPrxpPWHAyytgP+bJFnjHFjyYHqv4hm0qCHi
-	QYj5WIQxDSWITpVoqdkvKqOQ6WfVb701r08hcNQLu5c31R4jKN1xLVhnaNofI2HX
-	7FdlCq7ohwLhQBbrPhAF/DBKK326jQC/kxRtegHB3eLgHLY3PWtxVOOFT5sBaYxH
-	iEXrIpL7ps7Vq4atKdHaQMjAWH1A1hydNB2gIjGap0JgIebeP6f+c/OshDqYw/Jr
-	vUJZRxhTpwPPzneK6Bk38wsyBQPOmtYPcLegI1AUZjxz+ntB7H/oAx/pXKxLSRwD
-	hopHAfS59cof80uyciXMg==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794473793; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LmRldj4=;
-	s=fm2:rsa-sha256:jfxHLyYCcwAagPZC/fshPoUZYECusD6lk3A74VljGCAqhQb
-	mEPnV/FNKvBIXqmk1vuFQqvIdVthiaKe3vqg4g5NqKuiXaOkxHOB3qhxjH//O67z
-	cnn5+zg/2u96yQ0XEhHCUMjVnkozHoNR6JpQBgTofZ50N/E8dtlts0/NCmv2a0sC
-	0Ky32J964flmed6La1EVYUeJz2+yeeZB2YElK1GX0UfxaKMqHLupseN6sxHdhKmD
-	1CDCUzaC1SKLfqMbccHvRuW6r6Sshw3577z1ap0iZlyy0Oe9THL1bH6oUDolxdRC
-	NlKb7Xx+yAT3pPTH6TdlGg2rcpq+lBVhgUGZM+w==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:bxT2HtsddpIKccxw7D1EmmeuIKfYJp+MJ2nSGobHrHU=:sEmA3MCn6JLrIUaQkRNBmsF7Hz02Y0iwntBVDLMI0ZY=;
-X-ME-Sender: <xms:NH_1asWKISFAZPfViYwtF0t1h1O_t_TUK-yUOcamOFfpOmsJjSP4yg>
-    <xme:NH_1arbnH92k8S1-bT0BlraQyd9qZk0y0Sn00uORJAF8vwlxDDfIbDO0bjykC8awK
-    bmkq2V7jpdyyeJMnsesd2PBlWQc6-IxQ5LTwSVYBMhTPwlK8kfbKFQb>
-X-ME-Proxy-Cause: dmFkZTE3ND7a5+W1Z07eormEvJEB+XP9yRNxmJWlhqo4nFZBM2kAyJQF7ZgJlr2V+yFcEa
-    l9MRmavypBJJ+1A3waVwnEHhrM4U0pZpCmMYKIXvfnZkXMGbKdecZtrxLKkn6LEq19o5fE
-    gPq8WxneDUi3v4xiFBdFxJqhhRjF9l4qFHfKxbM/8/kEKMzoow8MOCqc8EgLK/YGye/NOx
-    vJ+BeW0pJ1MEvAjPtKHXRRQgaz1GtmTJKeuhP2oScGxUjAxi6NvtA3CvTfeHnIQJVEo9ZV
-    dg2D6P1vG5wAmVpHBLy1jTDsA3jHwbynxf2/c8p8S1vmmHEGJ6xAPZTTV5Umrrj1UI3Khs
-    rJijqRdX01D2IUPunT3qBzgERFBVZ8jYBYw1H3yAWZItZ9j4airbtb5XjMvlG++YM1xjMj
-    nmYen9siqd5jtfWF+5rxuSCWu//0CHbbjZOuheK/lwuiWNnUidGYUvyWOFd9E2OfMRQyJo
-    NHUJLrgFmF/YLzCIRd6QgoB46bEjyL4va2ECLKod74mkfUM9Bt3nKjoMZsBw6FKGE9i6pb
-    kcdlCi+42mrcvNt9/oRYrgd7nZbADhLRxQvbPjTXfqJ8XvHIJ7OuVZ6HyNF9xugO4WyMQv
-    IHitba4dtlHe8UFBYfWm9s4Tizbuv07yoIS03Wj6UhMEjI5BgOKm5i1NzONA
-X-ME-Proxy: <xmx:OX_1atJeGP10qV3r_BB9LlbDWvzjzAT8IKY6g0XHpnMofHCEovQSTw>
-    <xmx:OX_1ajjzmcyTWNa03jroLuvYNjQrc-9N6_xxwGxAK_v1HHphOwD9Lg>
-    <xmx:OX_1ahRgitGd4zqX3yfmA8xLG4zFwqJjTP381SaWrv0nOrdNocAf6w>
-    <xmx:OX_1aoabTMJLtPTZZWDyERW41w-hFW-0kPrJfUFDo4kw2bxAwi0xvA>
-    <xmx:QX_1apsoJxByQcSYtOm475IyTqWu9-y7wuRQ59vqRM_Lw5w34HoWDLYb>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 1A43C32A0099; Thu, 12 Nov 2026 03:56:20 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D04606A8A1
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 08:56:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2D04606A8A1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: fc5c893ede7611f19a56ed5b684f684d-20261112
+X-CID-CACHE: Type:Local,Time:202611121605+08,HitQuantity:1
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:8af04e9d-b8b9-4f38-ac4a-51ce7b705172,IP:0,U
+	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:25
+X-CID-META: VersionHash:7db8b62,CLOUDID:0712648f332f4711195f93be5917beef,BulkI
+	D:nil,BulkQuantity:0,SF:81|82|102|123|865|898,TC:nil,Content:0|15|50|99,ED
+	M:5,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0
+	,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: fc5c893ede7611f19a56ed5b684f684d-20261112
+X-User: zhaoguohan@kylinos.cn
+Received: from ubuntu.. [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <zhaoguohan@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1952387580; Thu, 12 Nov 2026 16:56:44 +0800
+From: zhaoguohan@kylinos.cn
+To: mst@redhat.com
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] tools/virtio: add a vhost dirty log test
+Date: Thu, 12 Nov 2026 16:56:31 +0800
+Message-ID: <20261112085631.128819-3-zhaoguohan@kylinos.cn>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261112085631.128819-1-zhaoguohan@kylinos.cn>
+References: <20261112085631.128819-1-zhaoguohan@kylinos.cn>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -115,113 +75,545 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AD8wiEBgakfZ
-Date: Thu, 12 Nov 2026 09:55:48 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Christian Brauner" <brauner@kernel.org>
-Cc: "Matthew Wilcox" <willy@infradead.org>,
- "Kirill A. Shutemov" <kas@kernel.org>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Miklos Szeredi" <miklos@szeredi.hu>, "Amit Shah" <amit@kernel.org>,
- "Jan Kara" <jack@suse.cz>, "David Hildenbrand (Red Hat)" <david@kernel.org>,
- "Zi Yan" <ziy@nvidia.com>, "Bernd Schubert" <bschubert@ddn.com>,
- "Hugh Dickins" <hughd@google.com>,
- "Baolin Wang" <baolin.wang@linux.alibaba.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@kernel.org>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>, "Simon Horman" <horms@kernel.org>,
- linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev,
- virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com,
- "Malin Jonsson" <malin.jonsson@est.tech>,
- "Richard Weinberger" <richard@nod.at>,
- "Geert Uytterhoeven" <geert+renesas@glider.be>, "Nishanth Menon" <nm@ti.com>,
- "Frank Li" <frank.li@nxp.com>
-Message-Id: <e94bdf7c-eae6-4f64-bf93-0aeedca1a22e@app.fastmail.com>
-In-Reply-To: 
- <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
-References: <20261110145241.536019-1-kas@kernel.org>
- <20261110145241.536019-2-kas@kernel.org>
- <avNuQqLf9CG9dSsE@casper.infradead.org>
- <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
- <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner>
- <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
- <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
- <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
-Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 11, 2026, at 20:26, Linus Torvalds wrote:
-> On Wed, 11 Nov 2026 at 10:53, Christian Brauner <brauner@kernel.org> wrote:
->>
->> If that's the official new stance than I'm very happy.
->
-> I definitely want to remove HIGHMEM entirely in the not too distant
-> future. And before we remove it, we can most definitely document the
-> fact that we will not be worried about insane users.
->
-> And things like security issues count as "insane user": if you use
-> HIGHMEM outside of controlled embedded setups or museum pieces you get
-> to keep both pieces when it breaks.
->
-> IOW, it's legacy. We should aim to not introduce *new* bugs to it, but
-> if there are pre-existing bugs they very much count as "don't care",
-> this will be removed soon.
+From: Khan Zhao <zhaoguohan@kylinos.cn>
 
-Agreed. There is also the option of adding Kconfig dependencies to
-mark things that are known broken with highmem when we either know
-that it is buggy, or we have a good reason to break something that
-none of those remaining users should be using.
+Add vhost_log_test, which exercises used-ring dirty logging through the
+existing vhost_test module. It sets a log base with VHOST_SET_LOG_BASE,
+enables VHOST_VRING_F_LOG on the ring, submits descriptors and checks
+the resulting bitmap from userspace. No new kernel interface is needed.
 
-> I think the only reason it wasn't removed a couple of years ago
-> already is basically a few old 32-bit ARM platforms that still used
-> it.
->
-> Those platforms still exist, and I predict that they'll still exist
-> next year, but if those users have to stay at the current LTS kernel,
-> that's fine.
+The test covers:
 
-I tried to push for what I thought was an aggressive timeline
-last year, but that would still keep the Arm bits for a couple more
-LTS releases and only gradually reduce the scope of highmem in the
-meantime, removing support from architectures, file systems, and
-drivers where possible. See https://lwn.net/Articles/1051010/
-for a summary of my talk in Tokyo, including the slides and
-a link to the video for anyone wanting more details.
+ - every bit in a byte, repeated sets, and neighbouring bytes being left
+   untouched, including the last byte of a page followed by a PROT_NONE
+   guard page
+ - a log page that has not been faulted in yet, read-only, PROT_NONE
+   and unmapped log pages, and logging after access is restored
+ - private (COW) and shared file mappings, checking that the bit reaches
+   the file after msync/fsync
+ - eight vrings setting different bits of the same byte concurrently,
+   with and without a userspace thread atomically fetching and clearing
+   that byte
+ - two shared mappings of one file page, one of them zapped with
+   MADV_DONTNEED each round, so both resident and faulting pages are
+   hit
 
-I also prepared a number of patches towards this, but have so
-far not been great at following up to get them merged, sorry
-about that.
-I definitely still want to revisit this soon, in particular the
-bits about defaulting to VMSPLIT_2G_OPT, and probably my patch
-to allow having (limited) discontiguous lowmem on Arm systems
-with a large MMIO hole.
+log_used() ignores errors from log_write(), so the fault cases can only
+check that nothing crashes, that nothing is written to an inaccessible
+log, and that logging works again afterwards.
 
-Scope-wise I think we absolutely need zsmalloc (zram/zswap)
-on arm32 to work with GFP_HIGHUSER, but enough people have told me
-that they still expect to need anonymous memory and ext4 page
-cache for a while, and probably powerpc32. The majority
-of __GFP_HIGHMEM allocations can probably just be converted
-to use lowmem, which would eliminate a good chunk of kmap()
-calls as well. In my attempts to do that, I came across two
-problems I'd have to solve though:
+A --bench mode reports ns per descriptor with logging disabled and
+enabled. vhost_log_test.rst describes how to build and run the test.
 
- - Movable allocations (GFP_HIGHUSER_MOVABLE) imply highmem.
-   while I think only 64-bit architectures support movable
-   pages today, we cannot currently express an allocation
-   that should be movable on 64-bit but lowmem on 32-bit.
+Assisted-by: Codex:gpt-6.1-sol
+Signed-off-by: Khan Zhao <zhaoguohan@kylinos.cn>
+---
+ tools/virtio/.gitignore         |   1 +
+ tools/virtio/Makefile           |   7 +-
+ tools/virtio/vhost_log_test.c   | 393 ++++++++++++++++++++++++++++++++
+ tools/virtio/vhost_log_test.rst |  53 +++++
+ 4 files changed, 452 insertions(+), 2 deletions(-)
+ create mode 100644 tools/virtio/vhost_log_test.c
+ create mode 100644 tools/virtio/vhost_log_test.rst
 
- - Internal users of tmpfs (in particular DRM/GEM) usually
-   don't want highmem or movable pages, but actual tmpfs
-   does default to GFP_HIGHUSER_MOVABLE. Separating the two
-   is complicated.
+diff --git a/tools/virtio/.gitignore b/tools/virtio/.gitignore
+index 7e47b281c442..9f3ebfa2c3b6 100644
+--- a/tools/virtio/.gitignore
++++ b/tools/virtio/.gitignore
+@@ -2,5 +2,6 @@
+ *.d
+ virtio_test
+ vhost_net_test
++vhost_log_test
+ vringh_test
+ virtio-trace/trace-agent
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index 2cac5fd4b979..a4af5140a1cd 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -1,9 +1,12 @@
+ # SPDX-License-Identifier: GPL-2.0
+ all: test mod
+-test: virtio_test vringh_test vhost_net_test
++test: virtio_test vringh_test vhost_net_test vhost_log_test
+ virtio_test: virtio_ring.o virtio_test.o
+ vringh_test: vringh_test.o vringh.o virtio_ring.o
+ vhost_net_test: virtio_ring.o vhost_net_test.o
++vhost_log_test: vhost_log_test.o
++# This test uses only the userspace API, without the virtio kernel shims.
++vhost_log_test vhost_log_test.o: CFLAGS = -g -O2 -Wall -Wextra -Werror -pthread -I../../usr/include
+ 
+ try-run = $(shell set -e;		\
+ 	if ($(1)) >/dev/null 2>&1;	\
+@@ -52,7 +55,7 @@ oot-clean: OOT_BUILD+=clean
+ 
+ .PHONY: all test mod clean vhost oot oot-clean oot-build
+ clean:
+-	${RM} *.o vringh_test virtio_test vhost_net_test vhost_test/*.o \
++	${RM} *.o vringh_test virtio_test vhost_net_test vhost_log_test vhost_test/*.o \
+               vhost_test/.*.cmd vhost_test/Module.symvers \
+               vhost_test/modules.order *.d
+ -include *.d
+diff --git a/tools/virtio/vhost_log_test.c b/tools/virtio/vhost_log_test.c
+new file mode 100644
+index 000000000000..96e58bbcdfdc
+--- /dev/null
++++ b/tools/virtio/vhost_log_test.c
+@@ -0,0 +1,393 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Exercise vhost used-ring dirty logging through /dev/vhost-test. */
++#define _GNU_SOURCE
++#include <errno.h>
++#include <fcntl.h>
++#include <inttypes.h>
++#include <linux/vhost.h>
++#include <linux/virtio_ring.h>
++#include <poll.h>
++#include <pthread.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/eventfd.h>
++#include <sys/ioctl.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <time.h>
++#include <unistd.h>
++#include "../../drivers/vhost/test.h"
++
++#define PAGE_BYTES 4096
++#define RING_NUM 128
++#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
++#define CHECK(c) do { \
++	if (!(c)) { \
++		fprintf(stderr, "FAIL line %d: %s (errno=%d: %s)\n", \
++			__LINE__, #c, errno, strerror(errno)); \
++		exit(EXIT_FAILURE); \
++	} \
++} while (0)
++
++struct queue {
++	int fd;
++	int kick;
++	int call;
++	void *ring;
++	void *data;
++	struct vring_desc *desc;
++	struct vring_avail *avail;
++	struct vring_used *used;
++	uint16_t index;
++};
++
++static void *map_pages(size_t size)
++{
++	void *p = mmap(NULL, size, PROT_READ | PROT_WRITE,
++		      MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
++
++	CHECK(p != MAP_FAILED);
++	return p;
++}
++
++static void log_base(struct queue *q, void *base)
++{
++	uint64_t addr = (uintptr_t)base;
++
++	CHECK(!ioctl(q->fd, VHOST_SET_LOG_BASE, &addr));
++}
++
++static void queue_init(struct queue *q, void *bitmap, unsigned int bit,
++		       bool logging)
++{
++	struct vhost_vring_state state = { .index = 0, .num = RING_NUM };
++	struct vhost_vring_file file = { .index = 0 };
++	struct vhost_vring_addr addr = { .index = 0 };
++	struct vhost_memory *mem;
++	uint64_t features = 0;
++	unsigned char *scratch;
++	int i, run = 1;
++
++	memset(q, 0, sizeof(*q));
++	q->fd = open("/dev/vhost-test", O_RDWR);
++	CHECK(q->fd >= 0);
++	CHECK(!ioctl(q->fd, VHOST_SET_OWNER, NULL));
++	CHECK(!ioctl(q->fd, VHOST_SET_FEATURES, &features));
++	q->kick = eventfd(0, EFD_NONBLOCK);
++	q->call = eventfd(0, EFD_NONBLOCK);
++	CHECK(q->kick >= 0 && q->call >= 0);
++	q->ring = map_pages(3 * PAGE_BYTES);
++	q->data = map_pages(PAGE_BYTES);
++	q->desc = q->ring;
++	q->avail = q->ring + PAGE_BYTES;
++	q->used = q->ring + 2 * PAGE_BYTES;
++	mem = calloc(1, sizeof(*mem) + sizeof(mem->regions[0]));
++	CHECK(mem);
++	mem->nregions = 1;
++	mem->regions[0].guest_phys_addr = 0;
++	mem->regions[0].userspace_addr = (uintptr_t)q->data;
++	mem->regions[0].memory_size = PAGE_BYTES;
++	CHECK(!ioctl(q->fd, VHOST_SET_MEM_TABLE, mem));
++	free(mem);
++	for (i = 0; i < RING_NUM; i++) {
++		q->desc[i].addr = 0;
++		q->desc[i].len = 1;
++	}
++	CHECK(!ioctl(q->fd, VHOST_SET_VRING_NUM, &state));
++	state.num = 0;
++	CHECK(!ioctl(q->fd, VHOST_SET_VRING_BASE, &state));
++	addr.desc_user_addr = (uintptr_t)q->desc;
++	addr.avail_user_addr = (uintptr_t)q->avail;
++	addr.used_user_addr = (uintptr_t)q->used;
++	addr.flags = logging ? 1U << VHOST_VRING_F_LOG : 0;
++	addr.log_guest_addr = (uint64_t)bit * PAGE_BYTES;
++	CHECK(!ioctl(q->fd, VHOST_SET_VRING_ADDR, &addr));
++	file.fd = q->kick;
++	CHECK(!ioctl(q->fd, VHOST_SET_VRING_KICK, &file));
++	file.fd = q->call;
++	CHECK(!ioctl(q->fd, VHOST_SET_VRING_CALL, &file));
++	/* Starting a queue logs its flags; keep the tested mapping untouched. */
++	scratch = map_pages(PAGE_BYTES);
++	log_base(q, scratch);
++	CHECK(!ioctl(q->fd, VHOST_TEST_RUN, &run));
++	log_base(q, bitmap);
++	CHECK(!munmap(scratch, PAGE_BYTES));
++}
++
++static void queue_submit(struct queue *q, unsigned int count)
++{
++	uint64_t kick = 1;
++	unsigned int i;
++
++	CHECK(count <= RING_NUM);
++	for (i = 0; i < count; i++)
++		q->avail->ring[(q->index + i) % RING_NUM] = i;
++	q->index += count;
++	__atomic_store_n(&q->avail->idx, q->index, __ATOMIC_RELEASE);
++	CHECK(write(q->kick, &kick, sizeof(kick)) == sizeof(kick));
++}
++
++static void queue_wait(struct queue *q)
++{
++	struct pollfd pfd = { .fd = q->call, .events = POLLIN };
++	uint64_t events;
++
++	/* Completion notification follows the dirty-log stores. */
++	do {
++		CHECK(poll(&pfd, 1, 5000) == 1);
++		CHECK(read(q->call, &events, sizeof(events)) == sizeof(events));
++	} while (__atomic_load_n(&q->used->idx, __ATOMIC_ACQUIRE) != q->index);
++}
++
++static void queue_destroy(struct queue *q)
++{
++	/* Release flushes the worker before freeing any userspace mappings. */
++	CHECK(!close(q->fd));
++	CHECK(!close(q->kick));
++	CHECK(!close(q->call));
++	CHECK(!munmap(q->ring, 3 * PAGE_BYTES));
++	CHECK(!munmap(q->data, PAGE_BYTES));
++}
++
++static void exercise(void *bitmap, unsigned int bit, unsigned int count)
++{
++	struct queue q;
++
++	queue_init(&q, bitmap, bit, true);
++	queue_submit(&q, count);
++	queue_wait(&q);
++	queue_destroy(&q);
++}
++
++static void basic_test(void)
++{
++	unsigned char *p = map_pages(2 * PAGE_BYTES);
++	unsigned int offsets[] = { 0, 1, 7, 63, PAGE_BYTES - 1 };
++	unsigned int i, bit;
++
++	CHECK(!mprotect(p + PAGE_BYTES, PAGE_BYTES, PROT_NONE));
++	for (i = 0; i < ARRAY_SIZE(offsets); i++) {
++		for (bit = 0; bit < 8; bit++) {
++			memset(p, 0, PAGE_BYTES);
++			exercise(p + offsets[i], bit, RING_NUM);
++			CHECK(p[offsets[i]] == (1U << bit));
++			if (offsets[i])
++				CHECK(!p[offsets[i] - 1]);
++			if (offsets[i] + 1 < PAGE_BYTES)
++				CHECK(!p[offsets[i] + 1]);
++			p[offsets[i]] = 0xa5;
++			exercise(p + offsets[i], bit, 1);
++			CHECK(p[offsets[i]] == (0xa5 | (1U << bit)));
++		}
++	}
++	CHECK(!munmap(p, 2 * PAGE_BYTES));
++	puts("PASS bits 0..7, repeated sets, unaligned and guarded page end");
++}
++
++static void fault_test(void)
++{
++	unsigned char *p = map_pages(PAGE_BYTES);
++	unsigned char resident;
++	struct queue q;
++
++	queue_init(&q, p, 3, true);
++	CHECK(!mincore(p, PAGE_BYTES, &resident));
++	CHECK(!(resident & 1));
++	queue_submit(&q, 1);
++	queue_wait(&q);
++	queue_destroy(&q);
++	CHECK(*p == 8);
++	*p = 0;
++	CHECK(!mprotect(p, PAGE_BYTES, PROT_READ));
++	exercise(p, 2, 1);
++	CHECK(!*p);
++	CHECK(!mprotect(p, PAGE_BYTES, PROT_NONE));
++	exercise(p, 2, 1);
++	CHECK(!mprotect(p, PAGE_BYTES, PROT_READ | PROT_WRITE));
++	exercise(p, 4, 1);
++	CHECK(*p == 16);
++	queue_init(&q, p, 2, true);
++	CHECK(!munmap(p, PAGE_BYTES));
++	queue_submit(&q, 1);
++	queue_wait(&q);
++	queue_destroy(&q);
++	/* Used-ring logging ignores errors; check survival and no bad write. */
++	puts("PASS first touch, readonly, PROT_NONE, unmapped, recovery");
++}
++
++static void file_test(const char *path)
++{
++	unsigned char *p;
++	unsigned char byte;
++	int fd = open(path, O_CREAT | O_TRUNC | O_RDWR, 0600);
++
++	CHECK(fd >= 0);
++	CHECK(!ftruncate(fd, PAGE_BYTES));
++	p = mmap(NULL, PAGE_BYTES, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
++	CHECK(p != MAP_FAILED);
++	CHECK(!*p);
++	exercise(p, 5, 1);
++	CHECK(*p == 32);
++	CHECK(pread(fd, &byte, 1, 0) == 1);
++	CHECK(!byte);
++	CHECK(!munmap(p, PAGE_BYTES));
++	p = mmap(NULL, PAGE_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
++	CHECK(p != MAP_FAILED);
++	*p = 0;
++	CHECK(!msync(p, PAGE_BYTES, MS_SYNC));
++	exercise(p, 6, 1);
++	CHECK(*p == 64);
++	CHECK(!msync(p, PAGE_BYTES, MS_SYNC));
++	CHECK(!munmap(p, PAGE_BYTES));
++	CHECK(!fsync(fd));
++	CHECK(!posix_fadvise(fd, 0, PAGE_BYTES, POSIX_FADV_DONTNEED));
++	CHECK(pread(fd, &byte, 1, 0) == 1);
++	CHECK(byte == 64);
++	CHECK(!close(fd));
++	CHECK(!unlink(path));
++	puts("PASS private file COW and shared file sync/re-read");
++}
++
++struct collector {
++	unsigned char *bitmap;
++	bool stop;
++	unsigned char seen;
++};
++
++static void *collect(void *arg)
++{
++	struct collector *c = arg;
++
++	while (!__atomic_load_n(&c->stop, __ATOMIC_ACQUIRE))
++		c->seen |= __atomic_exchange_n(c->bitmap, 0, __ATOMIC_SEQ_CST);
++	return NULL;
++}
++
++static void concurrent_test(void)
++{
++	unsigned char *p = map_pages(PAGE_BYTES);
++	struct queue q[8];
++	struct collector c = { .bitmap = p };
++	pthread_t thread;
++	unsigned int bit, round;
++
++	for (bit = 0; bit < 8; bit++)
++		queue_init(&q[bit], p, bit, true);
++	for (round = 0; round < 1000; round++) {
++		__atomic_store_n(p, 0, __ATOMIC_SEQ_CST);
++		for (bit = 0; bit < 8; bit++)
++			queue_submit(&q[bit], 1);
++		for (bit = 0; bit < 8; bit++)
++			queue_wait(&q[bit]);
++		CHECK(__atomic_load_n(p, __ATOMIC_SEQ_CST) == 255);
++	}
++	for (round = 0; round < 1000; round++) {
++		__atomic_store_n(p, 0, __ATOMIC_SEQ_CST);
++		c.stop = false;
++		c.seen = 0;
++		CHECK(!pthread_create(&thread, NULL, collect, &c));
++		for (bit = 0; bit < 8; bit++)
++			queue_submit(&q[bit], RING_NUM);
++		for (bit = 0; bit < 8; bit++)
++			queue_wait(&q[bit]);
++		__atomic_store_n(&c.stop, true, __ATOMIC_RELEASE);
++		CHECK(!pthread_join(thread, NULL));
++		c.seen |= __atomic_exchange_n(p, 0, __ATOMIC_SEQ_CST);
++		CHECK(c.seen == 255);
++	}
++	for (bit = 0; bit < 8; bit++)
++		queue_destroy(&q[bit]);
++	CHECK(!munmap(p, PAGE_BYTES));
++	puts("PASS eight workers sharing a byte, concurrent atomic collection");
++}
++
++static void alias_test(const char *path)
++{
++	unsigned char *p, *alias;
++	struct queue q[8];
++	unsigned int bit, round;
++	int fd = open(path, O_CREAT | O_TRUNC | O_RDWR, 0600);
++
++	CHECK(fd >= 0);
++	CHECK(!ftruncate(fd, PAGE_BYTES));
++	p = mmap(NULL, PAGE_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
++	alias = mmap(NULL, PAGE_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED,
++		     fd, 0);
++	CHECK(p != MAP_FAILED && alias != MAP_FAILED);
++	for (bit = 0; bit < 8; bit++)
++		queue_init(&q[bit], bit & 1 ? alias : p, bit, true);
++	for (round = 0; round < 1000; round++) {
++		__atomic_store_n(p, 0, __ATOMIC_SEQ_CST);
++		/* Keep one alias writable, and force faults through the other. */
++		CHECK(!madvise(alias, PAGE_BYTES, MADV_DONTNEED));
++		for (bit = 0; bit < 8; bit++)
++			queue_submit(&q[bit], 1);
++		for (bit = 0; bit < 8; bit++)
++			queue_wait(&q[bit]);
++		CHECK(__atomic_load_n(p, __ATOMIC_SEQ_CST) == 255);
++	}
++	for (bit = 0; bit < 8; bit++)
++		queue_destroy(&q[bit]);
++	CHECK(!munmap(p, PAGE_BYTES));
++	CHECK(!munmap(alias, PAGE_BYTES));
++	CHECK(!close(fd));
++	CHECK(!unlink(path));
++	puts("PASS shared-file aliases with repeated PTE faults");
++}
++
++static uint64_t now_ns(void)
++{
++	struct timespec ts;
++
++	CHECK(!clock_gettime(CLOCK_MONOTONIC, &ts));
++	return (uint64_t)ts.tv_sec * 1000000000 + ts.tv_nsec;
++}
++
++static void benchmark(bool logging, unsigned int batches)
++{
++	unsigned char *p = map_pages(PAGE_BYTES);
++	struct queue q;
++	uint64_t start, elapsed;
++	unsigned int i;
++
++	*p = 0;
++	queue_init(&q, p, 0, logging);
++	for (i = 0; i < 100; i++) {
++		queue_submit(&q, RING_NUM);
++		queue_wait(&q);
++	}
++	start = now_ns();
++	for (i = 0; i < batches; i++) {
++		queue_submit(&q, RING_NUM);
++		queue_wait(&q);
++	}
++	elapsed = now_ns() - start;
++	queue_destroy(&q);
++	CHECK(*p == (logging ? 1 : 0));
++	printf("BENCH logging=%u descriptors=%u elapsed_ns=%" PRIu64
++	       " ns_per_desc=%.2f\n", logging, batches * RING_NUM,
++	       elapsed, (double)elapsed / (batches * RING_NUM));
++	CHECK(!munmap(p, PAGE_BYTES));
++}
++
++int main(int argc, char **argv)
++{
++	const char *path = argc > 1 ? argv[1] : "/tmp/vhost-log-test";
++
++	CHECK(sysconf(_SC_PAGESIZE) == PAGE_BYTES);
++	if (argc == 2 && !strcmp(argv[1], "--bench")) {
++		benchmark(false, 10000);
++		benchmark(true, 10000);
++		return 0;
++	}
++	basic_test();
++	fault_test();
++	file_test(path);
++	concurrent_test();
++	alias_test(path);
++	puts("PASS vhost dirty-log regression suite");
++	return 0;
++}
+diff --git a/tools/virtio/vhost_log_test.rst b/tools/virtio/vhost_log_test.rst
+new file mode 100644
+index 000000000000..7652506e7400
+--- /dev/null
++++ b/tools/virtio/vhost_log_test.rst
+@@ -0,0 +1,53 @@
++.. SPDX-License-Identifier: GPL-2.0-only
++
++Vhost dirty-log regression test
++==============================
++
++``vhost_log_test`` exercises used-ring logging through the existing
++``/dev/vhost-test`` interface. It requires a test kernel with vhost support
++and the ``vhost_test`` module built from ``tools/virtio/vhost_test`` for that
++same kernel. Run it in a disposable VM, with permission to open the device.
++
++Build the userspace executable from the kernel source root::
++
++  make -C tools/virtio vhost_log_test
++
++For a static initramfs executable, use ``LDFLAGS="-static -pthread"`` on a
++clean build. Load ``vhost``, its dependencies, and ``vhost_test`` in the
++guest, then run::
++
++  ./vhost_log_test /mnt/vhost-log-scratch
++
++The path is a disposable scratch file: the test truncates and removes it.
++Use a disk-backed filesystem such as ext4 to exercise file writeback.
++Omitting the path uses ``/tmp/vhost-log-test``. The test currently requires
++4 KiB pages and the native little-endian legacy vring layout; runtime
++coverage is intended for x86.
++
++The suite covers every bit within a byte, repeated sets, neighboring-byte
++preservation, unaligned byte addresses, a guarded page end, first touch,
++inaccessible mappings and recovery, private COW, shared-file sync/reread,
++eight workers sharing a byte, and concurrent userspace atomic collection.
++The collector checks each of 1000 independent rounds. Another 1000 rounds
++use two aliases of a shared file page and discard one alias's PTEs before
++each round, exercising resident and faulting accesses to the same bitmap.
++
++Used-ring logging currently discards ``log_used()`` errors. Consequently,
++the inaccessible-mapping cases check survival, absence of a successful
++write and recovery; they do not verify userspace-visible ``-EFAULT``.
++The collector verifies that all eight bits were observed in each round,
++not that every repeated dirty event was counted. Alias tests exercise
++fault fallback but do not establish a deterministic instruction ordering.
++These tests do not replace MM race analysis or live migration testing.
++
++Run the benchmark separately::
++
++  taskset -c 0 ./vhost_log_test --bench
++
++Each logging-disabled/enabled measurement warms up with 100 batches,
++then times 10000 batches of 128 descriptors. The result includes queue
++submission, worker execution and completion notification. It measures
++nanoseconds per descriptor, not isolated ``set_bit_to_user()`` latency,
++network throughput or migration time. Keep the kernel configuration and
++VM setup identical, alternate baseline/optimized runs, and report multiple
++samples. Affinity applies to the guest CPU; host CPU placement is separate.
+-- 
+2.43.0
 
-I added a few people to Cc here that I believe care about
-having several more LTS releases with some highmem support
-because of existing customer requirements.
-
-     Arnd
