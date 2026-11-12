@@ -1,60 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=79.135.107.169
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794513815;
-	b=1w34+W5U9MM4CQW+p1PlnRghbqvlpS99valNI+s+6zENee2pnN+R3QMBbJ+O/DlgWEm0
-	 DMG/j1l55MGUfRjtb5upDim5oaMEjqWhoc2nHxY7/5SnxaqfpyezMX1GkjJf4n02K1kLd
-	 HjQf5XDwMXzC9DwIuJMT900L4Bf/MntmTyBbCC9Wg/YWmS5LlNmvDNRZogATKJRPPExSL
-	 I8U1iBitbuoVcEmvyipZBvOm7OPm1zCJYGbdRZE6s41kgpiwZe71+qnAgkXBLEheh4FDk
-	 Zx04c+7GJ9lCKxhlItpqYi1xCWsYQT0I1PUHwzJvlmdyPRyEHRuscYEmO01+8wu2uEA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794513815;
-	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
-	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
-	 X-SimpleLogin-Want-Signing;
-	bh=0E3W616PIIwYgmjnft8Gf472v/DbdmSZ1OX5fDFqHR4=;
-	b=i82Q6yUrRy3NnKsNjVRquy1TQvdwyfizypsALjH2brmkB2CMlbaOxBzojz2R3oLywFHZ
-	 Li7t/CPHDd+x+yxSRGEp6Wyw1AckU3en1YCWiBz5phGWco5nzfnymsfmC/ZYOGpQpxeR4
-	 DydP8o2Wne/SeDyeoldYCRM9o6PhBJWFQYfGcCQqhsphsfxFIGw5NpYQkVNDCGPwb6h1O
-	 B4ByJ2zIRVxnJ0MkCUQWJt7cU3ZtVFO9o+LXGxLt37AB5dVierYNme/CJBfKh8GGIYDtE
-	 tsXVimjCtnKQwm1on1LpG8x+0d8d0FUXCrq7bUuSgVpi+9K1mvBZtgh1fUYE1QNPkkw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=eldare.de;
-	spf=pass smtp.mailfrom=eldare.de;
-	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=C80fJPC6;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=79.135.107.169
-Received: from mail-107169.simplelogin.co (mail-107169.simplelogin.co [79.135.107.169])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794516487;
+	b=MYXTXzUgZi5+bk24uxwDOeipcBe89rmVA5QDq4c3C9NcY7Z0Z4EevzsV8zlTGMUuoeCK
+	 LNYoequdVCnjsL+ZEYfE+xp2Zwz2/Ij32CDLeqk3eyPjatgwmrj2ttj8CpmlwK+q2YkxA
+	 EJsxwLMie30cHHx/Dd1lK1jaFRKLbj1hko105+D2D5apU7Ulpbgv5DqfuBp0ZC3k/zWAD
+	 owGVgniIGOz0NSJJxHRelMcsnX9086Xmy/Z6odQe/X0jRINWfMAOrLcN7WjPZ7q2otAbD
+	 LnwTmWwx6ul/uMM3QTiOyb20T1FmLdZQew+mGjzxFcunZG3+seL4SrwyLG12KwHNBxg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794516487;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=lOwnGQXmS8evHlFVLwX0xtuDnhg6yBqOr9ZK8AmqtFQ=;
+	b=ktVPM0u/FC1eCzLpckzvHXlilKYe7Oc3Y4HWR+/NBd+4SC6uKdpxbSNa6BP/Ya0XzJbT
+	 Rrm0l8MEhtLOuUb3CC5D6K0kVVlP2pz9n1nZWdA54LwZyopb0b+nK5klqGMJJf+3cFBml
+	 JRjtzlO6246sPVPNS3t/07Irvv3n1aOC3iK+3NDRjhSc02X/DHrY210eAz5UcZPE5veo9
+	 yZZ4toGQ/yJQagKWeClcsSy3Z7R+4sC6kGW+1iSZhtFVGZjFJaQRWtGV4eeT5O7LwNHBX
+	 Rv18itNgQNI4W9AGoVHUvY7fChyBnctgV1Oiu3p6DXzRfK5yoO/Yfo0OGmiHRpMBjhA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="cWQ9MB/S";
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39EFE606A323
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 20:03:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39EFE606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4BBD606B310
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 20:48:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4BBD606B310
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=C80fJPC6
-ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1794513813;
-	cv=none; b=VWsLIO5ZDFdFMSexR1WD0s2jyF5Ecg6aJ7egPZC5KX01jpZdaOM71xq/CWCAJKtAu4XjvqAbrOYrlEC5HOmQIXPQfHNb5cPTzcRO6cnvSDYCPxlfJ8TEp5GdssBeYJ9GfBh+ChZtDGLUT0g3Aryi7uDUkmzGVOi9kTxcM5HJEyFvMSmrR1IkD5H99LXhwW7rqcobNHbV2Ajgsj/9HwEzVVY+CcZRjUF89ICmilkPOukE3YVjZeIZxqFzMqjLXCmQKpRry5+Xy1VBL8C1nBXFXacJzjTRYDVOYYOzS+V+eqt/g60XjDAjH7G3byWQrhjyKLXjjWP4qLi7WPrQe/l/3g==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
-	t=1794513813; c=relaxed/simple;
-	bh=0wc9Z/4W6CTXSp1rTTaxIG30rifzfPuvCw+aRoc0wpE=;
-	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=NENS0VfnzmH5V90SmV+FD/CZVcM+m4aEp6WZtCNDPq83O0VXEXXL29H5035TNVr2Yzi09OA6BzFce2Af5FXKAzCSCqxZm2E2Qr+DvXC0Bc1N2oGoQOWcDu/b7JNKaG8vTkreYvYNT1L30l6owqNdT7ZOcwF66koOksuf+pXKKCYLOiN8JPnj/gCseqogWhUD4avWRioAIYv9FNyyn1GBpMCG+ACd3sVJgcVfG5z94zFpCkHoSSZn4bT3qCpiMTNhz0zV7CuQGjz+PNp7zYc9Qa7mIOnnkGqGZkVesvlhQPGpXSq6BrSmp4GwKqsgqg8x5Q5Qwr1lpBSVPBCYD851jw==
-ARC-Authentication-Results: i=1; mail.protonmail.ch
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
-	t=1794513813;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cWQ9MB/S
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794516485;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0E3W616PIIwYgmjnft8Gf472v/DbdmSZ1OX5fDFqHR4=;
-	b=C80fJPC6c82t8kBWD1d1BIAZlIX8ADI7iFadx9fa7XQeUBpqdd0ZEPR2PATr9dBXbB6QB8
-	R78HVgSdpPUBG9gH2eCQtzA/ZlUTPoqX5wRQVlIWlciSmDGVeKyHob8PosYa7wzKyZ6yv5
-	uB0ewh3FaDmO2uYttqH0U4Ecn8/uGWk=
-Date: Thu, 12 Nov 2026 20:03:22 +0000
+	bh=lOwnGQXmS8evHlFVLwX0xtuDnhg6yBqOr9ZK8AmqtFQ=;
+	b=cWQ9MB/SEV27c61OtK0XDaZhXEyPRk9nvugbvwcyhPM/lTzPwqGXApHVKcoYQ3HTkdkBDy
+	EyM429DPAKfjzq+8yWSO9I7z3cDfnoKEUh0Dh3i25uRqXFA/9XF/6gNQdbk0lj4pH7Q9Jh
+	heXh81knuYiSFewT3wdrfpJRqpvmsMw=
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
+ [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-160-9VgpCOcxMgebifEoUH2r_g-1; Thu, 12 Nov 2026 15:48:02 -0500
+X-MC-Unique: 9VgpCOcxMgebifEoUH2r_g-1
+X-Mimecast-MFC-AGG-ID: 9VgpCOcxMgebifEoUH2r_g_1794516481
+Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-45952ce9ee0so347446fac.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 12:48:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794516481; x=1795121281;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lOwnGQXmS8evHlFVLwX0xtuDnhg6yBqOr9ZK8AmqtFQ=;
+        b=2KS6OFGA3tDusyIDweqlxsmUjnBC7U7s52xLPZhiOpLCtWwnNk+5mjOq4/aIwPm1rO
+         5uILQsoYhSFBRYot/0IwUP+hwwk7J8iTYYiQv0qlsTdLnrMRJi8kHFP2djx2Bfb+xr5z
+         ABrug7WKu+ylZJwY/oqbGpSRnOR+ud8IunVrWQZSl/gcLHO1N8PzU3/Zqn0qsZ5skFuV
+         y1497IZtfvA0lsDB5kgZ1cwMeUZgEN4PwUPc8Z0M9dYFLZ99jiwNYLIGWetZKxg96Mw3
+         fta+Z0COjCjz8cVXWeu6bH4zX1hrDAyMW6p4u6ojPsM3XDtvMQ2tLlcdqaClDu9roDkG
+         pbAg==
+X-Forwarded-Encrypted: i=1; AL+hErERfyMgVBUg3FtzwbXkEoARI0frcUBLGq7Sed9gq9C2uhckdy7zeOWyoUVhe6a1TseZ/AUO80KD3GvHTy73yw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+l6AWvbiE9EU3RNsYMNU2NUNISaJdH785dGU8id1oVf+vnxICS
+	qmvQRv9giO/U6LANZHn6hUrLZlLh4UIUVUjPRuOAN/rtMMCc+bZpy8p3seiZ2XReBtESn00cgRT
+	2KQZM8fUJMjwZb011kryztwyU+GgO3OFqZw3StfnLcDUDmeZbs5YxVBI41Z5ehyrQXXj5
+X-Gm-Gg: AYBFou0so8I8jf83AbE3xBOzOuBltYOA9eBvaBO1lespKEz//WoDEtZacoUN2ixGl1j
+	nQ7+09dGl9bILIDhXEf9XhgHL+pJnjFzpCb2LQA/MWH403xH4c8xdCW2tqWcq0G39dKM74mYvbz
+	2MBdLFG9xsPuYv9msR9f9u55POWgOEgHpzlvn50THqmhWWLzglceqxu2bO/99sfwYOTtLw70PVc
+	RYpJtur+GUjlMsUAw/Al3RA3VR8Q24BugrD4/FnFw8026Kznk/3s+SgP5jmui2BW/wp+XYy6wNj
+	ZOA16KzrjzBP47G4a8ypC/+kidVXlphk98YsZi+yun/pHTNgC2okwY9fHV+QO1QPMw/MY4dQ+Hf
+	7tHzvj0g+gim53sUM86eL9XcjGX3wgs4cuBY1Zv/CiKe6Gf/Gaa5w
+X-Received: by 2002:a05:6871:7b0a:b0:49d:ff8c:205e with SMTP id 586e51a60fabf-4afdf2da638mr911061fac.29.1794516481391;
+        Thu, 12 Nov 2026 12:48:01 -0800 (PST)
+X-Received: by 2002:a05:6871:7b0a:b0:49d:ff8c:205e with SMTP id 586e51a60fabf-4afdf2da638mr911021fac.29.1794516480871;
+        Thu, 12 Nov 2026 12:48:00 -0800 (PST)
+Received: from sgarzare-redhat ([69.196.88.181])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-8628813465esm686251a34.16.2026.11.12.12.47.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Nov 2026 12:48:00 -0800 (PST)
+Date: Thu, 12 Nov 2026 21:47:54 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: jrmmhm.kernel@eldare.de
+Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH net v5] vsock/bpf: release sock lock while waiting for
  data in recvmsg
-In-Reply-To: <179447093204.2199510.8895677421994612994@kernel.org>
+Message-ID: <avYllBVgJg2AHYc0@sgarzare-redhat>
+References: <20261109-kbh3-1-022-fix-v2-v5-1-4d9af04f0fad@eldare.de>
+ <avXyzxvIN3ngFepE@sgarzare-redhat>
+ <179451283622.7.13355395779239029915.1767743913@eldare.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,85 +108,51 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: jrmmhm.kernel@eldare.de
-To: netdev-bot+sashiko@kernel.org
-Cc: Stefano Garzarella <sgarzare@redhat.com>,Bobby Eshleman
- <bobbyeshleman@meta.com>,"David S. Miller" <davem@davemloft.net>,Eric Dumazet
- <edumazet@kernel.org>,Jakub Kicinski <kuba@kernel.org>,Paolo Abeni
- <pabeni@redhat.com>,Simon Horman <horms@kernel.org>,"Michael S. Tsirkin"
- <mst@redhat.com>,Alexei Starovoitov <ast@kernel.org>,Michal Luczaj
- <mhal@rbox.co>,virtualization@lists.linux.dev,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,bpf@vger.kernel.org,stable@vger.kernel.org
-Message-ID: <179451381226.6.3359410033921765387.1767782037@eldare.de>
-References: <20261109-kbh3-1-022-fix-v2-v5-1-4d9af04f0fad@eldare.de>
- <179447093204.2199510.8895677421994612994@kernel.org>
-X-SimpleLogin-Type: Reply
-X-SimpleLogin-EmailLog-ID: 1767782109
-X-SimpleLogin-Want-Signing: yes
+In-Reply-To: <179451283622.7.13355395779239029915.1767743913@eldare.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: NcJCQauo3SOGCBAdPuOhZS7D49e6G3kD-UCmexzrtao_1794516481
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Thu, Nov 12, 2026 at 08:08:52AM +0000, netdev-bot+sashiko@kernel.org wro=
-te:
->> -static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock=
-, long timeo)
->> +/* __vsock_recvmsg() doesn't wait in these states and knows what to ret=
-urn. */
->> +static bool vsock_rx_done(struct sock *sk)
+On Thu, Nov 12, 2026 at 07:47:11PM +0000, jrmmhm.kernel@eldare.de wrote:
+>On Thu, Nov 12, 2026 at 06:23:00PM +0100, Stefano Garzarella wrote:
+>>On Mon, Nov 09, 2026 at 09:08:29PM +0100, Jerome Mohm via B4 Relay
+>>wrote:
+>>>The loop
+>>>and the zero-length check belong to the fix (without them the reader
+>>>returns early or spins with the lock held), so this is one patch;
+>>
+>>I don't understand why that fix can't be in a fist patch of the
+>>series...
+>>
+>>>+    if (unlikely(!len || (flags & (MSG_OOB | MSG_ERRQUEUE))))
+>>>+        return __vsock_recvmsg(sk, msg, len, flags);
+>>
+>>... I mean, why this change ^^^ can't be in patch 1/2?
+>>
+>>BTW I'm not asking to split it (at least for now).
 >
->[Severity: Low]
->Does this comment hold for the sk_err case after a transport reset?
-[ ... ]
->The wait loop stops on sk_err, but the code it hands off to can't
->report that error. Could the wait path return the pending error the
->way the native path does? If not, could the comment be reworded to
->cover this case?
+>It can: the loop is needed for the deadlock fix, since without it the
+>reader returns -EAGAIN early when it wakes without data, but the early
+>return isn't. A zero-length read with data in the psock queue already
+>spins with the lock held on net, and as far as I can tell from the code
+>the early return alone fixes that, plus the MSG_OOB and MSG_ERRQUEUE
+>cases. In v4 those reads were patch 2/2. They went into one patch only
+>because Alexei's diff replaced both, and my v5 sentence justified that
+>badly. You said you're not asking for a split, but since the early
+>return isn't needed for the deadlock, it would fit as its own patch:
+>should v6 have it as 1/2 and the lock change as 2/2, or stay one patch?
 
-I reworded the comment and kept -ENOTCONN, which the commit
-message already notes. Returning the pending error from the wait would
-bring back the copy of the native return values that Alexei asked me
-to drop in v4.
+Yeah, I'd prefer 2 patches with this change as first patch.
 
->> +    while (!vsock_has_data(sk, psock) && !vsock_rx_done(sk)) {
->> +        if (!timeo) {
->> +            ret =3D -EAGAIN;
->> +            break;
->> +        }
->> +        if (signal_pending(current)) {
->> +            ret =3D sock_intr_errno(timeo);
->> +            break;
->> +        }
 >
->[Severity: Low]
->What happens when the timeout and a signal land in the same wakeup?
-[ ... ]
->Would checking signal_pending() right after wait_woken() returns, as
->the native loop does, make this match?
-
-I'm leaving this one as is: it only changes which error a reader gets
-when the timeout and a signal land in the same wakeup, and I don't
-think that is worth another change to the loop in this patch.
-
->> +        release_sock(sk);
->> +        timeo =3D wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
->> +        lock_sock(sk);
->>      }
+>>I saw some comments from sashiko, can you reply to them?
 >
->[Severity: Medium]
->Now that the lock is dropped around wait_woken(), can vsk->transport
->be NULL when the loop condition is checked again?
-[ ... ]
->Before this patch, the lock was held for the whole wait on the BPF
->path, so this interleaving could not happen there. Would checking
->vsock_rx_done() or !vsk->transport before vsock_has_data() in the loop
->condition avoid the warning?
+>I'll wait for your answer before sending v6, and I'm replying to the
+>Sashiko comments separately.
 
-I haven't reproduced this, but the code agrees with it: v6 will check
-vsk->transport first in the wait loop, so a reader woken after its
-transport is gone no longer calls vsock_has_data(). The entry
-WARN_ON_ONCE() in vsock_bpf_recvmsg() stays as it is, so a later recv()
-on such a socket still reaches it, as it does on net today.
+Great, thanks for that!
 
-pw-bot: cr
-
-Jerome
+Stefano
 
