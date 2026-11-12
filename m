@@ -1,87 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794503068;
-	b=ltEzaZDDx6wmN5dO2XL7/nMNYayoECX2SCFe6UThTLXFBA3oIUhnbasJLz1pl13LG96y
-	 nCzJdcqs4VxB+/Cp5wELftwmMGOe32pKcTk0BO7RzSijBCeCVg2ngMXBDPtMBAKargSSE
-	 kyGfEZnaUnC7cqtDces1QUJUfOgYFJL+VsbOIPu4nVFszK3vq/0NAcvL5mp8IBRfq03N0
-	 IPMLWtA+GxExwlT/o3FZjmoubidsQslq0yMM7aAlM8uJ1z1RxthSVc4P64j5pLfwSikHk
-	 QhhTXHZkMstu/3p+pTw+q47/K345kWkXVHtNna/yF2OtJAc/DEnyANDN1FIrFA5UwCg==
+	t=1794503556;
+	b=hnl9IYJMAa0qsWNwzUgyYOJ4gEO4LzrmEfiXpKPB3s3Q8yxmJYq6dqumZrVy1/PBXF23
+	 KirZlqqnD0hL5E3Dd4kVpyMXGtXBmPxC0Imkjq+Jt/aJlc8YPT6PzX9K/+bXAHefsXQQO
+	 pwQg7Az6QmUj3BYm/+RwSrxlH2IyS8sPs0gvICXC8C/bZclDu8JuphjhXZesfO6yO2otf
+	 frkDFxuqs50VnLRdf5LZfi97QNSLEt087FATiir/0gBRQKer5RX3mZ0lStQ/iJW33Jj7l
+	 Bso4XuF85Aj2IiOPbZctYeE4ZmiiA6Xqvoka3QXOE6ONeiWAaNMpIJ1qyebGy+7Fv4A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794503068;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:
-	 In-Reply-To:References:MIME-Version:Date:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type;
-	bh=snSHFcywNjYaU+V8VNJTtf/b2PyC3xXSLz2Yl9hABOc=;
-	b=XjOUB7C4GYwWMftCvmt+hd1/TgComwvCzEwU/r6LhgEecLLuS9rRKq655vmBjlxBY7g0
-	 m5jzDaelMZW6QztJNjtKAChjE0zWzZ2vYrcjqXBF7zMn9671zzovOVxQ+Iv9wwWAoo9vW
-	 Sbdn7USKeu0sUh/3xAA8mvEVuVqljSqwmjNnDEvZ1vMCZtVrcZY//vysS+xRUTbuw0biz
-	 NeRgd4FDn52hINBrxGjSkGcrNGgj0wi7gPFRzrNECaLo7xxsylDdtOZie4HURhFiWY2/d
-	 Y46ZVAPkmPpd7nsiRSww6tOcWUMAuWLcp5iapkwcyZkyGAKtf21Sie2Xeu+b4YH3sLw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794503556;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=F6YTYLTty4ZhMoj9B/ri1dVEfYoUCO5Spihz/O49FOQ=;
+	b=iMTVtEuVZrmZTowW9G0IY/ntx8mC9UN04BRacTdzL23O1iajdayTy+lB8Psmbgnz1Qo3
+	 LzKY7rCEdzCN0Xa4RTDjX9frVObdkGTLIb9dqNwaD86Zd44wL6DnlEEtzVyKB8NthGgkp
+	 hzFXKwYJRysE46YlDvsqebEWYkppGY0Hea6BYnWUhSklFh7A6SBoHse0Ltu2xcgAmZ76L
+	 w+ZMuOpHwFKPo35nzn4qGpFx/tUElgZwJxV9ZD4QTynfsYVR0fvKsys3i32ZgGCKhXBNN
+	 B5OkEb/X/l7JbFmq70fkChRAN1Rfky0AVX1sf215VHoBq4y2mL5oZsnpPrG3Nu2QtOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RSM4jfOy;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=none header.from=linux-foundation.org;
+	spf=pass smtp.mailfrom=linuxfoundation.org;
+	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=fDOQ28rl;
+	arc=none smtp.remote-ip=209.85.218.42
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38608606A334
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 17:04:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 38608606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0552B606A88A
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 17:12:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0552B606A88A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RSM4jfOy
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794503066;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=snSHFcywNjYaU+V8VNJTtf/b2PyC3xXSLz2Yl9hABOc=;
-	b=RSM4jfOySxzjJPJjdouIzY7aahn6xYwmwQ426+YBqQwkDoWHGLgeqj8QRmvU57NPACXmsh
-	zlikkXlCu202+ypjIEik6t9BI6oNtWjvXMqD6ktYDAPqn115ugNa+3Ye+Ves2Fl+fDHFmo
-	IiZSu2po3bI721tRDFzdUrROBgpMv/E=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-414-heAW3e4APjy9ToiPlv8mDQ-1; Thu, 12 Nov 2026 12:04:24 -0500
-X-MC-Unique: heAW3e4APjy9ToiPlv8mDQ-1
-X-Mimecast-MFC-AGG-ID: heAW3e4APjy9ToiPlv8mDQ_1794503064
-Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-91ebc622dc8so890916d6.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:04:24 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=fDOQ28rl
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-c4203bbb1e9so721312166b.3
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:12:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1794503554; x=1795108354; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=F6YTYLTty4ZhMoj9B/ri1dVEfYoUCO5Spihz/O49FOQ=;
+        b=fDOQ28rlVDjCb+K+WzyKmwpR1TnQ0ZA+a+gOMR9IBj3s2lGAw+PpQljX1/a0z/pw4G
+         CjU6xKq4wUEG8TM6BWrnu+GMxo65bnTXGI5vQXMjQN/MS8Ada3RlMyLvXquWR/MtMSUO
+         xCHd8t//uA2LcHadnaCWTagqrro61MRm9mW+E=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794503064; x=1795107864;
-        h=content-type:cc:to:subject:message-id:date:mime-version:references
-         :in-reply-to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=snSHFcywNjYaU+V8VNJTtf/b2PyC3xXSLz2Yl9hABOc=;
-        b=LTALicic0+QSK4/6rX7moN9tSsoca0/2EsR/yfmfK5KhpwX8ytnokKhulUO1iCvepL
-         cMSFrDowkJbCbWwvf06+PrVvk1nG4VvKcyyaduOuKWr029PgZE+uTYuFhGzIwyTnIGs3
-         u1ESxw6amy2+KMHmL3RmJjWHv4jcc+SHdoa1c3pvXeWnhRPrNzExdZrMK/Urf9CjCEAK
-         SeaMihFfnl4tHEpqf7RERd+oFji1O9trdF7ZCQ8Hm+F4Fl4214ZR0wR9aRtcLv5Co4LD
-         GZeNiNXvQO6V47XmY04WG14P8t4Si9h01v3494iYaRz1l6CSr7e3ot7WO8CftWfPveCw
-         GFpw==
-X-Gm-Message-State: APuU4Z9UqZMEBCBy+daVYvv7PfB6/mPkWTa/th24QVBTzAT4uaqrqx5e
-	0bOL/KsVhXrYAYOGhbJJAJRIVR2h0WF4Oq15POIbUHhzGGZj7iJUW2fENPxxMgOLuG9FLE7xoPu
-	u56IVPGg88jxolFR9VZfHd2y9tAbxW2GJ3k6nVWOtZsClG/egSq9cnviwh+lYZj4soAJIl+uwXc
-	xqZB6q+CbK7ZGze+wf7jiCbxqYykK6Z5QjHwlL6Iiodrk=
-X-Gm-Gg: AYBFou2pInp2x4zP7wxhKRHerJq/qsDWE8tzvztw0TUO/DqzJ3fNeerIqVamj54k7aO
-	xIs7APUOw7S2IKm3HKQWOolIJv+yGCJKl89Ve9w+h2hp5gbS0R4lMEgBV1rCFpo4kr2ClawD0Vo
-	YpxcNqH8vuM9ElrZa2cKHZtl47nXaGuhjJ3z2WQ0Fzbdmi/CfmK7j0NeQ=
-X-Received: by 2002:a05:6214:3d11:b0:91c:79eb:ea55 with SMTP id 6a1803df08f44-91f040c0da4mr105357366d6.28.1794503064002;
-        Thu, 12 Nov 2026 09:04:24 -0800 (PST)
-X-Received: by 2002:a05:6214:3d11:b0:91c:79eb:ea55 with SMTP id
- 6a1803df08f44-91f040c0da4mr105356616d6.28.1794503063345; Thu, 12 Nov 2026
- 09:04:23 -0800 (PST)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 12 Nov 2026 11:04:22 -0600
-From: Sergio Lopez Pascual <slp@redhat.com>
-In-Reply-To: <DMGNAV67LK3F.2FNLTD5NVHDEA@gmail.com>
-References: <20261028-vsock-dgram-support-v1-0-e457cf7cee78@sinrega.org> <DMGNAV67LK3F.2FNLTD5NVHDEA@gmail.com>
+        d=1e100.net; s=20260707; t=1794503554; x=1795108354;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=F6YTYLTty4ZhMoj9B/ri1dVEfYoUCO5Spihz/O49FOQ=;
+        b=uX9gbNBImzRqeWg7Bjxy+RLw2C9U49IlF0u2NAkC+sUDs0vC2ImFYaQX+nhMIHbrpv
+         KbIFJz9X7fj02QzqE0/Xc8czixEL8vuPKp25rq/8e+RsygdkTjQCcxdmg0N035QMnA3q
+         XCY4LgTgcb8hHCtzEi+lruaC9Wa7MF6eVEd+DoFX/2B3lmzJ11tQUwTtM8/ZFwlr47rC
+         kjNvxoMFpCphiI+NM3FvsS3bUOpQWyyhj+Z3D8byhsLiWoZ5UL7T0i1FTK4G432EPlT/
+         3mWdDWnkaNdzTPDggOMQEExBCRKI/dCrREVTRWZEWE9Rj9PtWYJMDCubyEq4mbTnhpRL
+         8cIQ==
+X-Forwarded-Encrypted: i=1; AL+hErGTEg+xUldgwnseG1jAiFTVHZz1bpKfo2seKq8LRy0ELLcjW1EvXlnSvBYdk6mP/PiET9LTLL6ta/XNxI6EqQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9XGebrv9AFAZXA+oxBXNXJKrKsbO+dWereUaiBuBxiDSgzBhU7
+	+OFPXbUI2aVXJRKPMbCWeBn+KmrRzlfBejjZHluwuRyKdUYUGBMVVUbCIpO9jOBeQpciygGlq/H
+	ZO5Tkx1bWQA==
+X-Gm-Gg: AYBFou04F+i0oC51s+PmCYgvzQW673FR5NZEBgtGlt0y1Z7OaukgWZ8oBKu1QbFD5qU
+	begChI0XexVo546VQtAVWY2LkiMKzCZGkRoJ4HuROQxklA9b3F3d5udLsr7Uj+s6S8lkf1DqNo4
+	j/GFqP913PBntZ6kYtUo2Kof7hNsvpMiSVSgAnmfuILj3iv5qKnpMeIOU4rZQHS1rG0KPSUxOls
+	DfjviKeL4ws79s5DT5AtfEPDk88S5DwQwgXS6oqsFllELy0KrHz/REVwkS03xxdhMZsJl8zc79q
+	tfsUp0zeRvq4rLb4xhxRj24WDM3zpBinAGbYIfkeFAVyYpJo0SDe6zEEw+QCaQQLu3Z8v9ItXkL
+	YIm3CaDHiw0nMEZcmjBgXsI2qkNzBJ+FgE5fCo3/PTMRixz8h/yOvVjcSDzTxLo/eRbw/mJMMvX
+	3iNrlso5QrAPicEtK7j8BhwsXy07jxCV37g/JGgSmH05CWx3I60VP9HFbpAwPIsMfL4zYhQ+JeC
+	kO13QXkpuam5LcrrgNsta8X6uHuiE1aUspA7ni75F/j1ZFPwdUPBUq4O/IS20nX4amFI+1OOEGQ
+	TwhOHUKv288PuO21V914FhBkFXaInewACVCXtDlq2JuUrmz4aTJtjqGNGtK2krBoZk0ql5uj5yj
+	q7/k=
+X-Received: by 2002:a17:907:3d8d:b0:c41:4c20:5a80 with SMTP id a640c23a62f3a-c5066da63dfmr609505766b.44.1794503554423;
+        Thu, 12 Nov 2026 09:12:34 -0800 (PST)
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c50957c6c1fsm1602266b.0.2026.11.12.09.12.30
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Nov 2026 09:12:31 -0800 (PST)
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c3f04e0e65fso682695566b.2
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:12:30 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErEcr6KYbF37HmxY3eKxVc12Kp+C7DM2nDQp7d75gSH0zfZ3ggLS/BXJ+XYagFAC49SzO3D7DogjByXg4qnxog==@lists.linux.dev
+X-Received: by 2002:a17:907:dab:b0:c35:babe:ab44 with SMTP id
+ a640c23a62f3a-c50665538e0mr626078766b.0.1794503550222; Thu, 12 Nov 2026
+ 09:12:30 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,103 +94,52 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Date: Thu, 12 Nov 2026 11:04:22 -0600
-X-Gm-Features: AclHuK8-kXlDfbY9EpdjADOfLMjXVcZNZptS66ye_0dxL9--qQit5gRpAYjKWyc
-Message-ID: <CAAiTLFVrvmrLoFxAdJ+ObY5trjgKvNJW5im7XaRQ+K1PG-_M-Q@mail.gmail.com>
-Subject: Re: [PATCH RFC 0/8] vsock: add datagram support to virtio and vhost
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Bobby Eshleman <bobbyeshleman@meta.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
-	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Haiyang Zhang <haiyangz@microsoft.com>, 
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tyV5f4pRbnswsOQVLx6IsoR7srIEvrubJ07plFT1vWs_1794503064
-X-Mimecast-Originator: redhat.com
+References: <20261110145241.536019-1-kas@kernel.org> <20261110145241.536019-2-kas@kernel.org>
+ <avNuQqLf9CG9dSsE@casper.infradead.org> <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
+ <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner> <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+ <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner> <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
+ <e94bdf7c-eae6-4f64-bf93-0aeedca1a22e@app.fastmail.com> <32ad880e-5946-4703-9c6f-43ff59da39af@kernel.org>
+ <3eb60948-8fc9-4682-87c2-c113e54e7d4e@app.fastmail.com> <4d6a3d68-3fc7-446e-9f59-f61d7475e22e@kernel.org>
+ <bf186643-780c-40e0-bde6-f2af90404a18@app.fastmail.com> <b90d4bcb-b865-4a41-8496-78d751c03dfb@app.fastmail.com>
+In-Reply-To: <b90d4bcb-b865-4a41-8496-78d751c03dfb@app.fastmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 12 Nov 2026 09:12:13 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whTG_hWYC=a2+uu_+SeN4E1ra0n=ytGqyk83Yr7tDuEJA@mail.gmail.com>
+X-Gm-Features: AclHuK8_5teM8idFuSWqym8O4N3OQPYF_Y6jfMJ_yh9uCx25qjwD1XBnjE0OwRA
+Message-ID: <CAHk-=whTG_hWYC=a2+uu_+SeN4E1ra0n=ytGqyk83Yr7tDuEJA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>, Christian Brauner <brauner@kernel.org>, 
+	Matthew Wilcox <willy@infradead.org>, "Kirill A. Shutemov" <kas@kernel.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
+	Jan Kara <jack@suse.cz>, Zi Yan <ziy@nvidia.com>, Bernd Schubert <bschubert@ddn.com>, 
+	Hugh Dickins <hughd@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, kernel-team@meta.com, 
+	Malin Jonsson <malin.jonsson@est.tech>, Richard Weinberger <richard@nod.at>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Nishanth Menon <nm@ti.com>, Frank Li <frank.li@nxp.com>
 Content-Type: text/plain; charset="UTF-8"
 
-"Alexei Starovoitov" <alexei.starovoitov@gmail.com> writes:
+On Thu, 12 Nov 2026 at 03:35, Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> Posted with a somewhat shorter Cc list at
+> https://lore.kernel.org/linux-arm-kernel/20261112112528.1116405-1-arnd@kernel.org/T/#t
 
-> On Wed, Oct 28, 2026 at 09:04 AM Sergio Lopez <slp@redhat.com> wrote:
->> This series implements SOCK_DGRAM support for virtio-vsock and
->> vhost-vsock, allowing applications to exchange connectionless messages
->> through the existing AF_VSOCK datagram API.
->
-> The cover doesn't say who needs it.
->
-> Bobby and Amery took the same feature to v6:
-> https://lore.kernel.org/all/20240710212555.1617795-1-amery.hung@bytedance.com/
-> Stefano said there that it can work well and that the virtio spec change
-> is the next step. The last mails of the thread have Amery's v7 WIP and a
-> short list of what is left.
-> The cover doesn't mention it. The spec change is still missing.
->
-> Why not finish v7 instead ?
+Lovely.
 
-The previous series is more that two years old, and vsock has changed
-significantly since then. I thought this deserved a complete refresh.
+I'd love to expand on this kind of early removal: anybody want to get
+brownie points by just removing the remaining users of the legacy
+'kmap()' interface entirely?
 
-I should have linked the old series in the cover, though. I'll do that
-in v2.
+I don't think we actually have that many of them. Almost all users
+have already been converted to 'kmap_local_page()' and friends.
 
-As for the spec, I asked Stefano and we agreed it'd be better to have a
-series that's pretty close to be merged before sending the spec change,
-and I agree that's a good idea. In fact, adopting SEQPACKET's strategy
-for splitting up packets in the vq would have an impact on the spec.
+If we got rid of the legacy kmap() case, I think that would get rid of
+the whole "pkmap_page_table[]" mess and the PKMAP_BASE / PKMAP_END /
+PKMAP_ADDR games and only use the FIXMAP area.
 
-> This RFC goes the other way in these places:
->
->   what               v6                        this RFC
->   -----------------  ------------------------  ----------------------------
->   (cid, port) space  own bind table for dgram  shared with stream. The 2nd
->                                                bind() gets EADDRINUSE
->   vsk->transport     empty until connect(),    g2h or h2g, picked in
->                      lookup per packet         socket(). -ENODEV with
->                                                vsock_loopback only
->   routing            one helper for stream     2nd copy of the chain in
->                      and dgram                 vsock_assign_transport()
->   recvmsg()          in af_vsock.c,            dgram_dequeue() stays,
->                      no dgram_dequeue()        dgram_payload_len() is new
->   VMCI               fallback                  first. No virtio dgram when
->                                                its module is loaded
->   dgram > RX buffer  drop, EHOSTUNREACH in     every RX buffer is 64K
->                      the error queue
->
->> Datagrams use destination-based routing across guest-to-host,
->> host-to-guest and loopback transports while retaining the socket's
->> transport state. VMCI keeps priority as the dedicated datagram
->
-> A dgram socket uses two members of struct virtio_vsock_sock: tx_lock and
-> bytes_unsent. They serve SIOCOUTQ only.
-> virtio_transport_alloc_skb() does skb_set_owner_w() already.
-> udp_ioctl() returns sk_wmem_alloc_get() for SIOCOUTQ.
->
-> Without them a dgram socket has no transport state, like in v6.
-> Then no need for the owner transport, dgram_transport_match(),
-> fallback_transport, tx_accounted, the skb destructor, etc.
->
->> transport.  Guest RX buffers accommodate complete messages when
->> datagrams are negotiated, preserving message boundaries.
->
-> That's 64K per RX buffer instead of 4K, for stream and seqpacket too.
-> It undoes commit 03a92f036a04 ("vsock/virtio: Resize receive buffers so
-> that each SKB fits in a 4K page").
->
-> pskb_trim_unique() doesn't reduce skb->truesize. So a datagram of 1 byte
-> charges more than 64K to sk_rmem_alloc of the guest socket.
-> The default sk_rcvbuf is about 208K on x86-64. The 5th datagram in the
-> queue is dropped.
-
-Thanks for the review, I'm putting together a v2 addressing these
-concerns.
-
-Cheers,
-Sergio.
-
+                   Linus
