@@ -1,90 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794477062;
-	b=hxFSEW1cBceS59wx/Z/ksTGWm8KATTb4V5J905aPGqTFpLWP3mymwSHw75MkhNRn+T1l
-	 3FVWuK930j5rmMR7OG2BrMaOfvlx1dxBJaVKFox/GVfVnvCp3i3xHwdKbUd9OKKTHFCI4
-	 lFIOBCxfkBxNdfp6esz1SnRzChAZYGSOadruqhJVrSn2D0aBd92QdI9joI6su1ATYwF36
-	 9crqzwizUGTRMyt3G7OVSSrAiwz7pJqUCAk4Q83ExEbHaMMMLkbK7+aHJfrcOYFa437G2
-	 N7eBX4HWiDS8zQbKz84WrEcJ12qlveRqb322R2HrZFUDnT9VIHmw1WlLP7NRNUyw58Q==
+	t=1794478215;
+	b=jeHTri2U3W4tX3W25HIi8eA9O9l3d5OSHhvPkcMiHTYBrOyB/D0dhL9q/GGsZIoMVpeX
+	 jbFOyGy8pMvEgeI54HB0hv8BogvkuQBajBwonD0SkuRrEZGqR+8eUmobqmme4nFBicCpR
+	 AaeWYAYw32JtG5YOspvcC+heyUOpETCpqptbwAdF1MMXYRshJLO/WyhB0SfaWJoMYQ9/9
+	 +iXbpgOxOqJ2FqPCMQOF6kDqfoyaM8xS9EYAZTzMibUwYmHFWilnc+scdN2XCms/jqaY9
+	 ER6wyPs3O75t9vfcmOYkmpKeIHfqITjYWzEi3mzjI8MkW4JeTYbaYHcK5FScfw+LUOg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794477062;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794478215;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
 	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
 	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=PWjpZTISxAW1ioWo7zAlKfMSm3zMo7GsaFnXjvMiMuw=;
-	b=quGsXcu9eNsBbhUTLMdgBUZDz7FI7yQ/ryYv5ndnIOY8ohChnpERob39+JkZvq4Ao+Gq
-	 SxDo8yBFAtQmZw1g1QDlVab2fH44Qz115Y90zV4dxaEqVaLtgMH6QCxtmEGjy4AYlgBET
-	 +0KNxJXlNwCkjpoX523FMioDtvQzLMTSHO65M3psslQJzb1Zs4bbKODxOkQKiN77J+gtV
-	 vQfMDAlLLgpOEctcZPRGQsbZdrgsOCWu4o88iYDebDLC/Kjdd1wJsIdstiL0WLVM5848d
-	 vAHvuUJbUwJO2/xktu2P4K6E1fOQeAliLDta1SB6iJZ2tn8qUjPBOy4R7ZQONiwzN0w==
+	bh=dZQUAiljUbxO/eu4TRCEfrOqVOK81+mbOuXnFblvr+8=;
+	b=W4G+F2GWV7X1OFC1/dFsnIUo01VJ6mr3jLltV5vPj5gq12gdSooa3sIITmwL4VNutfjE
+	 58l2Q4xZgbZaaqIoyO7c0Pe8hXzQgqRijTNvVZQKIOfqDwb+5Wts2CFhFAP1ZdOepPgUx
+	 WE3t1XFX+riWst9GQZ2zmtj9yP0VFz3kYlbDRmHiNQOuInRPDBImMbNGXs6NKqSRDenP0
+	 C1LFoLnZNZqybu+VCQHA2Vf5hnhe/sjYMH6b2L832SBepIUIbmxbLmUK2GD1v+scqYsU1
+	 VY/tJfD4rtFeAZB5/+QoYQhomboYaSLFy3xNNDXMQD0+pjG114FnvDvAL1uIGJXp2Kw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RXWiPM9g;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QQrBqtsI;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAABD606A321
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 09:51:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AAABD606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A787D606A32A
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 10:10:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A787D606A32A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RXWiPM9g
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QQrBqtsI
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794477060;
+	s=mimecast20190719; t=1794478213;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=PWjpZTISxAW1ioWo7zAlKfMSm3zMo7GsaFnXjvMiMuw=;
-	b=RXWiPM9glKt8c84teQV76D3GrDKVCOBLB6mn2I1ijFJCQb4OMmrlLDFWCcFqryVtl+9qRw
-	S3cfhJCt406aNjQazTVjoMN1ShBkX16QufH020lkNxDnsh6+qRCYZrayYpANo3TONKVu6z
-	RBoTMv3PIYpNxhWQR2LTSjOAj9vwT1o=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dZQUAiljUbxO/eu4TRCEfrOqVOK81+mbOuXnFblvr+8=;
+	b=QQrBqtsIUCFfSxE0LtH6ciVAJuzh0yx3iXtu8OdcCyy1Z4D726B6PeM2lDMXz39IkHIR0q
+	eHK/mfbPfh0/rD6JBOoMBU2VVnpk871lVkAUWF8ZSnKASb69cU8eAmdRZhMxXt0yb+24pG
+	Ofk5HGFZkwh9G3llc/8kaWQoSmKMYZo=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-XslulDoKOjykJzaGa-y0IA-1; Thu, 12 Nov 2026 04:50:58 -0500
-X-MC-Unique: XslulDoKOjykJzaGa-y0IA-1
-X-Mimecast-MFC-AGG-ID: XslulDoKOjykJzaGa-y0IA_1794477058
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48e0389d6f9so3028026f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 01:50:58 -0800 (PST)
+ us-mta-139-x2FDc0rmNoKpK_lIPBWVgg-1; Thu, 12 Nov 2026 05:10:12 -0500
+X-MC-Unique: x2FDc0rmNoKpK_lIPBWVgg-1
+X-Mimecast-MFC-AGG-ID: x2FDc0rmNoKpK_lIPBWVgg_1794478211
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4b64722b5e6so45192515e9.2
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 02:10:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794477057; x=1795081857;
+        d=1e100.net; s=20260707; t=1794478211; x=1795083011;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=PWjpZTISxAW1ioWo7zAlKfMSm3zMo7GsaFnXjvMiMuw=;
-        b=tX9n2zzpWZame6h11QIRJOH8EiMgOf2adVobXxKkksQCvb+wQrN14ffZpGfIcim7sv
-         3cDpt42DMasVzj9feSGb3nFyFSito88Qdj6glChi5+hTQoGo3gmy6lVtSsotY6LdnaV8
-         wVf6a2HswNXNaVTDtImCy5fr1Bm3UIhiiwM5YP6LTjo9+rRmfuWrab68LGiPvWMHtH/f
-         SEfFLmlUCfoIgvy516bSL4pgCpn0KZvgrcKJN6mNG9JEt3SUqO6BT01i9a8k6o1yObw2
-         w18XOeZWBXJdxL83dr2qH0ib/yqbP7xlaiURhZ8sVeeINAhjsb64s91papxA4IxznC57
-         Oorg==
-X-Forwarded-Encrypted: i=1; AL+hErH/XnriWNw08ws75C3Ko5Y9Tc3v9buSVTFIcIBQsG/aj90/5auh5tOfqFjKURQawjRnwy9cbCRsDf4AsE9Fzg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+pH/hQkA4wrHGGxw6SCfCk3J/D7QEOHikKlbSYJhFixpDd2pOx
-	PP8CQxJwHdykj/I9lLop+mVenjuKjgXuIN0Jwv9qDBvBWGO5vdh0locBgB0XuIppxhi6ZaR9MH4
-	RpR+7mRSSVzKZXUB1YasGMAWDB+7M+y1Otfkf7YicxtKIUGjtO59PygGtUybOWCq1GxJT
-X-Gm-Gg: AYBFou0n8Uqm0JnpiA+ECN7NKLfsZUUcRRi+uOSgf+Qz0HtdYChiotsu3k4+mGxJlds
-	OD+iKeC4adS/PKeN9zM2LPWOMHrccL17lgoKfDGZR2nimh8cizILw5wX1sJLOeSLSvoENB4Z6Jk
-	EMfjl3uo0Gt5MQrHYgcWF+53IAf+mlusknuO7yg8wlnP9GuHj79rhIuBo20iB1Ils48uvF3lOjz
-	S/5PdoNQLBjQIYLC6Ruf7vVIdwZUjsIeRmhpqyq9C5T5G1MVB8ZEWl416dlIyXxIpxQtr8F/373
-	1iGNr+vUvc6Uu5dQkzuc/EkBYAWALA8rwp05Xhczgm4zDIKONNIZ5KmTvVhQqsi9SZm+3SKuylD
-	7SvkSocMbWAEYXS+1Zp7Yjt89kDBbCprVzAgw4mJFgg==
-X-Received: by 2002:a5d:5f91:0:b0:48d:f9a4:bd68 with SMTP id ffacd0b85a97d-499c7dfe760mr9013239f8f.27.1794477057305;
-        Thu, 12 Nov 2026 01:50:57 -0800 (PST)
-X-Received: by 2002:a5d:5f91:0:b0:48d:f9a4:bd68 with SMTP id ffacd0b85a97d-499c7dfe760mr9013178f8f.27.1794477056650;
-        Thu, 12 Nov 2026 01:50:56 -0800 (PST)
+        bh=dZQUAiljUbxO/eu4TRCEfrOqVOK81+mbOuXnFblvr+8=;
+        b=q6vGubu/1NEbIRWRb0/UrianV2FirZ7zN5cFg+1p+EWcFO2WhS3x/H4gT+kVT+LKHa
+         I1qojdd6FgsqTHuruTnENEqjHO8vtDnbQ0Jo61rTLzXZlULIZje4rHON2UIZmRkceTn6
+         k8uKCuinHbfH7t7Aqk3ZSPgL2T5CIt3bbSLDiItihXCPmfd2/qdLGtiHvgdXu33SwSeP
+         uP9BX04HuatqmwzGkYTcMqgRCEY/BVyRV5y5N67QQEIDamFMA9E9TQu9pxOb3R8UBYUr
+         cBwFaGzN24tIfS2eywq7iKGkr5sdy5H+DvIoh37pa+H64a5CMa4qfEXDKW/9XJrjfLxn
+         rYDQ==
+X-Forwarded-Encrypted: i=1; AL+hErG2KnAHzobitAe45k4ZPLcSpEcheU9HN4RHd/mk2hSQKXxWMSmVdpWUOW3jZVRtAnzJr08SyWy0tsRNpMGmNQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8CpldgD/MLbQNJRTf1MtZjBM74b/xy4RP1QnzPix5JZaYIoafL
+	JRmSUI25USm0NnM26AzAt982U8rsadsp/OCI5c5kVE5qSbvwZf4PzIMjnczngbNb8mggRzF//Mf
+	Nk45sDjDdi4WiBmT6znRSm527uobf3o5iPJeKDQgv7iOoMwumcPXf9sOR8S00+YnsBKYpAFk0oz
+	ZM
+X-Gm-Gg: AYBFou3HOMwjGKt6jZ8hCROzMESYbg8E0HY/QgfYrg0fHk5Xs6TVjqMxD5WTGXSELiV
+	IbtzEuyQIAngeMIcnQ+qH8G2KuNPkTskwGnYN8PFCvPeCCXLescxhfIQ64k8LPOm7ufclAzm7W4
+	zuQdWxdYifuNqWjAp0IOxdwaqEQv6NwbncyNEg4YAWwtbJ+vWKpk3wVufmXmF1kmSJhd+ElwneF
+	06KJhrXTv6DbSk+gNmdCjerotgxeCptaW8VSgNCX4zm7cZLIrhKsZB2UbA2NMVtTlxg5yJvuE+P
+	+BWpVir0wHKjAMiBMt91nATcTbBpdZ8T3l//eNk3JYVc9Oke8gbvGK3pJQzptmVzTHsjAeJp7X6
+	NnOWjTJZ4EH9E7oLdLmgGgPEKFmBwHgwkLVLFpOlpiQ==
+X-Received: by 2002:a05:600c:6214:b0:4b5:d95c:2378 with SMTP id 5b1f17b1804b1-4ba0939815cmr87754445e9.34.1794478210578;
+        Thu, 12 Nov 2026 02:10:10 -0800 (PST)
+X-Received: by 2002:a05:600c:6214:b0:4b5:d95c:2378 with SMTP id 5b1f17b1804b1-4ba0939815cmr87753625e9.34.1794478209938;
+        Thu, 12 Nov 2026 02:10:09 -0800 (PST)
 Received: from redhat.com ([2a0d:6fc0:1511:2900:ff37:b35c:a97:952d])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-499823761f5sm10614988f8f.2.2026.11.12.01.50.54
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-498365cbfc6sm16943454f8f.41.2026.11.12.02.10.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 01:50:55 -0800 (PST)
-Date: Thu, 12 Nov 2026 04:50:52 -0500
+        Thu, 12 Nov 2026 02:10:08 -0800 (PST)
+Date: Thu, 12 Nov 2026 05:10:06 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: zhaoguohan@kylinos.cn
 Cc: jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
@@ -92,7 +93,7 @@ Cc: jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/2] vhost: set dirty log bits without pinning pages on
  x86
-Message-ID: <20261112044557-mutt-send-email-mst@kernel.org>
+Message-ID: <20261112045853-mutt-send-email-mst@kernel.org>
 References: <20261112085631.128819-1-zhaoguohan@kylinos.cn>
  <20261112085631.128819-2-zhaoguohan@kylinos.cn>
 X-Mailing-List: virtualization@lists.linux.dev
@@ -106,7 +107,7 @@ Precedence: list
 MIME-Version: 1.0
 In-Reply-To: <20261112085631.128819-2-zhaoguohan@kylinos.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 75Pm9g0xjOArP1Pz_ngW7zqpUqdDDyPefnH9aTmWkKo_1794477058
+X-Mimecast-MFC-PROC-ID: Feb-LT8hmOQzbY2XktexB5kA7JjzaJQ3FlBXM-o3e84_1794478211
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -163,80 +164,42 @@ On Thu, Nov 12, 2026 at 04:56:30PM +0800, zhaoguohan@kylinos.cn wrote:
 >  }
 >  
 > +#ifdef CONFIG_X86
-> +static bool set_bit_to_user_fast(int nr, void __user *addr)
-> +{
-> +	u8 __user *p = addr;
-> +	u8 old;
-> +	int retries = 4;
-> +	bool success = false;
-> +
-> +	/*
-> +	 * log_write() passes a byte address and a bit number in [0, 7].
-> +	 * On x86, update just that byte to avoid crossing a page boundary.
-> +	 * Bound retries so a contended byte cannot hold up the worker.
-> +	 */
-> +	pagefault_disable();
-> +	if (!user_access_begin(p, sizeof(*p)))
-> +		goto out;
-> +	unsafe_get_user(old, p, fault);
-> +	do {
-> +		if (unsafe_try_cmpxchg_user(p, &old, old | BIT(nr), fault)) {
-> +			success = true;
-> +			break;
-> +		}
-> +	} while (--retries);
-> +fault:
-> +	user_access_end();
-> +out:
-> +	pagefault_enable();
-> +	return success;
-> +}
-> +#else
-> +static bool set_bit_to_user_fast(int nr, void __user *addr)
-> +{
-> +	return false;
-> +}
-> +#endif /* CONFIG_X86 */
-> +
-> +static int set_bit_to_user(int nr, void __user *addr)
-> +{
-> +	if (set_bit_to_user_fast(nr, addr))
-> +		return 0;
-> +	/* Resolve faults, or use the native bit layout on other architectures. */
-> +	return set_bit_to_user_slow(nr, addr);
-> +}
-> +
->  static int log_write(void __user *log_base,
->  		     u64 write_address, u64 write_length)
->  {
+
+Wait this is x86 specific anyway? So let's just implement it
+properly, why do we need all these hacks?
+
+I run a quick test on this in a VM, feel free to reuse:
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
 
-Actually why do we need all the unsafe trickery, is there
-a reason? below seems way simpler?
 
-+static int set_bit_to_user(int nr, void __user *addr)
-+{
-+       u8 __user *p = addr;
-+       u8 old;
-+       int i, ret;
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 3a0dd3c2b233e..3ed49c91a7434 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -594,6 +594,23 @@ _label:									\
+ 	__ret;								\
+ 							})
+ 
++#define set_bit_user(nr, addr)					\
++({									\
++	int __err = 0;							\
++	__uaccess_begin();						\
++	asm volatile("\n"						\
++		     "1: " LOCK_PREFIX "btsb %[bit], %[ptr]\n"		\
++		     "2:\n"						\
++		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG,	\
++					   %[errout])			\
++		     : [errout] "=r" (__err),				\
++		       [ptr] "+m" (*(u8 __user *)(addr))		\
++		     : [bit] "r" ((unsigned int)(nr))			\
++		     : "memory", "cc");				\
++	__uaccess_end();						\
++	__err ? -EFAULT : 0;						\
++})
 +
-+       if (get_user(old, p))
-+               return set_bit_to_user_slow(nr, addr);
-+       for (i = 0; i < 4; i++) {
-+               ret = __try_cmpxchg_user(p, &old, old | BIT(nr), fault);
-+               if (!ret)
-+                       return 0;
-+       }
-+       return set_bit_to_user_slow(nr, addr);
-+}
-
-
-
-
-
-
-
-
-> -- 
-> 2.43.0
+ /*
+  * We want the unsafe accessors to always be inlined and use
+  * the error labels - thus the macro games.
 
