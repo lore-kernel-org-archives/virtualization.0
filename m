@@ -1,83 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794498577;
-	b=pz+F/ag/aA8X/rDB1dmXSssnkoDvhN68sU0IsRg+xZZGuBWExDu4g6MS+Dc9l7oV6yeq
-	 6MzpfK3sgZZgOri8+gXat0S6xV+G3/nZahfkIS2qeAKu6nK6RkaFVd2EH8n+gIPJhMzWa
-	 zmnT/+OQ7b6HCkthOFfbCw6d4+vgLxAQDXrdC+RkwpCO/pxsq0c6YuFtyFwyhvXxOCx93
-	 YnYJJgNi4kfolnhgqrUenmD2nuduLQpm4LEFdsUKCj35Mg1C1J+cwn+bj4PKxcNJioqcx
-	 6tCLrzxAoEb3mgEFRKuI5b67xx0GZGgPa/c4tBTsErD6+z5rM2l2C6Gr6ccRBTUckzw==
+	t=1794498579;
+	b=FuHRLsdhq7BgxQy9to4xMRwhCihDs3bAhWHcAdecDAmGzHxGubUGRg60vTFspXYZ++H+
+	 ixjhSZRPqM8oT0DrsFoYFdZB4WnKgU3DKuNF5hg2PEssplgMTFvwabOWi8B6S1/ZBd4ZP
+	 urMGkKunZIsceGgbxu/vPOrVdwlxNRBJLqDRV63cIp3keiQfSzvBNqlHynrPLdJPLSNe7
+	 Y+Ue3k7aeBfKm2mhpOlBfA/Jb6yaRwV9nypvKYpCL7BeWFLlhHdsMQDSJfNf4TLoYd2dN
+	 9Yc2oanjhxkVZZZcX2NimKJYVthhGtBjShzgdB+/uq0Ps04JCRUrrrmq+HCQ4b7at/g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794498577;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794498579;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=PGUpMcemVyfBVbieZwrWHkk4i4jDJi9m3gXexw58z8w=;
-	b=UhQ3phfgKteB2zi2kCJOl7t+iUMHEb/zbZWt2VdTQnPwmS0htskflwS2ruHoeFdcpEAN
-	 jk3j1tJYbhNLT38DG6L2tLTLZsEEDDhp1ZE3+KCkVsEepaj9yWpSMBPJYb9nPuj8mv0he
-	 UpGU4fu6lrf0K4s3PV0X9s5z81VxzeShwhicIBqHeMUOGLx3H8/nY60Lwnb+G4SSXnsAY
-	 TBK9exWjU/KkdeWz+A3Cd6/VVis/5SocKKpkYS2sB2WEUqxZAQgYpY9gZJzorCI9KqRTM
-	 79u5qQ/Nlo1WynWAim5g+SrKtMeqc/AASQs2VPrJzuFfTI3KoXKIqY9FCxN3CBVtNCg==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=Ve1FkPgDNt0jdst6TwlwSyNCOB8aJhkSUavfhKtflTs=;
+	b=UT8qHJj7NYt1OzjFR0a2IKphJHNIaqi8bCy0ys6X69fxf/NdIrACEyLfEFOjhAanKW1v
+	 eHIXOhMebCG153oI4pX+9LYZ65otQmyaKpDCk1deIOQBnk/Y+mfp0DEEiQIHabghB2FDP
+	 A8ilRohPBXa7vUr/tAd3MHdn3yk5wgi+adfRuwq0aK79jp8IkgVQBshn+giIURV1bDeAv
+	 OsqifCpQch+K1cyVe7qbG+M25RODsIxUX4EdXdhcqbE0VgwN8uP7yPrDF9+HlSGrVSDY9
+	 XoZmNsVmWoRZsHs6XKzA01Cz842XgUThLreyMkjYFG6b1+29cVHEbHFSUDmSX5loWcw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Av0t7Rmi;
-	arc=none smtp.remote-ip=209.85.128.45
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=j4Dgh38R;
+	arc=none smtp.remote-ip=209.85.128.46
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA8CF606A337
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 15:49:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DA8CF606A337
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0023F606A88F
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 15:49:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0023F606A88F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Av0t7Rmi
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a9a8d6cea8so12430375e9.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 07:49:36 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=j4Dgh38R
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a9a8d6cea8so12430905e9.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 07:49:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794498575; x=1795103375; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=PGUpMcemVyfBVbieZwrWHkk4i4jDJi9m3gXexw58z8w=;
-        b=Av0t7RmijdNnedHFbMc/gQ47tWOERGOWWp5cwbCgM7AKIHWcxqvel+4MRdkuRHwnFn
-         4BgdlpN3aqargyRCDskYZhEa1XFDo3sXXa8yRpc/53OhIz85yRjnjG0sF1tSVq+rMxf+
-         SjSzz5csMns9nM0YrbatiC6und8VUlFIDsW6vOWF9Sp8uDzMOqfREE7cREXI9s5pkVUc
-         qUUlioCb7OA8oi01SlKOUEQqEGkX7pdmzYw4kACj4YOR0JMnPjz+v37NGKYGQcVwxtP8
-         PU0UBLWbiDQw8SrhVoOzUeQznABMnFLMLd7Q8pMHpZO3sR3j0ar1XghBNOWx3vptxLLy
-         Cb+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794498575; x=1795103375;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1794498577; x=1795103377; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=PGUpMcemVyfBVbieZwrWHkk4i4jDJi9m3gXexw58z8w=;
-        b=OZPFdW1uYFGiwhIZ2MmLAw9zRKWzH77KX4j5x9kGVpaWEue+2lVmmgzip8cjUdXZai
-         t0X9412amnkg161qKf7Y8vIMFnRE/+Cdk/WfL+7N7VgD967Uh49s7Cy8EirC7dLMDI2i
-         ufnmlo+cAfRUmk8kq1lytF/u6BIqHve+Ugct/t3trsbWTYAdT8Ltwq17CLkc1B9U34Qr
-         baDPBicm2tq2+iEUpJWLCBzoXpkY1VH9ApbgJ27hqsqKcoZSSyvSdCGnDW7QadCyqfEe
-         Gq1wEBC/eklg7k3hIpj81pu78x+xonvV6W/Cvj62CfMHHHbFqjKlIoxKsRWGAPcyngDT
-         RS6A==
-X-Forwarded-Encrypted: i=1; AL+hErH4IyJ5px+lOf0ibMVYg9Xs5R/C+KTbVlJws7Fem2m3w+h+i6pJ28FVhbBKXDl9ByYsuusHaZe9Dn+nVW7VzA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9mdiXSuCFYjaAyrvlqcOYwLXaWZpn3o1UuZb7fNgFQn/KH5Yyj
-	41t61dhqfAKXBabD/IC9J57ihdcbrgKQS4lqCWPq2GG9/oXkIxZCooeE
-X-Gm-Gg: AYBFou3i1ZTY6RhPBkWj+KBYuilFOnD/VRIEQ+hKldooBChpqpLYeh5SQBfgHWvzc7S
-	KxRNEgzq703OGTmzsACXUAmU/+aHXcjJl67+BxAuhpmGeh+II3SSjJJTnQosCBOQ+1OgfoLMqs9
-	0w/WBMlXxYc2i0Ok3klQzH+KGCKiJ9xL9XspvDexy7ce8rlOacWGxIwbypWFgD46kzDDMfc41I6
-	KL0djS4+JOPAEM0eQJws9HLfBZD4HJOJSIN0Ps9Wel4zBef7aRjLzJkcS2woou626YGkhLriaYd
-	nWRz5jEa3zRfskjxwz4VZjzb2jkQDkDjs5VBts/0Sd2DyRGcNzP6bgjkT/ef2WW7M2zAvZ7wJr5
-	q4hwirCvpVCl7yp7FHCZgd8m1BdGaOQxahNG9nad07jgvzu5iD3+pmuHCpVOCW/aQFrMpV3ttYV
-	qY8iMSK9EIn8sA3BGR1EBOWla+Eb1EBYJ7zDRCXUbAW25GRnxdZVtLKREEcfSZSlr7nbG5C/Kks
-	adlcy9vBUXkIOn6Yd3PMa3kQnOr2K4amnroHo1s9WpL7GNzPrNvZttbeiKDPRMeapjJiqyK7DUw
-	O5o3IIHQTarBafBwPF/fkGxe1gNcd7I8G8B08uifPKUucQOvZq535xRM0q80IsU98YaIq5lkakc
-	=
-X-Received: by 2002:a05:600c:6219:b0:49e:65f2:db64 with SMTP id 5b1f17b1804b1-4bb4e27995amr53713365e9.5.1794498575107;
-        Thu, 12 Nov 2026 07:49:35 -0800 (PST)
+        bh=Ve1FkPgDNt0jdst6TwlwSyNCOB8aJhkSUavfhKtflTs=;
+        b=j4Dgh38RPuBv5V7lVQEIYWx38fPbN3tMfz4T0f15zcfnPDLGAv/edo3xHH3sn1kbtG
+         9Qxv6nFzPa8KzWxka4Q/RHfavi4pBMG25GaqOFo2165pSvR6f8L4VfZFoepWcdQlcq47
+         djcUjN5FbPUqWI3EHIOlHwWY47w6+vuljfRgRcQX+yVcy/SIkEAyReWVFILULK7yt9oi
+         KUXDFA2vc4qKx4kfR1S2AXs/HomPHf1Em2lhoAa8xnWYjKxReZeiqhFf1ekSGWv3pGqd
+         ndAj7PAp4P6+ojt7GePkNjjtxRiDBTRkvkkX+ZmxJKP02+1Hxx56Ieudgudi5RWRDnps
+         7uhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794498577; x=1795103377;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Ve1FkPgDNt0jdst6TwlwSyNCOB8aJhkSUavfhKtflTs=;
+        b=P+nVJYmCanUaUZYcPUAAhYt6dpbMs47MdxZSKtfESUYfsYlYUikiATI30mbi2QMayj
+         bb//zOUNj4/voQbdo7tIqzRp9FLOx83iB+Vz6n/QottjaZeDU+kZ0Sj5ZJNEtjSRUB12
+         MbgYNTnvv4kiBjcByVFDiPho7h+l8h+Udg3jxohMk1LEBZgrnilqPqQN9pZpzb9RHKvh
+         5b+aRApz0DIezG3VQgP2ZB4oRWrhA5aR3eVELW3T+JyuOo8mhGKe6mcmZL986kwjC3TG
+         819uo/qE+Ec06dRn5gcb/X+wSfYUU2sT2dLVC6jhlu4lTuSTsIjmC/QQfmYZsAFi23i8
+         IjQg==
+X-Forwarded-Encrypted: i=1; AL+hErGXEA7zIWUeu6+xhTJHZXn89/8Z1v+VKsuzXxr7iDXOMDW1Mm261ZiGJiFOuXOCCTcJwhgAQfutnkGr8S4oOg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+gwQObA77CO06Tmbau8W0qbhmhPcP012AMCKLInX4qyrfOnFFM
+	yDd5JUCUa4ZJTfdn7W86zbA4NUVJrgP4leE9kpplJzF5lsoTNuQVM7ZU
+X-Gm-Gg: AYBFou0+JDG3Iqdfvab/QrLihW3h32mi4kL1m+U1GO3j3Iq3tKjqY2SJ6gRtRrwlczp
+	xuJdcqW6KHFGzuXINyxYsTr+hWNGcnkmlRBJhVjcmxrBM3vpJvYI/CJBNvL01B+OlWOADgComrF
+	2rZSl5JyEOvs+tzi0IgTDxtkoWbED2SOU+BSQkMi2NLStgIGI+SRE3GfmdflMia5H98fS+sE1vg
+	QjyYdDKp/a2vXFNHs8ifU3u1/W5uG1oNcQoXLnrPj05kytK4+T/RKjQo3Ll/XP52eTOJpJAsyVe
+	A2fioSSoT2cncHP6aj209rL0AH2B/nWtZJm6ehTeo6WxmwOGyArWEYedL7DMDxcYL+FZd2XjV/f
+	mhPq2lj9QEZzIkjRnX8YBFh3zI6BbEd/i21Z086L2wbUnwqUOyfuguthv+5gZQcBNTP3qc77XG4
+	gHSqh7eJLbf3XfNDmphGf8JeEIMewHY2wXgfgE3aBm3qivuOYjx4yzTYBmTEu4UZ1B9hdOCTugt
+	VubYXTBamhzLVkRtb8/Ojig9XRfAC70zRMzK8tyNDAXWPm7rcCJloqNJnyI/ZpPkNuYA864RYpQ
+	e/lxSNeLyF9TT3U+5kDNjayg9f7nNxnOW3TaSHiEnq/+HrzxRabGkmpV3kas77/2k7BV+t7IDD9
+	s
+X-Received: by 2002:a05:600c:19cd:b0:4b5:d95c:2380 with SMTP id 5b1f17b1804b1-4bb4e28d076mr63675105e9.11.1794498577427;
+        Thu, 12 Nov 2026 07:49:37 -0800 (PST)
 Received: from stjepan-Aspire-F5-573G.tailc0f20e.ts.net ([2a00:1bb8:118:d39e:4868:f22e:b51d:7cb])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb4e2538b9sm139337155e9.1.2026.11.12.07.49.33
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb4e2538b9sm139337155e9.1.2026.11.12.07.49.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 07:49:34 -0800 (PST)
+        Thu, 12 Nov 2026 07:49:37 -0800 (PST)
 From: Stjepan Poljak <stjepan.poljak@gmail.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowangio@gmail.com>
@@ -90,10 +91,12 @@ Cc: Francesco Valla <francesco@valla.it>,
 	virtualization@lists.linux.dev,
 	linux-remoteproc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/2] virtio_ring: reject a split ring size that is not a power of two again
-Date: Thu, 12 Nov 2026 16:49:15 +0100
-Message-ID: <20261112154927.4004184-1-stjepan.poljak@gmail.com>
+Subject: [PATCH v2 1/2] virtio_ring: reject a split ring size that is not a power of two again
+Date: Thu, 12 Nov 2026 16:49:16 +0100
+Message-ID: <20261112154927.4004184-2-stjepan.poljak@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261112154927.4004184-1-stjepan.poljak@gmail.com>
+References: <20261112154927.4004184-1-stjepan.poljak@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,39 +108,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The split ring indexes its rings with num - 1 as a mask, so its size
-must be a power of two. vring_new_virtqueue() lost that check in v4.6,
-with commit 2a2d1382fe9d ("virtio: Add improved queue allocation API"),
-and remoteproc passes it a ring size taken from firmware. A firmware
-that asks for, e.g. 100 entries gets a ring on which the driver and
-the device disagree on where the buffers are, so the device can read
-the wrong ones. The only thing remoteproc checks is that ring size
-and alignment are not zero. The other caller, mlxbf-tmfifo, uses a
-hardcoded size of 1024, so it is not affected unless that value is
-changed.
+The split ring indexes its avail and used rings with num - 1 as a mask,
+so its size must be a power of two. Commit 2a2d1382fe9d ("virtio: Add
+improved queue allocation API") moved that check from
+vring_new_virtqueue() into the new allocation path, which
+vring_new_virtqueue() does not use.
 
-Patch 1 puts the check back; patch 2 adds a vringh_test case for it.
+remoteproc calls vring_new_virtqueue() with a ring size from the
+firmware, checked only to be non-zero. With 100 entries, for example,
+the driver would put buffers 4 and 8 in avail slot 0. The device would
+look for them at slots 4 and 8, possibly reading the wrong data.
 
-Tested in userspace with tools/virtio only, not on remoteproc hardware.
+Put the check back for the split ring; the packed ring has no such
+restriction.
 
-Changes in v2:
-- Patch 1: log with dev_err() rather than dev_warn(), and say in the
-  message why the length is bad (Francesco)
-- Patch 2: commit message updated for the new message text
+Fixes: 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
+---
+remoteproc still reports this as -ENOMEM, although the "Bad virtqueue
+length" error names the cause. Returning an error pointer from
+vring_new_virtqueue() is left for later; the same change for
+vring_create_virtqueue() is here:
+https://lore.kernel.org/r/20261106055635.3019889-1-stjepan.poljak@gmail.com
 
-v1: https://lore.kernel.org/r/20261111172947.3579982-1-stjepan.poljak@gmail.com
+v2:
+- Log with dev_err() rather than dev_warn(), and say in the message why
+  the length is bad (Francesco)
+---
+ drivers/virtio/virtio_ring.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Stjepan Poljak (2):
-  virtio_ring: reject a split ring size that is not a power of two again
-  tools/virtio: vringh_test: check that a split ring must be a power of
-    two
-
- drivers/virtio/virtio_ring.c |  7 +++++++
- tools/virtio/vringh_test.c   | 11 +++++++++++
- 2 files changed, 18 insertions(+)
-
-
-base-commit: 1a577f9402c1780cc1e663f48d5dd54c02051b09
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index f683a2d6a200..f855b8d41575 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3513,6 +3513,13 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 						    name, map);
+ 	}
+ 
++	/* The split ring indexes its rings with num - 1 as a mask. */
++	if (!is_power_of_2(num)) {
++		dev_err(&vdev->dev,
++			"Bad virtqueue length %u (not a power of two)\n", num);
++		return NULL;
++	}
++
+ 	vring_init(&vring_split.vring, num, pages, vring_align);
+ 	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
+ 				     context, notify, callback, name,
 -- 
 2.53.0
 
