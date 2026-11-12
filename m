@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794462207;
-	b=rhSrpGtc0hEXOtLD6dApJvwT54apQKLh5jeyuZllFFqLEHdBxJ9g7pTqcR6Se6K01CYk
-	 PHjmK/fXRVMf1C2YbbYQCShQWbCevN7kAVNaICyS0GcZ3XAEH0Qvjw1xVbEk8parvrNRf
-	 Cw6JcMo9iJNVVn133dEgGV7kyTz4nEw0M4cBm/ru8+y1RsF0rRyGg9PveEBtCqYTz/Lje
-	 wqMLMVfH9t/2Uq6u2UKC9CIud4m53Oms1H7AOFKuN4QjYBfGX+IJM4axoJL1FdYKam7Fw
-	 cajCXlQPzouUIOqCRxRJsvqtVae+9raCNgfmW07J28iZJMG03NRmCMo/MFlRVKlA5mA==
+	t=1794462243;
+	b=KjHdcH8uLKGBZrERwDcvs1KdUse1U9LU/2IF1O0By4h0Duch0WUjFa2SqeO01aQqjtWd
+	 FPrccmuSNGt79yE5qk9Sc5BQhxodUnRvJABZ9n/58hHKLHkLLGKafez6Yev1K/5yp0ORJ
+	 5xAxtWkTM2SZBJKnuh7Wy+7SeKOFEW2h8JhXEyRdin1YVwahE9QSbMUyf1SVxPNyhRPew
+	 WXJqXIxp/2d9S2vnmV17VUbgWWNuSDDvdVUqgSqqZZGaY7KHh7F/B0lq9PZP32PUxact7
+	 nnqCPRIqL/iVHSDbCpogVM6SE/PJ28uxfFGFvH3/0Hb/ck1bWgv+KrkJHJp9zDicMzA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794462207;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794462243;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=WeIFaNeMZsZ6hbgp15JyyRX8BP+YZRN0C4YSBcwx0Dc=;
-	b=I1VsT0Gzzq8/SPnOUpPQDTasneibnarU6hVW/dSq/VpV2FPqfvF+2tsVL+akPAR4XOxR
-	 bf3al/2Rhbj+2ZaZ2thyqZfH1g9iuotMgL1sGDnfz8aYS5f6ru9gps6Tak5a0sttPlFH0
-	 x2rW2VS2gEv6Z86x0OA4L0LTPRV7qqgnsMSjVtYNhdf0ZBewdz8JNgB2bHs9rkejONwc5
-	 KNMRjbK5pJ5ThIvQRojAmtkd0PaP0ovqzyQ11KL4GOD3fbY3pUZHsES12KwulPS3PuEA8
-	 uDaLoQSB84PDTeDhhShscG5MutRcqrWlmBDPyqpdbJr1UvS3hxZVuAk+uTmTnnYP+/w==
+	bh=vHjZy/p124kWTHaOvDpcjT/YgQGvhJmfK7k35TQnGIA=;
+	b=z1FubyQK8FF4B2YvIRdYZYvoHyIL/GZI8gJaFDyL2xhGOnE4QByMGGOjvFxC3tpZi57d
+	 RVc+2sJYTPyjdGjraO3F7lP4351jG7bOPmLR7XHQ50Hl4pBbpFwQgg82h8TRNxNUkdK0U
+	 HeAo/kmc3q5rDzxAbL72nZ7r+PP1IqLmWe8qa4THfK5EuNxX1fqSujeUGjJLuzesW2gsM
+	 agM6yRzW07Cz8o6UeABx5WYozk95aNC6UzP3NMhskeaxwU1CfxCyx58oTXyLmivUuBLct
+	 ThaocDcDBFtpDcjpZfzns/6vR5FZHtI65ejr5nqen4NMSZZNmGjkpCnMhyAn5+W5Emw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZXjVFqHF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmounnS4;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2D1606A31C
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:43:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77F9C606A323
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:44:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZXjVFqHF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D9021F00A05;
-	Thu, 12 Nov 2026 05:43:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmounnS4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD5DD1F00A05;
+	Thu, 12 Nov 2026 05:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794462207;
-	bh=WeIFaNeMZsZ6hbgp15JyyRX8BP+YZRN0C4YSBcwx0Dc=;
+	s=k20260515; t=1794462243;
+	bh=vHjZy/p124kWTHaOvDpcjT/YgQGvhJmfK7k35TQnGIA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZXjVFqHFzXmrJrREQNequnC+x8AhiPdX7t/CU/hwb53xlGREM7Fe1H0Wde/aO+9WK
-	 nNlg/PWnXP+SnS0bJXmTDYJD8r7v30j4QrJHDMoB79HwH3mNaR8SABn8tR8bDm1HxX
-	 SHIof6WoV26lIn+U8s4h3/CZ8ns6zIqxNWs5ja4bIY/YikysC8GJ7KVK3i5RV0OzFx
-	 9tZGjNs3KRsWXnEXg1gt2pv+3frNd9p0i1iHL/Ja920a1i8Do8yWhEKfgcBBOJLAuP
-	 d/OsTvIYTdklj63Ll7+PKsl706AV+HmpFOB1ZNl/imkeHvGjkBiD2WLbg+fkJYCzbP
-	 aRN3+uhn3Lobw==
-Message-ID: <sashiko-outbox-210474@kernel.org>
+	b=VmounnS4+w9pQUdfBDXTURAAs13vl2OhOSedw3rqOsIq5rjtFFtrSNclYIokw7QnX
+	 /Y2udh3aMtrUe4Qd9gZgrH0fVQ5d2czHOLSxOZcbKO4EAFIYX8bJAGdkqxI70VV41i
+	 AfMjXNUWq7Dd5n+YYle45iY2FDJ/dyxbw4kbZpvo7qUmKNVFmDdbpReRfY5EzBpZuv
+	 zYseBHU2T+1vdauwt0A8FxDvYCe5Rx7LUxeQeYUltB6KpzL4JoZHI+xY59ZRAc6WM9
+	 6vQCIxDSg4e7T3eUp0hS8R5DGRFmK2sG6Ov6LE9Ph7pq/DPJ08EVsJn6WnX8YULiVy
+	 wOiuglSlEKgbQ==
+Message-ID: <sashiko-outbox-210475@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v29 05/17] ALSA: pcm: serialize linked buffer actions
+Subject: Re: [PATCH v29 10/17] ALSA: virtio: Keep control payloads alive
+ through DMA completion
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112053446.73504-6-mynameisjune111@gmail.com>
+In-Reply-To: <20261112053446.73504-11-mynameisjune111@gmail.com>
 References: <20261112053446.73504-1-mynameisjune111@gmail.com>
- <20261112053446.73504-6-mynameisjune111@gmail.com>
+ <20261112053446.73504-11-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 05:43:26 +0000
+Date: Thu, 12 Nov 2026 05:44:02 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,25 +62,28 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Concurrent non-atomic actions on different members of a linked PCM group
-> currently lock their own buffer first, then the other members. That
-> acquisition order can differ between callers. Sibling buffer mutexes
-> also do not close their buffer-access admission counters.
+> Control requests can expose caller-owned payloads to the device after a
+> synchronous send times out. Keep request and response headers and
+> payloads in the reference-counted message so caller cleanup cannot
+> invalidate DMA.
 >=20
-> Close buffer access for every member before taking any buffer mutex, and
-> acquire those mutexes in the stable linked-list order while group
-> membership is protected. Release every access gate on success and on
-> failure, including when a member already has an active buffer access.
-> The group action then uses the buffers already held by its caller.
+> Keep the queue reference until device completion or post-reset cleanup,
+> even when the caller times out or is interrupted. Consume the caller's
+> reference on every send path, and let response readers retain an extra
+> reference through copyout. Check payload sizes and allocation arithmetic
+> before building the scatterlists.
 >=20
-> The PCM stream and group locks are not held across sleeping driver
-> prepare callbacks. Single-stream non-atomic actions keep their existing
-> buffer-access locking path.
+> A control value payload is also read by the CPU as a typed structure.
+> DMA cacheline alignment alone does not guarantee the structure's CPU
+> alignment. Align regions to the greater of the DMA cacheline and
+> control-value type alignment, and reserve prefix slack from the buffer
+> base so typed accesses remain aligned while scatterlist regions stay on
+> cacheline boundaries.
 >=20
-> Fixes: 3c3201f8c7bb ("ALSA: pcm: Fix races among concurrent prepare and h=
-w_params/hw_free calls")
-> Fixes: bc55cfd5718c ("ALSA: pcm: Fix potential AB/BA lock with buffer_mut=
-ex and mmap_lock")
+> Keep response values in a separately allocated aligned response buffer
+> so INTEGER64 control accesses are aligned from this patch onward.
+>=20
+> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -87,5 +91,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112053446.7350=
-4-1-mynameisjune111@gmail.com?part=3D5
+4-1-mynameisjune111@gmail.com?part=3D10
 
