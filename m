@@ -1,56 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794461317;
-	b=McicyiqI/VrwUqPoCWfIlfHR/tgCT91CHqxeVnjQves3T0OqQApMM8vhCJgf/ZtdnDwD
-	 k16fTlTuYWrwKZSrmopB28BRMLBwKQERwujAk5QzFCFnxwQkmjGdqcbfCWfaaZydtDQlx
-	 /OdhwjU5ZN3GdVTXlcp3Xb8JBd/YsrJ6AdWw1dShCamajz1jzGs16av7C8tYjcecAHZPF
-	 jh/yTbV1UN2NXvMy0uDFX+P01P8i/dWvQ+9TDF7x7bYG5Oy9EsBKZ1/leVHn/fYTg8xzl
-	 6/Jezx4alQXc0s7P6pVlgM8YOms51hXJYuF1QC267lLBOiy13Cch0nCEKm+YH6B5RdQ==
+	t=1794461693;
+	b=GmlrG4GM14ym3JpI3efO75PxyOAAblANzArK2aWozGa+Tz0oOUtLxm/2JnGEbQiT1R1q
+	 GhqOzskKQrKdHlw7t3vHTZACvfVyTjaOSdHmDA/h6KmpscBQ/j7PVo//vyuucIdG4rP6m
+	 BBA5crjO7VRpz9jM3r5VM36HUcdhXakUnpO2jhX6vhD9u4MYONC5dESfdGQorqoBtW6nR
+	 4COIrwmaIZNEPtPBIYi0iHSbNKUyGpiBXFZtcjH64cYlDFiKUdnqP/oOHhw4JpyVlI+dE
+	 pMjeIECw8OSx6xiWP1Ze1e4zyk3bObkoaW/0Jm9P7tpG1I2yi8N8uIjkdSuuW2fTVPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794461317;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=8loT6Dg5Kmd2x+2l0wVPfW93SLWJsFkk1JQbKJMxTJ0=;
-	b=cVrjH6E/xbJtyF91EXfR0Ome/eak7LYDl/aAcITMMYapuklqPDNzwVbrNznZp6OP8sPD
-	 mRma6Uyxt6+NHDEDHcA9ogFX4Of76kF+hfcr4/t74+dfqKlbBl7Rs9Em2O2b8p3j/WbYw
-	 wbldy/p12AhzQpYEi/nc4oyyXbxTJx37JqhanVQfyyg7DBnOozB6sbKPZ2iW0OStYg5dv
-	 QIM0jS8MKZmeiW8asz22Ti/0Gbn2CY66RklnHBVXjHFQsF25+rfW0nNtBbMAGcL+JXOBD
-	 mju0zN9jQS3DNqSMC0b1Yfof8nhEChV/3dSOe3C4h+vWx+umh9ABIL5sLDJih2VRLbg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794461693;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=ZBzb0jWFuu4WC1vXCF6cW6GE7gHM+sCU4Tmo420Ip/c=;
+	b=jSE0kYD3G2vshIKtcTwdwum9LKJehHRVdp7qyDXOCgVhvjHagDw/mfhf6ltoyMk6GNZy
+	 jLbpkqsMcmLriRexYXSk8KGgHWmhMT3Wg9tV1BUUnazdrUQKBy6zqxIyUbGJGGnrTmd6c
+	 QyH1GbkeEdWdZsscXpOiZKnla1tYvbtEPZ9SkjIWHhwTNVxw3Mq25+RZ7ENeVnvqW0AfY
+	 d7kpAzkxbqTvbZTAVIvx0QI/vmb0MneXOuz9UZwoOYqPJeIa5UzsbMS5xR0HAvMXdMW8T
+	 iqykHy1DPVpZzLt/ghJK2owTAoLUYyTu020Uy6PW/YGgM8nJkzjpYZFezvabuBbiBwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ToCmbgHQ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0SkZrmoK;
+	arc=none smtp.remote-ip=74.125.82.43
+Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70601606A8B0
-	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:28:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E2A8606A323
+	for <virtualization@lists.linux.dev>; Thu, 12 Nov 2026 05:34:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1E2A8606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ToCmbgHQ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D19941F00A05;
-	Thu, 12 Nov 2026 05:28:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794461317;
-	bh=8loT6Dg5Kmd2x+2l0wVPfW93SLWJsFkk1JQbKJMxTJ0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ToCmbgHQZMC3SEfFDwywkiYy3tYJOGWw1DbhNc+ddB9DE5vTI4Pq4phG0UnvKs33b
-	 L+iaKPO0OZmDV8Bw72FJLc0sXOLn5AfIiGYO2Q7JliBRAyLG90f56uUbj6F9k2Ne9v
-	 uuKJ/UR6ciVxA1NWqAoFgUEFH3NQAa1gs8yiAiuWUiKyMZnBM4E5o8ZiriBQHg2Mos
-	 MsQ2RgOpgE6XPSKQ/8k2Sz80GC87nTRjUyxiSHWAFCiiBi3Dl2Q8TjDCtV/CH1q8IU
-	 C5xQpn6Krt3Ew71G3kV2ZmOJaWcK5guHVWZjRAli5wQNb+6dGuUHvmFnxCCraqJhdl
-	 UPmnwJC/8Kmkw==
-Message-ID: <sashiko-outbox-210448@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] fuse: Don't use request timeouts on virtiofs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <oss.patchbox@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112052208.1248312-2-oss.patchbox@gmail.com>
-References: <20261112052208.1248312-2-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 05:28:36 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0SkZrmoK
+Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-1b3a05f8b5bso5495794c88.1
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 21:34:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794461692; x=1795066492; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ZBzb0jWFuu4WC1vXCF6cW6GE7gHM+sCU4Tmo420Ip/c=;
+        b=0SkZrmoKgfFo1EeqE6Gpu3gHfBZkje5JUXmv66mDrVqWFCvirP1Lh9/bYb+o6mtYo1
+         UyXfpIdKeeIVcfubG3/HBTobzApMJhfCLkA01urxJjOxB1LGeaUwAXhQkdM5pwjQMH43
+         3QQbqXv80wzcRpIdjye34g+0OTpXllsXczPMNJGUpgdotVLNLaZdKXdTmPnIAJbCBuMN
+         B5BC7anu3zFVeK+OJG97eS057YFjcrQCJwe8GQr5cIjk11gdoLKFyRXgn/FyiiLOyVVi
+         ogZjza6Ub7KJoz6KFVpKeQrEooezpejaL4rR7r7AQmT0hesC2bT5poJknOReLigi2su/
+         1Cxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794461692; x=1795066492;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ZBzb0jWFuu4WC1vXCF6cW6GE7gHM+sCU4Tmo420Ip/c=;
+        b=WPJbREMt0IJqpknwnKELTumPCi+iGfnJdV337L3eGY2WU4IQY8kfY8ykLS4naJDWBJ
+         Oto3JqakT/3KxS2402WdAJd11OCe9LjJDaltXOJyczvtujayyCWuP4s6J8SR+QjccoyI
+         +6xootcyASU9I0Za38432S6oCDzrPHAhzfKtXhzHkVGO9V4A+SmcS5aPHJl8OHLoPua6
+         1tsDWtpp27xiwB2sHgvZrKr7dD+rCZGEtL1X6WcfmukyDue/qj9+jR6l8JX6RnS6bKUT
+         OcZkwBVjEEpqrJ3mEMhboXgqCzWqNC+epHboSqNmzMjwq1VrVWUEJObIMPkZT4qASG9M
+         0fGw==
+X-Forwarded-Encrypted: i=1; AL+hErEtmFmENzjQPMIwDgrLC0uiSQR/2/VuxVNujQWY0nwaS7uS/zyWvWik73wr+aUwW04p3cnRi7LVHpFRGcrg9Q==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8GxK3UIQju30q1/HysvCnTXWkL9joEqSCvKfDm89TBqkRro7CN
+	CxH/DBenQMFU25KkKA0Ih3aQIsaDz/jFtQ+InRx27us3TAyKdyrNa+vrcBNRNA==
+X-Gm-Gg: AYBFou03Xigd++osPAOtHBrH6+dzc7Ty4ejz6mTsyog0pPqiixvfA9iRcL1pQIjKrab
+	5auWJ9nDc2dttDFBX4L1a/QfxJz1B0RUh9RhXf45ZG/zgXj5Jic29fbPIVd1l55+o3IRPKWuCpb
+	0+PbxAKPCT0uUgIlZzTbVT8x40Ik6MnsnuDjOPlYSMSnpuHa8AGSziZnaaMgP0Z3SMpowdjbHIH
+	D4zFQSkhO1GEB43f2ASh9qqfm+Oskluh4b7dgmJ/i/8vROcN39MNeR+nflkB0yWNbk85eeaB+vY
+	chh5PgCIGVkgE/zC91q2akrokkIz7WobLeT2bUgmPoiQIHh1qX5wSRnpCJ2E1LbVyAAbkVG6G6p
+	SkUGBSEYcEWqkRkFFGYCFoNabShhvrhfd4BtN/UCkwPAjei/7UXkcLq5f9E/ldKvW4XIih1vjM7
+	jJTlTgvVXxOrdBKarSB/8FM9le2a68NfLwojOsM7248imHKKX2cBVmGu8eMyBDi5/5qOdr8TB/Q
+	mkPeZpY0erp6v/UD8Igd6yFpBlGm1eBocZPNFziNk6sSx0EUbaXYB3DkeRn1wsUmMSjIFbKPisb
+	sYThIDY8uur76UJMXxueICgnON6aDONYpnEC24XAKX+ONkX8ZF161DMkIla9RbkU74muL7qv9UK
+	r/Mg39IbBacvNrrA0qA/QKEyVbqcLJx+Ao26xBDIlv056a12kq8VZ4wbKcpBMSQ6EFWnS
+X-Received: by 2002:a05:7022:b0c5:b0:1a7:7160:ffc8 with SMTP id a92af1059eb24-1b3c27a7bc3mr2652841c88.10.1794461692054;
+        Wed, 11 Nov 2026 21:34:52 -0800 (PST)
+Received: from localhost.localdomain ([183.96.175.225])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5890c0esm21953240c88.1.2026.11.11.21.34.48
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 11 Nov 2026 21:34:51 -0800 (PST)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: linux-sound@vger.kernel.org
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	anton.yakovlev@opensynergy.com,
+	mst@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	corbet@lwn.net,
+	skhan@linuxfoundation.org,
+	rdunlap@infradead.org,
+	linux-doc@vger.kernel.org
+Subject: [PATCH v29 00/17] ALSA: virtio: preserve PCM progress
+Date: Thu, 12 Nov 2026 14:34:29 +0900
+Message-ID: <20261112053446.73504-1-mynameisjune111@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,39 +102,84 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> virtiofs cannot abort a request once it has been added to a virtqueue,
-> because the device owns its buffers until it returns them on the used
-> ring. This is why virtiofs sets no_control and no_force_umount; see
-> commit 15c8e72e88e0 ("fuse: allow skipping control interface and
-> forced unmount"), which says that "virtio-fs does not support aborting
-> requests which are being processed".
->=20
-> The request timeout added by commit 0f6439f61a6e ("fuse: add
-> kernel-enforced timeout option for requests") aborts them anyway. When
-> a request takes longer than the timeout, fuse_check_timeout() calls
-> fuse_chan_abort(), which moves the requests on each virtqueue's
-> fpq->processing list to its end list and ends them, so they are freed.
-> The device can then still write the reply into the freed request and
-> its pages, and virtio_fs_requests_done_work() later gets the freed
-> request back from virtqueue_get_buf().
->=20
-> The timeout is armed when the server sets FUSE_REQUEST_TIMEOUT in its
-> INIT reply, or when the fs.fuse.default_request_timeout or
-> fs.fuse.max_request_timeout sysctl is set, for example for other FUSE
-> mounts on the same system. A slow host is then enough to hit it.
->=20
-> Don't arm the request timeout, and don't offer FUSE_REQUEST_TIMEOUT, on
-> connections that set no_force_umount.
->=20
-> Fixes: 0f6439f61a6e ("fuse: add kernel-enforced timeout option for reques=
-ts")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
+This resends v28 in full using mynameisjune111@gmail.com for every
+message. There are no code or patch-description changes from v28; the
+existing human DCO trailers are retained.
 
-Sashiko has reviewed this patch and found no issues.
+The v28 documentation patch 14 was rejected by Gmail. Sending that
+message through my Workspace account made it available on Lore, but
+Sashiko grouped it separately from the other sixteen patches. This
+revision sends the complete series with one From address.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112052208.1248=
-312-2-oss.patchbox@gmail.com?part=3D1
+Previous version:
 
+https://lore.kernel.org/linux-sound/20261112043516.37010-1-mynameisjune111@gmail.com/T/
+
+The following describes the changes and validation already included in
+v28.
+
+This replaces v27 in full. Apply all seventeen patches directly to base
+commit a4311e9447bbb219044db38897f95be112f46a8a. The previous public
+version is at:
+
+https://lore.kernel.org/linux-sound/20261112004704.49758-1-mynameisjune111@gmail.com/T/
+
+Changes since v27 are confined to patch 12. The other patch diffs are
+unchanged.
+
+I reproduced both capture findings from the Sashiko review. If request
+N+1 completed before N, RESET could leave N+1's already completed
+payload eligible for later delivery. After an external XRUN, rejecting N
+also left N+1 buffered until generation cleanup. PREPARE cleared that
+state in the control test, so this does not establish a permanent
+recovery failure.
+
+RESET now marks valid completed payloads present at the pointer
+observation as discarded while retaining their ordered placeholders.
+This lets the commit sequence advance when older requests return.
+Transport-owned requests and data arriving after the observation remain
+eligible to commit. Repeated RESET preserves the discard, and invalid
+response status still reports XRUN. Rejected completions also release
+returned buffered entries without resetting the sequence of requests
+still owned by the transport.
+
+The failed native PAUSE path previously reopened the queue with the STOP
+quiet boundary and capture_stopping flag still set. A running stream
+could then accept an empty completion without the normal XRUN check.
+Rollback now restores the prior flags under the substream lock and
+checks the reset epoch before reopening admission.
+
+ARM64 QEMU tests use the actual driver functions with test-only request
+ordering and STOP allocation-failure injection. The v27 baseline fails
+eight affected assertions; the candidate passes all thirteen assertions,
+including normal reordering, post-observation delivery, invalid status,
+and STOP empty-tail controls. The running-observation test invokes the
+actual pointer-observation helper. Full RUNNING RESET ioctls are covered
+separately by the production regression.
+
+The production driver module was built separately without those hooks.
+Its ARM64 W=1 build and eight QEMU regression runs passed with the
+matching v27 KASAN/lockdep kernel and core modules. These cover RW/MMAP
+capture, PREPARED RESET with DRAIN/reopen, RUNNING RESET, and playback
+PAUSE/RELEASE, HWSYNC/poll, DROP and reopen. Capture includes 70-second
+RW and resumed MMAP phases. The independent backend-sequence oracle
+matched 7,104,000 frames across seven capture phases. No KASAN or
+lockdep diagnostic appeared.
+
+The kernel image and core were reused unchanged; the modified driver was
+rebuilt. Fresh KCSAN and physical VZ tests were not run for this
+revision. The earlier v27 KCSAN and Scarlett results describe that
+earlier build. The controlled tests use synthetic requests and a known
+STOP failure before submission; they do not qualify transport
+timeout/uncertainty or demonstrate out-of-order completions on physical
+hardware. Intermediate patch stages are application-checked; the fresh
+runtime tests cover the final candidate.
+
+Review addressed:
+
+https://lore.kernel.org/linux-sound/sashiko-outbox-210240@kernel.org/
+
+base-commit: a4311e9447bbb219044db38897f95be112f46a8a
