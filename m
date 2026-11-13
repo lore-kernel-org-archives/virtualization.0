@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794590727;
-	b=QqOwLHG3WeBpU48KjWbdXU8XSDBODrLoBhxqJfawOTim85rboWBhVKzKYNrxZHQj7iE4
-	 z7Nc1DpH2KyD/6F0Q3vZ7zRiouBdR/vqs9iXOIFgPVAUqf1gl65uC1r85umayECBPa4LP
-	 uTQnkPlj+ZST1GSc7S7tR8WuongPNZhLxDiljuZ1v4eRBe6LK89B7jnbMgOSIMHHKX7F+
-	 9WyR9WRc9ti/UpDkrZB+Y4HSbHszyoMrnYpyJkmXE358Pca35H/PjnIjJRb1YHFpJAJNP
-	 2aUUrXjPr1MecWQSxBBDvmo4Jqe8NEAKpysWMHnHmFCMB50IGaYA/svDLVX1/PU63Rg==
+	t=1794591260;
+	b=zwYGq7ZDojfEuy5YdJ33GfGFuD+xBzVwXdehGmMQtRESAVfqNUKiV9VoY0zX1BRahca1
+	 6IRw06OrnrKKL/FO0SL+N3dneAq25f1pmqOtJojmPpfeGwfWfFtEA/HJE888nzT2oaXq4
+	 A1LhHBbrDjvE0/WlD9UgYR3RkzsQwVj8+DHxEDZmiy7WPV+/IMc8xbBTbW3U4fVJ64s0A
+	 Mp2FIpoLEkgv81ifnZ9eBK2Q0e+bAKbyRyqPRZZitnIxoAJI9xvYDEJkKMT8ASAnhxYjB
+	 sbXZKO7OlPCy7mlOuAf1SzyO6Qdr82mtoDU/w42ir4tU7rBilVn/HdpTEk37OJpTjPA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794590727;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794591260;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=vrv1IhDGehV5oZxT3Y1WqUZwa/2C/2pxuGz2iWYV+qU=;
-	b=aHrCc48BfacbErqXwcX/G65/Otz5a2wm13h1cP6Sajp0tOj+r7j4UJGJVEnvMn0bID07
-	 Tfg5wItfgmNC+DlcBDIuTFhwKnzW1I+jg/k7mcJhktNq2VvdyEAUpWs6NiNkWbG5RJvGk
-	 p7akAAgO9B8qOyCt8lhUQifjJYpeayksj9QDTb9G1mDUimA6oqXy8+hjJ9LD/z3WcHYFM
-	 K6Y0f58SAaQD3c9FEALuIba6ffTu0nRHwClA6A/VhYr89yymxI+sZyiTh36A9LFREud15
-	 Z/5/+cWpmKqwVbcuD8svyXQ7uXtwZXS4EIF9+uXLJtl3a/QpnDCm5aw+N3iuiIKFGcQ==
+	bh=3r0ndq6M/Qf5B4NBYz6vbzQtjr2yp7/aZbNXsGp0yRQ=;
+	b=THv5FHQ/pwh6+5IVpAZNy4i2lo2NxZt8vW+qR3ylXGNG15VlQKYg6ZADuPsRd9QtWXLH
+	 GagiZ1Wt/a3WKivlpOVMaSigLcLY1NwNne+Tsz56BqzZ6S3HuGF5A53BXCgbwHnJ6vxob
+	 tr4qjPo+Gc3Dw/2LjcnFpTzbIEC33UtrLhjNd2amreldpr4PsIlZE7v4jX/ZUiFTrjC0h
+	 Y4BLxTMfO9bHY+++YaYU+sliwdrrzIAwQQVAJ2QE8UOvz8lIt8QX9M4gLrU1KjOwP5niC
+	 SX7Y1S304SpJntkHYrXShutrnwynCPM09M8K61pM+g0k8HQif90WJ8S3o2YhBOWRw/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="UjfNoBX/";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZsJadv++;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A80B46079D48
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 17:25:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155DF6076F90
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 17:34:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UjfNoBX/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498DB1F000C7;
-	Fri, 13 Nov 2026 17:25:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZsJadv++
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B731F000C5;
+	Fri, 13 Nov 2026 17:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794590727;
-	bh=vrv1IhDGehV5oZxT3Y1WqUZwa/2C/2pxuGz2iWYV+qU=;
+	s=k20260515; t=1794591259;
+	bh=3r0ndq6M/Qf5B4NBYz6vbzQtjr2yp7/aZbNXsGp0yRQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UjfNoBX/zg8EhZ0DkRZGTc8Fi7IuvLpcuXEnhqvSlLtduMDsnQYe3fuqc9htqHyn7
-	 J61JlDJYUnqRHkj91vSfyj+ud5MupegxqkzS7324RVUEyDulc4Tn/oA728Swm9Xi/Q
-	 dyJ4Kq+CDntmfMWiLEXkkuOKwQSxTNkuRidmeCC8G28F0Xfvue1SyyUe9Uzbx5a/WI
-	 tJM6I21ncs3A3wNETcBHonZRr9uAxjEN3VKDVdmcz4QykWDWAO8v8d59iWDiuadVGt
-	 jrTbuD0YFdIujKzgpn13kY1fWy06ctwZmmRiHSDSUa6H32BHZJ0SYla7OIOT3NXUhY
-	 otfX+GKph8F/Q==
-Message-ID: <sashiko-outbox-213303@kernel.org>
+	b=ZsJadv++/ICf6C2uj4PqLDXfMZmtihocXX7eRRNKxi7EUAxVU5nYnl4GGBez0h6Lq
+	 QHZgDz0V3b5CKnnkKWixCmCzY7Awwn/NhJkaIjI0voWKpr/PhbJSwENO1AhyzXaUUu
+	 4ROTgLGQlRUn5i55RiqTYxODZtoBhOULvD+Fg4ZyAfJnIVnBjIkZyjy8zN/enIfQbS
+	 T93X5UQpAuY7Mz5bqXUJ5xvwFcklRhFMkewWrckNPaNZSMpasFCmbQu08AtU6VoRG/
+	 2jrZzxl7lEh5eA3myRFw94h3dGItjdxZG09W0VL5od9KhxJq88CcQqWCJSxzRNCQVO
+	 5r4a+FlIP7hRQ==
+Message-ID: <sashiko-outbox-213324@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v3 2/8] vsock: report datagram receive and send
- queue state
+Subject: Re: [PATCH RFC v3 5/8] vhost/vsock: negotiate datagram support with
+ guests
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sergio Lopez" <slp@redhat.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261113-vsock-dgram-support-v3-2-1523c8e9b27e@redhat.com>
+In-Reply-To: <20261113-vsock-dgram-support-v3-5-1523c8e9b27e@redhat.com>
 References: <20261113-vsock-dgram-support-v3-0-1523c8e9b27e@redhat.com>
- <20261113-vsock-dgram-support-v3-2-1523c8e9b27e@redhat.com>
+ <20261113-vsock-dgram-support-v3-5-1523c8e9b27e@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 17:25:26 +0000
+Date: Fri, 13 Nov 2026 17:34:19 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,16 +62,19 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Datagram receive queues hold whole messages, and transports may charge
-> queued datagrams to the socket send buffer. Report the size of the
-> next datagram payload for SIOCINQ under the receive-queue lock, so
-> concurrent recvmsg() cannot free the skb during the query. Let
-> transports override the length calculation to exclude headers such as
-> VMCI's.
+> Expose VIRTIO_VSOCK_F_DGRAM in the vhost feature bitmap and retain the
+> negotiated value for each guest.  Keep datagrams disabled until the
+> feature is negotiated.
 >=20
-> Report datagram write readiness only while the send buffer has space.
-> Set the asynchronous no-space flag when it is full so freeing pending
-> send buffers can wake poll waiters.
+> Use a vhost-specific datagram destination check to look up the guest
+> in the socket's network namespace and require its negotiated datagram
+> feature. The common virtio implementation supplies the bind and
+> message operations; destination validation remains in connect() and
+> sendmsg(), where the remote CID is available.
+>=20
+> Reject guest datagrams on ingress unless the receiving virtqueue
+> acknowledged the feature. Complete rejected descriptors normally so the
+> queue can continue processing subsequent traffic.
 >=20
 > Signed-off-by: Sergio Lopez <slp@redhat.com>
 
@@ -79,5 +82,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-vsock-dgra=
-m-support-v3-0-1523c8e9b27e@redhat.com?part=3D2
+m-support-v3-0-1523c8e9b27e@redhat.com?part=3D5
 
