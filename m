@@ -1,61 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794575201;
-	b=BgZirTRsn4TXSl+JWEYPkGK60De+DSRzyMq4G2dvNXApdYvFbcfrXOmKpElfPMTznioL
-	 jUqA9kv03iWZPswSEfSui83WQ/O+HuOHqEsl2b20AHlMFeuCX+kCXfu5RZlRTw4jjEXbA
-	 S+qeRdWaA2dNnVwe77Ay+YzBdDjM6PaCBSMtOZuP4zAqYJAV/rMX73Fo3EMDAnMNCAvuL
-	 aTgbg4sW4aM4nAT614vQogoIthQ6k2P4H3ee1OoGAUGzAAZ94p/RlfU5alzm9nOKR4Q10
-	 LigcZGmnmFof2IbZ+ibMzbdShcugA3WdnlWxdnB1/tPYpP6P/n6JShBcOpwQoo9Eo0w==
+	t=1794575247;
+	b=Hp87kuXlcroY7BFRXDWq/Ni36WxASYvFgIWgtbg/bptTtCoUsBIpx1ucJRy1EMSy46Zf
+	 n22d2QxZ9PW6HQ5dPwFrJbBkyuVAMedZL4U07c1JSHJIYIZ6TFxtnpnjSPn0LB/6bJQO+
+	 zBa/Pyv6xZN5A9M5DgRF0a2rNExxdNJWCrOZGwbCS95VdUI3damaRTrtOJ2VygBanqQb1
+	 gBVf2Qfs0CpFiuNOmrvOtL1cnydA/8m8FzsR/+28WkVvo/HO9B1rkn8xWhKL6qyd6vCbI
+	 BYBvPg1e8jKVwU7kWCr2/I6gZoZ+0DY4No4np1J1c+Rh5uBIgIWscLdBgcbht/MZOgg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794575201;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=JvZgrdduzGGr1rTuXooGMGQr7qfhEsqW+hF4UjoV+Dc=;
-	b=sDtge9APoY0QRBjKIV6kzWFqoNtFc96PZkc1bloPFdzUQmLVkpoWJADCReDgjbLv4uCd
-	 FMcM4Uu28aQw0wi6iiTWLHMvLPc7VILtc+Bc3rhoISmD4FIEi4AP5+5miUQUZHAAoKPto
-	 ltJsRXeToY2ZHMl7N1Z156Fn5bF2/mxHywDnulr1xP8OF7kg9l/edh1w7ElC08i+bI6de
-	 D2QyKVqiohzc52+XEUCGDs+0S4QKFl/ouxoL1DL1nSg6JzKxVUnXMqrKFO1qQ5CFsX+Kj
-	 tiYue7mDTG4eZaLEOUnvmcEBZreAGFZeeOAU7l2tXywctBDg3EYX2IgWpCzOoWWKj7g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794575247;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=n7qcq3XGNgWyA0CxABwEsucLCT/69/A3c09JVgClJiQ=;
+	b=VbKEoSmr01DyRwalx8cP8wigLqZEeoHseHiFttiz1wIiFtkWM+/cYvIq/IpugT4VabpM
+	 jlCEgCaqxlhhXbsuR89LnJC7/3UTl7NB2UhQsyOyo/mQQTy67szguivuXp2CcPGgidrQ1
+	 YPCNY9iwjqSJigpwQerhfUKRwBgLvNzrD2Pv1WK4WEcmLikJLiKRjjAjQwVg0sWbufyK2
+	 eZAbOyPJTGWe2SBheayD71nSUJ+h1GjZLPbFW8oxTi+nadCeMImaLStZVCegGi/RLecGh
+	 4nH1VffBFoCHP+ga43sw+IQyofkZRsEHg1UQtpubmp1aSdyP6mvU6YLQoOD6KAzfe3A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gondor.apana.org.au;
-	spf=pass smtp.mailfrom=gondor.apana.org.au;
-	dkim=pass header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=sdwq+9RH;
-	arc=none smtp.remote-ip=180.181.231.80
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="HT3hC/pQ";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F36D606A89D;
-	Fri, 13 Nov 2026 13:06:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2F36D606A89D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 359DF60A2623
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 13:07:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=sdwq+9RH
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=JvZgrdduzGGr1rTuXooGMGQr7qfhEsqW+hF4UjoV+Dc=; 
-	b=sdwq+9RHcxPeX7XKZEk/ZT5A0s/DTR8ZHNsVQQoOuBOCHLJjao/jnDeWKzTxTfdGtMG4Yh3xw6E
-	Tt/HPZW8x+Vqz/hEsysPFv6J4FcSK5AEWU3IaKDpUQO85yAeY9iMSyleqqqcNRnpZytlJLAq2s+QK
-	Nd7Mwo6zxOfWpa4nl+Pugfa1HHZ3AD7TG98/iGWWhosENyCCn70QBIG4c44h6RezSqw847Cu1XflM
-	UwqtTDcAUCmCEoi9HRi5E0bCG4aexJTv5T3Vq2z8i8tKpdG9KpR778EfA9+diXbOMhxueYZjZjmHP
-	EiEo1lQoliX1LOGhh8iZ8sO/xV5U0EKoYsHw==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1xRqzF-0000000EfJV-3pD2;
-	Fri, 13 Nov 2026 21:06:38 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 13 Nov 2026 21:06:37 +0800
-Date: Fri, 13 Nov 2026 21:06:37 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Thorsten Blum <blum@kernel.org>
-Cc: Laurent Vivier <lvivier@redhat.com>,
-	Olivia Mackall <olivia@selenic.com>, virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] hwrng: virtio - simplify probe_common()
-Message-ID: <avcLXfYmR6raRZlN@gondor.apana.org.au>
-References: <20261103165026.454333-3-blum@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HT3hC/pQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB7851F000C4;
+	Fri, 13 Nov 2026 13:07:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794575246;
+	bh=n7qcq3XGNgWyA0CxABwEsucLCT/69/A3c09JVgClJiQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HT3hC/pQbeLRNqJQGWvKz7il1KuKrMukna5X/0jglwe+2zpdM9C/xHeM7NZWWZthk
+	 nVm3YCmZXBOb1z5BvyeAJhjIybdKTN2NhAuQcTGURfDvTi/9CBpfIil16XwgSjOkdj
+	 XLa9ghZfSIluXtAXj6hojY1AVyHEAiNRTvoJgy4ra2aurmPyhQRUQ0yc+kfpQKzQRF
+	 D06LencgXqiOrXjcpNY38c3qnJGndM3llXWuKwoKu6vboqFF/A+UhFwBI2Swj6wh+P
+	 tNVvk3x4LqQbVJ0LZAsYngnNre6kmKCZgYfRXXChOGNlITKHrm0qRRlt9nf4sssXUf
+	 N0RDeCTQijUfg==
+Message-ID: <sashiko-outbox-212823@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RFC v2 7/8] vsock: fragment datagrams across receive
+ buffers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sergio Lopez" <slp@redhat.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261113-vsock-dgram-support-v2-7-bacfc85b71ce@redhat.com>
+References: <20261113-vsock-dgram-support-v2-0-bacfc85b71ce@redhat.com>
+ <20261113-vsock-dgram-support-v2-7-bacfc85b71ce@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 13 Nov 2026 13:07:26 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,24 +61,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261103165026.454333-3-blum@kernel.org>
 
-On Tue, Nov 03, 2026 at 05:50:27PM +0100, Thorsten Blum wrote:
-> Drop the redundant NULL initialization since vi is immediately
-> reassigned. Drop the redundant index variable and use vi->index
-> directly. Also call ida_free() directly and consolidate the error
-> cleanup paths.
-> 
-> Signed-off-by: Thorsten Blum <blum@kernel.org>
-> ---
->  drivers/char/hw_random/virtio-rng.c | 19 +++++++++----------
->  1 file changed, 9 insertions(+), 10 deletions(-)
+> The guest already uses page-sized RX allocations. A datagram can exceed
+> one RX buffer. Growing every posted buffer to hold a full datagram would
+> increase virtqueue memory use and make small queued datagrams retain large
+> backing allocations. With delayed reads, a bounded receive queue could
+> then fill after only a few messages.
+>=20
+> Define START and EOM flags for datagram packets. Mark outgoing messages
+> with both flags, and let vhost split a message across guest RX buffers,
+> keeping START on the first fragment and EOM on the last. When a data
+> packet meets a descriptor with no payload space, vhost returns that
+> descriptor with zero used bytes. It drops datagrams but requeues stream
+> and seqpacket data for a later buffer.
+>=20
+> Reassemble consecutive fragments in the guest before tap or socket
+> delivery. Bound a partial message to 64 fragments and 64 KiB. Discard
+> incomplete messages on malformed packets, a new START, a peer mismatch,
+> an intervening non-datagram packet, or virtqueue teardown. Require comple=
+te
+> framing for host and loopback ingress.
+>=20
+> A QEMU reproducer now delivers a 9 KiB datagram as one message and all
+> 16 messages of a delayed-read burst. Paired host/guest selftests cover
+> 64 KiB messages and the burst through both a userspace backend and the
+> patched Linux vhost backend, with stream and seqpacket controls. A nested
+> vhost-vsock guest posting header-only RX buffers also passes stream and
+> seqpacket receive tests.
+>=20
+> Signed-off-by: Sergio Lopez <slp@redhat.com>
 
-All applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Sashiko has reviewed this patch and found no issues.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-vsock-dgra=
+m-support-v2-0-bacfc85b71ce@redhat.com?part=3D7
+
