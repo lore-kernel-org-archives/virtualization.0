@@ -1,56 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.250.56.165
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794567242;
-	b=O6S7hLZG1T8tfsZlM+IpptTZZ6eWfN0WCQnxRg7iCE5EY732MvV1iwXGVteRzxFQHN/t
-	 TrlkqQukaS5j/+GYurYS8V3OymZlAPNL7wVRFGDraljifthyrfTFlNdxQAdeP0dUqn7/6
-	 kQ6zdLKsMdDzFa6EfdC4uyafSBfgIRU0j8gGBRv9L5MGgfomDWDa+858BBKM8qRn0KyZW
-	 z9t27YOZ1TUs+v2CYJRyUu/Pq8wWbmjN5E5fOSiSZHqKc20+nbwwMHNYNpqNEy3Sf38sy
-	 kCyKfg5fD/WqKoyNVLgQAG1BDhaI0+LwPEnApqONxed16HV/RQ4B8P2yebSAYHgr6UA==
+	t=1794568037;
+	b=t9DIY4LoXw+30lljTpkVZQBkzyjQJ3yWQb+v6wojPa8Bey+I+bA3bbIws8kI2xq052/l
+	 CnlrSW/JHzlzs3CKykOiriDX0eZGJjQXOL/DEDZttWrFnYFzXdDBrPJc7o4U3GvHtxjja
+	 qHSoTaXzieB4s9eiOk0GsGt4Y5x1qDSynPtaKfAwPjnWCg9HAHsalBrioaD/KwOMl3xNS
+	 D5ymklk6PnzjKZx/dzEyvfMH/AXIIra63QTeLxjmsaFrK7TIVbC/cudb9FqwRwv/UDQTl
+	 BXXLv+8muQESvBHOtACn8UzVOHzf5SN04Su+fRdjNy0dQmvaGXjE6XhbcOJC6O4E7AA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794567242;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=fWJcRXjj6PRpDNlqYnDkesvi0jgKgQsveVoKe2eJUY8=;
-	b=NQ4AAwEbAv+P5DNJDv9tjjEICE6oqY+i+/FeWg7UGAGc/Wmqqo2Ax39SNgj7nS1PQfaV
-	 0fyJ7bGdsFabka5iIqBaMp9mB49X2EKO0888Sz9FXBxhITvkVfFTSK3JOxitWSChvokKb
-	 /zmT8sJBzyuIEMX56AmPbZ9eecD2z76ELQvJYJimxjhtI8UY4qR+X6ZLWZaoAtrkl8JQ8
-	 ngLjZI3ZsNZKuIdkqQ16Z2U/atUTvsfAzbAGMkkhf+f99XzMdJbyElxpYeaMBbZVb/VjH
-	 Q1Y3SapLaXDqQ4PdZcJ/DCxvxPtsuKkmXc4PsfgwC2al9rnTRg3cIhLsAcreoudoLqQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794568037;
+	h=DMARC-Filter:Received:Received:DKIM-Filter:DKIM-Signature:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=0u4I5WkyGxxjmS7tCo9l1n8+vnW6qTUBkG9tKJuJIv0=;
+	b=P60Cmm4vhf5Zby9EjsXvIzhBTKqdY2SgCzBVrQCM24EDRiKPuoX27mIrhxKRSN2cK3jU
+	 CNdi4D0SjrxvNoOGI7b/RO70AwCI2pd7O1FUqYlFfQozXiB0TGL7HUZnJNsQTOKOyocv5
+	 VOArYHC8nKngsKiOAjV92mYIQhjg52AfryrFnQbqvNRXnFZEMXP60IPIZ86RMCxqVmVow
+	 kxRep66PoQqgQuOj/OTHtUVs0BDT7/sXdDCaMxguzbPYcaJZQM/BkyswAlqRqHQ1NKeJF
+	 kKYf9r9YYEq8aJwMmFW+gsQKAe6eLNlen1UHdIsjWhWSlhqPriNVD7O2/rI/hFPNHqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pn27p0uv;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=ideco.ru;
+	spf=pass smtp.mailfrom=ideco.ru;
+	dkim=pass header.d=ideco.ru header.i=@ideco.ru header.a=rsa-sha256 header.s=ics header.b=C8zGvDYD;
+	arc=none smtp.remote-ip=51.250.56.165
+Received: from smtp.ideco.ru (smtp.ideco.ru [51.250.56.165])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5BF960A261D;
-	Fri, 13 Nov 2026 10:54:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BADD9606A330
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 11:07:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BADD9606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ideco.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideco.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pn27p0uv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B661F000C4;
-	Fri, 13 Nov 2026 10:54:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794567242;
-	bh=fWJcRXjj6PRpDNlqYnDkesvi0jgKgQsveVoKe2eJUY8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Pn27p0uvBBJ6LJETrVO7gInmEWjKaScJ12M0nrPWh4qpqgq97VL0x3GAali/NNaJU
-	 MwEkwg1NcMbZogVcig0dG+YRCWa5kVj4xKXiCKxuhzD2sRxpgIv5Ql0w+CwnTJ/K0c
-	 Gft2wFjD8qfFKsfseolavAEka5VPRhCSGZVBkM8Pu7LKfNLcvz8bPZWqfkTgRzuv8W
-	 0iEmz00CFxMTdLu+OMj0K4+BsG8VzX6XKs7wZyZHx5ycf5OvmeELXjEiP/+OmUVYJs
-	 rBGZOQZcAh/CiB2OZ/CV42Red5o661j/OdsWdbBdga+6OZ2NBrM7iLP66Bp7O4yi9O
-	 8kJVkMSrNB60Q==
-Message-ID: <sashiko-outbox-212640@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC] vhost: set dirty log bits without pinning pages on
- x86
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <af7f05bf637337d35fdd10f3e0dbb5e39d7780e7.1794480795.git.mst@redhat.com>
-References: <af7f05bf637337d35fdd10f3e0dbb5e39d7780e7.1794480795.git.mst@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 10:54:01 +0000
+	dkim=pass (2048-bit key) header.d=ideco.ru header.i=@ideco.ru header.a=rsa-sha256 header.s=ics header.b=C8zGvDYD
+Received: from [169.254.254.254] (localhost [127.0.0.1])
+	by smtp.ideco.ru (Postfix) with ESMTP id 4845C26BC5;
+	Fri, 13 Nov 2026 16:07:13 +0500 (+05)
+Received: from fedora (5cfcd9fa.dynamic.mv.ru [92.252.217.250])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.ideco.ru (Postfix) with ESMTPSA id BC9A326BC3;
+	Fri, 13 Nov 2026 16:07:08 +0500 (+05)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp.ideco.ru BC9A326BC3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ideco.ru; s=ics;
+	t=1794568032; bh=0u4I5WkyGxxjmS7tCo9l1n8+vnW6qTUBkG9tKJuJIv0=;
+	h=From:To:Cc:Subject:Date;
+	b=C8zGvDYDGBmVj+gaJSFjQmmG3YDxG0/mhlULOXAGGi0w6lBvfA9RmSOJAYDc3jwkx
+	 QzB8T8kzciyduOcqE1r3E+nOcdNv0tiBg59K43eMwXvoPHAoQ6IHu9GuiGs9oRGarA
+	 IAulTjfECLBW/01dDRuQ5N0U4P3BAzZ9mG2RsYMwxCLCHOseblX/4j7LuX5NL7Hf/B
+	 7/ZgBV4wHml/6kM9fZ3TMvahyEPEwLvvT0TS6Jm3l/OE6cMha9fQpDHW8YODOvWkJI
+	 LyggwSP6NCZvtepBvEGUy3KS29eDw0xyH5HHLdquBdxf4EqDrKNhinATiznqp6TP8D
+	 PLD0eypz+JMDw==
+From: Alex Kazinsky <a.kazinsky@ideco.ru>
+To: Dave Airlie <airlied@redhat.com>
+Cc: Alex Kazinsky <a.kazinsky@ideco.ru>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	lvc-project@linuxtesting.org,
+	stable@vger.kernel.org
+Subject: [PATCH] drm/qxl: Handle failure to reference the surface release buffer
+Date: Fri, 13 Nov 2026 15:06:56 +0400
+Message-ID: <20261113110658.4188477-1-a.kazinsky@ideco.ru>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,85 +79,66 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Critical] x86/uaccess, vhost: missing access_ok() check in
-  set_bit_user()
-- [High] x86/uaccess: set_bit_user() uses write-only =3Dr constraint on
-  __err
---
+When allocating a surface destroy release, qxl_release_list_add()
+takes a reference to the buffer shared with the create release.
+If allocation of the list entry fails, the error is ignored and
+the destroy command is submitted without holding that reference.
 
-commit 508047a5899f1ab9b68b7a3a4c36fffabf6ab858
-Author: Michael S. Tsirkin <mst@redhat.com>
+Once the current release buffer has changed and the create release
+has been freed, the buffer may be freed while the destroy release
+still points to it. Garbage collection can then access the freed
+buffer through qxl_release_map().
 
-vhost: set dirty log bits without pinning pages on x86
+Check the return value, free the new release and propagate the error
+before submitting the command. Increment release_count after successful
+release allocation to balance the decrement in qxl_release_free() on
+both the error and normal completion paths.
 
-This commit introduces a set_bit_user() helper on x86 to atomically set a
-bit in user memory using an exception table entry, and uses it in vhost's
-set_bit_to_user() to avoid pinning user pages on the dirty-logging path.
+Found by Linux Verification Center (linuxtesting.org) with SVACE static
+analysis tool.
 
-Link: https://lore.kernel.org/all/20261112085631.128819-1-zhaoguohan@kylino=
-s.cn/
+Fixes: 8002db6336dd ("qxl: convert qxl driver to proper use for reservations")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alex Kazinsky <a.kazinsky@ideco.ru>
+---
+ drivers/gpu/drm/qxl/qxl_release.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-> diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uacces=
-s.h
-> index 3a0dd3c2b233e..ba1e7c3f83c8e 100644
-> --- a/arch/x86/include/asm/uaccess.h
-> +++ b/arch/x86/include/asm/uaccess.h
-> @@ -594,6 +594,24 @@ _label:									\
->  	__ret;								\
->  							})
-> =20
-> +/* set_bit() on a byte of user memory; returns -EFAULT on fault. */
-> +#define set_bit_user(nr, addr)					\
-> +({									\
-> +	int __err =3D 0;							\
-> +	__uaccess_begin();						\
-> +	asm volatile("\n"						\
-> +		     "1: " LOCK_PREFIX "orb %[mask], %[ptr]\n"		\
-> +		     "2:\n"						\
-> +		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG,	\
-> +					   %[errout])			\
-> +		     : [errout] "=3Dr" (__err),				\
-> +		       [ptr] "+m" (*(u8 __user *)(addr))		\
-> +		     : [mask] "q" ((unsigned char)BIT(nr))		\
-> +		     : "memory", "cc");				\
-> +	__uaccess_end();						\
-> +	__err ? -EFAULT : 0;						\
-> +})
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 06979d0e8a9f..342c3600d425 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -262,6 +262,7 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
+ {
+ 	if (surface_cmd_type == QXL_SURFACE_CMD_DESTROY && create_rel) {
+ 		int idr_ret;
++		int ret;
+ 		struct qxl_bo *bo;
+ 		union qxl_release_info *info;
+ 
+@@ -269,12 +270,17 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
+ 		idr_ret = qxl_release_alloc(qdev, QXL_RELEASE_SURFACE_CMD, release);
+ 		if (idr_ret < 0)
+ 			return idr_ret;
++		atomic_inc(&qdev->release_count);
+ 		bo = create_rel->release_bo;
+ 
+ 		(*release)->release_bo = bo;
+ 		(*release)->release_offset = create_rel->release_offset + 64;
+ 
+-		qxl_release_list_add(*release, bo);
++		ret = qxl_release_list_add(*release, bo);
++		if (ret) {
++			qxl_release_free(qdev, *release);
++			return ret;
++		}
+ 
+ 		info = qxl_release_map(qdev, *release);
+ 		info->id = idr_ret;
+-- 
+2.56.0
 
-[Severity: Critical]
-Does set_bit_user() need an access_ok() check (or user_access_begin() /
-scoped_user_rw_access()) before calling __uaccess_begin()?
 
-Previously, set_bit_to_user() called pin_user_pages_fast(), which rejected
-kernel addresses.  Not every vhost path validates vq->log_base with
-access_ok() before reaching set_bit_to_user(): when vq->iotlb is non-NULL
-and vq->log_used is set (with VHOST_F_LOG_ALL unset), vq_log_access_ok()
-skips log_access_ok() because vq_log_used_access_ok() returns true early:
-
-drivers/vhost/vhost.c:vq_log_used_access_ok() {
-	if (vq->iotlb)
-		return true;
-
-	return !log_used || log_access_ok(log_base, log_addr,
-					  vhost_get_used_size(vq, vq->num));
-}
-
-When log_used() then runs, it calls log_write_hva() ->
-log_write(vq->log_base, ...) -> set_bit_to_user(), allowing userspace to
-set bits in arbitrary kernel memory with SMAP disabled.
-
-[Severity: High]
-Should the [errout] constraint on __err be "+r" instead of "=3Dr"?
-
-%[errout] is only written by the exception handler when instruction 1b
-faults.  With a write-only "=3Dr" constraint, the compiler treats the
-initial "__err =3D 0" assignment as dead and can reuse a register holding a
-non-zero input (such as [mask]), causing set_bit_user() to return -EFAULT
-even when the atomic orb succeeds and aborting vhost dirty-page logging.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/af7f05bf637337d35fd=
-d10f3e0dbb5e39d7780e7.1794480795.git.mst@redhat.com?part=3D1
