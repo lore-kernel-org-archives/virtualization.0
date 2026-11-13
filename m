@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794561694;
-	b=xzENPuh9zn/Vykm+PDO1SJhSXZJ1jNWJN1T55oHrXk9DIqub+T1EGbfVBEEiCZI+Gftz
-	 D9ELYo+K7dmOeHbP/IsPxCX6SFlW/wnnIvM9b+frTOLdnX7hBtMEiyh5/9FG8SOR542zo
-	 R6U39sU5bsUlalFeQOLVvqv9hrYSWiKKj73SkJzrjYHyMHG5jvwU9ROFyK/TbRoeyEIgL
-	 Lj3MVfeZH1zCCFzsp2Y7dLk86Fl3XgxtXOLmvSqvuKmPnPQdwk7XmwqdAPw5qyiYoSqNs
-	 kATlABPzKqUwKadEk0u6f8dFLBFkL2AxwyCTbKL+hsMfLG9YYAgIzhXly0cyudVd8VA==
+	t=1794561695;
+	b=UZukeIoPrzZgQ5J3WMMrfEyXuTs9DDSShmT1AnvgebrQNUHCaENiuEsGunpEkeacN28q
+	 +JeeACYafsjvxvwb+Oxag7OwhuWEIqMIhv9y0sTHgD+gYGKzw5flndQCuPb4sFxO+yDBZ
+	 iFk8ejNHqXa5SrtA6q7RDVRxClEsYXNLvy/ooP48fqGLV5rcETJAth0RQS9Y3rOgWuw0j
+	 taNP32RNw/oUNg9guJ0TSbVMd2CHT40gx92AhkDtLZnkCikOKbyy4f6LRyITZen7NV6zs
+	 kixmxLmWx4ZgK0l2QIh27JGFDA1CdF/dw2uFdc78hWbMZ0eAWsvnXVfRclcxZhIxssw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794561694;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=Eehbdk+gQ7MqVSJaBOWwCjGtgxZXfWVkHea9CSfuWKw=;
-	b=J6r8amrZ8oJ8oiNF02DvtlanVvnPvjbeQJymdg6f+cuEj2oNlw/gk5TA30LeHSFcVAxx
-	 /A2SvbEoytFBCPqkhdxqsmtwrvUhMZeno1Ugq/10m3sMBA1lAjlkSszqvEheyha0j8w9L
-	 PbTJWavKJE4jKgmXV5+Rj3nmIhSI3fMpFjDY/G+LzMAcbZwVk8Q3qUOC03vLsMD2V7KNO
-	 eapPnzeis446wrf3fZmc0KP+rTVkDDjYtXANTVOynlZAw5kA+ya9Gf4AsXCcMcINzPRuj
-	 bSdWqvc8/OQEMo+LlQfeBFbrrIMiz1yOV7EghWfm9YFv/8qmo7gC44UVok8E3I5P1yQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794561695;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=glq2ZALJM3tncuo4er4/ALGa3/gqzOszxTJigU11xw8=;
+	b=pTv5GzTclVMj/iUeoJdZ6baeYw5spVHJxWVAK3Kfattb6Ipq0EVvh87G4eUgA+GLKhyx
+	 1bVOPP2rdAWZPIStQJ2uO1gdpLh9fCFWXviLjPAbftqfTq2ocKYFbr42+ZZmZNvsvEy17
+	 CsrinNthzyACiMGzPmIUvSuPOykN1XSVEaJqHnJoP4hFibnCkJsY7tvFyIiHKDHVY7jjT
+	 Ek+Yh634TNWKC/caXcGe9szL8hk16tMH4+X0PHWL9gbBA1ZkX7fYoLh2QCD9SOrwB1jT/
+	 R/AQ3vvOtAIj7nHX+eG/w+uQ2SKGfDwIsqgxFLHE96KRFLDlZl6VJyNblLHK27n2XlQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XbefYowR;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bvUdCTQF;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E09F606A335;
-	Fri, 13 Nov 2026 09:21:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ADE5606A89C;
+	Fri, 13 Nov 2026 09:21:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XbefYowR
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bvUdCTQF
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794561694;
-	b=LrQ837k7KMGh39EqAABcM1YUp9ccFeNuneBP04yJGyWmeO8fkAEs4Eha6/Ccjrxud+mM
-	 FPkW6PvlGqcbAloX0zoFXicP92WMvx7QsWRWqGFcuZirEQW151RbjR/PByo4x5g2Lq9P/
-	 D5LKJaD9wHLS5rUgc7bQuk6SguNTWwVTme4D52c88IdI3GT+ztHPjVpOevEFj9twW1Ee5
-	 YybXaRynykpF2FkeBXNEF16cMVLQ0lndL4Qw3uwZo8X7EyyXh4c1NR4BwQoYrnuCVnT5U
-	 PN/QRK1ZkaMIudzVbe6KV58dl39OT1+j2RhSAz5oJfCHG54fpmQ3KQn0eRpah3dAWxA==
+	t=1794561695;
+	b=SH99HLeWBHTZwXNCqYdf+FsioqTo3o1xmYNgA1fjH/R9I8fj0kIDTvoQ8V8QB//vbMfz
+	 foID5jTziVfkG5Q5CLpGxP0rGXp8D+MwQxRhjS7bwUMdFtNnTCoAQhBxmeAprKkp8m0v+
+	 zsn6TYHWHjgIM570tZ/9C4CMy4kiEMH+UBb0AQRFL/Iy3FbYhjEEJnrLhkqOyjftLkknm
+	 G3UoqqyZo3IPODHb3xTdBz1vS+Pik8H1w1spwbGxEAvc1eyLMLXUWvKRkr6Ft+luCTosg
+	 Ghft58BYcWBayGvjjqlaI27rRxaAQB2XtOfJ8wQYaiXYhu+NsNKRr+IBd2YuxOok2sA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794561694;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=Eehbdk+gQ7MqVSJaBOWwCjGtgxZXfWVkHea9CSfuWKw=;
-	b=tt67pnJ23Q5wtPPxUo7izB+299aWYXZFF9PgClmMAAxDJNKkL/G1mqxzMht0v6jwvBT8
-	 MAHXQzkbkVq2kmIal4X73VF/b6C4ripP7kSNvHAX/jEEe5dRjEdKPVOruRwKfehG3vRWu
-	 cqHtNbp/of9RcJwPDQyZNp+8kyVimNV94IdEyH1MeehRElb4SoADEW2s8/t/UYAopR422
-	 Z/YFOlt1npDifINd1H5ZouRLTbmHGEXPi4XIV531kb8l3AD5p89YL/zy5TO5XKnDVcovV
-	 eXBc5nn3C+KYZ+hJ/UTL1mLfeLksSu8D/C+3gEeFBDLmfKgNDKmVkgiMsKct91I0BiQ==
+	c=relaxed/relaxed; t=1794561695;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=glq2ZALJM3tncuo4er4/ALGa3/gqzOszxTJigU11xw8=;
+	b=Rl9pDpTv4qbahFfKuGVkLM38SvoYY3l4HetiQZyG4JO3Ib2TZ9qclXQ5WfWMWCdovW1R
+	 Ch5JkRbbzf1D5dmC4Lucef61/4TN7Fki3s5jsEYvg5iqVkcG14bjmnMDIsLrCYRSr9Ju2
+	 0/hK4xppFX21At04g3LEcQwZ9n9T67zmRubC7yI8YAoOLw32iANBTArWExqsgbJ3r3gm7
+	 If8yqPJA10K3AzGZU/9cgv61GbsqLML2K946ToS4eWrHN1LHFvb+mvycp7ct2Re3at3ms
+	 9ayd45C/UVCmwI6AtDGvJELlcCcFfnL3ivVJjRaVBO4NTNOw99J17r19Iag8GolZ9Mw==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id D7A961F000C6;
-	Fri, 13 Nov 2026 09:21:32 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 0DAFC1F000C9;
+	Fri, 13 Nov 2026 09:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794561694;
-	bh=Eehbdk+gQ7MqVSJaBOWwCjGtgxZXfWVkHea9CSfuWKw=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=XbefYowRk51Rr44JllTCV7OHLpNl8bpR5zsGjRyIZ6qlfzoIO9e5YXnvihliF9o7G
-	 odM+5MV4+x8TdjJ8KEEbjBC5+hffq+WLZdiEIaNDRgDt3sSabCpS2X65V8XTVqz9ao
-	 ZA55oc6HqYw36FFh7RgssaVEhpfPiU12T3ds20qgLHJYUU7uIDps3dlfCzwDbnAd27
-	 7fI7EW1mkC1+x9c/ahiOxDv+KJGczAAEShH9PERkmspWlzlEcv0wxxrc/2tA///9Pv
-	 jJptpbuxTUhxmrG+/vuuZ2IzXkE7rnUuY+b2JfiGJyMPqOoqmJobUZyTwXJ4ZKXm8J
-	 jEYHT9JVp29FQ==
+	s=k20260515; t=1794561695;
+	bh=glq2ZALJM3tncuo4er4/ALGa3/gqzOszxTJigU11xw8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=bvUdCTQFkZHbBOfx0WeIVhbx8GTTpoB2CFNZCaPZyy+3y2JO1OBy0lG/hpl0ey8j2
+	 tFaogKJMy9SRiAjugmiFRb9TsEVlIGdpafM8dpVwmOKZULmt2dqV+KHwfUDNNC8Z0h
+	 K2LyMKE6v0YBxesblFdYMgLblLDewLR/PfliJbCz9OCVBKIVEu7DonNCsJzWLpkmYH
+	 WGrXhcZqf9VVBu0y2elhcUOqtREodg0UM0sTLXQyAf4e1EeEZpl7DZxU1ZB220CR/g
+	 hR/rY5jm/vUMfICJszxjIZr7EEgmq4lkmToa0SCxegQkmWCSdEDyIh03xlUs3Z30P9
+	 bD6yO5158h3Qg==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 39094476E6;
+	by lkml.kernel.org (Postfix) with ESMTP id A2EE847718;
 	Fri, 13 Nov 2026 09:21:32 +0000 (UTC)
 From: Joonho Lee via B4 Relay <devnull+mynameisjune111.gmail.com@kernel.org>
-Subject: [PATCH v33 00/18] ALSA: virtio: preserve PCM progress
-Date: Fri, 13 Nov 2026 18:21:24 +0900
-Message-Id: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
+Date: Fri, 13 Nov 2026 18:21:29 +0900
+Subject: [PATCH v33 05/18] ALSA: pcm: serialize linked buffer actions
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,12 +83,9 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAA/42OQQ6CMBBFr2K6dgxtQcCV9zAsShlhDLSmxUZCu
- Lstbly6nDd/3vyVeXSEnl0OK3MYyJM1cZDyeGB6UKZHoC4CJjJx5pxLuNMbArmZLHjTgUNtA7o
- lcqNGyDOu8qotCllWLDqeDuPB/uDWfGf/ah+o5yRNiVZ5hNYpo4eEftRBCkjblBrIz9Yte8/Ik
- +7fSkmTQY51UZc1Si70tZ8UjSdtJ9Zs2/YB97F5UAUBAAA=
-X-Change-ID: 20261113-fix-virtio-snd-recovery-final-401a48b55378
+Message-Id: <20261113-fix-virtio-snd-recovery-final-v33-5-13a934ad5ece@gmail.com>
+References: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
+In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
 To: linux-sound@vger.kernel.org, 
  Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
  Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
@@ -99,124 +95,164 @@ Cc: tiwai@suse.com, perex@perex.cz, mst@redhat.com,
  linux-doc@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, 
  Joonho Lee <mynameisjune111@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794561687; l=5601;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794561688; l=5268;
  i=mynameisjune111@gmail.com; s=default; h=from:subject:message-id;
- bh=3Yz1bL+Yu6b0fA+6aIZz/ij5aRqckyw6VeikfHQlsmA=;
- b=j0q9v5520UUrkCTZdfpVIQAAGKvo06DaXnN6cY3/ikoGPkQFTVv6ZnzFaqbuesJtt7XEemG5X
- rIyRATdQrSEBEW6dRFKNizcEnu9YA0dfoDwjF9QZPA6xCVTKil7hqOQ
+ bh=7Es390OR9nIw9rLXIpGbdhwc1LeQYoEinLF6dUjisUk=;
+ b=cPOsAtl5e9CnlYqIDUPNac+H5ShUdkFmVnP4vbMXB1gjlv9k8i4FFrlVCQNhgFK8aNrReX6lE
+ YmAmGRxkqcBDah9jyD4eLmS9cDLF5an7arho5ea6ikZFwn9xp5h1Q/C
 X-Developer-Key: i=mynameisjune111@gmail.com; a=ed25519;
  pk=wqkZdvfcC8g8fDi6f0Y58LlaXIo+ubf6Y/9Lr9yhshc=
 X-Endpoint-Received: by B4 Relay for mynameisjune111@gmail.com/default with
  auth_id=1508
 X-Original-From: Joonho Lee <mynameisjune111@gmail.com>
 Reply-To: mynameisjune111@gmail.com
+Content-Transfer-Encoding: 7bit
 
-This series is based on sound.git commit
- a4311e9447bbb219044db38897f95be112f46a8a.
+From: Joonho Lee <mynameisjune111@gmail.com>
 
-Previous revision:
-https://lore.kernel.org/linux-sound/20261113-fix-virtio-snd-recovery-final-v32-0-4e95979e312c@gmail.com/T/
+Concurrent non-atomic actions on different members of a linked PCM group
+currently lock their own buffer first, then the other members. That
+acquisition order can differ between callers. Sibling buffer mutexes
+also do not close their buffer-access admission counters.
 
-Changes since v32:
+Close buffer access for every member before taking any buffer mutex, and
+acquire those mutexes in the stable linked-list order while group
+membership is protected. Release every access gate on success and on
+failure, including when a member already has an active buffer access.
+The group action then uses the buffers already held by its caller.
 
-- Keep a replacement capture stream in DRAINING intact when an older
-  sync_stop callback arrives. The active-state check now covers capture
-  and playback, with the teardown marker retained for later cleanup.
-- Check the settled device state while holding the queue and stream locks
-  before rolling back a failed PAUSE. A late successful STOP keeps the
-  queue closed and does not restore the old capture quiet sequence.
-- Give each uncertain control incident one additional window of four
-  msg_timeout_ms intervals. Sleepable callbacks share the remaining time.
-- Close transfer admission and quiesce period work before waiting for a
-  late control reply. Preserve the stop marker on failure and resample
-  teardown state after the reply settles.
+The PCM stream and group locks are not held across sleeping driver
+prepare callbacks. Single-stream non-atomic actions keep their existing
+buffer-access locking path.
 
-These changes are folded into patches 12 and 18. The other sixteen
-retained patches have unchanged diffs.
-
-Automatic device reset from v32 patch 20 is deferred. Its review exposed
-an ALSA link/open lock cycle and unresolved ordering with transport reset
-and power management. The supporting CONFIG_PM-independent suspension
-change from v32 patch 19 is also omitted. Their review findings remain
-open for a separate recovery design.
-
-A permanently unanswered PCM control request still requires an explicit
-driver rebind. Late control replies remain supported by patch 18.
-
-Validation:
-
-- ARM64 virtio-snd module build with W=1: no warnings. The review-fix diff
-  passes checkpatch without errors or warnings.
-- Eight QEMU KASAN/lockdep cases cover RW/MMAP capture, RESET/DRAIN,
-  reopen, and playback. All passed with the loaded module hash checked.
-- A test-only sync_stop gate forced an old DROP to resume after a new
-  capture reached DRAINING. The original first-eighteen-patch baseline lost
-  the readable tail with -EBADFD; the candidate preserved it and returned
-  32 frames. Both used the same fixture.
-- A 1500 ms delayed STOP reply smoke test passed on v32 and this candidate.
-- Scarlett 2i2 input 1, macOS VZ, 48 kHz: v32 and the candidate each
-  passed twelve captures totalling 170 seconds, including 70-second RW
-  and MMAP captures and repeated reopen. The candidate passed four more
-  short captures after a fresh VM boot. All three VMs shut down normally.
-
-The physical tests used the existing ABI-matched 7.3.0-rc7 KASAN kernel
-with rebuilt driver modules, capture_packed_status=1 and
-capture_pause_restart=0. Other host recorder processes remained running.
-Expected frame counts and nonzero signal windows were checked; no known
-waveform oracle was available to prove exact sample continuity.
-
-The delayed STOP smoke test does not force the exact late-reply/PAUSE
-rollback interleaving. No fresh KCSAN run or full-kernel rebuild is claimed
-for this revision. Automatic transport reset and PM recovery are outside
-this reduced series.
-
+Fixes: 3c3201f8c7bb ("ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls")
+Fixes: bc55cfd5718c ("ALSA: pcm: Fix potential AB/BA lock with buffer_mutex and mmap_lock")
 Assisted-by: LLM
-
+Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 ---
-Joonho Lee (18):
-      ALSA: pcm: mark stop-threshold accesses for capture policy sampling
-      ALSA: pcm: report partial progress under the stream lock
-      ALSA: pcm: add an optional reset operation under the stream lock
-      ALSA: pcm: notify drivers after linked prepare completes
-      ALSA: pcm: serialize linked buffer actions
-      ALSA: virtio: propagate playback send failures through ACK
-      ALSA: virtio: Recover PCM state after a failed start
-      ALSA: virtio: Retain queued messages through device reset
-      ALSA: virtio: bound PCM transfers and retain DMA buffers
-      ALSA: virtio: Keep control payloads alive through DMA completion
-      ALSA: virtio: wait through signals for PCM teardown
-      ALSA: virtio: use request-owned capture and serialize recovery
-      ALSA: virtio: prioritize capture period work
-      docs: describe virtio-sound capture options
-      ALSA: virtio: reject invalid playback completions
-      ALSA: pcm: add an explicit application pointer to indirect playback transfer
-      ALSA: virtio: preserve playback progress across pause and buffer access
-      ALSA: virtio: settle PCM control state from late replies
+ sound/core/pcm_native.c | 71 ++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 56 insertions(+), 15 deletions(-)
 
- Documentation/admin-guide/kernel-parameters.txt |   14 +
- Documentation/sound/alsa-configuration.rst      |   36 +
- include/sound/pcm-indirect.h                    |   24 +-
- include/sound/pcm.h                             |   40 +
- sound/core/oss/pcm_oss.c                        |    2 +-
- sound/core/pcm.c                                |    3 +-
- sound/core/pcm_lib.c                            |   69 +-
- sound/core/pcm_native.c                         |  275 ++-
- sound/virtio/virtio_card.c                      |  159 +-
- sound/virtio/virtio_card.h                      |    6 +
- sound/virtio/virtio_ctl_msg.c                   |  433 ++++-
- sound/virtio/virtio_ctl_msg.h                   |   40 +-
- sound/virtio/virtio_kctl.c                      |  109 +-
- sound/virtio/virtio_pcm.c                       |  105 +-
- sound/virtio/virtio_pcm.h                       |  195 +-
- sound/virtio/virtio_pcm_msg.c                   |  821 ++++++++-
- sound/virtio/virtio_pcm_ops.c                   | 2227 +++++++++++++++++++++--
- 17 files changed, 4182 insertions(+), 376 deletions(-)
----
-base-commit: a4311e9447bbb219044db38897f95be112f46a8a
-change-id: 20261113-fix-virtio-snd-recovery-final-401a48b55378
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 0a8dd1bbc4c9..8131a7be5dfd 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -733,6 +733,44 @@ static void snd_pcm_buffer_access_unlock(struct snd_pcm_runtime *runtime)
+ 	atomic_inc(&runtime->buffer_accessing);
+ }
+ 
++/* Gate all linked buffers before taking their mutexes in group-list order. */
++static int snd_pcm_group_buffer_access_lock(struct snd_pcm_substream *substream)
++{
++	struct snd_pcm_substream *s, *s1;
++	int depth = 0;
++
++	snd_pcm_group_for_each_entry(s, substream) {
++		if (!atomic_dec_unless_positive(&s->runtime->buffer_accessing)) {
++			snd_pcm_group_for_each_entry(s1, substream) {
++				if (s1 == s)
++					break;
++				atomic_inc(&s1->runtime->buffer_accessing);
++			}
++			return -EBUSY;
++		}
++	}
++
++	snd_pcm_group_for_each_entry(s, substream) {
++		if (depth == 0)
++			mutex_lock(&s->runtime->buffer_mutex);
++		else
++			mutex_lock_nested(&s->runtime->buffer_mutex, depth);
++		depth++;
++	}
++
++	return 0;
++}
++
++static void snd_pcm_group_buffer_access_unlock(struct snd_pcm_substream *substream)
++{
++	struct snd_pcm_substream *s;
++
++	list_for_each_entry_reverse(s, &substream->group->substreams, link_list)
++		mutex_unlock(&s->runtime->buffer_mutex);
++	snd_pcm_group_for_each_entry(s, substream)
++		atomic_inc(&s->runtime->buffer_accessing);
++}
++
+ /* fill the PCM buffer with the current silence format; called from pcm_oss.c */
+ int snd_pcm_runtime_buffer_set_silence(struct snd_pcm_runtime *runtime)
+ {
+@@ -1317,9 +1355,9 @@ struct action_ops {
+ };
+ 
+ /*
+- *  this functions is core for handling of linked stream
+- *  Note: the stream state might be changed also on failure
+- *  Note2: call with calling stream lock + link lock
++ * Handle an action on all linked streams.
++ * When stream_lock is true, the caller holds the calling stream and group
++ * locks. Otherwise, the caller holds link_rwsem and every group buffer_mutex.
+  */
+ static int snd_pcm_action_group(const struct action_ops *ops,
+ 				struct snd_pcm_substream *substream,
+@@ -1331,10 +1369,8 @@ static int snd_pcm_action_group(const struct action_ops *ops,
+ 	int res = 0, depth = 1;
+ 
+ 	snd_pcm_group_for_each_entry(s, substream) {
+-		if (s != substream) {
+-			if (!stream_lock)
+-				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
+-			else if (s->pcm->nonatomic)
++		if (s != substream && stream_lock) {
++			if (s->pcm->nonatomic)
+ 				mutex_lock_nested(&s->self_group.mutex, depth);
+ 			else
+ 				spin_lock_nested(&s->self_group.lock, depth);
+@@ -1371,10 +1407,8 @@ static int snd_pcm_action_group(const struct action_ops *ops,
+  _unlock:
+ 	/* unlock streams */
+ 	snd_pcm_group_for_each_entry(s1, substream) {
+-		if (s1 != substream) {
+-			if (!stream_lock)
+-				mutex_unlock(&s1->runtime->buffer_mutex);
+-			else if (s1->pcm->nonatomic)
++		if (s1 != substream && stream_lock) {
++			if (s1->pcm->nonatomic)
+ 				mutex_unlock(&s1->self_group.mutex);
+ 			else
+ 				spin_unlock(&s1->self_group.lock);
+@@ -1512,18 +1546,25 @@ static int snd_pcm_action_nonatomic(const struct action_ops *ops,
+ 				    struct snd_pcm_substream *substream,
+ 				    snd_pcm_state_t state)
+ {
++	bool linked;
+ 	int res;
+ 
+ 	/* Guarantee the group members won't change during non-atomic action */
+ 	guard(rwsem_read)(&snd_pcm_link_rwsem);
+-	res = snd_pcm_buffer_access_lock(substream->runtime);
++	linked = snd_pcm_stream_linked(substream);
++	if (linked)
++		res = snd_pcm_group_buffer_access_lock(substream);
++	else
++		res = snd_pcm_buffer_access_lock(substream->runtime);
+ 	if (res < 0)
+ 		return res;
+-	if (snd_pcm_stream_linked(substream))
++	if (linked) {
+ 		res = snd_pcm_action_group(ops, substream, state, false);
+-	else
++		snd_pcm_group_buffer_access_unlock(substream);
++	} else {
+ 		res = snd_pcm_action_single(ops, substream, state, false);
+-	snd_pcm_buffer_access_unlock(substream->runtime);
++		snd_pcm_buffer_access_unlock(substream->runtime);
++	}
+ 	return res;
+ }
+ 
 
-Best regards,
---  
-Joonho Lee <mynameisjune111@gmail.com>
+-- 
+Git-157)
 
 
