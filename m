@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794568831;
-	b=kgFp/R2c1SkpFl3v0nuK/YKBKMh9oP/gAP+tMsy8rk3n2E3SIhAEkGB4FWaYM3VbVYS1
-	 3oxcWX0Eb+dgaaJKNd7u/fJ6fgD5roI2rTBRgDHNYsP2jnqDI4Kuzgv30pXpxqDQJacTC
-	 +LFXfZwlddbi48fvk+zICJ5VWeKUXebkHhS/r/YdiEDL006+iVjYyf9mNoK2XoeGWsBXC
-	 2vNhI8Fid7zKbLb17kEEtIO75Ng0mr0+VD+d4eJ04oqXaKGIaqYSOnYWn8MLRJm8bXR0o
-	 zAvLdsdAo2K2XwwR8+XBW69qW0Ww5ztH0zsmVZnNxq2H3GygFzcErWPROVns15/Iz7Q==
+	t=1794568832;
+	b=psv7oev7tSM2vBtmPWEEZH2uxwWYPKkFetRYCnbXTIARx/gJjdo3/GE7hhMNVhP0X/3K
+	 0KJSIwDOebrncb3YnEyzh+bKUcBfWDF8FOkMjRrXcPwUudQk69vIWjugeBrumH6ds+sMY
+	 9xScJwy0vZFGpsECar+f59mhKhQreGoLhRAfATz78xKe+BDuEED2vO2eyETgGw/lAqg15
+	 +5/YswlJ8aejTwxFlYwUIaXMR70sxajL+8HEgTMJ9wxSxilt2ErvRfT6RejPJ3P1STEvb
+	 Ic7sEeGO3mAJMdQm1u19jeB10jr9G/dstDklWehQbOd241KYiaLku3bhXB9faYeTcGQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794568831;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794568832;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=gBlSQuzpofiqyGWeLZtB2OMr1O93E5lZ23TFQOTOCA0=;
-	b=HOmaLe0SelN5L2dLUDzvjF+oz+Aey7gWG44ItBR89em3b9fVm6cRfOXHEZIFLHNg8w8B
-	 RSRhP1FNy86HWmkGQZJq4Y9XA9ZPX1u+0FnIJL4qFewikijAMeG3r/wuIOlxKw5pxYHmO
-	 xXGcP7RdMVrj5cRE83FHyYDdHykMOm9x21fSSd57wHkjUIWVC1qiYCWwVDK5b20yuKwq/
-	 2apwPnhclglxoG2BqEaV8wGlrWnl3wsF77ax9OvkafGesqeGd8Sxck28m6YPcjDwT+a7R
-	 ZmkfCSO7DikEmfU45pKKGhQFvuePSi8qFr6C1faaKFDRlj3bTEG0EnO4pHjIkUV3O9Q==
+	bh=yo3tGqQEfXTm9RsguiJAW1SqNi5Hd+PsnelrxCbKnJE=;
+	b=sazL8kD06Cf+HAbnm5BejibzRf/XTei2oIZYDwOgiJPl01B511po17cjNhnhwkjr3mhy
+	 tPwsXPZqnr8uppgAJoVxgz62Vtr30XTV+ElKwkhHvGXj0NgT+kyMddX8swIPGdlle0/dA
+	 SeKMpewW17YcBN18aItiJ8YtqSL/wonrxG02VH15C79I2/uNXPpePYledcryTfpOP/3nw
+	 wpvap+b+BYRyWolsYkS/lDFtG5Uc0reNRSvhaMmlL1c0FOymzYRmmGzRZRfZ7prEHdup+
+	 9WuJps0gpLhKp7s75lImyCG7QJM6ceQHOjQqgChpA5vg1AyfwKBgBf1pJt1nSnWGveQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y0XOG0MH;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nx3yLL75;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5167A606A88F
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 11:20:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 288E9606A895;
+	Fri, 13 Nov 2026 11:20:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y0XOG0MH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E80341F000C4;
-	Fri, 13 Nov 2026 11:20:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nx3yLL75
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6D031F000C9;
+	Fri, 13 Nov 2026 11:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794568831;
-	bh=gBlSQuzpofiqyGWeLZtB2OMr1O93E5lZ23TFQOTOCA0=;
+	s=k20260515; t=1794568832;
+	bh=yo3tGqQEfXTm9RsguiJAW1SqNi5Hd+PsnelrxCbKnJE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Y0XOG0MHE9J195FLw9BGfj4+KWLqmDNy7+ecD5UfrQQIxQIMK64Dwp3MpR0eIKIEQ
-	 VcZ/HZaDIGtIUm71oxIcUUKyEPpHP9nPVVre2ILhBkYOxc/7kRnp/+w3dHDsCp1D+h
-	 zUFlSKk6dG/UlHJBxFMBqSjyml8UJZctmSEk23XrTJ5EJZKLJrxp3DIMsZm/LJ+pXE
-	 N1WG+sraHh+19XdcHS312XaiCgoDFT4HmBx9bImCF96DFajTHBPyjjdViItdkuKa9s
-	 yEsqbDN+N6ahxXbM31+nb89hDgRVxbmSwZXPpH+ylegtnCUZuqNIiatyhEPaK13aeu
-	 yrPEv2LsQoK3g==
-Message-ID: <sashiko-outbox-212706@kernel.org>
+	b=nx3yLL75i94/sUYoNSDsxAcEEVxiD5o7r5ZJ9BfHMygF3DfFcnZN6bnBf2sga296o
+	 Cb+3Ql/uPo9+HNroCE4Q5+LIOv3UMhOCVQdXKEuMzYofMIXbk8zS10fd6MSyK97loI
+	 azTNvZxyLW45ejm13rW7cc+ya4N8RByq4vcyc1C11DvVFJwafm6RXxjeOlPddA6OqT
+	 8/Ip/NR54pUS41HurMCvLnbBsKkRTE2r+E6CwGWM2kA/7AiIDjqm2rWRWHaKUNoTD/
+	 InrpKds3oarU018YYHRkWOi4ucYcrqk3B2wv/85Xv4aW/4vOxBohFXEtq/qnkNd5+O
+	 rasEkokBAYZSA==
+Message-ID: <sashiko-outbox-212707@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v5 6/9] virtio-net: assert header sizes
+Subject: Re: [PATCH net-next v5 7/9] vhost-net: support
+ VIRTIO_NET_F_RX_TSTAMP
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Trumtrar" <s.trumtrar@pengutronix.de>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-6-7ab67b572f4f@pengutronix.de>
+Cc: virtualization@lists.linux.dev, bpf@vger.kernel.org, kvm@vger.kernel.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-7-7ab67b572f4f@pengutronix.de>
 References: <20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de>
- <20261112-v6-7-topic-virtio-net-ptp-v5-6-7ab67b572f4f@pengutronix.de>
+ <20261112-v6-7-topic-virtio-net-ptp-v5-7-7ab67b572f4f@pengutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 11:20:29 +0000
+Date: Fri, 13 Nov 2026 11:20:31 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,15 +62,68 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The header is cast from skb->cb and from device buffers, so its layout
-> must not change silently. Add static_asserts for the offset of tstamp,
-> the total size, the alignment, and that the header fits into skb->cb.
->=20
-> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [Medium] vhost-net: descriptor leak on vnet_hdr copy failure in
+  handle_rx() [1]
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 454489b63f879c752d31f70af8fbc748e0db8e54
+Author: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+
+vhost-net: support VIRTIO_NET_F_RX_TSTAMP
+
+This commit advertises VIRTIO_NET_F_RX_TSTAMP to userspace, sizes the
+virtio-net header to include the receive timestamp field when negotiated,
+and zeroes the remaining header bytes in handle_rx() when vhost supplies
+the header.
+
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 435d8ed3851f3..1b171af105a22 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+
+[ ... ]
+
+> @@ -1278,6 +1283,16 @@ static void handle_rx(struct vhost_net *net)
+>  			vhost_discard_vq_desc(vq, headcount, ndesc);
+>  			goto out;
+>  		}
+> +		/* Zero the rest of a header supplied by vhost, e.g. tstamp */
+> +		if (unlikely(vhost_hlen > hdr_filled)) {
+> +			size_t rest =3D vhost_hlen - hdr_filled;
+> +
+> +			if (iov_iter_zero(rest, &fixup) !=3D rest) {
+> +				vq_err(vq, "Failed vnet_hdr zeroing");
+> +				vhost_discard_vq_desc(vq, headcount, ndesc);
+> +				goto out;
+> +			}
+> +		}
+
+[Severity: Medium]
+This problem wasn't introduced by this patch, but does the error path
+just above this hunk leak RX descriptors [1] when copying hdr fails?
+
+drivers/vhost/net.c:handle_rx() {
+	...
+		if (unlikely(vhost_hlen)) {
+			if (copy_to_iter(&hdr, sizeof(hdr),
+					 &fixup) !=3D sizeof(hdr)) {
+				vq_err(vq, "Unable to write vnet_hdr "
+				       "at addr %p\n", vq->iov->iov_base);
+				goto out;
+			}
+	...
+}
+
+Unlike the num_buffers and iov_iter_zero() failure paths, jumping to out
+there skips vhost_discard_vq_desc(vq, headcount, ndesc), so the
+descriptors consumed by get_rx_bufs() are neither rolled back nor
+signalled as used.
+
+[1] https://sashiko.dev/#/bug/linux-a8cbb3ff-e3eb-42fc-9cbf-3422af552e28
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112-v6-7-topic=
--virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de?part=3D6
-
+-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de?part=3D7
