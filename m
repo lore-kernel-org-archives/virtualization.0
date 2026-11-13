@@ -1,78 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794552114;
-	b=datu1CBXmO3bHehYTSvxWqNek0hljKHuu7mmo+Lx5a8vgol/Se1UUfJkjtMfjLXOkcFk
-	 AhqWv9UOIxO4ZqJ2ZJTL8cTsMolOp2cbULt/TFrCBUT5tQ6GGvISryISpfSJmdPi2di9j
-	 dIXyS+nXM8JAYBMbuVf7HgZNs/cq+hvUNM2W/XUS0hhoeUr8XGrE36w/lMG0rs+txGlRc
-	 q1KzNjcqtX7PhqkmbwMGwQ1Zyv05yzuZbD0V8AJZzTUE66iyHTh0NG960fcm+g6ZZQnSL
-	 jkyVNOBwdCY7YNde/DNUTvL6XQHcmOrf3nbx95GZ5L3P/s2q0ttmTB4CPOxNaobONDA==
+	t=1794552120;
+	b=mz38q7BwaMQUBsB2iY0P+2hHgeK0t4uTh4HXy1hjNk/otxKw9jGsMHYkIT1hBtQBBY9C
+	 TnNZiVelLhLeMQZCmi0Fsgt00PNMRMKJn76UExtnDY0uKObvpZFf9FrI2uB4ARoU1wsHc
+	 JKDIW2wSt7AkaPy6JSSntupeNOd4q1AiaIslC8fqIYOnma3UNGmluNtFyAMZCcvUmh4rf
+	 mhRif83y0UNQvGTG9bzB8UraSEtiBIFnXF5BI+edVAZv2K2pvOrkYTsG23uq1vcCo3JXA
+	 vlAEll+SXT6me3OKqL1RAZ4dnCDzaxgl/vCiS7sVvZmRbDVvR1og/jlr6Aid9cHHX3A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794552114;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794552120;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=glq2ZALJM3tncuo4er4/ALGa3/gqzOszxTJigU11xw8=;
-	b=xDvCO/VCrre1KIwZkd5ec8b1CVnbknUWCqamiQQifQP0aYfwrIrdJ4Ol9H//rIFVOzD2
-	 TkE1WFCRE5ozoBSbqD/f6d3T73lPa/9VDjolTRRRO193TZ8lUIhIi8exVvSn0gse48sGR
-	 jrioBiBPYpPwEZQrqr/yEVaCmzbaKr+9HcWs5Q5CEbOZ+9u2lmyzHo/pPHh4MsHfbt8KL
-	 kPxYskHx9BkDVSw3VPuGLEWFbLKLuh0i0wEgVCbXYvx3hYPVUJ7gMtXk2pdmzMk9RBCJJ
-	 BnGGqoU5/Xk9mA1LfPPt3oNLmxCdEYn955RzYD12aPRrXSNMi0h+N+QZuthorqYE2ng==
+	bh=vpMZdlcyoh0GcqZuPlSqHKiKfF6eNhvd7bd4XpqmOwE=;
+	b=xAn66yWbT14qkKa4adbbBAP3SfGJML4cu82w/AoayrhyxbBpYIkuRY/3c2CLlV7YCC2d
+	 Pgrzv5siGGXjl6YTckCBzJ1dHD0QCYdkm77R7auYx40W/J4hGO4/IpzaNKucmgFZubU5q
+	 eV2ep7JDNIzVjEIWCm9QxkwPTGGHHvxwXv1AOmMvL5oE0zc0wMvkvyMd2Al13MkOwOCSy
+	 ZDjdGS4Nl2pZ35LGJj0YCVCe36h/a0G69adi0GW2BFXY1X3HGquSuvh/tAdm/43IzEE4D
+	 ln/pWmi2gGBtblz5DgMSKilAzCCdQ0WyDcHeYjSLWYMA5OO9USqUq6Mp+nwo9zXU3oQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bG28QUbb;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dCmkmg9m;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA32E606A332;
-	Fri, 13 Nov 2026 06:41:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4799660A5BC0;
+	Fri, 13 Nov 2026 06:42:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bG28QUbb
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dCmkmg9m
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794552114;
-	b=JTJgavC2672VtqlPJ6zwLcqQ1PjXvOOeP44gWirrY62MHqe2/XaOMf2aQVGTZ+zmQe3Q
-	 ksBkeutDcgdzEsV5a0ZV+qiC996+g+4BuNmhiWP7Fwo8bU9gcYCId5hpwYOHGZfh+VVrP
-	 IpZVk54HXoF/D0ByTGLhlRIlxslhaaciq5brwDnmVqMDEKY4HQVGfYRd4q6gev3xAFtdt
-	 REnhIKzixDvbTucjo3ByXhO+7aqNcf7jhnihddPzBZsZiMguOO/4iImgXv1yuWH/hxr24
-	 imNi7qg85RDrJOravhVbONLBe+tmqha5Q1w5erUW1pJx0u0/+duzoa9ElRCblRztBWw==
+	t=1794552120;
+	b=zlMjkQ+CU/NTuv6OAMML0DIlyE/LHFV/yrtyfu0d0XPCn61VnjHgkAafffcfwEfYiKwY
+	 ZPimbLKujhwL3UOhFEGHfScJotxr8MRkxTqDOpALEBD4rDIV+KK0WFgh0G0MHXw1jfxwX
+	 2cx1Wzhbb2hvaqf/3Xjc7MA+CPz11nZxhChOUJs951+yLW/suj82rp1nZDRYwjcRtVp3n
+	 sazp1S8PZtJvfFalPSaVUyBw1oExIiXkIapoECp13vWLiqKmYauH/85HaFLHZg21zGx3E
+	 SPsUloH8NOT2xenuLfqBxKNVS/RoYTx6oS2hoTGzBb2Jsmtu0yk01HqfVst/JnCH30w==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794552114;
+	c=relaxed/relaxed; t=1794552120;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=glq2ZALJM3tncuo4er4/ALGa3/gqzOszxTJigU11xw8=;
-	b=q5kI7q06nPpPT6laQ6FMeOoAXMYdKWyAWsJKzYS0ybYnL2UQq0oDUdbcleVkKjB0ocZh
-	 rHQG3VJK8paF/axFc4J/cuQPuS1stJvEe5EFfItfM61288Knpgf03Egfc/+eeIFV+PI7H
-	 KfAEvkgL/QiB+UryCJKLyVEZdwoPXiuuwBYl/6GLbXImkIS6NkZzHP9qbAWRfr2FoMI7f
-	 55qpYW2GjMIpqWWhI5sJH2D/3++3TOSyyyNaJmSEJJL3nEg8vqcgo/73LZfVrpqR+0nP9
-	 q9COENEqnXOh0M2W3CsNXvoYapv4c1Eh0gTGkriOXcge1vMfi9d2Un1lw4yTH8hKGQA==
+	bh=vpMZdlcyoh0GcqZuPlSqHKiKfF6eNhvd7bd4XpqmOwE=;
+	b=jZ0hNCIpGkphTnb0PsB1tzka5CfLtHlHAY5K1suTVoZjVfrM5hkyGQB3G85TPT3bNgCH
+	 vpBCd3nGwBP7cqurAGCBHRmTyUS6IEEDVXuNdtxmBEgtHg3vnF475gIUbLCjasmKe0tZX
+	 XkZjagMTmC2z16zRSTdBTV1EQdya8l1EHIbpBWDrpO2mahGJEnuNx3UWSZJX7lLiK6G0x
+	 xVR+9xZ4eEZz7wKqgbPwx1VhJAEAg1WIXeURu5Q5+gDzT0jhfWQDKHikYouAE3GDeQY5W
+	 rzZYbuhBbCDNeoQtVu9QflAktM82mBSn3EoKhIIPE/jVR3WCDU7ADbU3ftWJ+vDfDjA==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id A69E71F000C5;
-	Fri, 13 Nov 2026 06:41:53 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 751AD1F000D4;
+	Fri, 13 Nov 2026 06:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794552114;
-	bh=glq2ZALJM3tncuo4er4/ALGa3/gqzOszxTJigU11xw8=;
+	s=k20260515; t=1794552120;
+	bh=vpMZdlcyoh0GcqZuPlSqHKiKfF6eNhvd7bd4XpqmOwE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=bG28QUbbGkFUjhOyE8VTXObZZ6u1J68NtM2yQwyfBRUBcYC5/OrNOUHUGTaxE0DY5
-	 JjKdGgisfaq9Eha8kohDV7VpHtxSBR9R2Qxeoo2fnzPnrqZlBBD2dBh8Ls5a8AaeSt
-	 NrMwXEymVV8OnvgmxBvOmOgISvW4UAAE19v4iUTYy3a1FV6lKGzHd69EjxMADqQmks
-	 44ibL8auUeNrM6qycifP/S9K8YEvEgz2a0YFGpkIyKd3IQREcrzun3WvuSTM92WPr/
-	 9q2ljybuhSCD09lreavWyE+OWIr6kQNwYBxXmMIxkxV0ZfdIEFj+SkbIsV08ukcfzS
-	 uML6qiqCLcZxw==
+	b=dCmkmg9mseaNDu73RrT7r2BxOpVedNn7uhYP11T9hn6DR6izGkB9dg/B87pSl8IES
+	 Wqbo6ukE0uWv53qdu0hhkRoWNHj0HggX52v7msRXVykDdcKMw93FohFm63iaOUIYVx
+	 XuFSjGmcSa7Qe2vw04MRQ28RtAzHoOCwiO6UmNGZOrzsSPxZbXQpJjmSGwiE6VavRn
+	 dWW1bJukR5THYGfkvqwi3PCc5P+nV9qDVo6Zr4C1Hd7lp/dAfj7ddYadO8YAcSzEWZ
+	 g7WFNiSyoCjFNwrax8tYYvg3aUcJKRqGoSeVndngrRAiH2Y6dXYsIUDex2Up05noBu
+	 ztMAOnzlqXcng==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 40C074764A;
-	Fri, 13 Nov 2026 06:41:52 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id 444634767A;
+	Fri, 13 Nov 2026 06:41:53 +0000 (UTC)
 From: Joonho Lee via B4 Relay <devnull+mynameisjune111.gmail.com@kernel.org>
-Date: Fri, 13 Nov 2026 15:41:49 +0900
-Subject: [PATCH v32 05/20] ALSA: pcm: serialize linked buffer actions
+Date: Fri, 13 Nov 2026 15:42:01 +0900
+Subject: [PATCH v32 17/20] ALSA: virtio: preserve playback progress across
+ pause and buffer access
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -83,7 +84,7 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261113-fix-virtio-snd-recovery-final-v32-5-4e95979e312c@gmail.com>
+Message-Id: <20261113-fix-virtio-snd-recovery-final-v32-17-4e95979e312c@gmail.com>
 References: <20261113-fix-virtio-snd-recovery-final-v32-0-4e95979e312c@gmail.com>
 In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v32-0-4e95979e312c@gmail.com>
 To: linux-sound@vger.kernel.org
@@ -92,11 +93,11 @@ Cc: tiwai@suse.com, perex@perex.cz, mst@redhat.com,
  corbet@lwn.net, skhan@linuxfoundation.org, rdunlap@infradead.org, 
  linux-doc@vger.kernel.org, Joonho Lee <mynameisjune111@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794552109; l=5268;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794552109; l=14790;
  i=mynameisjune111@gmail.com; s=default; h=from:subject:message-id;
- bh=7Es390OR9nIw9rLXIpGbdhwc1LeQYoEinLF6dUjisUk=;
- b=zbXFlEfc6Bkh2glYn2Pb1ffs+2KRPlWl08IzqBAs3m4Mdfb+ecQ39v7XKXR+esVMc0QGTyQPP
- Kzz9SybD5z5AEO72yS5ndCSaq5NPzi2SKQ70N6fo7I019XvUOaW2RSA
+ bh=o1QwpIeuJHnytrturKOJEq0RXPRI0TQq3DL32w2TIHg=;
+ b=3IUK59ka4vVZ6c6/1WVxSfWQPrle7XH2waE0xatOGbWJYVhrRqeBe0Io6BREJT0R0/RjdSGqm
+ mPVEhpx9HS7AjYQ6wdXJKSufkbKuTGvMQ1SFhpLAg27VlPDBaWgaPev
 X-Developer-Key: i=mynameisjune111@gmail.com; a=ed25519;
  pk=wqkZdvfcC8g8fDi6f0Y58LlaXIo+ubf6Y/9Lr9yhshc=
 X-Endpoint-Received: by B4 Relay for mynameisjune111@gmail.com/default with
@@ -107,147 +108,346 @@ Content-Transfer-Encoding: 7bit
 
 From: Joonho Lee <mynameisjune111@gmail.com>
 
-Concurrent non-atomic actions on different members of a linked PCM group
-currently lock their own buffer first, then the other members. That
-acquisition order can differ between callers. Sibling buffer mutexes
-also do not close their buffer-access admission counters.
+TX completions can arrive after PAUSE closes transfer admission.
+Preserve that progress and schedule catch-up when the stream resumes or
+a rejected pause restores RUNNING. Cache device latency in stream-owned
+state so a late completion does not need to dereference the ALSA
+runtime. Clear both the cache and runtime delay on prepare and before
+RESET observes the hardware pointer.
 
-Close buffer access for every member before taking any buffer mutex, and
-acquire those mutexes in the stable linked-list order while group
-membership is protected. Release every access gate on success and on
-failure, including when a member already has an active buffer access.
-The group action then uses the buffers already held by its caller.
+A playback pointer callback can also invoke ACK while the core has
+closed buffer-access admission, after the pointer helper has already
+accounted for completed hardware bytes. Track that callback context and
+refill only previously committed data using pcm_indirect.appl_ptr. Keep
+rejecting other ACKs while the gate is closed, and use the
+snd_pcm_indirect_playback_transfer_appl_ptr() for the refill. If
+runtime->control is absent, route the condition through the common
+playback validator and XRUN error path rather than returning before
+transfer failure handling.
 
-The PCM stream and group locks are not held across sleeping driver
-prepare callbacks. Single-stream non-atomic actions keep their existing
-buffer-access locking path.
+Use the existing indirect hw_queue_size to keep outstanding TX below one
+physical ring: buffer_bytes - period_bytes. Equal modulo cursors then
+mean no unobserved completion, and a non-interrupt HWSYNC cannot consume
+a hidden full-ring wrap before deferred period work. Continue using the
+ordinary ALSA pointer update for silence, drain, stop-threshold and
+wakeup policy.
 
-Fixes: 3c3201f8c7bb ("ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls")
-Fixes: bc55cfd5718c ("ALSA: pcm: Fix potential AB/BA lock with buffer_mutex and mmap_lock")
+Check for pending progress or a latched transfer error again in the
+period worker under the PCM stream lock. A queued notification can
+outlive a paused RESET or an earlier pointer observation. Calling the
+period helper without new progress after resume can turn equal cursors
+into a false wrap when the core has backdated its pointer timestamp.
+
+This reduces queued buffering by one period. With two periods, only one
+period can be queued.
+
+The final candidate was tested on ARM64 QEMU with KASAN and lockdep.
+RW/MMAP boundary pause, release, HWSYNC/poll, drop and reopen passed
+with two- and eight-period rings. RW/MMAP also passed accepted RESET
+from PREPARED followed by DRAIN and reopen, and accepted RESET while
+RUNNING after the full 2,048-frame buffer became available.
+
+A separate paired RW/MMAP gate fixture reproduced the baseline failure.
+The generic ALSA indirect helper invokes ACK for each pointer callback
+but masks its internal -EBADFD. Once hw_ptr == hw_io with no completion
+outstanding, virtio period-work progress suppresses further callbacks,
+so there is no ACK to retry the refill. Baseline stopped after 3,072
+completed bytes with 1,024 bytes in sw_ready. The candidate drained
+sw_ready and completed 4,096 bytes without any further client ACK. A
+test-only hook changed appl_ptr to 2,560 while only 2,048 frames were
+committed; the candidate refilled only committed data. The hostile
+mutation used a test-only kernel hook because ARM64 control-page mmap is
+unsupported. KASAN and lockdep reported no diagnostics.
+
 Assisted-by: LLM
 Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 ---
- sound/core/pcm_native.c | 71 ++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 56 insertions(+), 15 deletions(-)
+ sound/virtio/virtio_pcm.c     |  3 ++
+ sound/virtio/virtio_pcm.h     | 13 +++++++++
+ sound/virtio/virtio_pcm_msg.c |  8 ++----
+ sound/virtio/virtio_pcm_ops.c | 67 ++++++++++++++++++++++++++++++++-----------
+ 4 files changed, 69 insertions(+), 22 deletions(-)
 
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index 0a8dd1bbc4c9..8131a7be5dfd 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -733,6 +733,44 @@ static void snd_pcm_buffer_access_unlock(struct snd_pcm_runtime *runtime)
- 	atomic_inc(&runtime->buffer_accessing);
+diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
+index 7b332c9476f1..38795c4acb01 100644
+--- a/sound/virtio/virtio_pcm.c
++++ b/sound/virtio/virtio_pcm.c
+@@ -338,6 +338,9 @@ static void virtsnd_pcm_period_elapsed(struct work_struct *work)
+ 	}
+ 
+ 	if (vss->direction != SNDRV_PCM_STREAM_CAPTURE) {
++		/* Ignore stale work after RESET rebases the playback cursors. */
++		if (!virtsnd_pcm_playback_progress_pending(vss))
++			return;
+ 		snd_pcm_period_elapsed_under_stream_lock(substream);
+ 		return;
+ 	}
+diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
+index 987105145205..0c625df1f4e4 100644
+--- a/sound/virtio/virtio_pcm.h
++++ b/sound/virtio/virtio_pcm.h
+@@ -53,6 +53,7 @@ enum virtio_pcm_pause_restart_state {
+  *        substream operators, including @stopped.
+  * @buffer_bytes: Current buffer size in bytes.
+  * @hw_ptr: Substream hardware pointer value in bytes [0 ... buffer_bytes).
++ * @playback_latency_bytes: Device delay cached independently of the ALSA runtime.
+  * @capture_ready: Managed-mode bytes copied but not yet acknowledged by ALSA;
+  *                 always zero in free-running mode.
+  * @capture_boundary: ALSA boundary captured for this prepared epoch.
+@@ -84,6 +85,8 @@ enum virtio_pcm_pause_restart_state {
+  * @capture_reset_observing: Reclaim staged samples during RESET pointer capture.
+  * @indirect_reset_observing: Suppress ordinary ACK refill during RESET pointer
+  *                            capture; protected by the PCM stream lock.
++ * @playback_pointer_active: Internal playback ACK context; protected by the
++ *                           PCM stream lock.
+  * @suspended: True if the substream is suspended and must be reconfigured on
+  *             the device side at resume.
+  * @pause_restart_state: Device-side state for opt-in pause compatibility.
+@@ -113,6 +116,7 @@ struct virtio_pcm_substream {
+ 	bool resetting;
+ 	size_t buffer_bytes;
+ 	size_t hw_ptr;
++	u32 playback_latency_bytes;
+ 	size_t capture_ready;
+ 	snd_pcm_uframes_t capture_boundary;
+ 	u64 capture_copied_total;
+@@ -140,6 +144,7 @@ struct virtio_pcm_substream {
+ 	bool control_uncertain;
+ 	bool capture_reset_observing;
+ 	bool indirect_reset_observing;
++	bool playback_pointer_active;
+ 	bool suspended;
+ 	enum virtio_pcm_pause_restart_state pause_restart_state;
+ 	struct virtio_pcm_msg **msgs;
+@@ -179,6 +184,14 @@ virtsnd_pcm_schedule_period_elapsed(struct virtio_pcm_substream *vss)
+ 	return schedule_work(&vss->elapsed_period);
  }
  
-+/* Gate all linked buffers before taking their mutexes in group-list order. */
-+static int snd_pcm_group_buffer_access_lock(struct snd_pcm_substream *substream)
++/* Caller holds the PCM stream lock so RESET cannot rebase these cursors. */
++static inline bool
++virtsnd_pcm_playback_progress_pending(struct virtio_pcm_substream *vss)
 +{
-+	struct snd_pcm_substream *s, *s1;
-+	int depth = 0;
-+
-+	snd_pcm_group_for_each_entry(s, substream) {
-+		if (!atomic_dec_unless_positive(&s->runtime->buffer_accessing)) {
-+			snd_pcm_group_for_each_entry(s1, substream) {
-+				if (s1 == s)
-+					break;
-+				atomic_inc(&s1->runtime->buffer_accessing);
-+			}
-+			return -EBUSY;
-+		}
-+	}
-+
-+	snd_pcm_group_for_each_entry(s, substream) {
-+		if (depth == 0)
-+			mutex_lock(&s->runtime->buffer_mutex);
-+		else
-+			mutex_lock_nested(&s->runtime->buffer_mutex, depth);
-+		depth++;
-+	}
-+
-+	return 0;
++	guard(spinlock_irqsave)(&vss->lock);
++	return vss->xfer_xrun || vss->hw_ptr != vss->pcm_indirect.hw_io;
 +}
 +
-+static void snd_pcm_group_buffer_access_unlock(struct snd_pcm_substream *substream)
-+{
-+	struct snd_pcm_substream *s;
-+
-+	list_for_each_entry_reverse(s, &substream->group->substreams, link_list)
-+		mutex_unlock(&s->runtime->buffer_mutex);
-+	snd_pcm_group_for_each_entry(s, substream)
-+		atomic_inc(&s->runtime->buffer_accessing);
-+}
-+
- /* fill the PCM buffer with the current silence format; called from pcm_oss.c */
- int snd_pcm_runtime_buffer_set_silence(struct snd_pcm_runtime *runtime)
- {
-@@ -1317,9 +1355,9 @@ struct action_ops {
- };
- 
  /*
-- *  this functions is core for handling of linked stream
-- *  Note: the stream state might be changed also on failure
-- *  Note2: call with calling stream lock + link lock
-+ * Handle an action on all linked streams.
-+ * When stream_lock is true, the caller holds the calling stream and group
-+ * locks. Otherwise, the caller holds link_rwsem and every group buffer_mutex.
-  */
- static int snd_pcm_action_group(const struct action_ops *ops,
- 				struct snd_pcm_substream *substream,
-@@ -1331,10 +1369,8 @@ static int snd_pcm_action_group(const struct action_ops *ops,
- 	int res = 0, depth = 1;
+  * ALSA may observe a subperiod tail before its period callback. Keep actual
+  * unread occupancy separate from pointer observations and notification state;
+diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
+index 9c67a8bf15f5..44761dff3e0d 100644
+--- a/sound/virtio/virtio_pcm_msg.c
++++ b/sound/virtio/virtio_pcm_msg.c
+@@ -1033,12 +1033,10 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+ 	/* Keep latched errors until prepare establishes a fresh epoch. */
+ 	vss->msg_count--;
  
- 	snd_pcm_group_for_each_entry(s, substream) {
--		if (s != substream) {
--			if (!stream_lock)
--				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
--			else if (s->pcm->nonatomic)
-+		if (s != substream && stream_lock) {
-+			if (s->pcm->nonatomic)
- 				mutex_lock_nested(&s->self_group.mutex, depth);
- 			else
- 				spin_lock_nested(&s->self_group.lock, depth);
-@@ -1371,10 +1407,8 @@ static int snd_pcm_action_group(const struct action_ops *ops,
-  _unlock:
- 	/* unlock streams */
- 	snd_pcm_group_for_each_entry(s1, substream) {
--		if (s1 != substream) {
--			if (!stream_lock)
--				mutex_unlock(&s1->runtime->buffer_mutex);
--			else if (s1->pcm->nonatomic)
-+		if (s1 != substream && stream_lock) {
-+			if (s1->pcm->nonatomic)
- 				mutex_unlock(&s1->self_group.mutex);
- 			else
- 				spin_unlock(&s1->self_group.lock);
-@@ -1512,18 +1546,25 @@ static int snd_pcm_action_nonatomic(const struct action_ops *ops,
- 				    struct snd_pcm_substream *substream,
- 				    snd_pcm_state_t state)
+-	if (vss->xfer_enabled) {
+-		struct snd_pcm_runtime *runtime = vss->substream->runtime;
+-
+-		runtime->delay = bytes_to_frames(runtime, latency_bytes);
++	/* A queued request can outlive the ALSA runtime after hw_free. */
++	vss->playback_latency_bytes = latency_bytes;
++	if (vss->prepared && !vss->preparing)
+ 		virtsnd_pcm_schedule_period_elapsed(vss);
+-	}
+ 	if (!vss->msg_count)
+ 		wake_up_all(&vss->msg_empty);
+ }
+diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+index 442169a51667..4a10cd3cc57c 100644
+--- a/sound/virtio/virtio_pcm_ops.c
++++ b/sound/virtio/virtio_pcm_ops.c
+@@ -770,6 +770,13 @@ static int virtsnd_pcm_prepare_locked(struct snd_pcm_substream *substream)
+ 		memset(&vss->pcm_indirect, 0, sizeof(vss->pcm_indirect));
+ 		vss->pcm_indirect.sw_buffer_size = vss->buffer_bytes;
+ 		vss->pcm_indirect.hw_buffer_size = vss->buffer_bytes;
++		if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK) {
++			/* Keep unobserved completions below one physical ring. */
++			vss->pcm_indirect.hw_queue_size = vss->buffer_bytes -
++				snd_pcm_lib_period_bytes(substream);
++			vss->playback_latency_bytes = 0;
++			substream->runtime->delay = 0;
++		}
+ 		if (vss->direction == SNDRV_PCM_STREAM_CAPTURE) {
+ 			vss->capture_boundary = substream->runtime->boundary;
+ 			rc = virtsnd_pcm_capture_refresh_mode_locked(vss,
+@@ -1200,7 +1207,8 @@ static int virtsnd_pcm_trigger_inner(struct snd_pcm_substream *substream,
+ 		}
+ 
+ 		if (running) {
+-			if (vss->direction == SNDRV_PCM_STREAM_CAPTURE)
++			if (vss->direction == SNDRV_PCM_STREAM_CAPTURE ||
++			    virtsnd_pcm_playback_progress_pending(vss))
+ 				virtsnd_pcm_schedule_period_elapsed(vss);
+ 			return 0;
+ 		}
+@@ -1222,7 +1230,8 @@ static int virtsnd_pcm_trigger_inner(struct snd_pcm_substream *substream,
+ 				return -ECANCELED;
+ 			vss->device_running = true;
+ 		}
+-		if (!rc && (vss->direction == SNDRV_PCM_STREAM_CAPTURE))
++		if (!rc && (vss->direction == SNDRV_PCM_STREAM_CAPTURE ||
++			    virtsnd_pcm_playback_progress_pending(vss)))
+ 			virtsnd_pcm_schedule_period_elapsed(vss);
+ 		return rc;
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+@@ -1272,7 +1281,8 @@ static int virtsnd_pcm_trigger_inner(struct snd_pcm_substream *substream,
+ 				virtsnd_pcm_trigger_failed(vss, epoch);
+ 			} else if (virtsnd_pcm_start_queue(vss, epoch)) {
+ 				virtsnd_pcm_trigger_failed(vss, epoch);
+-			} else if (vss->direction == SNDRV_PCM_STREAM_CAPTURE) {
++			} else if (vss->direction == SNDRV_PCM_STREAM_CAPTURE ||
++				   virtsnd_pcm_playback_progress_pending(vss)) {
+ 				virtsnd_pcm_schedule_period_elapsed(vss);
+ 			}
+ 		}
+@@ -1605,6 +1615,7 @@ virtsnd_pcm_pb_pointer(struct snd_pcm_substream *substream)
  {
-+	bool linked;
- 	int res;
+ 	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
++	snd_pcm_uframes_t position;
+ 	size_t hw_ptr;
+ 	bool paused_pointer = false;
+ 	bool defer_work = false;
+@@ -1622,6 +1633,7 @@ virtsnd_pcm_pb_pointer(struct snd_pcm_substream *substream)
+ 		}
+ 		if (!paused_pointer)
+ 			hw_ptr = vss->hw_ptr;
++		runtime->delay = bytes_to_frames(runtime, vss->playback_latency_bytes);
+ 	}
+ 	if (paused_pointer) {
+ 		if (defer_work)
+@@ -1629,8 +1641,11 @@ virtsnd_pcm_pb_pointer(struct snd_pcm_substream *substream)
+ 		return virtsnd_pcm_cached_pointer(runtime);
+ 	}
  
- 	/* Guarantee the group members won't change during non-atomic action */
- 	guard(rwsem_read)(&snd_pcm_link_rwsem);
--	res = snd_pcm_buffer_access_lock(substream->runtime);
-+	linked = snd_pcm_stream_linked(substream);
-+	if (linked)
-+		res = snd_pcm_group_buffer_access_lock(substream);
-+	else
-+		res = snd_pcm_buffer_access_lock(substream->runtime);
- 	if (res < 0)
- 		return res;
--	if (snd_pcm_stream_linked(substream))
-+	if (linked) {
- 		res = snd_pcm_action_group(ops, substream, state, false);
--	else
-+		snd_pcm_group_buffer_access_unlock(substream);
-+	} else {
- 		res = snd_pcm_action_single(ops, substream, state, false);
--	snd_pcm_buffer_access_unlock(substream->runtime);
-+		snd_pcm_buffer_access_unlock(substream->runtime);
-+	}
- 	return res;
+-	return snd_pcm_indirect_playback_pointer(substream,
+-		&vss->pcm_indirect, hw_ptr);
++	vss->playback_pointer_active = true;
++	position = snd_pcm_indirect_playback_pointer(substream,
++						     &vss->pcm_indirect, hw_ptr);
++	vss->playback_pointer_active = false;
++	return position;
  }
  
+ /* Caller holds vss->lock. */
+@@ -1745,9 +1760,9 @@ struct virtsnd_pcm_transfer {
+ /* Caller holds @vss->lock and the PCM stream lock. */
+ static int virtsnd_pcm_playback_ack_validate(struct virtio_pcm_substream *vss,
+ 					     struct snd_pcm_runtime *runtime,
+-					     const struct snd_pcm_indirect *rec)
++					     const struct snd_pcm_indirect *rec,
++					     snd_pcm_uframes_t appl_ptr)
+ {
+-	snd_pcm_uframes_t appl_ptr;
+ 	snd_pcm_uframes_t appl_diff;
+ 	snd_pcm_uframes_t signed_max;
+ 	snd_pcm_uframes_t back;
+@@ -1761,7 +1776,7 @@ static int virtsnd_pcm_playback_ack_validate(struct virtio_pcm_substream *vss,
+ 	unsigned int hw_queue_size;
+ 
+ 	if (!runtime->control || !runtime->boundary ||
+-	    runtime->control->appl_ptr >= runtime->boundary ||
++	    appl_ptr >= runtime->boundary ||
+ 	    rec->appl_ptr >= runtime->boundary)
+ 		return -EPIPE;
+ 
+@@ -1776,7 +1791,6 @@ static int virtsnd_pcm_playback_ack_validate(struct virtio_pcm_substream *vss,
+ 		return -EPIPE;
+ 
+ 	/* Match the indirect helper's appl_ptr boundary-wrap calculation. */
+-	appl_ptr = runtime->control->appl_ptr;
+ 	if (appl_ptr >= rec->appl_ptr) {
+ 		appl_diff = appl_ptr - rec->appl_ptr;
+ 	} else {
+@@ -1868,7 +1882,8 @@ static int virtsnd_pcm_ack_xrun_locked(struct virtio_pcm_substream *vss,
+ 	return -EPIPE;
+ }
+ 
+-static int virtsnd_pcm_pb_ack_locked(struct snd_pcm_substream *substream)
++static int virtsnd_pcm_pb_ack_locked(struct snd_pcm_substream *substream,
++				     snd_pcm_uframes_t appl_ptr)
+ {
+ 	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+@@ -1892,13 +1907,13 @@ static int virtsnd_pcm_pb_ack_locked(struct snd_pcm_substream *substream)
+ 				return -EBADFD;
+ 			transfer.indirect = vss->pcm_indirect;
+ 			rc = virtsnd_pcm_playback_ack_validate(vss, runtime,
+-							       &transfer.indirect);
++							       &transfer.indirect, appl_ptr);
+ 			if (rc == -EBADFD)
+ 				return -EBADFD;
+ 			if (!rc)
+-				rc = snd_pcm_indirect_playback_transfer(substream,
+-									&transfer.indirect,
+-									virtsnd_pcm_trans_copy);
++				rc = snd_pcm_indirect_playback_transfer_appl_ptr(
++					substream, &transfer.indirect,
++					virtsnd_pcm_trans_copy, appl_ptr);
+ 		}
+ 		if (!rc)
+ 			rc = transfer.error;
+@@ -1937,8 +1952,6 @@ static int virtsnd_pcm_ack_state(struct snd_pcm_substream *substream)
+ 	case SNDRV_PCM_STATE_RUNNING:
+ 	case SNDRV_PCM_STATE_PAUSED:
+ 	case SNDRV_PCM_STATE_DRAINING:
+-		if (atomic_read(&substream->runtime->buffer_accessing) < 0)
+-			return -EBADFD;
+ 		return 0;
+ 	default:
+ 		return -EBADFD;
+@@ -1949,6 +1962,8 @@ static int virtsnd_pcm_ack_state(struct snd_pcm_substream *substream)
+ static int virtsnd_pcm_pb_ack(struct snd_pcm_substream *substream)
+ {
+ 	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
++	struct snd_pcm_runtime *runtime = substream->runtime;
++	snd_pcm_uframes_t appl_ptr;
+ 	int rc;
+ 
+ 	if (vss->indirect_reset_observing)
+@@ -1956,7 +1971,21 @@ static int virtsnd_pcm_pb_ack(struct snd_pcm_substream *substream)
+ 	rc = virtsnd_pcm_ack_state(substream);
+ 	if (rc)
+ 		return rc;
+-	return virtsnd_pcm_pb_ack_locked(substream);
++	if (atomic_read(&runtime->buffer_accessing) < 0) {
++		if (!vss->playback_pointer_active)
++			return -EBADFD;
++		/*
++		 * Pointer accounting already consumed completed hardware bytes.
++		 * Refill committed data without admitting a new application
++		 * pointer while a buffer operation has closed ACK admission.
++		 */
++		appl_ptr = vss->pcm_indirect.appl_ptr;
++	} else if (runtime->control) {
++		appl_ptr = READ_ONCE(runtime->control->appl_ptr);
++	} else {
++		appl_ptr = 0;
++	}
++	return virtsnd_pcm_pb_ack_locked(substream, appl_ptr);
+ }
+ 
+ static int virtsnd_pcm_capture_ack(struct virtio_pcm_substream *vss,
+@@ -2087,6 +2116,8 @@ static int virtsnd_pcm_cp_ack(struct snd_pcm_substream *substream)
+ 	rc = virtsnd_pcm_ack_state(substream);
+ 	if (rc)
+ 		return rc;
++	if (atomic_read(&substream->runtime->buffer_accessing) < 0)
++		return -EBADFD;
+ 	return virtsnd_pcm_cp_ack_locked(substream);
+ }
+ 
+@@ -2229,6 +2260,8 @@ static int virtsnd_pcm_playback_reset(struct snd_pcm_substream *substream)
+ 		guard(spinlock)(&vss->lock);
+ 		if (vss->msg_count)
+ 			return -EBUSY;
++		vss->playback_latency_bytes = 0;
++		runtime->delay = 0;
+ 	}
+ 	vss->indirect_reset_observing = true;
+ 	rc = snd_pcm_lib_reset(substream);
 
 -- 
 Git-157)
