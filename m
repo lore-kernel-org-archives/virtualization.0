@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794562692;
-	b=LEwi84DsRnUQtHXvb1ImPcenmoSbaxF7T+GJC9/yFKxGC+534dSYjxx00pG/YwpdONTS
-	 oNNMrq8rzJZHNzgOBGGLzcbadYbuJzK03c5502Jq5D3cs7IE4YHJFm9a20naM+QUU/8d+
-	 8w7WXk0HUcgj69gZEF5QOSWue/kvkvpt5ls1t1nAgxqTc4YwSvoqZw44txdS9taKwpY0s
-	 3Eu7t1/YbM+nQ5e+X11ykdsKq06Kl6IR50rkYb9Kgo4kUct6n1hS4qcJIl0MoWLy14N8f
-	 FKLS1fcybnDrbo/nNBtX5C2YJ4JC1wDCjphL19HxWXjRJu6owAxFOyjxikzlWRIvk8A==
+	t=1794563107;
+	b=Vb1bJznSNMy23gjYKUHYLdPMVQrbFmoV/0VwqONBo9fK7LI/BGaOar2FKS4dTyarhHk7
+	 X1mtV335IZOUgBAFC1a4z9XNlT3K1/2a/znWFyNM83kSz+tK0Mjwb7sAlgmj+Y3boU13U
+	 X90p/xYBlrWxnCFFQOAe9mr2qz/ertSthMfnum4tAxZ1hICOMq/cSV6B0pNaLzTsuYpB4
+	 I0RKBCjHkjj14ezm38ij5MLX+gg/gXoZ+mW/qx08vQzg10kI9liyVSlhUBxCI4ed2v/OB
+	 0t8zgZDbA2hVPCom4hjfywtnyZjiI0BiLa/oivmhREmpvhVsP7H/RXCwpdiNBsGIK3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794562692;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794563107;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=G2A9VfIkpTA3vBXHcvkDA1NIGlcbL9GvGE3RD1cEAUE=;
-	b=l01u9tHsk+3PCCABFAb/VduF3iMVHqLt/3yzfXhDHlfhwa6Ts4hSPYVPeikn3Z0IrSJ9
-	 ta73gMnuL88iUKWx4g5oh1Z414xQWJPy8Ih8bSjyaM7zVlICkfT8nXwdTn+jUd4GZGqHo
-	 NRjb2UoVJZ+WTML15+bVbbiQwtcVja2YDbLtshOKTOQOBdRAlEonCpX0HHUc53UnyH7Iu
-	 8F/Su5/d54wBmSGB/cYoJgQo+Nxqh6Z8tYQs7MmdQFJ7Jk4Ftdkw/wOX5VP6s8Rs30MXR
-	 +RCQBxNEvMyUYGSQVmQ7G1wuTMD51Ci4fp09AXP89sxq+CxeyWKdZtc6P/fPPKTwFbw==
+	bh=ahDTFNVKG+/XZfabY3ikUhmZ6rXxM2stpRTcz5GfjrI=;
+	b=BJuayLLf3D3ha8Vf0XG27htB561n2XTvp2jBEbVEYvePX+EG+bMEjftAOlJmIuluQ+r/
+	 BgpMNcfr48UL/rKVCAipcyiFZMy3MQZaVktyHhMQgqVBf7O1Rh5f5HfyLfG9Q1WxV7f5V
+	 LcfBztHpl3EdCBVq6HdBcsznU/K1s6mcgZLKX6mBsauwVJzpKgSSIcw9ycwBa3lLQSo+n
+	 sXXn60s6lni6u3DRMmazCuDWd7zUgZyH1h6GdT6xHrQ6grSx8GvYhcDpjsvsoqJI1trK9
+	 zK7UX5Hb2qv6jyn6UhZOztE4SosSh5gglUaYGaVcWXLLS0zybnqlLa4Rcrn3AdlAfVg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lizcBnZv;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JH4BkEQZ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB815606A31C
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 09:38:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D62F606A31C
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 09:45:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lizcBnZv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 061C81F000C4;
-	Fri, 13 Nov 2026 09:38:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JH4BkEQZ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2001F000C4;
+	Fri, 13 Nov 2026 09:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794562692;
-	bh=G2A9VfIkpTA3vBXHcvkDA1NIGlcbL9GvGE3RD1cEAUE=;
+	s=k20260515; t=1794563106;
+	bh=ahDTFNVKG+/XZfabY3ikUhmZ6rXxM2stpRTcz5GfjrI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lizcBnZvOpV1sbkdVjdG1iNqVbUASawaNd05UPANvq+D6Spzm+SX0TsG85Fg1rlk0
-	 Xwbr8Mg8HDvNqrwqSOhtZX9gNbgE9xX2OL47p3+PFtMfo99wATiZe99YMoCTqYcQSs
-	 yuGyIxzz7hHs5SOtfIvgXXNfPhfDNDy229t7k794/zVLSUCSgofXSvkpBQDNb7yCc6
-	 yZX2L+YBBTK7wjMxTMMXsvN0A+oRhoWgV44xeVYa7rYDGRiejD7zkImFo4viyklCQ6
-	 x6KlPgaoNpmOt3b94oKxHtsFyklsnlKbbCP/xreMCHi+Yd1QeyB+iPD8PTAnn380Qj
-	 boMDXRmsn/l8w==
-Message-ID: <sashiko-outbox-212559@kernel.org>
+	b=JH4BkEQZZ6RF75JZz4yVJ2D/0x/S3RiHa8VGHGeOiOrOrt/5G4TLcgVGx/Tarb2Z4
+	 NzT3VcXV2xpLxfDwNhKNx0jtfPzriaOghPFAtaQjifywxtTUP2orl69Jeq2I39NCGq
+	 7TgKr2dqICDq/BUcweWg5qX8lssBxbhZ0hLiRBrYM7b4MAPBXzI+xK70+8ec451PnA
+	 o2NIfL21PuzTyw/m5OQ7k5dTZMmrdvHSjs68WCni5EmjxEIAfHc6MCT2aNRq2yHUvR
+	 uqpzws8R5E8kWBiFG2i0h20iIwMeURsuNr1d14A0D8bCPtk2h539WVwnF7gSlDQSzh
+	 H/IjwMqDJ8i7g==
+Message-ID: <sashiko-outbox-212562@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v33 11/18] ALSA: virtio: wait through signals for PCM
- teardown
+Subject: Re: [PATCH v33 15/18] ALSA: virtio: reject invalid playback
+ completions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v33-11-13a934ad5ece@gmail.com>
+In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v33-15-13a934ad5ece@gmail.com>
 References: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
- <20261113-fix-virtio-snd-recovery-final-v33-11-13a934ad5ece@gmail.com>
+ <20261113-fix-virtio-snd-recovery-final-v33-15-13a934ad5ece@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 09:38:11 +0000
+Date: Fri, 13 Nov 2026 09:45:05 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,18 +64,13 @@ Precedence: list
 
 > From: Joonho Lee <mynameisjune111@gmail.com>
 >=20
-> A signal can end the interruptible wait while a STOP or RELEASE request
-> is still pending. A later teardown may then submit another RELEASE
-> before the first request completes.
+> A TX completion currently advances the hardware position even when the
+> used length is malformed or the device reports an error. Validate the
+> fixed status response before publishing progress. Retire the request
+> once, latch XRUN and schedule error delivery while preparation is
+> active. Keep malformed or failed transfers out of successful playback
+> byte accounting.
 >=20
-> Keep both waits non-interruptible and use the existing message timeout.
-> Other control requests remain interruptible. Device reset still cancels
-> the pending request and wakes the waiter.
->=20
-> Keep timeout and wait results in the types returned by the kernel wait
-> APIs.
->=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -83,5 +78,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-fix-virtio=
--snd-recovery-final-v33-0-13a934ad5ece@gmail.com?part=3D11
+-snd-recovery-final-v33-0-13a934ad5ece@gmail.com?part=3D15
 
