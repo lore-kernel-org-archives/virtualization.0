@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794568823;
-	b=r8pBJ8+ldHXLMQJgkZBmA9pa5YbfJ3Ap3itnL17WW519U1yB0s+IkftwTVPMqQ6UV5mj
-	 iJCbP7x+2KIuByY4xCOS4qlLE/6C+aoQR9f8TgQ3ZoHE8eK8GxAazzx3WdgsIUKBUz0h1
-	 8MeC9XrIRCZU3te5xl85AiMbFGNVHOad7284EZFDQxVKXKM507emTyhpJbi15kJWil06f
-	 gljaCebwU046W/0FhpRKKggqA5BlLUA6J1UIfELX/WoCvaL9tFxYpUgq0uGO/EW861Bjt
-	 afNPoMfCUWsljabxlWZTSUZBIlvWjC8P6rLN1eCZ5O/fZVf+huFVh1SiCvOEJ6I2l6w==
+	t=1794568824;
+	b=IVDRw+51bi5H7aOA7sITzDwm3OSN/mBSfcgaJXgbvcvU1+2SEnf0Dp3Hb/+68K8pY9TV
+	 aLuWhXaoMT4hgdIqTw34MdzePljg2NrLoXPqwt1AqLM19goRWOaScF2rtxkgfBsNv/oyq
+	 zHqsVd/Lq2/1ByYNyoygGd6He3dJHEmplEPGjMMl1cqJ5jXXWo7rwpehFxk5cqPehcEul
+	 99z27TTH4uXHB8X+HWxmT0fIwzQb4dcw92vTBgPM9FaRN7XqBcv84T7FVS0rbI0jIB1id
+	 /+2IH9lguQ8uBsfrF6OTlu7ha8vbx+AHYttVP0oH3e1IYRJUS8U5MGK1p9D0Acdn/CA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794568823;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794568824;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=f7uqArV1jAtpFrD+qGNcFGks6nXlP6uwZeIFZyLm7/M=;
-	b=qaCRGem6/Fm/eDud+n0odzTy8H4WWskMJTKYrYV9jOR/96ijQsiS48yt6x5Qob8IImw7
-	 bG5GIKPizC0+xUkr1n76YBN0tjVSmJ5VSgy14FPNW0lKijhil1VY7QRFIpG4xGap9m18C
-	 y+SFfsFu9E0VhVQYwrRBXdULzVwPOL64wBNTIjY6bdfOwpY5yYUT0fWnjRVi6cQ/sHZ6N
-	 eGpZmukuYm4SOwgm+nI/ExEGPWeywK/gh3/a00zOFuGkaedlfp/FqtnqWOl3c1C0gHcT7
-	 foq3dJHtci2YQ9zBGh7Lp2tNs9sWQsYxh/gXG3Sqk6TDIYUZTu7Yj3ZLLMrscMi8pbg==
+	bh=iUFbI11wC2KOtmlESotdWcI3HHUETaLZWtdGOB1UdBw=;
+	b=4jYnd4eddPNiGx3HvyzmkP+399D3uLH/YjwEacQ92p4b0PMd+U0n30cSSvqPGSzwawss
+	 cHsilwx0C4EFmq0i7Jwub0vM9Z3wgtJ1JGAwguUADtrZCI0UZCH6b+w3iGqZfmM3w7pDJ
+	 6zauFN7sNT8SwCj2Jes59J+OPaujaxpe31/tw/5MHDKKY3rUFCeDP7zpnBo+MjQP9338T
+	 rbJ0Swnz3h50TKc2aGdUL3sU8mBI7ueKhnrN4Tj6U1wR3v25A76YD/8iEaWmq/unV9g7M
+	 qJJFo2GZZoDTaQ89AEPcv9+Tl2Xl9aIPBUaK2uu7QEifPmlH0OTFMm+nwI5+ErtJIGA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IYtLe9Ox;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bdD+0JLH;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6C1606A333;
-	Fri, 13 Nov 2026 11:20:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6805606A33B
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 11:20:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IYtLe9Ox
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 478BC1F000CA;
-	Fri, 13 Nov 2026 11:20:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bdD+0JLH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2070D1F000C5;
+	Fri, 13 Nov 2026 11:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794568823;
-	bh=f7uqArV1jAtpFrD+qGNcFGks6nXlP6uwZeIFZyLm7/M=;
+	s=k20260515; t=1794568824;
+	bh=iUFbI11wC2KOtmlESotdWcI3HHUETaLZWtdGOB1UdBw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IYtLe9Oxec6Sw6lgS9yWWd39yeq0AH320nbnEmOrPwT7fMmpsqT9J9/WO5rKgBpwv
-	 zuAo5DxfWz9aQ9RKmjd1aguwCkZpTacUQL9kISDMnaEXv+nDigU0I4qOwUge74WW+u
-	 p11I6Yg82iwjIeR8UqVlIRlBMwY76I3V6MI/KCkW0WMXCtCtyfH6C0QqoWuZIP0NvD
-	 b6fB3aRToDDa8l/+lpnwg4LdlZyPJXlkW3NOxCL9919UMNOagmWlrMIB40CiKkNWQt
-	 yRuKuyQxkSGJ5zwdxu8AMroq/wvPogaqi2hfbfqY/V0TQ9qcREqeaz4qoxywoRtxQN
-	 uXs4qLqVEgFaw==
-Message-ID: <sashiko-outbox-212702@kernel.org>
+	b=bdD+0JLHDkrhQVNniLZlybPwC0KAWIbLNIA+AfELIC6+LR5uiafe0I4nRnzCszSbG
+	 gY0uHbEWfyFkqOgBEMtYzseEzhBdWIOLXLiPqyInNlDFTnMUFmGxSrjTSDNYTCcOXN
+	 HQ5Ukfl0/V8cWmMgHQyz5O2zHjbzlL5OtS0lctxPmZekRc0mdg8L/HxtPs8nAJQh5+
+	 4NeqBI7YwEoKMgXB1JzHeSsn1t/oOFxn76xnwqIrjhzeKVzQNEQiFnt8gRliAgIPYV
+	 pF46AWbc/OMx49leEYFRFRqoTntPvJRgW0Lwpx1sQ38g4iEF56/ma3O8YMPKJjEvix
+	 R/bxAxjFVGXXA==
+Message-ID: <sashiko-outbox-212703@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v5 2/9] virtio-net: zero the whole tx header
+Subject: Re: [PATCH net-next v5 3/9] virtio-net: copy the XDP rx hash before
+ the program runs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Trumtrar" <s.trumtrar@pengutronix.de>
-Cc: virtualization@lists.linux.dev, bpf@vger.kernel.org, kvm@vger.kernel.org, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-2-7ab67b572f4f@pengutronix.de>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-3-7ab67b572f4f@pengutronix.de>
 References: <20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de>
- <20261112-v6-7-topic-virtio-net-ptp-v5-2-7ab67b572f4f@pengutronix.de>
+ <20261112-v6-7-topic-virtio-net-ptp-v5-3-7ab67b572f4f@pengutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 11:20:22 +0000
+Date: Fri, 13 Nov 2026 11:20:23 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,73 +62,27 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [Critical] virtio_net: uninitialized skb->cb read in
-  virtnet_receive_done() [1]
---
+> virtnet_xdp_rx_hash() reads the hash from the vnet header at
+> xdp->data - vi->hdr_len when the XDP program calls
+> bpf_xdp_metadata_rx_hash(). That is only the header until the program
+> changes the buffer: bpf_xdp_adjust_meta() writes the metadata right in
+> front of xdp->data, over the header, and bpf_xdp_adjust_head() moves
+> xdp->data, so the callback then reads metadata or packet bytes.
+>=20
+> Wrap struct xdp_buff in struct virtnet_xdp_buff, copy hash value and
+> report type into it in virtnet_xdp_handler() before
+> bpf_prog_run_xdp(), and let the callback read the copy. The small and
+> mergeable paths put the wrapper on the stack; for AF_XDP the fields are
+> in the cb of struct xdp_buff_xsk, checked with XSK_CHECK_PRIV_TYPE().
+>=20
+> Move virtio_net_hash_value() up so the copy can use it.
+>=20
+> Fixes: aa37f8916d20 ("virtio_net: Support RX hash XDP hint")
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
-commit 539d0b476e95c38e08289348fc9e76ffb578e50d
-Author: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-
-virtio-net: zero the whole tx header
-
-This commit zeroes the entire negotiated virtio-net transmit header in
-xmit_skb() before populating it so that uninitialized skb->cb or headroom
-bytes are not sent to the device.
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index dd2c41ef6fbe7..4c740b403ad1e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3326,14 +3326,16 @@ static int xmit_skb(struct send_queue *sq, struct=
- sk_buff *skb, bool orphan)
->  	else
->  		hdr =3D &skb_vnet_common_hdr(skb)->tnl_hdr;
-> =20
-> +	/* Fields the helper below does not fill in must not carry stale
-> +	 * skb->cb or headroom bytes to the device.
-> +	 */
-> +	memset(hdr, 0, hdr_len);
-> +
->  	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
->  					virtio_is_little_endian(vi->vdev), 0,
->  					false, feature_hdrlen))
->  		return -EPROTO;
-> =20
-> -	if (vi->mergeable_rx_bufs)
-> -		hdr->hash_hdr.hdr.num_buffers =3D 0;
-> -
-
-[Severity: Critical]
-This problem wasn't introduced by this patch, but can virtnet_receive_done()
-read uninitialized skb->cb fields [1] when an XDP program returns
-XDP_PASS?
-
-In receive_small_xdp() and receive_mergeable_xdp(), the skb constructed on
-XDP_PASS via virtnet_build_skb() or build_skb_from_xdp_buff() does not copy
-or zero the virtio-net header in skb_vnet_common_hdr(skb).  When
-receive_buf() passes that skb to virtnet_receive_done(), only hdr->hdr.flags
-is written before the rest of hdr is read:
-
-drivers/net/virtio_net.c:virtnet_receive_done() {
-	...
-	hdr =3D skb_vnet_common_hdr(skb);
-	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
-		virtio_skb_set_hash(&hdr->hash_v1_hdr, skb);
-
-	hdr->hdr.flags =3D flags;
-	if (virtio_net_handle_csum_offload(skb, &hdr->hdr, vi->rx_tnl_csum)) {
-	...
-}
-
-virtio_net_handle_csum_offload() and virtio_skb_set_hash() then evaluate
-garbage csum_start, csum_offset, gso_type, and hash metadata from skb->cb,
-causing corrupted checksums, unexpected packet drops, or bogus skb state.
-
-[1] https://sashiko.dev/#/bug/linux-89f94565-4be5-4c5d-b3a1-d88fa369641f
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112-v6-7-topic=
--virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de?part=3D2
+-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de?part=3D3
+
