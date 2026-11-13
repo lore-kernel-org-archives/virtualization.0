@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794575791;
-	b=37GwNYZ5v2GOqlJT+pMNJ/RykBvAD+Vp9NwdLBcJeauNpqvr7YB4KrRTYfB3YPGZe5io
-	 DeRsv1g2f6Ai088wkLeAyJ3nJLwahqC8NnZBes7te38ACs+8lsWS7LZomd0DmohOiXo8X
-	 czM9H0Cg6cnHzH7/3yrtEl5I7vW8PsiM4UNP6Q2J0VoTDlGQwbWiUznwdaOldK5+n+wi+
-	 oTqxw7b5eFPwdjnWUj/ZthZNY97OOcRl7VkHxUMtR1pFW1W7hkGoH3yGtPOmA47OpjxNr
-	 e/y/apV9pjvnglCLuMQ3BQf3/og61B+vPAH5elhqT+L9EX/iLsJNc8AXdzSbK/Tgslw==
+	t=1794575832;
+	b=0O3P+6JAu1W58x0h79OitgfAOy7WbR+SOyR6tHh996DhzltPJ6nidysdinyLKNJMNbKX
+	 VShKu3TydTc/v+WT7QX7xX0TWKVspPpFPvzT6MW3Fq2NiOvSp/52kVhb2n8TM6ocS36ei
+	 T29Fg4a79A7oMdq4HM46Fc7KcHbiTlqJ6eMHbKwHQPDd2bA6NUiyCHO9DDAUlUdD+QwCR
+	 9+eNceIgnR2pYRD2kr5aUa/QK/NpuYYMndAskSqtSIKTN39CIxZYSWBa5UPNDCqgAENqe
+	 NxtyL0xAFE9sDuGD2QrXU6vKETxtYGp3ikuO4OblE76S7D3NsyZ62VcaxjrV842bnyA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794575791;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794575832;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=7aZNxOxcQqrGgO5UAug7Qq7a1qj7S85UZdKHVvsNMco=;
-	b=Bkngbr2LKluOrMbAssb8zjPcHaxnrGfJMJRVxQn2sFlvW7EYQN67DuUGi/v3tEd6XK+7
-	 efThPgspY0PGpL7fB6iQ4tQYhQWVqF22KG6ojrWY0W0APtFdjMJB2XqeQKRviqpfr4Djp
-	 vbKnc0FugykLYbdr9PCEDpwB7bizgx+XAop8pSGDNHElFe/q+g0Ouou9WevielnjVf/Xw
-	 dLU8XOqLxA5hYFNRj2ESvXkXOkfuzzKiZ7CZS1NfHLFeWEATNndTVufQn5MYrljHORzmz
-	 /YjzS5lokegB0Sn8nF12klfP1CfctFv25X+zw6NXKWJkilYs7XBZ2mhMF+fBpxzxgew==
+	bh=1yxq1E5qiydxNJ9IyMJnY4p2sP60jCTVvX506ZHTMTg=;
+	b=N1jg6jtpnLjpLz63Bv1swYGmc/cTUJAbHxbdQO635VFZAvc9wlWlHA3+VHp/Vpf8BiP0
+	 /v8fpY4x777NYXDPykSF0sAlTJvOpfFUKAS7lbUexHTH1gaMeAnyPb7P/SEqw0wXr/IVn
+	 C7mYH3HYJ7N/v2huLt0J8WKXTma1iBiYW5WKu8zYH8+xnMuMeDKmrixS2imvL76AGAmIo
+	 5qQeFTJiE8+fZSeUA7tH96afH/sjf+927RGjzJWp0kjz+mBxipSsHRltl1VMl3H7TB69L
+	 ijOc6xmvsbN4iEppwAVUghqEsezC5e6WPW2QuMwDmaJmdMvCya7uBRRsawxZ03MpzoQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=itg7EXYI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="CQkMHvt/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9CD8606A327
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 13:16:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF7A2606A323
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 13:17:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=itg7EXYI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F001F000C4;
-	Fri, 13 Nov 2026 13:16:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CQkMHvt/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1936B1F000C4;
+	Fri, 13 Nov 2026 13:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794575791;
-	bh=7aZNxOxcQqrGgO5UAug7Qq7a1qj7S85UZdKHVvsNMco=;
+	s=k20260515; t=1794575832;
+	bh=1yxq1E5qiydxNJ9IyMJnY4p2sP60jCTVvX506ZHTMTg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=itg7EXYIRF5GKXB4KLGyAPxAI4bVt+URPKtTclvPZkxuPMOcAB+DksPzWbK3s0l0g
-	 LGUeIpJ0HptVNZnrcaXoVJofa2P53ghcDSWQpusyaiea7MPU5I7ExgxaZu9fHPlvwn
-	 F0UDNpZbg8o4Q0WQsi5RnT2SKsVcE+NBP6Sc/xlC8YDDYFPoPs1M/n2z++SxGssj/x
-	 bwbAdSQxuTGL8R4Wz3pr7RUKxQslhAi226jcPvpkSlPMXQyQAoOo9sepwl/IOA2jd0
-	 g3uPI9PPhFyzcdrAu8j5MLjEceMDUo/7hpfjvWQb79+jY564ugzWvmwl5SJqxphlgy
-	 TWwlyrohPVeeg==
-Message-ID: <sashiko-outbox-212835@kernel.org>
+	b=CQkMHvt/1f473FMb7jG+7w+OpNCFaAwUF6i/dsocaMFu/2yj9qH5YiutVd6zsJgIA
+	 55sa3EzlvEPM02WzP6SXiEH+gR3tVM6f7kDcIQlv4fgWKTjpezKKsdm9B9DKRahAy5
+	 bBK59yPTdVLCEuoSVxZAuGOBPz+2E0rRphc6gTtuELF3d2tpUM/XsVEQK+bvZ3/Aoe
+	 03hdPHwmnn7j3ULQRPBXRJSxBQmMHCnqSDyFwaIR3YkLOxAtT+WrZz9vvcMRY55Qc5
+	 rCpXcfHU+nLMHlc1PlqqUBcDtOcWT9EaAgptTEXPgbWH49pnrt5grAVjyE+qipGHua
+	 nn1ZxDCUqVgVA==
+Message-ID: <sashiko-outbox-212836@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v2 3/8] vsock/virtio: implement the datagram data
- path
+Subject: Re: [PATCH RFC v2 5/8] vhost/vsock: negotiate datagram support with
+ guests
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sergio Lopez" <slp@redhat.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261113-vsock-dgram-support-v2-3-bacfc85b71ce@redhat.com>
+In-Reply-To: <20261113-vsock-dgram-support-v2-5-bacfc85b71ce@redhat.com>
 References: <20261113-vsock-dgram-support-v2-0-bacfc85b71ce@redhat.com>
- <20261113-vsock-dgram-support-v2-3-bacfc85b71ce@redhat.com>
+ <20261113-vsock-dgram-support-v2-5-bacfc85b71ce@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 13:16:30 +0000
+Date: Fri, 13 Nov 2026 13:17:11 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,27 +62,19 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Add the datagram feature bit and packet type, and implement the common
-> virtio transport operations needed to bind, send, and receive
-> datagrams.
+> Expose VIRTIO_VSOCK_F_DGRAM in the vhost feature bitmap and retain the
+> negotiated value for each guest.  Keep datagrams disabled until the
+> feature is negotiated.
 >=20
-> Send each message as an OP_RW packet with a maximum 64 KiB payload,
-> including support for empty messages. Bound pending sends by the
-> socket send buffer instead of connection-oriented peer credits. Use
-> the socket's skb memory charge for datagram SIOCOUTQ, including empty
-> messages, and release it through the normal skb ownership lifetime on
-> completion, rejection, or queued drops.
+> Use a vhost-specific datagram destination check to look up the guest
+> in the socket's network namespace and require its negotiated datagram
+> feature. The common virtio implementation supplies the bind and
+> message operations; destination validation remains in connect() and
+> sendmsg(), where the remote CID is available.
 >=20
-> Deliver incoming datagrams through the datagram bound-socket lookup
-> without entering the connection state machine. Connection-oriented
-> receive lookup excludes datagram sockets, so each class can use the
-> same destination CID and port. Validate the transport and connected
-> peer under the socket lock, including after shutdown, and silently
-> discard undeliverable messages. Use the socket datagram queue for
-> recvmsg(), including source addresses, peeking, and truncation
-> reporting based on the payload length after socket filtering. Reject
-> MSG_OOB and MSG_ERRQUEUE before accessing the receive queue. Reject
-> datagram sockmap admission until its receive callbacks support it.
+> Reject guest datagrams on ingress unless the receiving virtqueue
+> acknowledged the feature. Complete rejected descriptors normally so the
+> queue can continue processing subsequent traffic.
 >=20
 > Signed-off-by: Sergio Lopez <slp@redhat.com>
 
@@ -90,5 +82,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-vsock-dgra=
-m-support-v2-0-bacfc85b71ce@redhat.com?part=3D3
+m-support-v2-0-bacfc85b71ce@redhat.com?part=3D5
 
