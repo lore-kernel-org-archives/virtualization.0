@@ -1,62 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.10.208.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.226.149.38
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794583186;
-	b=gdMjRWURu9et0CHtkzn3jKXStxCXUuMHuU0nPB4qQpDKLMzPP7qiRsg9w6Ps3w3N07s5
-	 B6cwn+G5XN3nMseoK58pxvoIv+tYzLR/FZPBlKxmjX5BbQoLawP3LvDZGETaQ/DLc9Za/
-	 PUKtXqBRGOh4lUQZtcDYIUDpED7L/2lT4HwICC5wMwPokzeoZ46WqBtq/Z8T1O5eOQEQV
-	 2lry4LnFKHt6qy0H4wRa/O8qP8bN2EbpgbR+PJapHIrWrVKYmzVvyTWI/udS3i8dOCWSo
-	 sTchRyLTtfGqIn1bEed7gXnAGtsegW4VFBgp8iA8yrZ56YL3eo7s14VL6WgOhISqs0Q==
+	t=1794584974;
+	b=w5HyJcxyYtrkjb22ZHFLQErWPFOhK0IECMmExADURTKc9ivVcflGyRwdpHO7XpjScQdj
+	 Y2zUH79+qNriTptObjImL/lqVSwG3HNLIwfR/QMzpSvBpEe7KdYbi4YIp9tJz9e0luPUa
+	 DIoTsv6NT33qoN4yDeKEU9HUwZNBrALrLiLITDZnClVUjBDgDt47BJixOmVUMLTXaZOBO
+	 zgFyjZIshJvr9qRoeQeIwRzN7EyQd/d5+aJDVkXMGVkdxPKNB6u9F6vA7VRKz7KGBi+SW
+	 ZVNttcNGaG+mWqefwq37r0SYEFVMWyHKuBnVLV9boezrm+I7s15c7FlSLbkV9E8w7ow==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794583186;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:
-	 Organization:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 X-Rspamd-Queue-Id;
-	bh=juFDnmO5EDRtsSCXIUiqwlHbuc6Wxn7oOfpk1FDCS/0=;
-	b=FQaL7DN2qcIzy3zbVj1j2QQrE6FuAjzXSM/3s4K5HbiNO6w6qW+Opr/rlCzv6g32T9bW
-	 JaSogm+mkPbribj9TvtDF9qWeqUzFaoizgCZYErNCY+GXCP+CzA7oLYckuJn6PG9Uf0AP
-	 LgW1xJAS3hmKIGO4EfjbulHl/FvERBbrnzjJ3LhgDLZb8/z1wE+GitO7nq3JPURsB8Dr+
-	 Ko+GzWVMTFTvnKmwgBhF9lWDXXyMzCHfXytaNG1awPu38r55Itka+Q/c6UXde2j0CDC4s
-	 VEGeHGOslVCfbg/RBlYMI6jIjicOp3iZAMIk+okTU+VA0TRcorxAlOdy1jZSa8HTlWw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794584974;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:From:Subject:To:Cc:References:
+	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=mzDsiiojiL4mTOXt/Vv/wvxDj7rKGKQvTT/mc7baEn0=;
+	b=TjCLgNN06f2dn5Amvo02EBX/0Kw+pOva/P187DUgqBJlhEXRnYMHPLgYoo0WWEFHWB9I
+	 sYIGwO9y8+/yM5et/dTmgnZBRAZkbO36jMyWOWAf/i47l+TIGcqRCGwaBo0mvwKpK7Lf9
+	 1cK/YRB9jFqMhRuXPGF3Q80LxjUXbWy/Wsl2w3k49Qgj6kP+y83U8KfWkpPInW7B6JdCY
+	 yMKGpNT5ahHBeJBk+gZ/DdDUNmpkKwyYf6x0JTZ3+0+TXMH6ID+uh98yNdLtwnZre2Q+q
+	 Oy2tB+FjPVbuggDNzkyUbCmZD31Yn0+pwczVxiYYEgHwDphNN6GytRHJTmYpIwp7iTg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=mandelbit.com;
-	spf=pass smtp.mailfrom=mandelbit.com;
-	dkim=pass header.d=mandelbit.com header.i=@mandelbit.com header.a=rsa-sha256 header.s=MBO0001 header.b=rK7OT7NJ;
-	arc=none smtp.remote-ip=195.10.208.46
-Received: from mout-b-106.mailbox.org (mout-b-106.mailbox.org [195.10.208.46])
+	dmarc=pass header.from=rbox.co;
+	spf=pass smtp.mailfrom=rbox.co;
+	dkim=pass header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=mgRZV9rX;
+	arc=none smtp.remote-ip=185.226.149.38
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A0B9606A32E
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 15:19:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0A0B9606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mandelbit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mandelbit.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37D1B606A327;
+	Fri, 13 Nov 2026 15:49:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 37D1B606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=mandelbit.com header.i=@mandelbit.com header.a=rsa-sha256 header.s=MBO0001 header.b=rK7OT7NJ
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:b231:465::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-b-106.mailbox.org (Postfix) with ESMTPS id 4jR1Bv2VW0zNls7;
-	Fri, 13 Nov 2026 16:19:35 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandelbit.com;
-	s=MBO0001; t=1794583175;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=juFDnmO5EDRtsSCXIUiqwlHbuc6Wxn7oOfpk1FDCS/0=;
-	b=rK7OT7NJBGMGnT65DfgAikqlPWKvwgStjKE6a9/DJJ2z2QZf0EFYeOsoERKR26t7ZtNIf5
-	h5lxgs4bytdcFtqLDqN72nRKWLN0yUIMdVQQoNIU/qJiFUcd/d7/01kb4t1JlhXoiveCNl
-	0KcVayUcQYK4WO/RY8s1dF1EokmufpGPFcelcoB/tZheZ8hA4ASi7u4RssehtoOPbH0gh+
-	B61CwCKURSlaPR5Wedd41nsgD5AlFwinINU7viB6zA6yKXYuh7fwy5QKIcDXfH/RIyybmP
-	+fNK+cJzNMr0OCagPFxl4uTYNmAeJZNg3tqtro59m+UjMaF+vMaoGnrTH2fZWA==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=none;
-	spf=pass (outgoing_mbo_mout: domain of antonio@mandelbit.com designates 2001:67c:2050:b231:465::2 as permitted sender) smtp.mailfrom=antonio@mandelbit.com
-Message-ID: <9afd9031-9a66-4c13-b1a2-e1da62ef5e69@mandelbit.com>
-Date: Fri, 13 Nov 2026 16:19:32 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=mgRZV9rX
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1xRtWs-008Tir-Ic; Fri, 13 Nov 2026 16:49:30 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=mzDsiiojiL4mTOXt/Vv/wvxDj7rKGKQvTT/mc7baEn0=; b=mgRZV9rXzB2J0fYuHh7DZs2H6s
+	lSWUEO7wSTWvrW4gDWtt4Ms1XKThMoKzRfm/ElfCh3bl9QSmSaWBtPP4Eu0vA4tyyp/zDFLAN9q+k
+	mLTqtPBGrNGtqFCpgAtcBMiH+B5wfBKR7PWhcJwAykGOntZc+yttVToJAPGyBgty2eyyI4V6NFOEJ
+	rwM9Ojhf7fTJroiSBg+IkkY+bmVa3MQVfvNqnOQJYHAoT6EV8WogVFyOhYeKxibkl4DPBiJzBNrrW
+	yrSlODVfTePQ7q7LJjVv3Ov/cj9/EKNrd+iRWYSReFdl3dxTGHwr2oxvW5eu0DIZObq8OglNoqZFO
+	oMq3aGIQ==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1xRtWs-0004Ct-1U; Fri, 13 Nov 2026 16:49:30 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.95)
+	id 1xRtWq-009Xqv-6J;
+	Fri, 13 Nov 2026 16:49:28 +0100
+Message-ID: <75c6fec6-7323-494a-9bd2-905e9dc52f5e@rbox.co>
+Date: Fri, 13 Nov 2026 16:49:25 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -67,63 +67,33 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v5 2/2] selftests: net: add a vhost-net test for the
- tun NAPI queue bound
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, jasowangio@gmail.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
- eperezma@redhat.com, shuah@kernel.org, ast@kernel.org, daniel@iogearbox.net,
- hawk@kernel.org, john.fastabend@gmail.com, sdf@fomichev.me,
- maheshb@google.com, peterpenkov96@gmail.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20261111014208.1795777-1-antonio@mandelbit.com>
- <20261111014208.1795777-3-antonio@mandelbit.com>
- <willemdebruijn.kernel.1220f3b31f685@gmail.com>
- <73aa2f53-e2ba-42b7-9712-06e223459144@mandelbit.com>
- <willemdebruijn.kernel.14b320acee076@gmail.com>
-Content-Language: en-US
-From: Antonio Quartulli <antonio@mandelbit.com>
-Organization: Mandelbit SRL
-In-Reply-To: <willemdebruijn.kernel.14b320acee076@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH net] vhost/vsock: Fix socket state constant
+To: sashiko-reviews@lists.linux.dev
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eugenio Perez <eperezma@redhat.com>
+References: <20261112-transport-reset-state-fix-v1-1-5698375f52a9@rbox.co>
+ <sashiko-outbox-212625@kernel.org>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <sashiko-outbox-212625@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: 4jR1Bv2VW0zNls7
 
-On 13/11/2026 16:07, Willem de Bruijn wrote:
->>> That's a lot of code for a fairly narrow test.
->>>
->>> Not that long ago I would have applauded all test coverage we can get.
->>> But now that LLMs generate them instantly, not sure where to draw the
->>> line.
->>
->> Well, the test has already done its job because it immediately helped me
->> fix some small itches in patch 1.
->>
->> This said, I can definitely shrink this test a bit, maybe around 50% of
->> the current code. But it'll still be quite some code for a small fix.
->>
->> Should I just drop this patch?
->>
->> Alternatively, I drop it from this series and I send the shrunk-down
->> version with the wrapper script to net-next later on.
->>
->>
->> Opinions?
-> 
-> If you could compress it to about 50%, let's merge.
-> 
-> Maybe we can use it over time for more coverage in this area.
+On 11/13/26 11:34, sashiko-bot@kernel.org wrote:
 
-Ok, I'll see what I can do and I'll send v6 including a compressed test.
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [High] vhost/vsock: vhost_vsock_reset_orphans() TCP_CLOSE breaks
+>   vsock_connect()
 
-Regards,
+Yes, a known issue. Fix is coming.
 
+> It also noticed 1 related pre-existing issue this patch does not
+> introduce:
+> - [High] vhost/vsock: data race in vhost_vsock_reset_orphans() [1]
 
--- 
-Antonio Quartulli
+Right, also known. Not sure why it's "high", but I'll try to tackle it.
 
-CEO and Co-Founder
-Mandelbit Srl
-https://www.mandelbit.com
+thanks,
+Michal
 
