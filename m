@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794562238;
-	b=vgPE3Ixb/ZL7nYdB3l5auZRwuCRGWcgxjEVQQfRSrm7grzh1qVY1yWYJRUIakDeUmR/L
-	 7FuKb23ujY7bAa4TB3CUSUw3NRcFVb4gucd6JCazu9bWlCUwkeJVDzvDJkqgMQ5PJZraH
-	 p2birdBDXyJYYcZBr8dt+dKId0VXulK5isjm9R2yCdqbVAN6pMxl9BoMDdPn4ROu8UPDL
-	 owvPWOam37HR8uQkmQq8aNh2bp5cmHR0CW0srCfcoD8KntzZ+T3igEvEzPCL/qD4Z2zUq
-	 gnEgvGwKjPegmXPaQabdYRYiYhmT12amaqianejtWnUztUplkrxCEXHLHGiisnPeY4w==
+	t=1794562303;
+	b=n69k5KKYq1oNHomSQxsMWyhJyiGdXdqKqj324+h4jSfF1HiDgP4dSbXn9x8tWCKEwPxK
+	 ZT0vaTfHKcwg/sMD9rBbXzcsTvpfKd4CyXy5T2WlHUGQPTMqD2EUdsdILgkKdkQhTn0LQ
+	 zPkCd73fJdy+pJdAVqH6f37v50h6btomq9hkaasqh4t1k5UwpdoHaO4kb5db+nFLHBrsL
+	 WpIXWy8KTY7OA6teQ0G0Mwz9XLSSddXnql5z4gLPwt1VfdVPnRPZNY912w93iGJCQ7dKx
+	 Hd2hd6H0HaQOjZhll3U7MwSRCjQllfUl8Gk+g9xlgTtKD+BAdsaiY/bEF/JkXADUdtQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794562238;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794562303;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ifAA+/dT5aVnj7nCZbq2QMBE/0SVy8sgoADroqGPD00=;
-	b=3i5vEQbj6i7AlG0dxJqizS2YGA1ZgIUaYjjFv7WLWREZnRV2s7N8HUPEAIgaB8EPBM0P
-	 Z99X70AroU4h5+SwxVh/AnNx76CHF+3YVweD+T9MKqNCHh5LWBiw1Ggdg2VYIrtVcZo0f
-	 GpEpMdBeCe2gaqvFdV7YIR0Xym+bGbTuMEpyHRpfzBMMLKGz+RNPW6Ex4m6n+njwWUY6+
-	 x6LE1PKTqyUjMz30Pl2A+IY4jzDL+Cc05mElUW2rEJkLwOY+xbEDtunKMMz/nt+aypxdW
-	 cX34X4mwje1I6FdSwWuzBmwBebdQk6UK1HkP/A7v33cNVSLWTkZZZyaKBz/oLIkDUfw==
+	bh=CYE9WWbycIgS431amWB7I1hgRbA4TNsa3aNrZTf2uaI=;
+	b=171f/vtXRdoSCIHK9N+R+cZdxaLKsCqN46i4+W1aIzTwHuc609dv1qHukwIguM8flgXa
+	 YfnbO4Hx0t1HFbfND9oL87W4Mdh+B16jT6wbOt5CclD4FjEZ4asVCdnXRYfRKZK6/kHI2
+	 YjvNgkCCdPJ5x+uvdOrLrPdQZcb9c7Zj+Jqm6UyenaESDNeCHAcemvk/Fiim0CPzwZ5Hs
+	 wj2uZ6EOPSbNR0U1srp1EtbrvJzEe5ppzYd+JyJfz3qX7OPT6Gl9EQAaZ9l3PMK37HWEu
+	 /FxMenzKWDXHSRpqbDRpFydsvLgfp/P858dPJSZO/ebIm3zL3HHh83yunfqxdsAWS/g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="MiC/wR51";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R4ScqtCN;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA39A606A323
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 09:30:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0820F606A32D
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 09:31:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MiC/wR51
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 191801F000C4;
-	Fri, 13 Nov 2026 09:30:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R4ScqtCN
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A553C1F000C4;
+	Fri, 13 Nov 2026 09:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794562238;
-	bh=ifAA+/dT5aVnj7nCZbq2QMBE/0SVy8sgoADroqGPD00=;
+	s=k20260515; t=1794562302;
+	bh=CYE9WWbycIgS431amWB7I1hgRbA4TNsa3aNrZTf2uaI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MiC/wR51eJCOXnruyi34M4AlhPImIhf5bdHni0REnkDtcZRnBMfsGosK8b0TjNEYM
-	 8Fl11tqjXDUS614iZP7r9kXkIJEWJC46g3GiuZ0iuBEkIpQG6TkuZXB5FDcx2DBAq0
-	 TmOZptqopCF4F/o5mFwOCVdOwTMqMJqMY15FSl+aABAcrCVVdDlfScvjpfhwVRzdLK
-	 Ti1hvbxMa5blOXTh8oJrSFNyZTqMQ5GQscnRfhfDjzU76Xf3lN6CYgKS4+FZhbKI8k
-	 wKNx8o36dO33lpIFc0BERlaRdgnPOkANS5607TtdDyYlZ9J2C3sX3qO94pW2zBJxKo
-	 3hKhDNLNspIMg==
-Message-ID: <sashiko-outbox-212546@kernel.org>
+	b=R4ScqtCNdTA8shiquQxDYSoA4QMpXrb0ow/6pOPr0MgsywHea1NSlIi0081YSUPuT
+	 FFl5CVIFxdfZqcuNdbqaHvLeABU3a4sthOfywdW/tOllIJ0Y6Zy+uAMpDgKUWvazsG
+	 cVtAbnkBnNDAt5epcupn4U59s5oLcBxJw2CYv/7lcwz9Ykvbfi8eVIzU4q59cLcaPr
+	 LHdQDJB/ZFNx6ExHT5mwoyse6fbdOBbJWagS5Xub3LbJSVRaQGr7UMxt9A7x1H3n0l
+	 tCJ0Sf+/JlyUZWsje2bD5W10wdqkAngcvJY3h5KFtwZzHmZLhMSF5qxws2Psaw9IeH
+	 a7NY8YLzCOujw==
+Message-ID: <sashiko-outbox-212549@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v33 03/18] ALSA: pcm: add an optional reset operation
- under the stream lock
+Subject: Re: [PATCH v33 05/18] ALSA: pcm: serialize linked buffer actions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v33-3-13a934ad5ece@gmail.com>
+In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v33-5-13a934ad5ece@gmail.com>
 References: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
- <20261113-fix-virtio-snd-recovery-final-v33-3-13a934ad5ece@gmail.com>
+ <20261113-fix-virtio-snd-recovery-final-v33-5-13a934ad5ece@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 09:30:37 +0000
+Date: Fri, 13 Nov 2026 09:31:42 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,23 +63,25 @@ Precedence: list
 
 > From: Joonho Lee <mynameisjune111@gmail.com>
 >=20
-> A driver may need to synchronize private capture accounting with the
-> common RESET pointer observation and the core's position rebase.
+> Concurrent non-atomic actions on different members of a linked PCM group
+> currently lock their own buffer first, then the other members. That
+> acquisition order can differ between callers. Sibling buffer mutexes
+> also do not close their buffer-access admission counters.
 >=20
-> Add an optional reset operation called under the member's stream lock.
-> Expose snd_pcm_lib_reset() so the callback can retain common pointer and
-> time handling. On zero return the core completes that member's rebase
-> before unlocking it. Drivers without the callback retain the ioctl path.
-> The operation is also used after a successful prepare.
+> Close buffer access for every member before taking any buffer mutex, and
+> acquire those mutexes in the stable linked-list order while group
+> membership is protected. Release every access gate on success and on
+> failure, including when a member already has an active buffer access.
+> The group action then uses the buffers already held by its caller.
 >=20
-> Zero permits the position rebase; it does not promise XRUN recovery. A
-> negative return skips the core rebase, so a callback returning an error
-> must leave coherent pointer state even after partial work.
+> The PCM stream and group locks are not held across sleeping driver
+> prepare callbacks. Single-stream non-atomic actions keep their existing
+> buffer-access locking path.
 >=20
-> [ ... ]
-> leave prepare-time filling to the normal START path, preserving samples
-> written and rewound after prepare.
->=20
+> Fixes: 3c3201f8c7bb ("ALSA: pcm: Fix races among concurrent prepare and h=
+w_params/hw_free calls")
+> Fixes: bc55cfd5718c ("ALSA: pcm: Fix potential AB/BA lock with buffer_mut=
+ex and mmap_lock")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -88,5 +89,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-fix-virtio=
--snd-recovery-final-v33-0-13a934ad5ece@gmail.com?part=3D3
+-snd-recovery-final-v33-0-13a934ad5ece@gmail.com?part=3D5
 
