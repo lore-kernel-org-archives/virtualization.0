@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794568829;
-	b=c3ovkmZbh1iETFyB0OEJlr/fLHKXI8w+MbbAGJlkR/yb9kq94XEeDNm4GWdsPq4dRucF
-	 8Un2g2XK2hDOUCw3rR9vBy88h779uYniQj6+tldj+8HtjJqHTfajkFqx7duAZsyq+1i3Y
-	 8MO8sXMWmLFH/RMklEZJs9o3XndFYKeQJ8zsF6a6Wnrmd6t6FMPFlNWRuMR7GN947v6oE
-	 Q/9g1T5fAI3CNlo5P2M/kKKxfxUyObjwATGO6zCJ81CIWB3pYgxBbJHtkzJoqeu/DZt5M
-	 CwCTTIYrwZom4piE772C4Vw6LFdX9AkuTPgKheJnnf5RirZJdIX8bAbzmO14NLolC/w==
+	t=1794568831;
+	b=kgFp/R2c1SkpFl3v0nuK/YKBKMh9oP/gAP+tMsy8rk3n2E3SIhAEkGB4FWaYM3VbVYS1
+	 3oxcWX0Eb+dgaaJKNd7u/fJ6fgD5roI2rTBRgDHNYsP2jnqDI4Kuzgv30pXpxqDQJacTC
+	 +LFXfZwlddbi48fvk+zICJ5VWeKUXebkHhS/r/YdiEDL006+iVjYyf9mNoK2XoeGWsBXC
+	 2vNhI8Fid7zKbLb17kEEtIO75Ng0mr0+VD+d4eJ04oqXaKGIaqYSOnYWn8MLRJm8bXR0o
+	 zAvLdsdAo2K2XwwR8+XBW69qW0Ww5ztH0zsmVZnNxq2H3GygFzcErWPROVns15/Iz7Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794568829;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794568831;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=XKX5JxtiIxN+MvucIAFJrJ8RYLMmN7AfsUMLZ71WF+4=;
-	b=N838lJQevxlylbwlwB0rwJcJp+/29gotEP7bAGsxD7i8HyQ/CyWUzRSlC7qYK7RBzwSS
-	 B9bQL+JIzWAdJbAvDtlkFsRtLg3AtjJWDCgpKiDRoHW1WiLgS494KqUMcixUG00jVpj6g
-	 /Bxmps38K5SwNr8ztdOh8JiUmOlWJUxXbwULuvfZfUI+jwsl0Np+jvo70HhKZQKbyyClC
-	 SUfnl2taD5bG9DMKRw8mZQhnUhQbRSigF8uJAfENhfAEcI4e9x5voS9BqO9Nt/ApywZsz
-	 RIAYU6fkSPMWt+7AKUwqEEPaRNg30UuHs5uXyz3KrsvJ3mug2cTdzuQf6EIzpbJYOTg==
+	bh=gBlSQuzpofiqyGWeLZtB2OMr1O93E5lZ23TFQOTOCA0=;
+	b=HOmaLe0SelN5L2dLUDzvjF+oz+Aey7gWG44ItBR89em3b9fVm6cRfOXHEZIFLHNg8w8B
+	 RSRhP1FNy86HWmkGQZJq4Y9XA9ZPX1u+0FnIJL4qFewikijAMeG3r/wuIOlxKw5pxYHmO
+	 xXGcP7RdMVrj5cRE83FHyYDdHykMOm9x21fSSd57wHkjUIWVC1qiYCWwVDK5b20yuKwq/
+	 2apwPnhclglxoG2BqEaV8wGlrWnl3wsF77ax9OvkafGesqeGd8Sxck28m6YPcjDwT+a7R
+	 ZmkfCSO7DikEmfU45pKKGhQFvuePSi8qFr6C1faaKFDRlj3bTEG0EnO4pHjIkUV3O9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GK2b9TXV;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y0XOG0MH;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC152606A334
-	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 11:20:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5167A606A88F
+	for <virtualization@lists.linux.dev>; Fri, 13 Nov 2026 11:20:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GK2b9TXV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E97471F000C5;
-	Fri, 13 Nov 2026 11:20:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y0XOG0MH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E80341F000C4;
+	Fri, 13 Nov 2026 11:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794568829;
-	bh=XKX5JxtiIxN+MvucIAFJrJ8RYLMmN7AfsUMLZ71WF+4=;
+	s=k20260515; t=1794568831;
+	bh=gBlSQuzpofiqyGWeLZtB2OMr1O93E5lZ23TFQOTOCA0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GK2b9TXVfHXPCwxpzCFekOtlz5MiPKCkDGyLB8vWn/R49xU1o7cR0G6Lswo+W+hy3
-	 /A0pcdkAv1OHJxqDmJ+/4fCcMMPsAsORXV4COEB0aYHO6TDWXCAWP/Uoar8KfbLriN
-	 de7q27+GxeFsdVdYgAJirBqul99jvn//h86c/NqxKzsvijkI9dFMMZrTylQsHK16Cl
-	 ryf+P+WbeRbhyGtEhOr0W3xghfwbFIzYxzTLkPcZuJztys93KqL6Pj7MJHD1P6SnyF
-	 1scHrwoyOa4DW75CTL9/LPHyTDTNFEQX096vpibAHKysx9v4FtZ9fs/swIMQ7EID05
-	 1u8+0xCBtbYaA==
-Message-ID: <sashiko-outbox-212705@kernel.org>
+	b=Y0XOG0MHE9J195FLw9BGfj4+KWLqmDNy7+ecD5UfrQQIxQIMK64Dwp3MpR0eIKIEQ
+	 VcZ/HZaDIGtIUm71oxIcUUKyEPpHP9nPVVre2ILhBkYOxc/7kRnp/+w3dHDsCp1D+h
+	 zUFlSKk6dG/UlHJBxFMBqSjyml8UJZctmSEk23XrTJ5EJZKLJrxp3DIMsZm/LJ+pXE
+	 N1WG+sraHh+19XdcHS312XaiCgoDFT4HmBx9bImCF96DFajTHBPyjjdViItdkuKa9s
+	 yEsqbDN+N6ahxXbM31+nb89hDgRVxbmSwZXPpH+ylegtnCUZuqNIiatyhEPaK13aeu
+	 yrPEv2LsQoK3g==
+Message-ID: <sashiko-outbox-212706@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v5 5/9] virtio-net: support receive timestamp
+Subject: Re: [PATCH net-next v5 6/9] virtio-net: assert header sizes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Trumtrar" <s.trumtrar@pengutronix.de>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-5-7ab67b572f4f@pengutronix.de>
+In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-6-7ab67b572f4f@pengutronix.de>
 References: <20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de>
- <20261112-v6-7-topic-virtio-net-ptp-v5-5-7ab67b572f4f@pengutronix.de>
+ <20261112-v6-7-topic-virtio-net-ptp-v5-6-7ab67b572f4f@pengutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 11:20:27 +0000
+Date: Fri, 13 Nov 2026 11:20:29 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,25 +61,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Add optional hardware rx timestamp offload for virtio-net.
->=20
-> Introduce the virtio feature VIRTIO_NET_F_RX_TSTAMP. If negotiated, the
-> virtio-net header grows by room for a 64 bit TAI timestamp (header
-> size 40 bytes), stored in struct virtio_net_common_hdr. The layout is
-> cumulative: the field is at the same offset whether or not the
-> features before it were negotiated. The fixed layout needs
-> VIRTIO_F_VERSION_1, so the feature is cleared without it.
->=20
-> Implement ndo_hwtstamp_get/set so the timestamping can be enabled
-> and disabled at runtime with SIOCSHWTSTAMP. The driver cannot filter
-> what the device timestamps, so any rx filter other than NONE becomes
-> ALL. The timestamp is read before the packet is handed to the XDP
-> program or the stack, and attached to the skb with skb_hwtstamps().
-> It is a raw TAI value; there is no PHC.
-> [ ... ]
->   host:  nc -4 -u 192.168.1.1 319
->=20
-> Based on work by Willem de Bruijn.
+> The header is cast from skb->cb and from device buffers, so its layout
+> must not change silently. Add static_asserts for the offset of tstamp,
+> the total size, the alignment, and that the header fits into skb->cb.
 >=20
 > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
@@ -87,5 +71,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112-v6-7-topic=
--virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de?part=3D5
+-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de?part=3D6
 
