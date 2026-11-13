@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794571728;
-	b=TBegGUHmMBc2VlKj8L1A59+f+ESUKmzWxWpkrtdZlR48YAJ+Yafu3amylyQmYOwoaTII
-	 owKGTcHs5c0J/D0G8g3j6GFmjDKygdKvrcvmeWg6FRxuFWVCBRHb4CeLc+Kimkr1JE67f
-	 /FvzJcsA6ihOt1owJFhQutLQ0OMwh9tAwp23eY6dS1Qm5duos/9SG5yT5/tpFeWV7U2oq
-	 jiU6nuAc4yPvaLPU6l9z5vUnJxDI9TfMpOoy/Fk+NFC4XHK+DHwll207RsTudqUvq616A
-	 YY9Qrq/N+HFWYMhYgh/yuJkPHvDOst7n8Kxbs9V2uSxdZNmaxxivrQBLEW9cEoUn+cQ==
+	t=1794571927;
+	b=Z59hZxTim2rr0m5jqJLAfW/FmE/WLxxhERHo7HRLtvI+Kw2vii356kFl+DkudEdMbXPH
+	 qCwZvbDnzdxDbJXn9eSbZj+l95XIZjFGNieMH/mz1kO5ozf1d6ce5UmhcK3Jt3Unz925I
+	 jRKV+YMMgwKS38lBj3emOy3ggjyrV4wrfYyItwVM0go/+pZcrJ4ApHqmQOJGLyoXBnnDZ
+	 w7mV6MyVNmY4kpDKPGZQV0cOItY0d6JMC+HbXHoYETplyPh9Vzs8b5qHHAKj3wgjjiPeZ
+	 4l41gT+uCK6cBH1w34YYp4fhBUYjDCF4EyqDD1DD8LkgG3Pn9lUyS8GTZ/P3YUF6WMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794571728;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794571927;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=DCPKKvSKsZGN6ZGZTx2lYYqlAtYoJoEa/WryVTu5l4E=;
-	b=4E0wANdVI35to+DBEGgYC5tuvsdBhtLbMVZazldL6HshuvbjGeWV39eb2XKmTaUinJ5t
-	 Ya3XCN1odLVaBD5X3ZL+klgYFdrfivJRRdTgt8e6bmQY5Ob/z4htiKcLRWY6Fw+NChhV4
-	 bqUwiwKq1D8MMHBJABDIKyN3ow0OXpKJkRTArpl07PDKP8y4DteJ8Uto+91OV6AUrNEik
-	 lDZ+/N+69BnkTDpeOwtPhnktO5iu73UYL0aA/wVXZ2nolnftcupUi3WyLorqq3iGC4tXd
-	 w2tc2Vn7WlyGsZdXaCVqgsMz7lgT4lmJ7wr2TGr1khOfODbAni6xW+LUb0W0bj8QwTw==
+	bh=hUpll3Sqlpstz/baEJwQVT6KXqEOrUirP5628aOYEd8=;
+	b=GV2uIWoZuF69sNSI98q5YfRZMiDFGlsIwkWY6V7+dyqWwmMynBSVTRZZ9oxrrxt/V1Vt
+	 TVeJ/JMOVwwSHWm25eH1RG4XcTOUf8u0WWzoiVca2ugdYHWGxT6n/Dn3pRihFUtSLdQ6e
+	 n39/kQ2IbzueeGAm5lpWgHE4H8Q4kBdquzRn10Xpjl47qDe7uo5cAoc8cq6g/NFrARWA1
+	 Q9epDKp/QSMwyKvlOtsS7efR0FSxEF8PoIpcvJXF2wXis9Q0ihM2nC3jFpGKnV9mgUPFj
+	 B2XcjDv7rRRbqXob+SgSqxB5wfT7zS33xKlE7W253tVPiZSaIeL5G8dSfTDAA95WsqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=au15CuIx;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mBzOp2nr;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 741B3606B582;
-	Fri, 13 Nov 2026 12:08:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 435E5606A31C;
+	Fri, 13 Nov 2026 12:12:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=au15CuIx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 947EF1F000C4;
-	Fri, 13 Nov 2026 12:08:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mBzOp2nr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E07B1F000C4;
+	Fri, 13 Nov 2026 12:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794571728;
-	bh=DCPKKvSKsZGN6ZGZTx2lYYqlAtYoJoEa/WryVTu5l4E=;
+	s=k20260515; t=1794571926;
+	bh=hUpll3Sqlpstz/baEJwQVT6KXqEOrUirP5628aOYEd8=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=au15CuIxjBQb5zBlCDyGEp8bBtB0P5Q1riTnaoMRjIfwb8D+lUqZY7XXgl0RsxAzE
-	 kEueU9MSfS09y0CdiKoR78LXqvmC+g1NN+S7+0AXg5mE3c7yxaFGCFPasTn7U4P2Yq
-	 wCOmTQgCrhEq4vvUSftMSYa5B30cDjtQSZ4QKKgcyn3VBZTG1A+Enp95W85ZAMdrq6
-	 O7g68nfE/V7ai7AnS5L0FgWFeW+jFuPUAjGijxYYKQwiRFrELWdqd1vF1K1M2iFOMJ
-	 /QMc3+6yubESduWY8XFoIkDyAQVIKCBMJaq+EJ2OJhCHuSIlaa63VHGiH5duiMEZum
-	 aurui0ZOLZ9TA==
-Message-ID: <b2a76474-c3eb-4b56-b5f8-0fc4b123467e@kernel.org>
-Date: Fri, 13 Nov 2026 13:08:35 +0100
+	b=mBzOp2nrY2ILEs+Bt2956pFclJkMEqfLIpZeInaPOiT2oreFTereBuBr0Kh6vQXea
+	 8xcTJ/zmvwTvStx41Ih7tV1IX6GYExZeAUMNnkyvcTivBowJse54OL91MUruriP9Ds
+	 hkMt9FsCcAbJJ0oHHdk5NC1t90b+Q6ahA6x5aifpDmZYqsogORYJqyjR45pITR/aD3
+	 SjPqfFYhWFynQW+35TnIjzLU3B4RXJJAmtWesW7vUmv/66jmqPrHRszAzf8COyfga7
+	 Cq/zKOAXkEdD6BGyyAc1eSwDtqe793wiDKdJyLU2vEE8VdiBW5+YjubYANwv2qXNmX
+	 eeFLVXB9hbBIg==
+Message-ID: <66bcbef9-1967-41c0-8204-6e96016be4ff@kernel.org>
+Date: Fri, 13 Nov 2026 13:11:54 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -52,8 +52,8 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 1/5] iommu/dma: Keep reserved regions below the IOVA
- rbtree anchor
+Subject: Re: [PATCH v7 2/5] iommu: Use resource_size_t for reserved region
+ length
 To: Vikash Garodia <vikash.garodia@oss.qualcomm.com>,
  "Joerg Roedel (AMD)" <joro@8bytes.org>, Vasant Hegde <vasant.hegde@amd.com>,
  Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
@@ -74,7 +74,7 @@ Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
  linux-media@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>,
  stable@vger.kernel.org, Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
 References: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
- <20261106-add_iommu_ranges-v7-1-5c0f72083e52@oss.qualcomm.com>
+ <20261106-add_iommu_ranges-v7-2-5c0f72083e52@oss.qualcomm.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -120,40 +120,37 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <20261106-add_iommu_ranges-v7-1-5c0f72083e52@oss.qualcomm.com>
+In-Reply-To: <20261106-add_iommu_ranges-v7-2-5c0f72083e52@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 06/11/2026 18:14, Vikash Garodia wrote:
-> The IOVA allocator tracks address ranges by page frame number (PFN).
-> The highest node in its rbtree is a fixed anchor at PFN ~0UL, which is
-> embedded in the DMA cookie. dma-iommu converts reserved regions to PFNs
-> with iova_pfn(), which returns unsigned long. On x86-32 with PAE,
-> addresses are 64-bit but unsigned long is 32-bit, so the upper bits of
-> the PFN are lost.
-> A reserved region that ends at the top of the address space then gets
-> the anchor's PFN. reserve_iova() merges it into the anchor and lowers
-> the anchor's pfn_lo. At teardown, free_iova_mem() no longer recognises
-> the anchor and frees it to iova_cache, which corrupts the slab. PCI host
-> bridge windows above 16TiB and the reservation after the last PCI DMA
-> window hit the same problem.
-> Compute the PFNs in u64. Skip ranges that start above the PFN space and
-> clamp the end one PFN below the anchor. The allocator never hands out
-> those IOVAs, so nothing is lost. On 64-bit, PFNs never reach ~0UL, so
-> nothing changes there.
+> On 32-bit systems with LPAE, physical addresses are 64-bit. A reserved
+> region can be larger than 4GiB, but its length is stored as size_t,
+> which is only 32-bit there. The length gets truncated.
+> Use resource_size_t for the length so it matches the width of
+> phys_addr_t and holds the full size of the region.
 > 
-> Fixes: fade1ec055dc ("iommu/dma: Avoid PCI host bridge windows")
-> Fixes: 7c1b058c8b5a ("iommu/dma: Handle IOMMU API reserved regions")
-> Fixes: aadad097cd46 ("iommu/dma: Reserve IOVA for PCIe inaccessible DMA address")
+> Fixes: 2b20cbba3390 ("iommu: iommu_alloc_resv_region")
 > Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://lore.kernel.org/all/sashiko-outbox-195658@kernel.org/
+> Closes: https://lore.kernel.org/all/d223ee9f-b262-408a-a201-8b16d310bbe0@oss.qualcomm.com
 > Cc: stable@vger.kernel.org
 > Co-developed-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
 > Signed-off-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
 > Signed-off-by: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
 > ---
->  drivers/iommu/dma-iommu.c | 32 ++++++++++++++++++++------------
->  1 file changed, 20 insertions(+), 12 deletions(-)
+>  drivers/iommu/amd/iommu.c       | 2 +-
+>  drivers/iommu/intel/iommu.c     | 2 +-
+>  drivers/iommu/iommu.c           | 2 +-
+>  drivers/iommu/of_iommu.c        | 4 ++--
+>  drivers/iommu/virtio-iommu.c    | 2 +-
+>  drivers/of/address.c            | 2 +-
+>  drivers/vfio/vfio_iommu_type1.c | 2 +-
+>  include/linux/iommu.h           | 4 ++--
+>  include/linux/of_address.h      | 2 +-
+>  9 files changed, 11 insertions(+), 11 deletions(-)
+> 
+
 
 Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 
