@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1794561694;
-	b=4riZyKfF/gmk83xktSa4L0IPexapfdI5V0a9+KVI5KmxGQeJOq6AhKX8MgH7BRnJuvkT
-	 NYl0fIb5bDNq2gw1NMTyhfZBV9voiSqyIeAHBmes0pyE2/SA7fTV09us3HASlwiyvNNnv
-	 errz5jtL+ZdIxLKHprDXErulAXWFER0qiV4qxPh9NdjAL+2qpIUMgYrrcGvUfUUvOeK37
-	 hIJIoMEWeUjbv/tcSA6c8+SKiMzjAF9kUz0EYRrFEd8E4hMsKTJcA7U4D1diBgfOf1Zip
-	 +qLlv9WC/lvzevKfarWbgp+HGphthIP9aXUWYJB6wDYzOKn5eBnNvT4u27643zRM/Xw==
+	b=xzENPuh9zn/Vykm+PDO1SJhSXZJ1jNWJN1T55oHrXk9DIqub+T1EGbfVBEEiCZI+Gftz
+	 D9ELYo+K7dmOeHbP/IsPxCX6SFlW/wnnIvM9b+frTOLdnX7hBtMEiyh5/9FG8SOR542zo
+	 R6U39sU5bsUlalFeQOLVvqv9hrYSWiKKj73SkJzrjYHyMHG5jvwU9ROFyK/TbRoeyEIgL
+	 Lj3MVfeZH1zCCFzsp2Y7dLk86Fl3XgxtXOLmvSqvuKmPnPQdwk7XmwqdAPw5qyiYoSqNs
+	 kATlABPzKqUwKadEk0u6f8dFLBFkL2AxwyCTbKL+hsMfLG9YYAgIzhXly0cyudVd8VA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794561694;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Xt4nVbr+QJWsmhkuk9NO2h+mQ+GI20Tp8xXx6ZTHMq4=;
-	b=CcnXfh0pJUB0bdt3nMW9WF5MpKvOyp2fCMOneorY/l1FKrckHzsd1wVj5iYrvHQde6uh
-	 BHQuZqLcVp++XKEEYfEv8TrEE1XKMNWvcSGyXuGwWzd4DYtmltLZ5bcFGW1KuHwx6q7h1
-	 GxFO/dOV4DuqPinLdPNRZO5chCg0c2wA2PDn/Eb1u3B+gL2eVBz0ncroZnEYFvOAM4suT
-	 vQbY8PaiIy6aWCPffhnzaAz/mrEV1lC8ePZly+LIyPqs6ewQutEr7MEfsWdD1132kUJ9v
-	 kZZxu2SutipDO3rcgBbvq/nKGUl6HRNtCVdm7ErYS+bZqgC1Xfa8AKMoUMj02qOzyCA==
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=Eehbdk+gQ7MqVSJaBOWwCjGtgxZXfWVkHea9CSfuWKw=;
+	b=J6r8amrZ8oJ8oiNF02DvtlanVvnPvjbeQJymdg6f+cuEj2oNlw/gk5TA30LeHSFcVAxx
+	 /A2SvbEoytFBCPqkhdxqsmtwrvUhMZeno1Ugq/10m3sMBA1lAjlkSszqvEheyha0j8w9L
+	 PbTJWavKJE4jKgmXV5+Rj3nmIhSI3fMpFjDY/G+LzMAcbZwVk8Q3qUOC03vLsMD2V7KNO
+	 eapPnzeis446wrf3fZmc0KP+rTVkDDjYtXANTVOynlZAw5kA+ya9Gf4AsXCcMcINzPRuj
+	 bSdWqvc8/OQEMo+LlQfeBFbrrIMiz1yOV7EghWfm9YFv/8qmo7gC44UVok8E3I5P1yQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O7n4aMIj;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XbefYowR;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 309F1606A32D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E09F606A335;
 	Fri, 13 Nov 2026 09:21:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O7n4aMIj
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XbefYowR
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
 	t=1794561694;
-	b=RjJWRbyxCq2ALJhu9lx/sW6qecjIDGiAgwyiyRgMrY2r0x73YobhdmYepsm7rmWd7wWh
-	 wVWQ8dua+IqibXxh+JeAT2TGUKKW2NqL8mYWf7SefzitnMFNQmNUHbk4GbynqW0kFKTfR
-	 c9mBou99MDbZ+TjiWoSKN+QECy9mYx9ud0ozFt44PPSZSuYZJw/bo02tZUK0rldboJdo1
-	 r35mMj9uEQHZtYYUI2msEYUYjToHCZha4byR+HqU0PzhOqEabVrBRIqrud8ZXq3miLhJz
-	 31eK/ZIryNj3Ob5v5lPpy4VxKQQJ8EUSbAGXhBMc3dt57GBHDH7ZdSsAIj8NtHSJ0Tg==
+	b=LrQ837k7KMGh39EqAABcM1YUp9ccFeNuneBP04yJGyWmeO8fkAEs4Eha6/Ccjrxud+mM
+	 FPkW6PvlGqcbAloX0zoFXicP92WMvx7QsWRWqGFcuZirEQW151RbjR/PByo4x5g2Lq9P/
+	 D5LKJaD9wHLS5rUgc7bQuk6SguNTWwVTme4D52c88IdI3GT+ztHPjVpOevEFj9twW1Ee5
+	 YybXaRynykpF2FkeBXNEF16cMVLQ0lndL4Qw3uwZo8X7EyyXh4c1NR4BwQoYrnuCVnT5U
+	 PN/QRK1ZkaMIudzVbe6KV58dl39OT1+j2RhSAz5oJfCHG54fpmQ3KQn0eRpah3dAWxA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
 	c=relaxed/relaxed; t=1794561694;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Xt4nVbr+QJWsmhkuk9NO2h+mQ+GI20Tp8xXx6ZTHMq4=;
-	b=U/gVnWLfxHtjRPyQkyigjZJFZ3caMD3Ok+rVgl5THPsT0NrP+iTSHJVXL1sDLuxF5VmY
-	 wmvEYcNdPyn1hsu9bAheY0s3X7UlQSNxkPj76sghZnjGWoFemShjTiM1F93/8w3cS1w1f
-	 93yZq1bnT6gzS/SfsoPUKTmO+VHIaili/5L8p1wCsCbFFt7iA9UhPWsQVhff0VuuiNnms
-	 a00MNTASu79+4lCbfeVdUBFQ1KJJxX0HP9InKvwXzAriD+g/Q4iJYYQN4gmFDz1MiAA4j
-	 HZ6KkDf2Eb5lIMSJo7XBHT9cYheKIxhmjYmC/DDm6jrWNhRBUbVhWL19a9rok5VV5EQ==
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=Eehbdk+gQ7MqVSJaBOWwCjGtgxZXfWVkHea9CSfuWKw=;
+	b=tt67pnJ23Q5wtPPxUo7izB+299aWYXZFF9PgClmMAAxDJNKkL/G1mqxzMht0v6jwvBT8
+	 MAHXQzkbkVq2kmIal4X73VF/b6C4ripP7kSNvHAX/jEEe5dRjEdKPVOruRwKfehG3vRWu
+	 cqHtNbp/of9RcJwPDQyZNp+8kyVimNV94IdEyH1MeehRElb4SoADEW2s8/t/UYAopR422
+	 Z/YFOlt1npDifINd1H5ZouRLTbmHGEXPi4XIV531kb8l3AD5p89YL/zy5TO5XKnDVcovV
+	 eXBc5nn3C+KYZ+hJ/UTL1mLfeLksSu8D/C+3gEeFBDLmfKgNDKmVkgiMsKct91I0BiQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id D74A21F000C4;
+	by smtp.kernel.org (Postfix) with ESMTPS id D7A961F000C6;
 	Fri, 13 Nov 2026 09:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1794561694;
-	bh=Xt4nVbr+QJWsmhkuk9NO2h+mQ+GI20Tp8xXx6ZTHMq4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=O7n4aMIjaajYoogMrhI9w4o2/HrgZZb+nUGwNvK1M0pRkxT53LFnzPmdu7if4aN2B
-	 Kq8bqieSgu7OeR2dwKIVmI49Zu0i4u4sRLvX4tsVd5HaGXXZlGjQvFr35nbDv5x5rS
-	 KNwipdSRq70EAdVOCWpz+5QfaYQcsW5IfPJdhx2GvKANC+Csq1GQZ21fDUQU5g2ECf
-	 XKRteszzMZBDowxrSkh/ynf3OyKdUEds6+XYJUbBlfwJoNZ6RPsVgsigJIwAG2DD9X
-	 3dHUfz2CRyoklR5IDqA9LR4WpdyrF9mk6gDKP+rbTjcQA8X4PzuUGXST5gwAGpfsyA
-	 7/IARzKupjurg==
+	bh=Eehbdk+gQ7MqVSJaBOWwCjGtgxZXfWVkHea9CSfuWKw=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=XbefYowRk51Rr44JllTCV7OHLpNl8bpR5zsGjRyIZ6qlfzoIO9e5YXnvihliF9o7G
+	 odM+5MV4+x8TdjJ8KEEbjBC5+hffq+WLZdiEIaNDRgDt3sSabCpS2X65V8XTVqz9ao
+	 ZA55oc6HqYw36FFh7RgssaVEhpfPiU12T3ds20qgLHJYUU7uIDps3dlfCzwDbnAd27
+	 7fI7EW1mkC1+x9c/ahiOxDv+KJGczAAEShH9PERkmspWlzlEcv0wxxrc/2tA///9Pv
+	 jJptpbuxTUhxmrG+/vuuZ2IzXkE7rnUuY+b2JfiGJyMPqOoqmJobUZyTwXJ4ZKXm8J
+	 jEYHT9JVp29FQ==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 51B53476FA;
+	by lkml.kernel.org (Postfix) with ESMTP id 39094476E6;
 	Fri, 13 Nov 2026 09:21:32 +0000 (UTC)
 From: Joonho Lee via B4 Relay <devnull+mynameisjune111.gmail.com@kernel.org>
-Date: Fri, 13 Nov 2026 18:21:25 +0900
-Subject: [PATCH v33 01/18] ALSA: pcm: mark stop-threshold accesses for
- capture policy sampling
+Subject: [PATCH v33 00/18] ALSA: virtio: preserve PCM progress
+Date: Fri, 13 Nov 2026 18:21:24 +0900
+Message-Id: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,9 +84,12 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261113-fix-virtio-snd-recovery-final-v33-1-13a934ad5ece@gmail.com>
-References: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
-In-Reply-To: <20261113-fix-virtio-snd-recovery-final-v33-0-13a934ad5ece@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAA/42OQQ6CMBBFr2K6dgxtQcCV9zAsShlhDLSmxUZCu
+ Lstbly6nDd/3vyVeXSEnl0OK3MYyJM1cZDyeGB6UKZHoC4CJjJx5pxLuNMbArmZLHjTgUNtA7o
+ lcqNGyDOu8qotCllWLDqeDuPB/uDWfGf/ah+o5yRNiVZ5hNYpo4eEftRBCkjblBrIz9Yte8/Ik
+ +7fSkmTQY51UZc1Si70tZ8UjSdtJ9Zs2/YB97F5UAUBAAA=
+X-Change-ID: 20261113-fix-virtio-snd-recovery-final-401a48b55378
 To: linux-sound@vger.kernel.org, 
  Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
  Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
@@ -96,93 +99,124 @@ Cc: tiwai@suse.com, perex@perex.cz, mst@redhat.com,
  linux-doc@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, 
  Joonho Lee <mynameisjune111@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794561687; l=3315;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794561687; l=5601;
  i=mynameisjune111@gmail.com; s=default; h=from:subject:message-id;
- bh=sCatKzTRQ727dcoeYM6czFLlHu2crS/Fj1mgMxGQJm8=;
- b=G8HEn7ySIPhDuqHAy8ktgbO9/ehUOZsJ/LIIwR6iMN9DR1xyNbATm7Gqob/CQx8vs5gglQWZU
- 30vF0Mu4mSECWfO3k7XY2O1kojlX//WNeQj+QwCQ6s7WtvmjyrNFRCn
+ bh=3Yz1bL+Yu6b0fA+6aIZz/ij5aRqckyw6VeikfHQlsmA=;
+ b=j0q9v5520UUrkCTZdfpVIQAAGKvo06DaXnN6cY3/ikoGPkQFTVv6ZnzFaqbuesJtt7XEemG5X
+ rIyRATdQrSEBEW6dRFKNizcEnu9YA0dfoDwjF9QZPA6xCVTKil7hqOQ
 X-Developer-Key: i=mynameisjune111@gmail.com; a=ed25519;
  pk=wqkZdvfcC8g8fDi6f0Y58LlaXIo+ubf6Y/9Lr9yhshc=
 X-Endpoint-Received: by B4 Relay for mynameisjune111@gmail.com/default with
  auth_id=1508
 X-Original-From: Joonho Lee <mynameisjune111@gmail.com>
 Reply-To: mynameisjune111@gmail.com
-Content-Transfer-Encoding: 7bit
 
-From: Joonho Lee <mynameisjune111@gmail.com>
+This series is based on sound.git commit
+ a4311e9447bbb219044db38897f95be112f46a8a.
 
-The staged virtio-snd capture path needs to sample stop_threshold from
-completion context to distinguish free-running capture from bounded
-capture. Software parameters can update this field while capture runs.
+Previous revision:
+https://lore.kernel.org/linux-sound/20261113-fix-virtio-snd-recovery-final-v32-0-4e95979e312c@gmail.com/T/
 
-Mark the runtime stop-threshold assignments with WRITE_ONCE and the proc
-status read with READ_ONCE. This pairs the assignments with the driver's
-staged-capture policy sampling.
+Changes since v32:
 
-These annotations do not provide a transaction for the entire sw_params
-update. The driver serializes its cached policy and accounting with its
-own substream lock.
+- Keep a replacement capture stream in DRAINING intact when an older
+  sync_stop callback arrives. The active-state check now covers capture
+  and playback, with the teardown marker retained for later cleanup.
+- Check the settled device state while holding the queue and stream locks
+  before rolling back a failed PAUSE. A late successful STOP keeps the
+  queue closed and does not restore the old capture quiet sequence.
+- Give each uncertain control incident one additional window of four
+  msg_timeout_ms intervals. Sleepable callbacks share the remaining time.
+- Close transfer admission and quiesce period work before waiting for a
+  late control reply. Preserve the stop marker on failure and resample
+  teardown state after the reply settles.
+
+These changes are folded into patches 12 and 18. The other sixteen
+retained patches have unchanged diffs.
+
+Automatic device reset from v32 patch 20 is deferred. Its review exposed
+an ALSA link/open lock cycle and unresolved ordering with transport reset
+and power management. The supporting CONFIG_PM-independent suspension
+change from v32 patch 19 is also omitted. Their review findings remain
+open for a separate recovery design.
+
+A permanently unanswered PCM control request still requires an explicit
+driver rebind. Late control replies remain supported by patch 18.
+
+Validation:
+
+- ARM64 virtio-snd module build with W=1: no warnings. The review-fix diff
+  passes checkpatch without errors or warnings.
+- Eight QEMU KASAN/lockdep cases cover RW/MMAP capture, RESET/DRAIN,
+  reopen, and playback. All passed with the loaded module hash checked.
+- A test-only sync_stop gate forced an old DROP to resume after a new
+  capture reached DRAINING. The original first-eighteen-patch baseline lost
+  the readable tail with -EBADFD; the candidate preserved it and returned
+  32 frames. Both used the same fixture.
+- A 1500 ms delayed STOP reply smoke test passed on v32 and this candidate.
+- Scarlett 2i2 input 1, macOS VZ, 48 kHz: v32 and the candidate each
+  passed twelve captures totalling 170 seconds, including 70-second RW
+  and MMAP captures and repeated reopen. The candidate passed four more
+  short captures after a fresh VM boot. All three VMs shut down normally.
+
+The physical tests used the existing ABI-matched 7.3.0-rc7 KASAN kernel
+with rebuilt driver modules, capture_packed_status=1 and
+capture_pause_restart=0. Other host recorder processes remained running.
+Expected frame counts and nonzero signal windows were checked; no known
+waveform oracle was available to prove exact sample continuity.
+
+The delayed STOP smoke test does not force the exact late-reply/PAUSE
+rollback interleaving. No fresh KCSAN run or full-kernel rebuild is claimed
+for this revision. Automatic transport reset and PM recovery are outside
+this reduced series.
 
 Assisted-by: LLM
-Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+
 ---
- sound/core/oss/pcm_oss.c | 2 +-
- sound/core/pcm.c         | 3 ++-
- sound/core/pcm_native.c  | 5 +++--
- 3 files changed, 6 insertions(+), 4 deletions(-)
+Joonho Lee (18):
+      ALSA: pcm: mark stop-threshold accesses for capture policy sampling
+      ALSA: pcm: report partial progress under the stream lock
+      ALSA: pcm: add an optional reset operation under the stream lock
+      ALSA: pcm: notify drivers after linked prepare completes
+      ALSA: pcm: serialize linked buffer actions
+      ALSA: virtio: propagate playback send failures through ACK
+      ALSA: virtio: Recover PCM state after a failed start
+      ALSA: virtio: Retain queued messages through device reset
+      ALSA: virtio: bound PCM transfers and retain DMA buffers
+      ALSA: virtio: Keep control payloads alive through DMA completion
+      ALSA: virtio: wait through signals for PCM teardown
+      ALSA: virtio: use request-owned capture and serialize recovery
+      ALSA: virtio: prioritize capture period work
+      docs: describe virtio-sound capture options
+      ALSA: virtio: reject invalid playback completions
+      ALSA: pcm: add an explicit application pointer to indirect playback transfer
+      ALSA: virtio: preserve playback progress across pause and buffer access
+      ALSA: virtio: settle PCM control state from late replies
 
-diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
-index e8df27d09b97..897c8dddcfd2 100644
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -2958,7 +2958,7 @@ static int snd_pcm_oss_mmap(struct file *file, struct vm_area_struct *area)
- 	       runtime->oss.mmap_bytes);
- #endif
- 	/* In mmap mode we never stop */
--	runtime->stop_threshold = runtime->boundary;
-+	WRITE_ONCE(runtime->stop_threshold, runtime->boundary);
- 
- 	return 0;
- }
-diff --git a/sound/core/pcm.c b/sound/core/pcm.c
-index 064df4cd3b50..356ddaf33f63 100644
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -422,7 +422,8 @@ static void snd_pcm_substream_proc_sw_params_read(struct snd_info_entry *entry,
- 	snd_iprintf(buffer, "period_step: %u\n", runtime->period_step);
- 	snd_iprintf(buffer, "avail_min: %lu\n", runtime->control->avail_min);
- 	snd_iprintf(buffer, "start_threshold: %lu\n", runtime->start_threshold);
--	snd_iprintf(buffer, "stop_threshold: %lu\n", runtime->stop_threshold);
-+	snd_iprintf(buffer, "stop_threshold: %lu\n",
-+		    READ_ONCE(runtime->stop_threshold));
- 	snd_iprintf(buffer, "silence_threshold: %lu\n", runtime->silence_threshold);
- 	snd_iprintf(buffer, "silence_size: %lu\n", runtime->silence_size);
- 	snd_iprintf(buffer, "boundary: %lu\n", runtime->boundary);
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index 35152fae74ca..a2ea44c3c1d2 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -871,7 +871,7 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 	runtime->period_step = 1;
- 	runtime->control->avail_min = runtime->period_size;
- 	runtime->start_threshold = 1;
--	runtime->stop_threshold = runtime->buffer_size;
-+	WRITE_ONCE(runtime->stop_threshold, runtime->buffer_size);
- 	runtime->silence_threshold = 0;
- 	runtime->silence_size = 0;
- 	runtime->boundary = runtime->buffer_size;
-@@ -1062,7 +1062,8 @@ static int snd_pcm_sw_params(struct snd_pcm_substream *substream,
- 		runtime->period_step = params->period_step;
- 		runtime->control->avail_min = params->avail_min;
- 		runtime->start_threshold = params->start_threshold;
--		runtime->stop_threshold = params->stop_threshold;
-+		/* Drivers may sample the stop policy from completion context. */
-+		WRITE_ONCE(runtime->stop_threshold, params->stop_threshold);
- 		runtime->silence_threshold = params->silence_threshold;
- 		runtime->silence_size = params->silence_size;
- 		params->boundary = runtime->boundary;
+ Documentation/admin-guide/kernel-parameters.txt |   14 +
+ Documentation/sound/alsa-configuration.rst      |   36 +
+ include/sound/pcm-indirect.h                    |   24 +-
+ include/sound/pcm.h                             |   40 +
+ sound/core/oss/pcm_oss.c                        |    2 +-
+ sound/core/pcm.c                                |    3 +-
+ sound/core/pcm_lib.c                            |   69 +-
+ sound/core/pcm_native.c                         |  275 ++-
+ sound/virtio/virtio_card.c                      |  159 +-
+ sound/virtio/virtio_card.h                      |    6 +
+ sound/virtio/virtio_ctl_msg.c                   |  433 ++++-
+ sound/virtio/virtio_ctl_msg.h                   |   40 +-
+ sound/virtio/virtio_kctl.c                      |  109 +-
+ sound/virtio/virtio_pcm.c                       |  105 +-
+ sound/virtio/virtio_pcm.h                       |  195 +-
+ sound/virtio/virtio_pcm_msg.c                   |  821 ++++++++-
+ sound/virtio/virtio_pcm_ops.c                   | 2227 +++++++++++++++++++++--
+ 17 files changed, 4182 insertions(+), 376 deletions(-)
+---
+base-commit: a4311e9447bbb219044db38897f95be112f46a8a
+change-id: 20261113-fix-virtio-snd-recovery-final-401a48b55378
 
--- 
-Git-157)
+Best regards,
+--  
+Joonho Lee <mynameisjune111@gmail.com>
 
 
