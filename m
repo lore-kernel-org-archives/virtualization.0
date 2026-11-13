@@ -1,56 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.205.221.205
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794566079;
-	b=F/AFJpL+muTPtjFT8ww1axkeQqhY5xRcVoceusivRoid8TyZSXeZNA6ZJTTgGIHEz0bB
-	 pCW3wexcygSem+ws8X2w7cF8s3tYZGOS6fsgoJ8Na3abSQlOq/lxoknDyOuw9f/Iu4ofm
-	 MrG278G5lneNpkpt6nC8xMAlkHoJmE43UyL3/ocTlmhEum2xxsT694Y3nE6TQa+9xJTqY
-	 Zu30uO2rmI/U255CgNTkOC4GFE2tIOr3fHTBhaxSb/zgoahSCwS10LrJjob8licrKhdQN
-	 d80Nhc2egerCjr2HAwlPmmgcXqkQZ/DSCnoa06MOiKcrR7mbi9/XFxTmEtHPp0Y8aQw==
+	t=1794566318;
+	b=S0wObVsx6VdGQFOrgTmye4NgY8OpHo8QaUhcuFBEBLZce4qy+QLPD9e38PM+Br+M/0vL
+	 vukCPsDeMYCR4dD9qGcKc2nAxqYpqPvDQ2d2vtF+IkfyvC91kypkinzjsAKyZ3vsN+Evr
+	 uoGL2ROKCbrG5pLj2b8EkDDjZkeruDrlZ1DXnpcOUD33O8h+HPfMDpjGWm17ESBEQmQe7
+	 WtAjXjiETd/POlvgjbUSUzpRthvnVyDsq9gTuEf1UFhQyLcILPlgOmnBoq+WEoNaz76Fp
+	 11i8R/8mUC3g02bWijDH16zGV0ZkhVrx7ZmGy5Yivcgoy8rSvln0YTWkcXkvhcw9ofQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794566079;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=VHpXThLJEvJY93/oQ6iOV3ZNPvYBfa2H/O917Ag3esY=;
-	b=zxmXLlHtD7Rs3h80jahpgRrOQeUMnh92iE+sLEhUf7cM/nIo7sSkvZICDptSYQXC2aaA
-	 oNxrg8q33kwVd9pq13hJXNX8KOMobWGmAjKn+btj5dfSuPjHt12xhuYT83mi+ydsqQ2+A
-	 GuTW7UMdheKp9T/KuRYdI5hfu1oBnHgC3LuY0v3EZ3g2/WMSutnm/03dIC3EF9+eFPK1r
-	 sj4942Anz3G+um7PwJQP/6AyPP6AA2qYGn8HRzNUQ9waVfB2jzbseOImrb5d96JaI7Qhs
-	 PtwJucUI7xZYVL6qrcwZEefGvpj4zDJ7PjLB7l1uveTCX8dnqtBoHEBZ6Yp43ioJagA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794566318;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-XMRINFO:X-QQ-XMAILINFO:From:To:Cc:
+	 Subject:Mime-Version:Content-Type:Content-Transfer-Encoding:Date:
+	 X-Priority:Message-ID:X-QQ-MIME:X-Mailer:X-QQ-Mailer:References:
+	 In-Reply-To:X-QQ-mid;
+	bh=yiVvrAzHhnqGTuFkC7TTJCqz/SjLoNkNWUXIur4ZiLg=;
+	b=46EcsA51JEmDQSNCl88/Xxn4H7pcIxuHVMvBh7yI/sZ6FeCNdNAqOXLt080zc6dvyf1v
+	 IlBSqtFZIHht5+wJ0AtuVDyZ24ee/tgdSlXL6A/o15OV9zAKWUXQvMa7I8hzv/FYkoK1c
+	 2d8JoqJXU5lQHxbOUPOCgiWknarrM+qO6eP1BD3RjpP2kWKO7rT7RAqsbcRouzyq2ydHI
+	 QMLaxoJzqtTK52VKcsvnDV5cN0qkVaiWNJe3G6od8tRyG73ZVL9LPc135f7S3OKb2BgvY
+	 4ZxLlXCZb7vS3f6dUF8Y1eg/Akb9gzchJklMo+7+/sLVe71fGRAoW31muwp41DEnrFg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TwoEVp2b;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b="tS/lmvhl";
+	arc=none smtp.remote-ip=203.205.221.205
+Received: from out203-205-221-205.mail.qq.com (out203-205-221-205.mail.qq.com [203.205.221.205])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9263606A882;
-	Fri, 13 Nov 2026 10:34:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70497606A321;
+	Fri, 13 Nov 2026 10:38:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 70497606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TwoEVp2b
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A80F1F000C5;
-	Fri, 13 Nov 2026 10:34:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794566079;
-	bh=VHpXThLJEvJY93/oQ6iOV3ZNPvYBfa2H/O917Ag3esY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TwoEVp2bMwSf2CQCr1uSCn2dKkSXBektnQMYx9IYdz41n0rAsaxSzVE6VZIJFkRBr
-	 wNk39rd06lDZiRfuDIvIsrl7CkxzMQ1Yp+Mj+ZZRnJvoasYG0rgGLsWxgW4EkJ7+5a
-	 GFvAD3zFzdCJ6CLeWqBtxr6jCP0ZtDEbhsjFfDAcfwaPxaMmOJWVolmNvfTgmI8vCA
-	 jDjlg9hLpW8O4V+h4ci6Pa37mteVBTEyntPLk8rbuDvHpKi11e6wDQ4CRaP11ZrptA
-	 J1cd0YPng8SLxiBxMEHHPBY1IOm92nEoI17BrKPssu2LNRa1QTq2o3MX8ziSQtFhw9
-	 PRLVf3MrlHwaw==
-Message-ID: <sashiko-outbox-212625@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] vhost/vsock: Fix socket state constant
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michal Luczaj" <mhal@rbox.co>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261112-transport-reset-state-fix-v1-1-5698375f52a9@rbox.co>
-References: <20261112-transport-reset-state-fix-v1-1-5698375f52a9@rbox.co>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 10:34:39 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=tS/lmvhl
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1794566313; bh=yiVvrAzHhnqGTuFkC7TTJCqz/SjLoNkNWUXIur4ZiLg=;
+	h=From:To:Cc:Subject:Date:References:In-Reply-To;
+	b=tS/lmvhlGN1l30n3FyOvB5Y7Nih4AeKywVlGpqDnyIQYvbQ8zqfVZRIQ8yxvoyjpY
+	 kMlqSYsh+vvUXNQD72Q0eaPC+6qGS/3MJOiPNiYpkwxj5vNzdJERKNpk1X2JEwsWix
+	 FfFba6Wwe2nbKBe+4mJZoRYmoiFdx7fzAXtxnY5c=
+X-QQ-XMRINFO: MSVp+SPm3vtSI1QTLgDHQqIV1w2oNKDqfg==
+X-QQ-XMAILINFO: MdmyWVu0InhAUNv16odREWE3a5Yrsgy7rtEDxoUgTS2ie18ZbVUAkOcRxWt9fT
+	 4j1eF8tIfoohuluP79yuvsLukrdHD/kH9A5Vn/zwjoMMTKGIcq8e+gaADcSvPJ7cavRYK6C1ww8nj
+	 0Z1+JNM0SeFyG4kDDz9XcYv4/7SzYwNt1GUv0tkITh5mGp+o/gGBlalC+hi6T459gQseq3535SywF
+	 ClLd0azcL8Pb7Cku0byYtihoaz05lAi4eMgMpj3qf6P+Z/BmkLBSsHDjmwGenwrkrl7p+ypscJJb+
+	 WWALE+mZZWrPI3DL9EP2Fg0nzkzMS9Wbt0N74zH2mNqlJzaDmTB8eTuPQqmYW7c1a4hu7wWZ8H57B
+	 zX5U9ncn+D4BCi3hn33XwmX39EHw/k5Z30oNMAWxjHqFZrd1AU5sgg7nL/VSJbvEkEOcNOPWippSc
+	 AOglTHjcKXAxiavZ6JI5xg6H/uIkGrMSNeJpESisk0zERdAnQW4lid0EMX1BJOrtO4ATnQHgOFuGu
+	 L3L4xRG0GWjuUkICNsL2ci69vRtD6Ti48cTBCb8dPGtx5Lz1jNm0qDT2BrZ2ZdEBaG76OEcbXoJDS
+	 C8LNV5AUnFR+bzjK542nMAILCUPV7XGhYNXxCNFT4U5WrdcnsC1ytJLo/s8A5xOCcqlD/4+jergdQ
+	 Ll/oEBTZImYamPHrSawVsqGALtUoB3O89O+oVUS3oYdu9TVIk0GRzFEHzzM5hNl4V2stbIJNPvd4I
+	 LDn+Fn6tAmWZl4gmCpXJpt9HM1q+CjzcQqHQ1VCRjWMmnr5HFfqnczs1nQaqIUZvylVPJFLvePvHZ
+	 Q0U+qMvpVCBvZPuIVrznhn/WX3rLNjxwT+jEn7m7pSEbT1kqJxpXr2tFzXO0z1aSfg+6KlX5RWAvS
+	 Ql7HYux3csJ6pQ47NKfBwC3vKUKB8u1bmw09JHpnCV96BrKyx1Hrn4fF3Du/1ZsmE8bgDjFHz3ipk
+	 eaVSvxi1+PQTt5UYUypHy+ALbJSkntBDKkvbsSa8A0XaVSI830MbqeDz4mgPxFVLVRh2cYFH7bkgM
+	 bkChzXAwICxYn2+zca2BfOfAioiBsqiQLGvK2hapWrn7CHD+eYaccVyskT48j0kgqZ5P3
+From: "=?utf-8?B?emNq?=" <zcjie0802@qq.com>
+To: "=?utf-8?B?c2FzaGlrby1yZXZpZXdz?=" <sashiko-reviews@lists.linux.dev>
+Cc: "=?utf-8?B?dmlydHVhbGl6YXRpb24=?=" <virtualization@lists.linux.dev>, "=?utf-8?B?TWljaGFlbCBTLiBUc2lya2lu?=" <mst@redhat.com>, "=?utf-8?B?RXVnZW5pbyBQZXJleg==?=" <eperezma@redhat.com>
+Subject: Re: [PATCH net 2/2] virtio_net: mask callbacks before releasing NAPI ownership
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,103 +67,37 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Date: Fri, 13 Nov 2026 18:38:31 +0800
+X-Priority: 3
+Message-ID: <tencent_1F60CBD50DC4A0CAE66E5B5BE4FCE941CD0A@qq.com>
+X-QQ-MIME: TCMime 1.0 by Tencent
+X-Mailer: QQMail 2.x
+X-QQ-Mailer: QQMail 2.x
+References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
+ <tencent_3206E4502773D7AC6F720CF4046674E5A809@qq.com>
+	<sashiko-outbox-211234@kernel.org>
+In-Reply-To: <sashiko-outbox-211234@kernel.org>
+X-QQ-mid: xmsezc52-0t1794566311t4y03mkfz
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] vhost/vsock: vhost_vsock_reset_orphans() TCP_CLOSE breaks
-  vsock_connect()
-It also noticed 1 related pre-existing issue this patch does not
-introduce:
-- [High] vhost/vsock: data race in vhost_vsock_reset_orphans() [1]
---
+PiBTaG91bGQgaXQgaW5jbHVkZSBhIEZpeGVzIHRhZyBmb3IgdGhlIHBvc3QtY29tcGxldGlv
+bgo+IHZpcnRxdWV1ZV9kaXNhYmxlX2NiKCkgY2FsbD8KPgo+ICAgRml4ZXM6IGZkYWE3Njdh
+ZWZjMSAoInZpcnRpb19uZXQ6IERpc2FibGUgaW50ZXJydXB0cyBpZiBuYXBpX2NvbXBsZXRl
+X2RvbmUgcmVzY2hlZHVsZWQgbmFwaSIpCgpUaGFua3MgZm9yIHRoZSByZXZpZXcuCgpmZGFh
+NzY3YWVmYzEgaW50cm9kdWNlZCB0aGUgcG9zdC1jb21wbGV0aW9uIHZpcnRxdWV1ZV9kaXNh
+YmxlX2NiKCkKY2FsbC4gSG93ZXZlciwgYmVmb3JlIDZmOGIxMmQ2NjFkMCwgdGhlIGZhbHNl
+LXJldHVybiBwYXRocyBpbgpuYXBpX2NvbXBsZXRlX2RvbmUoKSBkaWQgbm90IGNsZWFyIE5B
+UElfU1RBVEVfU0NIRUQuCgo2ZjhiMTJkNjYxZDAgYWRkZWQgdGhlIGhhcmQgSVJRIGRlZmVy
+cmFsIHBhdGggdGhhdCBjYW4gY2xlYXIgU0NIRUQsCmFybSB0aGUgd2F0Y2hkb2cgYW5kIHJl
+dHVybiBmYWxzZS4gVGhpcyBhbGxvd3MgYSBzdWNjZXNzb3IgcG9sbCB0bwpyZWFybSBjYWxs
+YmFja3MgYmVmb3JlIHRoZSBvbGQgY2FsbGVyIGRpc2FibGVzIHRoZW0uCgpGb3IgdGhlIHdh
+dGNoZG9nLWRyaXZlbiBpbnRlcmxlYXZpbmcgcmVwb3J0ZWQgaGVyZSwgSSBiZWxpZXZlIHRo
+ZQphcHByb3ByaWF0ZSBhdHRyaWJ1dGlvbiBpczoKCkZpeGVzOiA2ZjhiMTJkNjYxZDAgKCJu
+ZXQ6IG5hcGk6IGFkZCBoYXJkIGlycXMgZGVmZXJyYWwgZmVhdHVyZSIpCgpJIHBsYW4gdG8g
+aW5jbHVkZSB0aGlzIHRhZyBpbiB0aGUgbmV4dCByZXZpc2lvbi4gVGhlIHByb3Bvc2VkIGNv
+ZGUKY2hhbmdlcyB3aWxsIHJlbWFpbiB0aGUgc2FtZS4KClRoYW5rcywKQ29uZ2ppZSBaaG91
 
-commit 5aff0946f70c88424d509989526e2bc91c501e
-Author: Michal Luczaj <mhal@rbox.co>
 
-vhost/vsock: Fix socket state constant
-
-This commit updates vhost_vsock_reset_orphans() to set sk->sk_state to
-TCP_CLOSE instead of SS_UNCONNECTED when resetting orphaned connections.
-
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 88a310390eb0a..fd224f7681d92 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -789,7 +789,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
-> =20
->  	sock_set_flag(sk, SOCK_DONE);
->  	vsk->peer_shutdown =3D SHUTDOWN_MASK;
-> -	sk->sk_state =3D SS_UNCONNECTED;
-> +	sk->sk_state =3D TCP_CLOSE;
->  	sk->sk_err =3D ECONNRESET;
->  	sk_error_report(sk);
->  }
-
-[Severity: High]
-Can setting sk->sk_state to TCP_CLOSE here cause vsock_connect() to reset
-sock->state to SS_UNCONNECTED while vsk remains in vsock_connected_table?
-
- Previously, SS_UNCONNECTED (1) happened to match TCP_ESTABLISHED (1), so
-vsock_connect() treated the socket as once-established.  With TCP_CLOSE, a
-vhost device release racing with a completing connection can hit the error
-path in vsock_connect():
-
-CPU0                              CPU1
-vsock_connect()
-  release_sock(sk)
-  schedule_timeout()
-                                  virtio_transport_recv_connecting()
-                                    sk->sk_state =3D TCP_ESTABLISHED
-                                    sock->state =3D SS_CONNECTED
-                                    vsock_insert_connected(vsk)
-                                  vhost_vsock_dev_release()
-                                    ...
-                                      vhost_vsock_reset_orphans(sk)
-                                        sk->sk_state =3D TCP_CLOSE
-                                        sk->sk_err =3D ECONNRESET
-  lock_sock(sk)
-  if (sk->sk_state =3D=3D TCP_ESTABLISHED ||
-      sk->sk_state =3D=3D TCP_CLOSING)        <-- false
-  ...
-  err =3D sock_error(sk)
-  if (err)
-    sock->state =3D SS_UNCONNECTED          <-- still in vsock_connected_ta=
-ble
-
-net/vmw_vsock/af_vsock.c:vsock_connect() {
-    ...
-		if (sk->sk_state =3D=3D TCP_ESTABLISHED ||
-		    sk->sk_state =3D=3D TCP_CLOSING) {
-			err =3D 0;
-			goto out_wait;
-		}
-    ...
-	err =3D sock_error(sk);
-	if (err) {
-		sk->sk_state =3D TCP_CLOSE;
-		sock->state =3D SS_UNCONNECTED;
-	}
-}
-
-Because sock->state is reset to SS_UNCONNECTED while vsk is still linked in
-vsock_connected_table, a subsequent connect() on the same socket can
-reassign its transport or, if shutdown() clears SOCK_DONE and a new
-VIRTIO_VSOCK_OP_RESPONSE arrives, call vsock_insert_connected(vsk) a second
-time and corrupt vsock_connected_table.  Setting sk->sk_state to
-TCP_CLOSING instead (or checking sock_flag(sk, SOCK_DONE) in
-vsock_connect()) would preserve the once-established check.
-
-[Severity: High]
-This problem wasn't introduced by this patch, but vhost_vsock_reset_orphans=
-()
-modifies sk->sk_flags, vsk->peer_shutdown, sk->sk_state, and sk->sk_err
-under vsock_table_lock without holding lock_sock(sk) [1].  Concurrent
-socket operations such as vsock_connect(), sendmsg(), or recvmsg() holding
-the socket lock can race with these updates and observe inconsistent socket
-state.
-
-[1] https://sashiko.dev/#/bug/linux-f1ccca0e-e7ae-4926-a24d-72f61680c524
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112-transport-=
-reset-state-fix-v1-1-5698375f52a9@rbox.co?part=3D1
