@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794688036;
-	b=3LsNMbmhi3MbsOdK0BfGRnXQGPrVXRP9sl+3RMvlQ5yCn5lG5pcI0S//ai5lcbp/fHpc
-	 ddgfAXJwsv1radp34xNy165UVQFQmOrQqigJ9VLA/xVo3MJy45bYEbKV0vz/x2BiySKG2
-	 v9JWMLB727gEyj++eZHckYa0gf87yUFKAyw9v9jwyeNCHBEs09+teDn4iYIyeWOhmzMo3
-	 pPJKuLPKUwSsOTgfpOR9zVhCd0FwjiLFcjQCdG8jwiQZvd3hrN3MzVBXlWU80vYNImPam
-	 FOjr9QmbPGfs/Tb9RWvTwYohCX+jCQ+pEepbd919MgjWrV589NCVB7JYwv4QyI+QRgg==
+	b=DlLjCNsVP8cUvYg06TEhJ+ebIdjyVJndN5b5RmbnQs2jD1N5aA6CebORD/4rWAFEA1B4
+	 w2VdKMLQcKzCd+5Pcp9X15cc/mmjIPiqZWfGscbsfWY4BI3IS4pgJEcvBZnvgVodvz6t/
+	 UOEyTniN7K4DXztnfjNVD0/d0Grj13S0at/2TSZVpz/AknYWzXinrDLgs2bBFEK59rvX/
+	 ON2/KnFOpfMGxuD/4QzAn27vYB5u7JOk2p/EYORxH09ZdWVyxHEY5njegmncAMix0yO4+
+	 HJpC2zKrxQrH4hGtDAAgq0Yuf18/LzuZ+Ax6mmF+YSuMFss8Ub4OMAlUWWQMdpSGvrw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794688036;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=jUoI6BfFH1sB0+FMEHOL0bU6KfXMRPa7Wq1sLElSuu8=;
-	b=GcmbfKFWsO9my3PGDidKhXU7oj4Hr+fB/udujvxEhrShicmuA52D3As0y46om+iubQhQ
-	 JsYZqNfE89IIbBYbIcm3m7vtUVJPY3c3hxOvGNa2pcCoY5qNiMx8rTdy13QeBVV1pdvDf
-	 /42mE7HbMiS6bDFdzg4v/I2dK2lkFhDsczDO2u6FgQ0V9l4JGIw8MxALmyd8PZbF28IyG
-	 cvbfQsJWvPEjN8AdFl16gwwlkCG06JN+ifhxAszYl89dXCRUZa9d17NyDuoNJkubiZ85D
-	 2jj8KlzF1ng16oD3KxTZScE7jfFobXnH7L0NiEqmwvik9V9r4yT7fMNmpA9ati7Qz+A==
+	bh=g4Lr1iIWwCQDLrfv4xinJtkANuRZUZ3Hye3ay62BdDM=;
+	b=yFty1+gT1h5g/lfo496+EYxklmGKKLSg2hLg4GRKlpW+DwJ9vUq/jTLj/EAUcRdoyF16
+	 5f44Ue8dA66j4Pj4IGHZkB6wtYRZH5cDLGiVXmduD1Bi0MAdBkSnIPoov/z6B48g9Wi8r
+	 SNz1/sMl+5fNPkB87YoKlZDDIyfzp+0MN0OaBBNQgh7FRtEUboSRGfvr3/+ZJdZ/Ga7WP
+	 /HERuEXpxcGEq8ASyscI6rkNyiNTS8jAMUfJ3uAsfwRPgea9F0JopVNszGYq/9x28j7Dj
+	 drlKugDNv5o0nLT9fl1eVi4i2NMB1GkwQqEasUVtkMhLgpMXeT48T8fEc3mBzQnKb6w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=infradead.org;
 	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=URTxLvs8;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=K+RxW3IU;
 	arc=none smtp.remote-ip=198.137.202.133
 Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A261F606A327;
-	Sat, 14 Nov 2026 20:27:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A261F606A327
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 595E4606A8B9;
+	Sat, 14 Nov 2026 20:27:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 595E4606A8B9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=URTxLvs8
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=K+RxW3IU
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=jUoI6BfFH1sB0+FMEHOL0bU6KfXMRPa7Wq1sLElSuu8=; b=URTxLvs8s42zIeIRrKz8C6wtsy
-	abmbm9qXp3jOcsGAYH+pKr3RJ497JX3Sk6817p0QAhQG/rKzLG+v4FcRs4ORGLq+M0q7u3BfuXAdw
-	l6tZH8HZo6NNAGvkcfu/jWfS2ccRSv08zndHkheLkJGJ9BZE41hQpKP614JLBybA8TfI50vC1kBVf
-	fqdsu8BNwUYSTtYCoe2DMkVzVLNSqWikyGMVDouYC4NVgTb8URX0mOshBMLufByQAwDlKKmqNvYeU
-	D931VlcKiTqNxXT4D0DqdghI9GaWOGO01Wj3VpY2SrnpJZHlsQymu/nwKbhgtvWTV+vGgjLLjTlnJ
-	IlrwuQZw==;
+	Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:
+	To:From:Sender:Reply-To:Content-ID:Content-Description;
+	bh=g4Lr1iIWwCQDLrfv4xinJtkANuRZUZ3Hye3ay62BdDM=; b=K+RxW3IUjPLut10UJdZN3BFbmh
+	pNxgVj59+6O/xkEPsB1hqiX0K6qZJW5/M8/WqEV1J7uMnx4KuEIEFt0PDhNvNcwHr2uGYrrUYIwcE
+	gtcxC7ZIsLuo69Ei00wEPYqF7uh+iWtquvhO3gwZQqnj+BOkE3qYRmomz1FB4DYyLM5e+4m7yTRmn
+	VucLIkmDKfNlqGfpBae0bAvW/bzkfaOJqgckrrJ4zF1mbFGvbDxX3S9VlDpAP5qmgkUnrmxxb4L0D
+	9Zo2mI2kpwS22kcR/S14ACNaGrbtHanSEoj1F3pzRF7XLKfrnQnw7bMTvvwNNW+4Bb7gQaOVbRqc7
+	vcfk00zQ==;
 Received: from [50.53.43.113] (helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xSKKt-0000000Giga-2fmk;
-	Sat, 14 Nov 2026 20:26:55 +0000
+	id 1xSKLD-0000000Giga-0Wfi;
+	Sat, 14 Nov 2026 20:27:15 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
 Cc: Randy Dunlap <rdunlap@infradead.org>,
@@ -135,10 +135,12 @@ Cc: Randy Dunlap <rdunlap@infradead.org>,
 	Matthew Brost <matthew.brost@intel.com>,
 	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
 	intel-xe@lists.freedesktop.org
-Subject: [PATCH 00/12] docs: ioctl-number: update entries
-Date: Sat, 14 Nov 2026 12:26:38 -0800
-Message-ID: <20261114202653.3113381-1-rdunlap@infradead.org>
+Subject: [PATCH 09/12] docs: ioctl-number: update virtualization entries
+Date: Sat, 14 Nov 2026 12:26:47 -0800
+Message-ID: <20261114202653.3113381-10-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261114202653.3113381-1-rdunlap@infradead.org>
+References: <20261114202653.3113381-1-rdunlap@infradead.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -151,112 +153,69 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Update file names that define ioctls and update the range of
-ioctl function numbers that are used where they have changed.
+Update the list of files where virtualization ioctls are defined.
 
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+---
 [Since having multiple maintainers trying to merge these would
 cause some conflicts, it would be more manageable for Jon to
 take all of these through the docs-next tree.]
 
- [PATCH 01/12] docs: ioctl-number: update MM entries
- [PATCH 02/12] docs: ioctl-number: update sound entries
- [PATCH 03/12] docs: ioctl-number: update block entries
- [PATCH 04/12] docs: ioctl-number: update networking entries
- [PATCH 05/12] docs: ioctl-number: update video/fbdev entries
- [PATCH 06/12] docs: ioctl-number: update SCSI entries
- [PATCH 07/12] docs: ioctl-number: update MTD entries
- [PATCH 08/12] docs: ioctl-number: update USB entries
- [PATCH 09/12] docs: ioctl-number: update virtualization entries
- [PATCH 10/12] docs: ioctl-number: update FS entries
- [PATCH 11/12] docs: ioctl-number: update platform entries
- [PATCH 12/12] docs: ioctl-number: update DRM entries
-
- Documentation/userspace-api/ioctl/ioctl-number.rst |   91 ++++++++---
- 1 file changed, 72 insertions(+), 19 deletions(-)
-
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: Shuah Khan <skhan@linuxfoundation.org>
 Cc: linux-doc@vger.kernel.org
-Cc: David Hildenbrand <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>
-Cc: linux-mm@kvack.org
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: linux-sound@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
-Cc: linux-bluetooth@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Jason Wang <jasowangio@gmail.com>
-Cc: David Heidelberg <david@ixit.cz>
-Cc: oe-linux-nfc@lists.linux.dev
-Cc: Chas Williams <3chas3@gmail.com>
-Cc: linux-atm-general@lists.sourceforge.net
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org
-Cc: Helge Deller <deller@gmx.de>
-Cc: linux-fbdev@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: MPT-FusionLinux.pdl@broadcom.com
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: "Martin K. Petersen" <mkp@kernel.org>
-Cc: linux-scsi@vger.kernel.org
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Cc: Zhihao Cheng <chengzhihao1@huawei.com>
-Cc: linux-mtd@lists.infradead.org
-Cc: Neill Kapron <nkapron@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
 Cc: Juergen Gross <jgross@suse.com>
 Cc: Stefano Stabellini <sstabellini@kernel.org>
 Cc: xen-devel@lists.xenproject.org
 Cc: Hans de Goede <hansg@kernel.org>
 Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>
 Cc: Eugenio Pérez <eperezma@redhat.com>
 Cc: Sean Christopherson <seanjc@google.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: kvm@vger.kernel.org
 Cc: virtualization@lists.linux.dev
-Cc: Jan Kara <jack@suse.cz>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-ext4@vger.kernel.org
-Cc: Mike Marshall <hubcap@omnibond.com>
-Cc: devel@lists.orangefs.org
-Cc: Paulo Alcantara <pc@manguebit.org>
-Cc: Namjae Jeon <linkinjeon@kernel.org>
-Cc: linux-cifs@vger.kernel.org
-Cc: Jaegeuk Kim <jaegeuk@kernel.org>
-Cc: Chao Yu <chao@kernel.org>
-Cc: linux-f2fs-devel@lists.sourceforge.net
-Cc: Florian Fainelli <florian.fainelli@broadcom.com>
-Cc: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: linux-rpi-kernel@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Tzung-Bi Shih <tzungbi@kernel.org>
-Cc: Benson Leung <bleung@chromium.org>
-Cc: David Airlie <airlied@gmail.com>
-Cc: Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: amd-gfx@lists.freedesktop.org
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Tvrtko Ursulin <tursulin@ursulin.net>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: intel-xe@lists.freedesktop.org
+
+ Documentation/userspace-api/ioctl/ioctl-number.rst |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- linux-next-20261113.orig/Documentation/userspace-api/ioctl/ioctl-number.rst
++++ linux-next-20261113/Documentation/userspace-api/ioctl/ioctl-number.rst
+@@ -200,6 +200,7 @@ Code  Seq#    Include File
+ 'M'   01-03  drivers/scsi/megaraid/megaraid_sas.h
+ 'M'   00-03  drivers/video/fbdev/mb862xx/mb862xxfb.h
+ 'M'   00-0F  drivers/video/fsl-diu-fb.h                                conflict!
++'M'   01-03  xen/interface/xen-mca.h                                   conflict!
+ 'N'   00-1F  drivers/usb/scanner.h
+ 'N'   40-7F  uapi/linux/nvme_ioctl.h
+ 'N'   80-83  uapi/linux/ntsync.h and uapi/linux/nvme_ioctl.h           conflict!
+@@ -239,6 +240,7 @@ Code  Seq#    Include File
+ 'U'   64     drivers/usb/misc/usbtest.c                                conflict!
+ 'V'   all    linux/vt.h                                                conflict!
+ 'V'   all    linux/videodev2.h                                         conflict!
++'V'   00-1F  linux/vboxguest.h                                         conflict!
+ 'V'   C0     linux/ivtvfb.h                                            conflict!
+ 'V'   C0     linux/ivtv.h                                              conflict!
+ 'V'   C0     media/si4713.h                                            conflict!
+@@ -357,6 +359,7 @@ Code  Seq#    Include File
+ '|'   80-9F  samples/                                                  Any sample and example drivers
+ 0x80  00-1F  linux/fb.h
+ 0x81  00-1F  linux/vduse.h
++             drivers/vdpa/vdpa_user/vduse_dev.c
+ 0x89  00-07  asm-generic/sockios.h
+ 0x89  06-07  linux/sockios.h
+ 0x89  0B-DF  linux/sockios.h
+@@ -398,8 +401,11 @@ Code  Seq#    Include File
+                                                                        <mailto:kvm@vger.kernel.org>
+ 0xAE  40-FF  linux/kvm.h                                               Kernel-based Virtual Machine
+                                                                        <mailto:kvm@vger.kernel.org>
++0xAE  C6     arch/x86/kvm/x86.c                                        X86 KVM
+ 0xAE  20-3F  linux/nitro_enclaves.h                                    Nitro Enclaves
+ 0xAF  00-1F  linux/fsl_hypervisor.h                                    Freescale hypervisor
++0xAF  00-8F  linux/vhost.h                                             conflict!
++0xAF  31-32  drivers/vhost/test.h                                      conflict!
+ 0xB0  all                                                              RATIO devices in development:
+                                                                        <mailto:vgo@ratio.de>
+ 0xB1  00-1F                                                            PPPoX
