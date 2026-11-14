@@ -1,58 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=183.62.165.209
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794664313;
-	b=BZjZKQmO3WuQ1rWOKGbAWBz7ZWh1tECu/fvN4Nk+LkmEO8N/1VPKXMnRaajr/xBHBAHc
-	 OG8CZFFbsJqs7aDKrGRQ679uNItmcOBMxRCfoCb8TbWozEPQZeK6MZuVT9DpvsgMnEQR3
-	 81cMThkDs0ODfBfh0coAxXa+fJKKFhZanzz8efmXaOVCcX9NkVWNB9Kcsmu9d1FL5c5aj
-	 D3a0IWo1uLJfXBXWqPzJsaWJmzS7fa9q1N6lsSxnxMbhVU4dk1s2h74CKbPmQUJIQEI3N
-	 JU/6a9UBIhyGYuTWlc2yc/MeGmxROsS5twkuNCipmETAaEfN0a9sND+EoSDI/18z/Dg==
+	t=1794674834;
+	b=lQc+Mv8VvhPJ8tpTdrsGS4B2xRGC23fy7X/Rt6+prd7Gxj4FUYUSR0MinAQHBF0YcsfF
+	 Lcfu/o7xeBjnMAOBNCnN/8EaJWGqkIsubHn7qgG3V9tM/IquTiI1T0K47+zrvx6jGRIHh
+	 dzykuEtxjYHgI7jJCK9KJfqEtOUu8Byd2FRJQBnr8aWrqkq+C1CFgN3H94as3qD01jLhx
+	 wAHO3Nqi9PireEhSQbqW/Mwj5uqbWE34ybU3DPu8CEcmnilYsTJ6Rg7ComklLSUjzf+ni
+	 ZJnxXXKbllhVBprv08BZQL141cdjId7AqvhhD6Kccr2zFeImNw51OqwsFuNNcVMcW0Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794664313;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=CnWW9gpNC79/nZFswkxbrq3QlPD5NwtKAqBQkHXA8Ek=;
-	b=CPsUcro/+lIIaA7gJvh/3nGyY1CTlpBPdpSjN5MkWmA0M7f/LGFb/uY7qPPEwjP7a8nO
-	 gU2JtPep7s2tXHrROldwZQ+9YvYgeyGoAoWtXFzGpHpWpig4wtRHU9rhmWRiGcjGcSDVq
-	 vBdmBl1ZzyyIlW+BW5rHy9cj/zGKeNQdUQLGA0LfBEq9qFqREadySSIhGxHlDJ55aZt1X
-	 XHiyexoc3IAodo6ANnyO8AXeTYDPIaQqk+OX5UEsPsRHQhsybOABMWi3M+0RSjuYVtX+H
-	 5cPvR4rJfYqeYlIe/XtcvAjT/gceTqRZ0ijLjr/5t8E0XMam2zKOMGLXm9FKPUBjp5g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794674834;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
+	 X-Zmail-TransId:X-Mailer:Message-ID:Date:Mime-Version:From:To:Cc:
+	 Subject:Content-Type:X-MAIL:X-TLS:X-ENVELOPE-SENDER:X-SOURCE-IP:
+	 X-CLEAN:X-Fangmail-Anti-Spam-Filtered:X-Fangmail-MID-QID;
+	bh=4orBA17LG+6yMhJxEwoDee1XxS6KoCjmhb+0Rvf5Gtc=;
+	b=iUuXa6njoNcdJi28/wUEXIACKo1fR9xXe+VFe8ZCElSBdGIaXHss9hXMJ6D2Lmjp5dyY
+	 vOOxf6fgLsYmk77n345f1++1gsRIaF0AMGikGn4ieQYHaIuNfox98PrG8/Ql1cqEs50wj
+	 ock+Klu5OkVKbxvq83EAoA75zpIiU9n87DEIGVVqIRHk9D0BRN6jEkye5l9cXRisYO2Gj
+	 zdMw+zhlayEsd+wXV7/sIlRCYXL8OJW/+lM88ylhdHFzs1nrcrLlAx2q33eIH/o+T3ixj
+	 IdADwJKFJHxwcmXtc6l5WmD5fjVOrmBFO8JaLdilnLVcZgweuhzRdxyHVMfDF/Gx90w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eNM1lOrF;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=zte.com.cn;
+	spf=pass smtp.mailfrom=zte.com.cn;
+	dkim=pass header.d=zte.com.cn header.i=@zte.com.cn header.a=rsa-sha256 header.s=z202610 header.b=5GANXBKY;
+	arc=none smtp.remote-ip=183.62.165.209
+Received: from mxct.zte.com.cn (mxct.zte.com.cn [183.62.165.209])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2B86606A32D;
-	Sat, 14 Nov 2026 13:51:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81424606A33F
+	for <virtualization@lists.linux.dev>; Sat, 14 Nov 2026 16:47:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81424606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eNM1lOrF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40A351F000C4;
-	Sat, 14 Nov 2026 13:51:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794664313;
-	bh=CnWW9gpNC79/nZFswkxbrq3QlPD5NwtKAqBQkHXA8Ek=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eNM1lOrFmFNoqyY7Zg+zbZETOrIHJDfIwRjw5kbfBCQene0fTVwTsdlrWC6g7oDD5
-	 MiAFtMafjcMADffS57tvSIcGBOFJxfP5Vj/RrY29PT9MzBDEyJ0UbrIP4A2QLkhpff
-	 GTbBce2zEWYPzbbCW4+WA35p4SHopqkLTuUsQ5+ayDO9LeUqvrNs/J+BznzuJWonx+
-	 7l3RodaXwRpPQXYT1fils6n6B/9l1KhRFt8AfjVZ4Jqeptsaa9j+ymESAdVlPIXe2I
-	 +G45ETUded+2Do3+1FR+VWKPJZWumTaNx9f0bbDwJe24iDW/kz6b4mkUc3ixQZ3kst
-	 kbB/J6Hjkb8RQ==
-Message-ID: <sashiko-outbox-214595@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC] vhost: set dirty log bits without pinning pages on
- x86
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261113083351-mutt-send-email-mst@kernel.org>
-References: <af7f05bf637337d35fdd10f3e0dbb5e39d7780e7.1794480795.git.mst@redhat.com>
- <20261113012937.40818-1-zhaoguohan@kylinos.cn>
- <20261113083351-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 13:51:52 +0000
+	dkim=pass (2048-bit key) header.d=zte.com.cn header.i=@zte.com.cn header.a=rsa-sha256 header.s=z202610 header.b=5GANXBKY
+Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mxct.zte.com.cn (FangMail) with ESMTPS id 4jRg5Q5B4dz4xPSF;
+	Sun, 15 Nov 2026 00:47:06 +0800 (CST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=zte.com.cn;
+	s=z202610; t=1794674826;
+	bh=uy3aECGD8Sfpa0HTsqpqvXCqlYoBtRbnXcj1FuuqDpI=;
+	h=Date:From:To:Cc:Subject;
+	b=5GANXBKYm/HTQXaAzQLIUZTK7QnM+2TZQDcz2vgzNUlwU9D+mnWFErG9kz2kW/kLR
+	 DPnSnfrZhrTQR1Z02T5u0XhhtqGdO+WiXuYST6UgwZVxEfLPMzk4VtY1rkweNPz8Jv
+	 Y/1EFYeD5NG8XWoUs67D9RnuCWVw0dZnPuxsl63wdE/MVXrfsbi6OntJY/Zk3964f/
+	 D1JyqvCTtOmwP9kRDOpKF1RPrLpnEh4R2VjzrhnU0iw2T5j3Uq5H+ykBzhd55WRUoH
+	 Jw5E6NoGc+ZR7KOchHKHfgIeluTBGca4pORhAr5I5jxqz0rSHVBinRZ9pYeWIxsDVC
+	 nkcGbnbnKQtjg==
+Received: from xaxapp01.zte.com.cn ([10.88.99.176])
+	by mse-fl1.zte.com.cn with SMTP id 6AEGl4JO089813;
+	Sun, 15 Nov 2026 00:47:05 +0800 (+08)
+	(envelope-from shao.mingyin@zte.com.cn)
+Received: from mapi (xaxapp04[null])
+	by mapi (Zmail) with MAPI id mid32;
+	Sun, 15 Nov 2026 00:47:08 +0800 (CST)
+X-Zmail-TransId: 2afb6af8908cacc-33a99
+X-Mailer: Zmail v1.0
+Message-ID: <20261115004708909xx05JgB9nXnOCG0zL7h_K@zte.com.cn>
+Date: Sun, 15 Nov 2026 00:47:08 +0800 (CST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,75 +69,62 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+Mime-Version: 1.0
+From: <shao.mingyin@zte.com.cn>
+To: <akpm@linux-foundation.org>, <david@kernel.org>
+Cc: <linux-mm@kvack.org>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>
+Subject: =?UTF-8?B?W1BBVENIXSBtbS9iYWxsb29uOiBmaXggTlJfQkFMTE9PTl9QQUdFUyBhY2NvdW50aW5nIG9uIG1pZ3JhdGlvbiBmYWlsdXJl?=
+Content-Type: text/plain;
+	charset="UTF-8"
+X-MAIL:mse-fl1.zte.com.cn 6AEGl4JO089813
+X-TLS: YES
+X-ENVELOPE-SENDER: shao.mingyin@zte.com.cn
+X-SOURCE-IP: 10.5.228.132 unknown Sun, 15 Nov 2026 00:47:06 +0800
+X-CLEAN: YES
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 6AF8908A.002/4jRg5Q5B4dz4xPSF
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] vhost: missing drivers/vhost/vhost.c changes to use
-  set_bit_user()
-- [Low] x86/uaccess: missing local __label__ efault in set_bit_user()
---
+From: Shao Mingyin <shao.mingyin@zte.com.cn>
 
-commit 0fc009f80e8e18bd72e753ada02155e494eedeca
-Author: Michael S. Tsirkin <mst@redhat.com>
+mm/balloon: fix NR_BALLOON_PAGES accounting on migration failure
 
-vhost: set dirty log bits without pinning pages on x86
+A balloon driver's -ENOENT migration result means that the old page was
+deflated but the replacement was not inflated. vmw_balloon returns this
+when its deflate operation succeeds and the subsequent inflate fails.
 
-This commit adds the set_bit_user() macro in arch/x86/include/asm/uaccess.h
-to atomically set a bit in a byte of user memory using scoped_user_rw_acces=
-s().
+balloon_page_migrate() accounts the deflation and frees the old page,
+but does not decrement NR_BALLOON_PAGES. Each such failure therefore
+leaves one extra page in the per-node count, which also contributes to
+the Balloon value in /proc/meminfo.
 
-> diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uacces=
-s.h
-> index 3a0dd3c2b233e..0bffa43e02179 100644
-> --- a/arch/x86/include/asm/uaccess.h
-> +++ b/arch/x86/include/asm/uaccess.h
-> @@ -594,6 +594,28 @@ _label:									\
->  	__ret;								\
->  							})
-> =20
-> +/* set_bit() on a byte of user memory; returns -EFAULT on fault. */
-> +#define set_bit_user(nr, addr)					\
+Decrement the counter on the old page's node, matching normal dequeue
+accounting.
 
-[Severity: Medium]
-Is this commit missing the changes in drivers/vhost/vhost.c to call
-set_bit_user()?
+Fixes: 4d689474e1b2 ("balloon_compaction: update the NR_BALLOON_PAGES state")
+Signed-off-by: Shao Mingyin <shao.mingyin@zte.com.cn>
+---
+Build-tested mm/balloon.o with W=1 and CONFIG_BALLOON_MIGRATION=y on
+x86_64. The vmw_balloon -ENOENT callback path was reviewed statically.
+No VMware hardware or hypervisor runtime test was performed.
 
-The commit appears to have been applied directly from a mailing-list reply
-that only contained a replacement hunk for arch/x86/include/asm/uaccess.h.
-As a result, set_bit_user() has no callers in the tree and
-set_bit_to_user() in drivers/vhost/vhost.c still pins user pages with
-pin_user_pages_fast().
 
-> +({									\
-> +	int __err =3D -EFAULT;						\
-> +	u8 __user *__p =3D (addr);					\
-> +	scoped_user_rw_access(__p, efault) {				\
-> +		__err =3D 0;						\
-> +		asm volatile("\n"					\
-> +			     "1: " LOCK_PREFIX "orb %[mask], %[ptr]\n"	\
-> +			     "2:\n"					\
-> +			     _ASM_EXTABLE_TYPE_REG(1b, 2b,			\
-> +						   EX_TYPE_EFAULT_REG,	\
-> +						   %[errout])		\
-> +			     : [errout] "+r" (__err),			\
-> +			       [ptr] "+m" (*__p)			\
-> +			     : [mask] "q" ((unsigned char)BIT(nr))	\
-> +			     : "memory", "cc");				\
-> +	}								\
-> +efault:									\
-> +	__err;								\
-> +})
+ mm/balloon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-[Severity: Low]
-Should set_bit_user() declare __label__ efault; at the start of the
-statement expression, as get_user_inline() and put_user_inline() do in
-include/linux/uaccess.h?
+diff --git a/mm/balloon.c b/mm/balloon.c
+index 96a8f1e20bc66ae46a571a4f51243789bb362925..44c211ba8e6b0b86236ec0e05ca1eb4b9c444a8e 100644
+--- a/mm/balloon.c
++++ b/mm/balloon.c
+@@ -313,6 +313,7 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
+ 	} else {
+ 		/* Old page was deflated but new page not inflated. */
+ 		__count_vm_event(BALLOON_DEFLATE);
++		dec_node_page_state(page, NR_BALLOON_PAGES);
+ 
+ 		if (b_dev_info->adjust_managed_page_count)
+ 			adjust_managed_page_count(page, 1);
 
-Without __label__ efault;, the efault label has function scope, so
-expanding set_bit_user() more than once in the same function (or inside a
-function that already defines an efault label) will fail to compile with a
-duplicate label error.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113083351-mutt=
--send-email-mst@kernel.org?part=3D1
+base-commit: 84abb955b1015477aa11a96e2f3ac1b938b77f48
+-- 
+2.43.0
