@@ -1,146 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794688048;
-	b=t3oou2PsGU8jT3NQxVuCiaK+SL6UP2xhiONBF6jnCfvthXS688Xt5iatE6MVydcaaiSq
-	 cLDNuLJpnhm2KeOlNeQVjjmMWStDBvC1SmUzrxEen3NWJfaV5UzIp5gGFdRMETi8M8VpE
-	 TpA3FruivRWOTFCD0XIccUxOaMFc5YvjwHydY29AfSQQHTGGWsKSEMjUoY1siXdtbv9cY
-	 Y4fS3sx4qq5wVa0aux/GtkzBEefwibGr8Wb6yX3QLnpuQPbyREdYxoKqfiirhMryc9klK
-	 3MGPMs9AJ969yyEhSEq9cQvvSr09B8jPtLM8qyhlhq+OE6j64pTWLRyI6S2VXqoC6+g==
+	t=1794698943;
+	b=r4vQDPIPHiiUayjv5f5hglGLKMnwGP+YPzFhZK4ESj9af4nBWruo7ZbgRskdXWnxyO35
+	 oeGIw+O5j9LX/vtZik3AmoNayyYVTgpzVU/q/L/gdFn+ogHfx9ZO2ULlZa2LPzvWvmIJr
+	 RuQ8Pjw8DYNxQj4/nLfPEmSLinr4etB031tCcFeeIfNBETexvvLwLDlGnhkJmUW+ouAJ0
+	 jtY81G102j82CJBjnak93dQIDn9MjtKn3zkLJ3EabRQoKMRkW2gVptkK1RyWdgcx+UQgs
+	 C8orIW1htgXbw4Zr68KZFZGRVu7EAJVWLHccRPkRfJxHI6UOzC4IF8bhF8SO5bvnWsw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794688048;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=/GQ2kS4zUGO1VrRdCGc0i8jbBEMqqC1y2L0YsldwfFs=;
-	b=pNsfH2HJm8QgGI4bt4NVldVW/wDfmMXjDvEJoD+z7Iw16frzwfwj22fxkJbEeDisMO3y
-	 ulgkamFPNeCdHv/dWpmdXfzfJoU3Yf/w2wVDC8/LOgKSzgvgUt18nDlYoBd79ttWv819T
-	 jDDTM63rQlnFQvFYCthzJDRPiY0Mt0A2CuoPuUB2D8AKxD14Y3irXk0wxYfw+UCcyVOGb
-	 i1E6ANBQ1XHW7TBh1eFRZDYtVWIqCyPthk8ZM7AylsQFqFfL0saF4zDq9P7t0jTDUl4/J
-	 G+BZewuJjaBgEtwNoW92qkbJI+Rq/0KpdcdgjF7WXBun4T/+0kPIyoHc8073JntRGsw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794698943;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=bRH/TacH8dOz70rq9aw6RE8h70NG6XrZSxT38CWyrSs=;
+	b=deacIjir0/+TvaC4jojifQOUGjrhNKQcrWXMmNyO4ch3Wli5Xo5G0ql51/e1WbXpxAri
+	 Pdy0QIN+FUZexKtXDK5ZO1jv75FNhUYOUlIOy9VAPdgq50/vwXuClT8u8vLkr9CMIFVd6
+	 hC45lwfR89cfaeEfm8cqBCpxGUykysXAMkm8ytxUaSmhAWVN4mYXc8uE7PWdQRYXHqJvw
+	 HP7hppgiANWJ1AYX3YnEP5Hu1KMAvhbBhuxAr11gAgXbRA4sxp2dBWLkjm2yL4xMVm4Am
+	 Et6dnpa5z3cZu3fpJnheRQPZ6Xxu/FDcXRIwOnMYEQQfT1Wz+gm7pxnSSwgT0UDa9Qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=XDIhocjh;
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F9+HNOCQ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 174F8606FAE0;
-	Sat, 14 Nov 2026 20:27:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 174F8606FAE0
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BE04606A327;
+	Sat, 14 Nov 2026 23:29:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=XDIhocjh
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:
-	To:From:Sender:Reply-To:Content-ID:Content-Description;
-	bh=/GQ2kS4zUGO1VrRdCGc0i8jbBEMqqC1y2L0YsldwfFs=; b=XDIhocjhPJkOxDtRKRtKBhtH4K
-	d5+pqDbw+uhdymgukoin8yZ+SIycM+3Zy0tlygo/Ahh9V2dUz8am7v5F+s+OiHgrg8Z6MoFGWEnEj
-	F4En8Ab/mKUEIWPb+cNtmXyElhpAnx+TnO9Im2Eow2i+nqiNosKxRAi1SQbReU5LZrPynT4dcY8Lk
-	Thib/6BgIqJzI+6K/y8KD4ybDW6vSBxsArbMvKkNi/HLSIt3390x02r1bfV35x51xAJlxCNHKoU7C
-	Jcj7OJXmK4/hTJJRDAEHa7wka2ef1B/GfVa9DURHrADxvENRQDnmIT2OgPVAh7qGGcJ3nZksJ2bDP
-	bS0oBuOg==;
-Received: from [50.53.43.113] (helo=bombadil.infradead.org)
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xSKLM-0000000Giga-33TB;
-	Sat, 14 Nov 2026 20:27:26 +0000
-From: Randy Dunlap <rdunlap@infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	linux-doc@vger.kernel.org,
-	David Hildenbrand <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Leon Romanovsky <leonro@nvidia.com>,
-	linux-mm@kvack.org,
-	Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>,
-	linux-sound@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	linux-block@vger.kernel.org,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	linux-bluetooth@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	David Heidelberg <david@ixit.cz>,
-	oe-linux-nfc@lists.linux.dev,
-	Chas Williams <3chas3@gmail.com>,
-	linux-atm-general@lists.sourceforge.net,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org,
-	Helge Deller <deller@gmx.de>,
-	linux-fbdev@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	MPT-FusionLinux.pdl@broadcom.com,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <mkp@kernel.org>,
-	linux-scsi@vger.kernel.org,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Zhihao Cheng <chengzhihao1@huawei.com>,
-	linux-mtd@lists.infradead.org,
-	Neill Kapron <nkapron@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-usb@vger.kernel.org,
-	Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	xen-devel@lists.xenproject.org,
-	Hans de Goede <hansg@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Jan Kara <jack@suse.cz>,
-	linux-fsdevel@vger.kernel.org,
-	"Theodore Ts'o" <tytso@mit.edu>,
-	linux-ext4@vger.kernel.org,
-	Mike Marshall <hubcap@omnibond.com>,
-	devel@lists.orangefs.org,
-	Paulo Alcantara <pc@manguebit.org>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	linux-cifs@vger.kernel.org,
-	Jaegeuk Kim <jaegeuk@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	linux-f2fs-devel@lists.sourceforge.net,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Benson Leung <bleung@chromium.org>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-	amd-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	intel-gfx@lists.freedesktop.org,
-	Matthew Brost <matthew.brost@intel.com>,
-	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	intel-xe@lists.freedesktop.org
-Subject: [PATCH 12/12] docs: ioctl-number: update DRM entries
-Date: Sat, 14 Nov 2026 12:26:50 -0800
-Message-ID: <20261114202653.3113381-13-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261114202653.3113381-1-rdunlap@infradead.org>
-References: <20261114202653.3113381-1-rdunlap@infradead.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F9+HNOCQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862971F000CB;
+	Sat, 14 Nov 2026 23:29:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794698942;
+	bh=bRH/TacH8dOz70rq9aw6RE8h70NG6XrZSxT38CWyrSs=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=F9+HNOCQAr+aE/ylCMHLdvVZPaAYEzwRO0EEILONaz9LufGLNMYmDkmQ/Tq0Zwqfq
+	 mfoJ+Jmr1pKOEJkKQMVHNYHxawDGkjJ5PZOCT3U4a9i9SxZuNl+L7A+A1Td7LR/JfL
+	 sE7X2HzhBtD2q5ap2aGNfvqDStJpI1iWKNBdK+IFqnedDrm85UUwY66Y4Y2ArOq3M6
+	 GJ5d+DNJabo+BWe1SOBgnVTb8FUioLMZ097L86Pzqk1Spi8LudrsbiT60cl2+2/yc1
+	 oLp45E4wbyXHJ/GGFoRSR0kcUX3+v/vDhZHnoQuVnSmCy8kRB4zqiUIb/hXNh+IoB3
+	 nT1l+ERDuS/BQ==
+Message-ID: <sashiko-outbox-215112@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] tun: complete the zerocopy buffer of packets
+ consumed by XDP
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Antonio Quartulli" <antonio@mandelbit.com>
+Cc: virtualization@lists.linux.dev, bpf@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261113232843.2338734-1-antonio@mandelbit.com>
+References: <20261113232843.2338734-1-antonio@mandelbit.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 14 Nov 2026 23:29:02 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -149,64 +60,79 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-Update the list of files where DRM ioctls are defined.
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [Critical] tun: type confusion in tun_napi_alloc_frags() [1]
+--
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
----
-[Since having multiple maintainers trying to merge these would
-cause some conflicts, it would be more manageable for Jon to
-take all of these through the docs-next tree.]
+commit 432dd92fb61360561c1a6f28a7f9ecf8e823ad4c
+Author: Antonio Quartulli <antonio@mandelbit.com>
 
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: linux-doc@vger.kernel.org
-Cc: David Airlie <airlied@gmail.com>
-Cc: Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: amd-gfx@lists.freedesktop.org
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Tvrtko Ursulin <tursulin@ursulin.net>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: intel-xe@lists.freedesktop.org
+tun: complete the zerocopy buffer of packets consumed by XDP
 
- Documentation/userspace-api/ioctl/ioctl-number.rst |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+This commit completes the caller's zerocopy ubuf_info as copied when
+tun_build_skb() copies the packet and native XDP consumes it.
 
---- linux-next-20261113.orig/Documentation/userspace-api/ioctl/ioctl-number.rst
-+++ linux-next-20261113/Documentation/userspace-api/ioctl/ioctl-number.rst
-@@ -98,6 +98,7 @@ Code  Seq#    Include File
- 0x1b  all                                                              InfiniBand Subsystem
-                                                                        <http://infiniband.sourceforge.net/>
- 0x20  all    drivers/cdrom/cm206.h
-+0x20  00-01  drivers/gpu/drm/amd/amdgpu/amdgpu_umr.h
- 0x22  all    scsi/sg.h
- 0x3E  00-0F  linux/counter.h                                           <mailto:linux-iio@vger.kernel.org>
- '!'   00-1F  uapi/linux/seccomp.h
-@@ -269,7 +270,7 @@ Code  Seq#    Include File
- 'c'   08     drivers/scsi/ch.c                                         conflict!
- 'c'   80-9F  arch/s390/include/asm/chsc.h                              conflict!
- 'c'   A0-AF  arch/x86/include/asm/msr.h conflict!
--'d'   00-FF  linux/char/drm/drm.h                                      conflict!
-+'d'   00-FF  drm/drm.h                                                 conflict!
- 'd'   02-40  pcmcia/ds.h                                               conflict!
- 'd'   F0-FF  linux/digi1.h
- 'e'   all    linux/digi1.h                                             conflict!
-@@ -293,6 +294,8 @@ Code  Seq#    Include File
-                                                                        <mailto:zapman@interlan.net>
- 'h'   00-1F  linux/hpet.h                                              conflict!
- 'h'   80-8F  fs/hfsplus/ioctl.c
-+'i'   00-02  drm/i915_drm.h
-+'i'   00-04  drm/xe_drm.h
- 'i'   00-3F  linux/i2o-dev.h                                           conflict!
- 'i'   0B-1F  linux/ipmi.h                                              conflict!
- 'i'   80-8F  linux/i8k.h
+Link: https://sashiko.dev/#/bug/linux-f9997fb6-303f-41d6-93e2-60c392b1856f
+
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 86fd44e107550..9271968407253 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1871,8 +1871,15 @@ static ssize_t tun_get_user(struct tun_struct *tun=
+, struct tun_file *tfile,
+>  		err =3D PTR_ERR_OR_ZERO(skb);
+>  		if (err)
+>  			goto drop;
+> -		if (!skb)
+> +		if (!skb) {
+> +			/* consumed by XDP, after copying */
+> +			if (msg_control) {
+> +				struct ubuf_info *uarg =3D msg_control;
+> +
+> +				uarg->ops->complete(NULL, uarg, false);
+> +			}
+>  			return total_len;
+> +		}
+>  	} else {
+>  		if (!zerocopy) {
+>  			copylen =3D len;
+
+[Severity: Critical]
+This problem wasn't introduced by this patch, but can
+tun_napi_alloc_frags() in the adjacent else branch corrupt memory when
+tun_get_user() is called with a non-iovec iterator [1]?
+
+drivers/net/tun.c:tun_get_user() {
+    ...
+		if (frags) {
+			mutex_lock(&tfile->napi_mutex);
+			skb =3D tun_napi_alloc_frags(tfile, copylen, from);
+    ...
+}
+
+drivers/net/tun.c:tun_napi_alloc_frags() {
+    ...
+	for (i =3D 1; i < it->nr_segs; i++) {
+		const struct iovec *iov =3D iter_iov(it) + i;
+		size_t fragsz =3D iov->iov_len;
+    ...
+		frag =3D netdev_alloc_frag(fragsz);
+    ...
+}
+
+When IFF_NAPI_FRAGS is enabled and a caller writes to the tun device using
+an ITER_BVEC iterator (for example via splice() or io_uring),
+tun_napi_alloc_frags() treats the bio_vec array as an iovec array via
+iter_iov(it). Reading iov->iov_len from a struct bio_vec produces a bogus
+fragment size from bv_len and bv_offset, causing skb_copy_datagram_from_ite=
+r()
+to overflow the allocated skb fragments.
+
+[1] https://sashiko.dev/#/bug/linux-ddceb3c7-6f22-48cf-b390-d7b534490c8f
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113232843.2338=
+734-1-antonio@mandelbit.com?part=3D1
