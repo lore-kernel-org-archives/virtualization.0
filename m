@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794727279;
-	b=0krWAhSny9lrFMY6lz+wWiembkbLQ6I8tlov7naW6rlszwNZF7bka1nAWqQ400dHiK56
-	 Se+lRcBM1MxUntRDocAUdnXuiHqZettO/w7ddO7duZ78riKzo/D8ztf5fQZA20ij+gZVr
-	 z/EXg1eCEViYnDT1UWj9k1h0KpmAfHkaw8VOFxjm+NBUIIVSEwH41siaJj5SMT1auOn2E
-	 4RaqmLkN2sTWCdAdBdVudNRRboNCHgTRQZ/0IInBQdQUXRbm/+IeTw9hDP1Dd40AMhw8O
-	 iZ8o8elr/EnfYsIxHoEDBcUsAH0XHT8HpgHxq9DRU3iJyRil5s2D4ljMwOB1OE3WbLQ==
+	b=4i4GFJybcush2vdQMzdqaYv+2o0HxpnzgoFEhX3ugneuz24jCX772uag7kDr3Iwnlo8S
+	 M8xwmpWwEP6FxKLxaEw0zzte/ETP8FUXxk5ZzGhMkhTG4lj2LJvvQMIUrKtgUNjWODLoO
+	 rgnMmus91/3sVEAdz+F3rXqBEM+/pUNaHXqKhKSSgwSRoTXWgrH/9YyJHa4o9ZVd3WcHX
+	 PVFRtf1tgb9fm28a1BokmUiFzgw3J6znX9g4y1L6GXbJqmtpkM+FAy8iEHlz53NB76ynV
+	 0spMEbYMpeR3FCGD3aFMoFhckdVNP36IcbnYbZX6pjRH8581W++WDWy66jmOOAdUnSQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794727279;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=WwctEtLrg8sIkpONRC3JJObdHyutr6qJqVr7ydDuN4g=;
-	b=eFlxTXdSIzTPb+nBYm1MV4DwqnbmZdDd7Xi6MHVHH5IO0iB3q0kQ7gZxRD9RwOFrCWWG
-	 UmDw5V2xN7mJSYtrtFFCLj97HHWB59Iu0tDoOoFVAG0IFtNVzVNuTEfp67rlxyWDsi+5C
-	 2bMQhwwpvxy3x8jti9m34z1BuzT6wClEJL0je7FWYh+tqMtImpEKW41CI74LLqaShOMZC
-	 8NBHbzm+vGjemoTW+7vVVGDaxhvipCHw3p92WLn59dbl2jdQgrfCT3H4Y5BQWes+dR9cu
-	 jHM0U/MEYLkyn3QQBybze9+yhdRVHfZ6EGloqXIDDNAc/zWuMR94m4JL19VNh3UuC7Q==
+	bh=r1+BFBuZq2X00aKCGqYA4d+iVksV9wGSDEbVC2VjFcw=;
+	b=zvTa/CcKQQjK/Fv/y/hosYUVxO2c0QZqUjzy4NIK8QTdQnatq61uR3tmw3VBl1Djaner
+	 lpJttgcHpw4FJHWD7g+kl012/Ock2cbb1LTdcb7rKcDMIwEClS/15CBpAEqR2yTX/ILcq
+	 gEFFboXTbEJma+yXpv4Kltv0e0wlqLEvAo6dCUH8t0vj9CG4TP+J1osIX/TdkwuEVZEWj
+	 3aw32DA0tTsHM0MNK83uSEmcn2sjTN+X8jUCQaXkwLQtvDGlgAV6QUyuoNEWyKohv7d01
+	 +cXPITHO70oOYwSRAVxQpKayW4xiQyDdq9SWbiqwcNr+fzHkjKyE6582mHWTet0L6WA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ffq6/wCY";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NfNvfYTk;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F090E606A89E
-	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 07:21:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB743606A8AA
+	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 07:21:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ffq6/wCY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998361F000C8;
-	Sun, 15 Nov 2026 07:21:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NfNvfYTk
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F351F000C4;
+	Sun, 15 Nov 2026 07:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794727278;
-	bh=WwctEtLrg8sIkpONRC3JJObdHyutr6qJqVr7ydDuN4g=;
+	s=k20260515; t=1794727279;
+	bh=r1+BFBuZq2X00aKCGqYA4d+iVksV9wGSDEbVC2VjFcw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ffq6/wCY9zhkQUUP6Y7so4qXMp4BndyT+t6UxuEzwTmP29xkwtRmIwJDAXsEfu16f
-	 0CmttosybqDHunXHwiMR1SiNQgXARAJeRWO9AVbR40KvvbM83qB8ZK3ctcpxtAMdIu
-	 7uBvaDI2svtr6S93DYYaGKgDD0y55s4VIRPnOEthpmqQcoz7tzPXnipxovbwPn2nF4
-	 EN1r8JJQWZpvslk+ghd9EtctTgft9Fkj7SOHTMEJFGWbWIO1oT66rCuKpT5KfPyVEF
-	 GGEWpRwQKH66GKpsEGYGrl6wFS+oTQ5G0suLyHT2gysQnxz1uTurst5b9lIYxJaztZ
-	 DyIeLNare7YfA==
-Message-ID: <sashiko-outbox-215253@kernel.org>
+	b=NfNvfYTkF1wREtBNDfnPbhCPV+or7j2zRrBxz/spKZGS2qAtsBRKH106QZwKzzaif
+	 ss1hBfxQC5sGbKdFsXXywFbfqscLHqlPR1Vp6o+M7chs0HAjDVSy29J/6SnnxTehZw
+	 3rrgNKkF6DuUSKFPc3dRzK2jWgSExrW35NsFj7UhdCq0ZVn4h/FRw45J/VAMte9buq
+	 dzB9V8whyiizO8E4QMGZYTepWB4I5qU/NJCjuEBRvMZ8kItIMxPSTGo6Y6xOMKMyHj
+	 yBfvzVcytGG9fDaAYFPq9qOMXwnoHBrQt3rPq1AldshJcH1fr6rrbO3gJl0H9+PVMG
+	 So8pz6jRPg2qw==
+Message-ID: <sashiko-outbox-215254@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2 1/2] net: napi: add completion with an ordered
- IRQ mask callback
+Subject: Re: [PATCH net v2 2/2] virtio_net: mask callbacks before releasing
+ NAPI ownership
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Congjie Zhou" <zcjie0802@qq.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <tencent_2A5F8EBA9EC78CA99CD080386A68EE90B506@qq.com>
+In-Reply-To: <tencent_E27D0F1CA04EE58A5873E5A4EBBDCDF8C80A@qq.com>
 References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
- <tencent_2A5F8EBA9EC78CA99CD080386A68EE90B506@qq.com>
+ <tencent_E27D0F1CA04EE58A5873E5A4EBBDCDF8C80A@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Sun, 15 Nov 2026 07:21:18 +0000
@@ -62,25 +62,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> napi_complete_done() can clear SCHED, arm the watchdog and return false
-> when deferring hard IRQs. A false return therefore does not guarantee
-> that the caller still owns NAPI. Masking interrupts after this return
-> can overwrite the interrupt state established by a successor poll.
+> virtqueue_napi_complete() prepares callbacks before calling
+> napi_complete_done(), then disables them if completion returns false.
+> On the hard IRQ deferral path, completion can release NAPI ownership
+> and arm the watchdog before returning false.
 >=20
-> Add napi_complete_done_with_irq_mask() with a mask callback that runs on
-> false-return paths before ownership can be handed off. The callback
-> must be non-sleeping, idempotent and leave NAPI state unchanged, since
-> a state-update retry may invoke it more than once.
+> A successor poll can rearm callbacks and complete before the old caller
+> executes virtqueue_disable_cb(). The stale mask then disables
+> notifications again. If the one-shot watchdog has already run, no NAPI
+> owner or timer remains to consume later used entries, causing a
+> persistent RX stall.
 >=20
-> Keep napi_complete_done() as a wrapper without a callback, and inline
-> the shared implementation to eliminate the callback path for existing
-> callers.
+> Use napi_complete_done_with_irq_mask() to disable callbacks before
+> completion can hand NAPI to a successor, and remove the stale mask after
+> a false return. Keep virtqueue_enable_cb_prepare() before completion:
+> moving it after ownership release would reintroduce the RX virtqueue
+> race fixed by commit cbdadbbf0c79 ("virtio_net: fix race in RX VQ
+> processing").
 >=20
+> Fixes: 6f8b12d661d0 ("net: napi: add hard irqs deferral feature")
 > Signed-off-by: Congjie Zhou <zcjie0802@qq.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_2A5F8EBA9EC=
-78CA99CD080386A68EE90B506@qq.com?part=3D1
+78CA99CD080386A68EE90B506@qq.com?part=3D2
 
