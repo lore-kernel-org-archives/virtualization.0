@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794712873;
-	b=308LI6lCJIpGnKQ3CXsgVHTfEHZ+hGu2Icg6m1gOgJrlVQnA7najsRVq9LoxMdIk7U6C
-	 Xhy1A4DTWKt2qWXGPVG1sp7Zw85noYcYA162IShszfOlH4P4P6qcstp30GWuZQxdqyAnT
-	 +8lwX99j2MfTMvdlxCMGWQFBcMuKYGz8ATUxaT4W7ID3DAIzyrLyX9MUsHmuGYZpGQADy
-	 yrBU6Jl4f07nFwToxBda+B5GUgBIg3oGn6LjwTxfUeA2rIFozmvNlTMj1p2rGgPFO+5/b
-	 APTYRBWyEc4DRoxXGLScTYvJGI3EDGl5OgUo27gYdmJomSTQgUmkuDOt3YuaIrxFmKA==
+	t=1794712875;
+	b=2s3CXKSYJbpN445URVaIDzxAAdSc4gQ6ul94X6RS5unTvwN1u8lTzc9zwnyxyeCcG7wf
+	 FWZA70Ip69vdKS+o54YZuRGgA7av14oGerM5QmGhJ96LRmpftZakjYvZTbSyMencW/rB/
+	 6QIIIE5Pe4b7H2mQsxQVivLlZnOc21fqlW5bsIGVCzUDKJFIxQDclVndDoou1dk1UzApq
+	 zlKXqylgkmlKaYn0GykUI7zQuRaM3M62nt95o22qtOFIn0IE0x3gqjl+W9gnm/aqJAfGp
+	 8Uai3pMc1qf48OqatjE8TIQPDwR2aDfqI21BjrutnLw1M7O06KXQ9rJGOgpHeWg8bDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794712873;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794712875;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=pvjBBwIilcygQN/NuSnDyqf/B3bMEMRfzr1ku62r22o=;
-	b=s3y8Het1i0JczGpxVlj0uQsXFMD4XKBBldFpPQLTYrclsoskgTAW5VJU3tRPFgK8hzdP
-	 +mt8PNaRJ500y84B5yovexjx2uQF58GBiHZMzjixSRgsUeiaTCbZyNxCCIFUJJSxZpkfb
-	 gzxNU6TJy1WRAASSH5f2x7tqdGrQYODDEvNw1ikaOlL/npXhqKYRXKddIAHE4dzuoJis4
-	 CKpk+qxTPxPtQXTmGAnhk/qNh68KbQ0+SdoyHL3q9TAgxY7qzOzVOJ9kkKOJhvlTOunEQ
-	 OZ2BZrbmNcwzve9EP+qceSZWNoS9A8oJEUdZSQRHe8cL9IpEYUxlCUUEiybwuipVv7w==
+	bh=AfFWGlC2a4s0rIlp/BTWifjVtPFquFbptDvmcihANu4=;
+	b=YN0qLxNph2W22b9V1aRzG02OfKk3Vvg5B2Tf/5IVojVA8fg0o9OVIBRjvf7YMGJk5nSD
+	 Aj9T18wEVyuA7BXIfldmhRGlHPRG4iO7ejl9huq9K8+sGGXfU1flXpE+6bznO4kHHzxjK
+	 4ls3sD5etsAZThrlyfpLJZUIA2dJ0/mSQjUU6n6juwFpc5GX3wAX4ITKwF3YrRhbKJxa0
+	 h6MSiki+9sRGrBDlplNstmvj18RCGQnpyKZWd508zgH3dP06katHzSnm4cc2lfyInDNvK
+	 doXExcUIt1o3h0Ok/IIvqHzHE7rtbJrcfHrua3IojCaCypxrWg+7fFEqUgcX8LN5O4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MKzNfrrn;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=On9y9qSj;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8761606A337
-	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 03:21:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E7DD606A8AA
+	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 03:21:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MKzNfrrn
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8468F1F000CB;
-	Sun, 15 Nov 2026 03:21:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=On9y9qSj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 008D81F000C6;
+	Sun, 15 Nov 2026 03:21:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794712873;
-	bh=pvjBBwIilcygQN/NuSnDyqf/B3bMEMRfzr1ku62r22o=;
+	s=k20260515; t=1794712875;
+	bh=AfFWGlC2a4s0rIlp/BTWifjVtPFquFbptDvmcihANu4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MKzNfrrnPa0lywNebmq2QYQ37wo5K9lqhdxX09nHolZ2v4D7RKzyYjfurzDw3V3ch
-	 TKwff19nUk8aBG6U771XNdBz3df4LLmjZXX4egzZdeIaoJ/WeF0kCNqQnJufomST86
-	 LhvfXdJUBO+ZWctChMVmY/+FL0SiixclNqlxyeZ9wBNYnwXFiHzBjrn1QC4ccO0O3E
-	 spwmNifJ51BkZBZkFqDNPl1z0I/ixIep4hB7FndyNkhXshFgHAidH8n7tkVxMJImRr
-	 ltL9/4nafLxOtxwXibJc1kjV8kp9E/QzMIscQcUKr1jXQY1mqTrEGiNwIZBy15Mh7q
-	 i+HC1jWsE6Q4g==
-Message-ID: <sashiko-outbox-215198@kernel.org>
+	b=On9y9qSjvETfr08IAa+Z8dPGGTo0P2ABNCLp9wPMf/ZmjnLuaE+zkq162e9Nw9xbM
+	 qNYThQHvY/F+CpMbL67uByg6ISWAkuXXsMBILGn+r1NwSv8aVv+FawJt0pjRNqGo5O
+	 NZQWGHQIeiyLW/Y0RZ6Hr8avvO7fobVlelWV450e988cOa27075Y+7XYiZO493waRy
+	 V3Kt16aZzF7HC0s5xtMuxF4lhNrcKDYCoCwwgieTqQXbF1eQZW8f2tQimJvKufHgUu
+	 v6C4EhnvP35fYYedvqIOnpTAO9TsWvtbTP+J5XmdBO4AXLddDOnLlDjCuqvomSi78G
+	 T0x/a+b9D0hFw==
+Message-ID: <sashiko-outbox-215200@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v6 5/8] vsock: add a netlink command to assign
- the g2h device to a netns
+Subject: Re: [PATCH net-next v6 7/8] selftests/vsock: test the guest vsock
+ device network namespace
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bobby Eshleman" <bobbyeshleman@meta.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261113-vsock-guest-ns-v6-5-3737ce4673c0@meta.com>
+In-Reply-To: <20261113-vsock-guest-ns-v6-7-3737ce4673c0@meta.com>
 References: <20261113-vsock-guest-ns-v6-0-3737ce4673c0@meta.com>
- <20261113-vsock-guest-ns-v6-5-3737ce4673c0@meta.com>
+ <20261113-vsock-guest-ns-v6-7-3737ce4673c0@meta.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 15 Nov 2026 03:21:13 +0000
+Date: Sun, 15 Nov 2026 03:21:14 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,32 +62,18 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Namespaces let a host isolate a VM's vsock traffic to a specific
-> namespace, but in a guest vsock traffic cannot be isolated to a
-> namespace. The vsock device is hardcoded to global mode and can't be
-> moved into a local-mode namespace.
+> Add tests for guest vsock device namespace assignment, including ns
+> destruction and the device moving between namespaces.
 >=20
-> Introduce a vsock generic netlink family with VSOCK_CMD_DEV_NETNS_SET,
-> which moves the device to the namespace given by the netns-fd or
-> netns-pid attribute, as rtnetlink and devlink do, or to the namespace
-> the request was sent from if neither is given.
+> The tests drive the device through ynl's cli.py and create guest
+> namespaces with unshare, so they need python3, PyYAML and unshare. A
+> missing one skips only these tests, not the whole script.
 >=20
-> VSOCK_CMD_DEV_NETNS_GET reads the assignment back, reporting the
-> namespace as an nsid relative to the caller. VSOCK_CMD_DEV_NETNS_SET
-> only returns the netlink ack.
->=20
-> The command requires CAP_NET_ADMIN in the initial user namespace. A
-> [ ... ]
-> user namespace is required for the assignment.
->=20
-> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredh=
-at/
 > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-vsock-gues=
-t-ns-v6-0-3737ce4673c0@meta.com?part=3D5
+t-ns-v6-0-3737ce4673c0@meta.com?part=3D7
 
