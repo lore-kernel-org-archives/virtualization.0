@@ -1,81 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794781894;
-	b=r6AzMwacSmsbNZXFh37mvOK+vIqhWN86h/GVr05ZIRkBJK45/7V7AKjQS0l7hBhkULzt
-	 1B+YQ0NJ6TCARKZv6hIxdsVah7vkf0q38195g16DYOlTJkKMv7Pe4MMc9x2kVMEJD0F3I
-	 15xTMBBIhXCM+UrQDypJOauil/D3ZBcGUVgWtWk8F2/KUykg7u5iAJkyWIiH5G8NT3UCV
-	 XoVYW/aUx9up2eK0sMnlkieQULfgnbmLmBH9U7o4GjdtLU7V1ENGF06hKituKWK/UuWAu
-	 Hxy4pMQg1mu3dnU2BDeRPxsua+7eeXLQrl+CZ9gGfaRXRnodBXkYItOGV1pfU+5J5kQ==
+	t=1794784065;
+	b=1U6+D2JLpcLnFd20l3kZsbrLWUy3Hd04c96pUIzNTL6zKY7UPKs6nHwBGC2ZnyQoLpdP
+	 7QcSwx68vu5Qy4AO7qJYlSncdFLUV3YlGWA6Fgk+OEMGz2Y7BTAIfZYCo8Nt1e7y3l2pE
+	 Ou1aQE1u6shjueWXCQ25/L8s5EOJ8d7wR60W6lQ0ST7OmNeUUP4PXtIVb9lAtGSimjZlp
+	 xSo+qe3FaS6scyiDB1QNcgm3F0hwn1ZuYH2ob1w7oeNdj1srhXTzfA29sO2Zzbl8AKMM7
+	 fQXfLKzgaaOmK0laAjoJP1M9vynbfuMpcYXb/WeYghkkjsA1zBgls4syiryo7iUnwhw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794781894;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
-	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To:
-	 X-Originating-IP:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version;
-	bh=ykt8FTUNX1/fdxCk4A4DHYN7Y2tblUILl4FGUFZzAXY=;
-	b=jH7DV48RgR7kKh0KkOh3OTsQaq2GCjeWwGUwCu11WSLMMap7OzczTIrm/VbgTN/OMALA
-	 WWtq64JBSDN5ZUQjjXy7bQuZeFfqJlLp25RaSi+wz4I+B7cWISWlqo4teQE+G39MqHbkI
-	 XbwbR1sQTwZB3XaaWoNsFgbOd98dwLR3dzoJFixRj73rrPADDLC/83neOaAh+S07fwUNx
-	 PgKaDs6VrDLC5Eb8xxPXjZn95S46bt8092mJCrLoUcbIogVFMn5GMrlw7vtiQtUUNyaZh
-	 TkSJerog6y2nrD+5aq23IHvJosTrwgzykemjVvKRHHPG/iXKzxrcHNax6eZ0ingjTaQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794784065;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=qSuk1jbsdV+iZEtNlLpPi3t1jVjwwjZENkNYPa18BIE=;
+	b=fimCPhkafYcUDIdGVQYHxEAhISnA8mED2X0yOVsiAW5oTacLIF4BaDvGPplUuUF/8GN2
+	 50YHw9GH5baV5+E1qwKdbBhhATtaaE05iBVGvC15XkLr6iNNV7PuHW6vKdxX/dffm8jqp
+	 NXx9zxopTFEJApoWKWZ88oX2scFjA1UmEDC0TpyOghrNZDe87ODUynlC98h8RgUx/5XvU
+	 h26FyW/cB+Bvz0f9d6T4VKMCp8ib43nHd1QPWzQGWjJ8FYuj2fUO8/V/S9UWE4aEY1Qoi
+	 v6OCznABm3V88UsQrm4bWPjy9oi8/zK7PM+oPU3CjUjlAj4+F3chOsKtxP6OuvI1IzQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=SJ1mxSb+;
-	arc=none smtp.remote-ip=67.231.145.42
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZwaK02Gi;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8480B606A31F
-	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 22:31:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8480B606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56FB8606A882
+	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 23:07:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56FB8606A882
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=SJ1mxSb+
-Received: from pps.filterd (m0109333.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AFLmgRp538015;
-	Sun, 15 Nov 2026 14:31:16 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=ykt8FTUNX1/fdxCk4A4DHYN7Y2tblUILl4FGU
-	FZzAXY=; b=SJ1mxSb+jBspwpZ+RoOy/Lr5CS/7QRNeo6OhUzjml3l34B3DOQryV
-	YTrD7iaqc9bgjeOvKGchb/xXrv6VyJK/Gnz553rSSAdGLesUpyD5Iz2tjzkhAy3E
-	AiQphbyhg194wLcmkgxeLVgI8XyXEp9YyBcP0aAXzVQgJQUXnKZErZIoGmaclPQE
-	xGshwi14J+WZvgkcMRCwpNXSsDFUyFSi8i6x4g5eKeCkVNk/jhnHQntZSJqtPYaC
-	tvixv1d5+1mVFqDxanbVp8+94a3/32sOffAJJp0HYLsn4xOrSypZSbsV/oTIJabd
-	VFAOlvk4X4FxeeglzrPDyjhY9FIx+7AUA==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hxmj45x9v-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Sun, 15 Nov 2026 14:31:15 -0800 (PST)
-Received: from localhost (2620:10d:c0a8:fe::f072) by mail.thefacebook.com
- (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Sun, 15 Nov
- 2026 22:31:14 +0000
-Date: Sun, 15 Nov 2026 14:31:13 -0800
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-To: <netdev-bot+sashiko@kernel.org>
-CC: <sgarzare@redhat.com>, <davem@davemloft.net>, <kuba@kernel.org>,
-        <pabeni@redhat.com>, <horms@kernel.org>, <corbet@lwn.net>,
-        <skhan@linuxfoundation.org>, <stefanha@redhat.com>, <mst@redhat.com>,
-        <jasowangio@gmail.com>, <xuanzhuo@linux.alibaba.com>,
-        <eperezma@redhat.com>, <shuah@kernel.org>, <rdunlap@infradead.org>,
-        <donald.hunter@gmail.com>, <edumazet@kernel.org>,
-        <georgezhang@vmware.com>, <acking@vmware.com>, <dtor@vmware.com>,
-        <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-        <sargun@sargun.me>, <jlinbox@meta.com>
-Subject: Re: [PATCH net-next v6 5/8] vsock: add a netlink command to assign
- the g2h device to a netns
-Message-ID: <avoysWTR++rTKfKL@devvm29614.prn0.facebook.com>
-References: <20261113-vsock-guest-ns-v6-5-3737ce4673c0@meta.com>
- <179471528940.2199510.18137700517588437955@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZwaK02Gi
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794784062;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qSuk1jbsdV+iZEtNlLpPi3t1jVjwwjZENkNYPa18BIE=;
+	b=ZwaK02GiuylODvQ5bnPr2xb8/x1Q9YHXKnwy5iHl4pr8axLvyZB7lJGOQg4arxXo+kyvWv
+	dd6wehp8HU9LQ7F0DxygCKIImxv46nBwi+ETDdl6oCL4GNJ/FIZiXDIOovb7eVLhUe6pNi
+	ef4bP11lJYgIjpXvXu6JDbtxRzwA2aM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-528-sfUS_sjaOhCvHpJ6b6ojjQ-1; Sun, 15 Nov 2026 18:07:40 -0500
+X-MC-Unique: sfUS_sjaOhCvHpJ6b6ojjQ-1
+X-Mimecast-MFC-AGG-ID: sfUS_sjaOhCvHpJ6b6ojjQ_1794784059
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4a359c7f47bso23132585e9.2
+        for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 15:07:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794784059; x=1795388859;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qSuk1jbsdV+iZEtNlLpPi3t1jVjwwjZENkNYPa18BIE=;
+        b=ND0WXVH3uvHlc+yvv11GbXQ6lq/SsLZ/JOmaRHVJ7nBDzmv5F54KKb7R4V/bRIc87T
+         UFFU+hAqck1hWVQP4FnuJug2eWP4rMKOZe1VhNXHrFyCB+Yzuh/wTmab8+T6xQ7eNYl5
+         J4DK6/UXIrg+JV37cTOlLrhApQOXjUS5yucS4rUifYCV8dtWoV47yjBslTPRp6vr+rWx
+         QNg53hOORT5oQy3sARyRPAIu7Pq2lyaviaQ7h0of9ybwsbP9eJgGZsXCJPI2DldZCSmN
+         koxhZMiTJpYlyG46h3Bpsa9XKymm2XtICpjnZ81rDhS0q2Ilo6QbiGnuQP+pBofcYj6k
+         ulpg==
+X-Forwarded-Encrypted: i=1; AL+hErFwmQAhE4qCMIbbjWD8ZiiN/fvQy0UxxvJZvQeZpjHStlKUCcVg0HqPiJHei+Xj95lNSnWwSm71neLbQ13brA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8hx8W9+g8gBUUHbe8lql3p3s6i+FysPZmeXg8a206JlYARZCJ7
+	Hag/e2BBdURWsm3X9Eu/VBJv2NCZrY2/1Mrxx7n2a1DZuF5SAc+8htTgjdsdwvVb7BpcrqsnLrO
+	16q2fmumWahuYvxmkWPMzCc7Rd3MyWUdSPN2BpUitz2aOyo3AZ4SQ+P8ID99HA/GPHcYB
+X-Gm-Gg: AYBFou1Ec4EelArKnStotCp8KUiDCefxj5c96WKvxt0RT0fjfpX3GVneubo84Ggx+P0
+	nnZYVtpG+kguWOAkpTrIsZqk6xwPgL/rThRPhejKoRp3SGkSquUnxNOGU7QYfXFuMqAlxG/1HqD
+	+3g/9ki/mH9/tefecT38Nycrxokyr2s0PBitEcniVWRzbSQHVuGLt7bUofVa+3/TYVHeZAO0FSA
+	aQg3EaWbVkEnSeGy5uO0nwO/mLOoas/VLK4KSvD027Tvtd3KM5RbcldALRDC7gvIf+CbvdC6Sig
+	HQsDA00Zc0PylSkEMxtYMA7r+g95ZZxa8yPRgL1wNGmKJAUmontqICZmpXSQhv0cAt+CJ1aoR3y
+	kWeYKCsbU6vIGt53pJ2/0s/lHQc028Wz4LZGTbnblxA==
+X-Received: by 2002:a05:600c:8b6c:b0:4a3:5a7b:6002 with SMTP id 5b1f17b1804b1-4bb649d4148mr97699765e9.28.1794784059307;
+        Sun, 15 Nov 2026 15:07:39 -0800 (PST)
+X-Received: by 2002:a05:600c:8b6c:b0:4a3:5a7b:6002 with SMTP id 5b1f17b1804b1-4bb649d4148mr97699295e9.28.1794784058388;
+        Sun, 15 Nov 2026 15:07:38 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:151e:a200:7a96:1b15:81f:ebed])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb5b4a3fcdsm213451595e9.0.2026.11.15.15.07.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Nov 2026 15:07:37 -0800 (PST)
+Date: Sun, 15 Nov 2026 18:07:33 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Congjie Zhou <zcjie0802@qq.com>
+Cc: netdev@vger.kernel.org, jasowangio@gmail.com, eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch,
+	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [BUG] virtio_net: RX stall caused by masking callbacks after
+ NAPI ownership release
+Message-ID: <20261115175445-mutt-send-email-mst@kernel.org>
+References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -85,130 +105,71 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+In-Reply-To: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: vGbJ9VteZRf4ci5vCBr7cACSKRDJ_Gx5frSnLbb2HSM_1794784059
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <179471528940.2199510.18137700517588437955@kernel.org>
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE1MDA4OSBTYWx0ZWRfX+ZQB0ppP8ScL
- 5zEoQ8ohV0T1CuBY5u/tqmj8DzX5Ljagf1soUB7AVYidkRKRsqhQDkRRZp+pVhEMtjBS5jfK7P+
- ZeO7st34x107s/XRqb/3LcQol9zeezk=
-X-Proofpoint-ORIG-GUID: DnfmZE2Va31yL9pMIgnnC5detjkL3Jk6
-X-Proofpoint-GUID: DnfmZE2Va31yL9pMIgnnC5detjkL3Jk6
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE1MDA4OSBTYWx0ZWRfX0OsD6yWxMwIx
- 0eZPLstlNAs7lKlPNceGqzSKTDjDVlTQ8eyUjLvERfU+AVrymQITadzDMNe6//+ObxP4VVoDsDi
- PtfEjV5VvmmKEO4UOE1nDpJKK7pde2D2jZcbeeQKi7FhIJbhCt1Zn96tR09NcwGm0DrG79aUI2w
- 7waXvI2nBWmzsmdvP5m6fUzi7e3AEmTbPRlkkM71iU3BQgwiFM7HvNnj/FbQxMrsWfSzRWxnyYl
- RmIoL8BgU+5gLMYoTLNjeqpjs4r9t4zqlQEtiuRu48++m8CutKsrxmTLLDA412TrOZTRGeO/9qu
- tWqdZPESNn+B8cvuFQMHhjqGoRus/Z9jPR7eMtzSatOkjYmg/TBUTQ1pwPhlVuVRqoVWo1a5Ykt
- ZpDhImJHp4PlMvxMImAYZlfqBSypP+uKOi3oo55f5oAk3IstOyhBmlaRPMHE8us4htBgO9vLvxr
- DalggzfOW7SMsENxYvA==
-X-Authority-Analysis: v=2.4 cv=Vp+2kO2n c=1 sm=1 tr=0 ts=6afa32b3 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=8nJEP1OIZ-IA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=tpM8CJlwf7uhpglF1g9U:22 a=VwQbUJbxAAAA:8
- a=9R54UkLUAAAA:8 a=VabnemYjAAAA:8 a=RAyg9Hr4hlSmefgnMj4A:9 a=3ZKOabzyN94A:10
- a=wPNLvfGTeEIA:10 a=YTcpBFlVQWkNscrzJ_Dz:22 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-15_07,2026-11-11_03,2025-10-01_01
 
-On Sun, Nov 15, 2026 at 04:01:29AM +0000, netdev-bot+sashiko@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found more severe
-> issue(s) in other patches of this series. This mail is only an FYI, in case
-> you want to address the nit picks below when you respin.
+On Wed, Nov 11, 2026 at 09:36:10PM +0800, Congjie Zhou wrote:
+> Hello,
 > 
-> Low priority / nit picks for your consideration:
-> 
-> - [Low] The new `vsock` generic netlink family defines `dev-netns-set`
->   (VSOCK_CMD_DEV_NETNS_SET) as a do-request with no reply.
-> 
-> --
-> 
-> vsock: add a netlink command to assign the g2h device to a netns
-> 
-> This patch adds a vsock generic netlink family. VSOCK_CMD_DEV_NETNS_SET
-> moves the guest's G2H vsock device into a given network namespace, and
-> VSOCK_CMD_DEV_NETNS_GET reports the assignment as an nsid relative to
-> the caller. Connected sockets that can no longer reach the device are
-> closed with ECONNRESET, and an assignment that would cause a CID
-> collision is refused.
-> 
-> Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
-> 
-> > diff --git a/Documentation/netlink/specs/vsock.yaml b/Documentation/netlink/specs/vsock.yaml
-> > new file mode 100644
-> > index 0000000000000..f260ee88b1402
-> > --- /dev/null
-> > +++ b/Documentation/netlink/specs/vsock.yaml
-> 
-> [ ... ]
-> 
-> > +operations:
-> > +  list:
-> > +    -
-> > +      name: dev-netns-set
-> > +      doc: |
-> > +        Set the network namespace of the guest's vsock device.
-> 
-> [ ... ]
-> 
-> > +        The assignment holds a reference on the namespace.
-> > +      attribute-set: vsock
-> > +      flags: [admin-perm]
-> > +      do:
-> > +        request:
-> > +          attributes:
-> > +            - netns-fd
-> > +            - netns-pid
-> 
-> [Severity: Low]
-> This isn't a bug, but should dev-netns-set have a reply block here?
-> 
-> The spec gives dev-netns-set a request and no reply. As a result,
-> vsock_nl_dev_netns_set_doit() only returns an errno and the caller gets a
-> bare ACK.
-> 
-> The netlink guidance for new families says every operation should reply
-> with a full message that identifies the resulting object. It also says
-> that once a command only ACKs, the ACK-only behaviour becomes uAPI and
-> cannot be changed later.
-> 
-> The v3 revision replied with netns-id. The v5 changelog says the reply
-> was dropped at Stefano's request, so this looks deliberate. Since this
-> family has not been released yet, could that decision be checked once
-> more?
-> 
-> A netns-id reply would tell the caller where the device ended up,
-> relative to its own namespace, without a second dev-netns-get request.
+> I observed a persistent virtio-net RX stall on Linux 6.18.58 during a
+> multi-threaded TCP receive workload. After the stall, the RX virtqueue
+> contained unconsumed used entries, but its NAPI instance had no owner,
+> the NAPI timer was inactive and virtqueue notifications were disabled.
+> The receiving TCP threads remained blocked waiting for data.
 
-Actually, now that we're taking a netns-fd/netns-pid, the reply makes
-sense because it can be something besides the current netns.
 
-pw-bot: cr
+Played with it a bit since. I think the below should do it?
+Can you confirm?
 
--Bobby
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index dd2c41ef6fbe7..7bc7306231521 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -740,6 +740,8 @@ static bool virtqueue_napi_complete(struct napi_struct *napi,
+ 			return true;
+ 	} else {
+ 		virtqueue_disable_cb(vq);
++		if (!napi_is_deferred(napi) && !napi_is_scheduled(napi))
++			napi_schedule(napi);
+ 	}
+ 
+ 	return false;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index c0ae442c4344b..2199750825d4f 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -22,6 +22,7 @@
+ #define _LINUX_NETDEVICE_H
+ 
+ #include <linux/timer.h>
++#include <linux/hrtimer.h>
+ #include <linux/bug.h>
+ #include <linux/delay.h>
+ #include <linux/atomic.h>
+@@ -553,6 +554,21 @@ static inline bool napi_is_scheduled(struct napi_struct *n)
+ 	return test_bit(NAPI_STATE_SCHED, &n->state);
+ }
+ 
++/**
++ * napi_is_deferred - test if the NAPI timer is armed and will schedule NAPI
++ * @n: NAPI context
++ *
++ * A true answer guarantees NAPI will be polled again without driver
++ * action.  A false answer is "best-effort": the timer can be armed
++ * right after the check.
++ *
++ * Return: True if timer is armed, False otherwise.
++ */
++static inline bool napi_is_deferred(struct napi_struct *n)
++{
++	return hrtimer_active(&n->timer);
++}
++
+ bool napi_schedule_prep(struct napi_struct *n);
+ 
+ /**
 
-> 
-> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > index 37abde1ca26cd..d4d88c8cf142f 100644
-> > --- a/net/vmw_vsock/af_vsock.c
-> > +++ b/net/vmw_vsock/af_vsock.c
-> 
-> [ ... ]
-> 
-> > +int vsock_nl_dev_netns_set_doit(struct sk_buff *skb, struct genl_info *info)
-> > +{
-> 
-> [ ... ]
-> 
-> > +	err = vsock_g2h_net_assign(net, info->extack);
-> > +	put_net(net);
-> > +
-> > +	return err;
-> > +}
-> 
-> This is where a reply would be built, for example by reusing
-> vsock_nl_dev_netns_fill() as vsock_nl_dev_netns_get_doit() does.
-> 
-> -- 
-> Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261113-vsock-guest-ns-v6-0-3737ce4673c0%40meta.com
