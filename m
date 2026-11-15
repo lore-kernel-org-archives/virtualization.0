@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794774487;
-	b=Gp+gV92TMSMb9JdXRk3cL1fDZ7vbyepBlALFSHOwT9+BXfS1TInw9oMnx8LEIyUYUbq0
-	 Nd7xNYprYlVj9Fzs0mQ4Kq/Qteq4Gh8n3hHKHolHzxILFC3wBaR57PXKjWXxNEdpoeD60
-	 KRhh58nopuXJO0iFRu8aZvFFTESbpVf5ybN0xWPTBlU7T4p7yd++i5kxyUYO00ca0w3jd
-	 2TFD77WpbbHZ48ncp7a8S+i3JvDs/PBRw7JPllG3j/l5R1497kB/hwnOcII/W790encR1
-	 /QPG2a5jN9I3nZXYyquq3n8q/uu+bNhwQL9qGfbXt6trvt44lQZy7IOCLuk8TQ+bFqA==
+	t=1794774485;
+	b=lwQZB/9cdFkkXwYt55Y1dur7LV8dmjYdzPX+sNnfQPae+Oa3SdaLgsPGVAHRlutb1QyP
+	 dTjqQebYiuxZd0r5akuHN15ez/de125XgaTIEU0VaoFyjQJt3WMLWw2W7Xw6ghBHuQdpH
+	 D8/uDUlh4DsP5FnVtimsIKj9HQ1aeL9MrrQmkQqJsLPGnd3jB4AB3eAfhWM5f+upITT87
+	 PYpRAhrN6f6J8sMfF9fbIGZoLOQweVkCD/KQUY3OFWq+E0gIlGEIuqcfRh35jTci/9tLd
+	 1aY7ekW3HKhBseK+vH5vHYCFQqaeQ4CWBJJM9Mjptc2eHI/81CKpu1QuHA1jgCW6Lyw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794774487;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794774485;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=RWc/Hl+m9yTjFA6sAmo44EdrFLPMb+VUWPABWdt/C4M=;
-	b=RScMbJFarhfKRMUOwrsz3o1Sl1U6+4c4EzXSfEovJpDbys/z164R2X/dZzEUTF84GGc5
-	 GwQpuWb1ew6g+BIlBlrv/XG6XJqiOL9nPBP8iwiNIwchcrj+4rQLQYWyViS2sTMxdiCCw
-	 EPnl7slJw1LHcf0vil0FYsDDoLCaksyiBFnVQhiYilI49wHVOiB3BdFCDZ+YAFXTmg/lm
-	 nz/+LxCP5KU9fHypZTcGMvdNxv7bX+kGpneDEvUai3g4aFGIDlkbRxz8QZ+l9mk/0Wrkk
-	 sl1QJ2ZdKiL04QfJe2WeTZAMOBoFSE88jt6b7xZxOgD6/QLVuaD63r33MJ32yg7fmdQ==
+	bh=wiP0nkNI2cMH061FcrwRGOG4AeI4j/f/et0pbcLEJfY=;
+	b=VYy3mu6zKjUODUigejv44V4ArVp+tEqBo7086g8AUUJkPMgvpFSmsg1JOJpdNfqxlHV9
+	 Mrwxnei8+uIOhARHfzuyKpOJdn9dGHE7ugPgGsjMjtUTI0Zbhi3qtRkZE+uLFJbgNpUUb
+	 dvA9ltw/dNK2vz8CBTMm2LGeF8lFg1qPtWJ97p79gadJopQYOAKpBhCyOhy/hWc89og3l
+	 lp3FECIIi/IWftJEuUAWtGHB6TXS1VQFuI9USxoWZY7B4fpwcNUSUYuSiodtxTI6G5CKB
+	 3KC9eeJOVmPqdnigZcc7bZ+3N5IKlz9MELv7BBUBcqH69pbcXoHTsFvdLzPwc1Hl+UQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LyNPhGSc;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f7SrqFuF;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E226C606A895;
-	Sun, 15 Nov 2026 20:28:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6238606A88F;
+	Sun, 15 Nov 2026 20:28:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LyNPhGSc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A4B71F000C6;
-	Sun, 15 Nov 2026 20:28:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f7SrqFuF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B8521F000C4;
+	Sun, 15 Nov 2026 20:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794774486;
-	bh=RWc/Hl+m9yTjFA6sAmo44EdrFLPMb+VUWPABWdt/C4M=;
+	s=k20260515; t=1794774485;
+	bh=wiP0nkNI2cMH061FcrwRGOG4AeI4j/f/et0pbcLEJfY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LyNPhGScmYoecwqoRzwkEqFRA5owZ1t4Cccq2RG67LmGxx8gs1Nxu2S0ELySCIDih
-	 lK9FEeuCzII/fvNaaWRJ5fUdOzxtYF+aEYsLWxf7xeAJANHwtoQaewtMh7cRmk6N7M
-	 vqtkwCbvq91/BbPfytHoJOforVSSrYof2us/cbeNDWMkPI5IMsQb5GMtid/r3xzgiY
-	 uNkXtpXzkn4epV3jKmbJAnT35t4MTxUgCPQRcApBezhXiNKz5eS1IS99s4bXclstr7
-	 MYR/5vEDjKr0Xta0IZQZzpNXj3hALZJ0W9k1Fymt3vTDxRNpXXCVawJR2XRoPHjHO6
-	 Pf9PfkWAC03Bw==
-Message-ID: <sashiko-outbox-215812@kernel.org>
+	b=f7SrqFuF/d/bSCZvpwh+R8ReX5kdgw0tXovYwF05QVgiyWjzGpvAN7JwzsOBUUnMW
+	 xR/7yuVNdSqRZVrwiFbLjKc/U//G2rzq7oTOK/iVsartFd+qqutcp4D/BL3Z4I2sY3
+	 L4wOUU5zL4mmXMzrC3wv/pJWKV7YcNcS29ZVN4tL8vTmR8/ICPcemf9dsF5CF4Oy7P
+	 laYTV3YRbSNVpxmhJ0leM0KvTJFeWh9DeqqrU0rOtdvsmw5GBXTb7CVeLoxq9r0Pvu
+	 PjHvsfNdqrG4NchdKLumnaQQb+1pVhdTPddUvzJB8olbXaJF28PqvmiQlpEl8tYJDL
+	 p7CrYHE9GTEVA==
+Message-ID: <sashiko-outbox-215811@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/12] docs: ioctl-number: update DRM entries
+Subject: Re: [PATCH 11/12] docs: ioctl-number: update platform entries
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Randy Dunlap" <rdunlap@infradead.org>
 Cc: linux-usb@vger.kernel.org, virtualization@lists.linux.dev, linux-ext4@vger.kernel.org, tytso@mit.edu, "Michael
  S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261114202653.3113381-13-rdunlap@infradead.org>
+In-Reply-To: <20261114202653.3113381-12-rdunlap@infradead.org>
 References: <20261114202653.3113381-1-rdunlap@infradead.org>
- <20261114202653.3113381-13-rdunlap@infradead.org>
+ <20261114202653.3113381-12-rdunlap@infradead.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Sun, 15 Nov 2026 20:28:05 +0000
@@ -61,7 +61,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Update the list of files where DRM ioctls are defined.
+> Update the list of platform/ files where ioctls are defined and update
+> the ranges of function numbers that are used.
 >=20
 > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 
@@ -69,5 +70,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114202653.3113=
-381-1-rdunlap@infradead.org?part=3D12
+381-1-rdunlap@infradead.org?part=3D11
 
