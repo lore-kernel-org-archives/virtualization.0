@@ -1,245 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.143
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794705612;
-	b=4MeYrESP+uG+/oWtms8r8wMAF0/wmuxYpvTEFO67O5JDiSm8+bDWErQl+EVMVYXMyz+e
-	 IVRAQ5LsateGzeIkzKIKIwpCQRcRv7aiqwm6MjwslFSvswvECK3mBvCspHB/s4gF/PEwy
-	 QKC0NSmK67DXpnPih7rycqK5VLHibD3dsDnLMJUxdXNKfd/N4ChHb8Mvow+U6nZMdniQr
-	 d6rn+JCLYDuSOoQWX1sNqmO7KC42FDMsymgiVVdLnpaaEEmKsRu0KgQ5UdslDsToaomMh
-	 rGDciHpZ6RDM+3VYsKu35QORIFUw/JhSg8GLliu2y/7COOxY1vSufCm+UnYp+5Hapng==
+	t=1794712871;
+	b=OJjX5QNi11XksWhMvx7Q6rnBzQwOEbTxSkKGtY/yElqkUfGPx0qvxohv0gMV5can871S
+	 pnpBqsoXE/oDG0EachtwLR7ohY3rT2cRsghXK16gwN6oU9V5b9OcVwCg1m06fVJ9BQOo7
+	 4+hW6OnH11o4wZPjb42ueTf+kjQ5O3+VQVH3+rBU+mprA2d0HISbC1g9QQTwyn/vozcx5
+	 ZPhCq+PhLgY3nAN7LbWmYXcm1J2aS+OzBSkwepLqBvWTVWGw59g+yD7Q45YtuIcKAozIG
+	 kMPv3SLUYcqt60dqI5FDNtjZOKtlFAJtSZ6EdBMl/6uv5FiJQL1Lmb87xufm4sq2QuQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794705612;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Received:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:
-	 Received:Date:From:To:Cc:Subject:Message-ID:Mail-Followup-To:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=QIES4zNTDxRjCnYHiHcWq6p6uX7fK/EWYh7I/zXroHQ=;
-	b=ZpBoSiA8X7/QUTHWDBIvGNzsI22qJVmbIkhggaLXdknhyf0seu+euRX/o/whEdZg5A9+
-	 5lds+WN2Xp1K07dQfMfqyid+7gbWSgvzJri6/AkG/4UvIbPgjpTNo80pGKozf1zXCWh1M
-	 jPXql60d71ewDBSpVjfzzkuIf/J8npwUyvuSM3xpj7eQe2YRKLNdmhmPR8CwqcarzsnKl
-	 uOivgmdkZIPdGXgXG5G66wLXPtWzhMyisebedRNEL436dh38d2Nh8d+cKmQlkbxjUw/nF
-	 0F3Ealu3YoQBNSjhCu0Uiz8KriPtzMNsJzCW8zwxPGz6T6lgdIda7xCIFpr62P0T2aA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794712871;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=yYI5gepbeux3oiB+Nf4asNNGZW3iCTJ9RdpyTtjwEmo=;
+	b=4u8f4Vylq+zIi51K0vm4dnczI3TKtHEhYOvfo8tKf2BOk0hXbcFx5GGGHu1tJxzzsKNH
+	 fINoA7vrQa4hIsv7WoUBLGarky7tgLal3vE16PZOGRqiHJ2RUqQ8mo/fHBC5aN2gVkSow
+	 DrSTtNqZ9OdQaxtYO1DeBsMXpsOK8YFmVs6cCjiID3rxYOFgwZR4V6Zorh8gVjPnKq9/y
+	 6VD3OKtX4oR9y+1Rjjih3xpR3PtfYTdfxO1pRrkneVA17nGCt0jQ/zqtJykYrhKPNWZ0E
+	 cGt9Qyb/pQJ4K2yAa+v4LvfgqfPaELbPd/+LSR8fYk77+IJ8hNinqQnl8ugfH8GGlTg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=sakamocchi.jp;
-	spf=pass smtp.mailfrom=sakamocchi.jp;
-	dkim=pass header.d=sakamocchi.jp header.i=@sakamocchi.jp header.a=rsa-sha256 header.s=fm3 header.b="pjuVmr/L";
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=syy3aDEc;
-	arc=none smtp.remote-ip=103.168.172.143
-Received: from flow-a8-smtp.messagingengine.com (flow-a8-smtp.messagingengine.com [103.168.172.143])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BX4bTuim;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99966606A330
-	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 01:20:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99966606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sakamocchi.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sakamocchi.jp
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4462C606A329;
+	Sun, 15 Nov 2026 03:21:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sakamocchi.jp header.i=@sakamocchi.jp header.a=rsa-sha256 header.s=fm3 header.b=pjuVmr/L;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=syy3aDEc
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailflow.phl.internal (Postfix) with ESMTP id BEDAD1381D57
-	for <virtualization@lists.linux.dev>; Sat, 14 Nov 2026 20:20:09 -0500 (EST)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Sat, 14 Nov 2026 20:20:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm3; t=1794705609; x=
-	1794712809; bh=QIES4zNTDxRjCnYHiHcWq6p6uX7fK/EWYh7I/zXroHQ=; b=p
-	juVmr/LC7nCJ0SQ2rWUhRQGDMnlVGg/71zflyfizaeCefqOj8Wyp1bv5cUdTgRb8
-	7XUxKSQFA4h5chwE1lADu0vrwg8OhHP6GoQHRhO7+gqlPzaI30gfxszAJ8iBZnAq
-	w6LhtavpJKSJHCgIMJ9jaiAQhtgloSfAXiebl32YH12R4n49k4Dhf+Y8W3pLV4v+
-	Lk6DFTk8SpQ9jSXzpScexBSvyhdEJDbrQwMC0927YExgznJjfLZe0flh8fHQL7IO
-	vj78LH6slSiU2T+/dLzxP/iDcsVNxx1fb6S0NI/BKneEKfRIjGfp58LmRDVhLSom
-	qjpjx4Q11TfgHJQJAHUUA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1794705609; x=1794712809; bh=QIES4zNTDxRjCnYHiHcWq6p6uX7fK/EWYh7
-	I/zXroHQ=; b=syy3aDEccFqwMWi7OqQgN+5WtM3ZAfMLRFvK6Ty6zA65HPirgvN
-	ilcYb0Q1wBWUsxvkCfegkY1pzVtpHUOC6WAP6pTtbZPWcSU2JRmZq5bj3XtaI5mJ
-	5KZK4MCZjfikGyCw8udPD79DzKX657SNeo8VKm+NBs1zDN72HR3ZemlLBm38jus1
-	WDdVI20E7k3nTziG5v/jPkof/xTKUHTBh7LLvCto0jlE2c4pmQs/fxRRAq0SyBeZ
-	lruY2Ddh8f3CbRk7/EsENeVrGkeN2qYTfTHHssLqQwRRARUN/edAoqWV9ygwuEYm
-	jIS3U35+DcIoM5H/MAq31DLvDAGEUQlNvVA==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=sakamocchi.jp a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794705609; d=sakamocchi.jp;
-	mf=PG8tdGFrYXNoaUBzYWthbW9jY2hpLmpwPg==;
-	rt=PHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LmRldj4=;
-	s=fm3:rsa-sha256:D2DGQzXeLrZGm00gOL+kOwmVjIx4gyDrl0yMq6Wg8W5R6TP
-	WLO5mYqA78o1Ru6fc2JOwdxoBBaOD94txWmNDAiqQrEDO2bbinMNJM6pjZ9O3Ky0
-	z16VrKv12e7dZTUiSQAGK+5KGtCBlXSNaYnExjdUgTGm/BJokP1wAKiMi0ak4vJT
-	DOUW3/b9gh79enjKwjQMjm22yKgBBk2aL5LOW4Xk3ncgQBYYCyJ72VQlXPATqZEr
-	I+4Lx/gtBoCmYEE43VDr9BOeGwI3FtFJlcS4nOf35r6th0V9eVPZZ7PXbIjINxKo
-	UqAupmwAE2JNpxupqL20oYV4l/mODJ2RL30O5yQ==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=13;
-	hn=cc,content-disposition,content-type,date,feedback-id,from,
-	in-reply-to,mail-followup-to,message-id,mime-version,references,
-	subject,to;
-Message-Instance: m=1; h=sha256:ntV32t7KOIfGMot6swX3CNi9IkfeqivW9U6qBDwCqc8=:4RP5xhIBVdE4nHZvdVXdOxDGDwEwdGMsIHWUj8/gqfI=;
-X-ME-Sender: <xms:xQj5aiop4gg9dsJ6_Vn6u45zXMYueatHm6sTqNkrPjF6p_uliIn0fA>
-    <xme:xQj5ao-c0CruU-TGxTE7NFYZSaEuQncLSSmM997vVUnXnDFfvxt3Mt5vMRNmSfmhf
-    34fKN--fbmH87piFvayMBFAxnjq6WHAkHe46t3SFxeylFtFg6aPnx9A>
-X-ME-Received: <xmr:xQj5atXGMWjP8faJlCtXj9RrVZeBW-gqDucCpC0ZXa191cT5jnWReGYw_Z8rYiOMsAtlcaNqIM8bDcRsKH9aHiPzWCfQ_w>
-X-ME-Proxy-Cause: dmFkZTGQstm6GOmXFdPQXDqZqAYG7aQouPeZUHJ4IBXrRYWFH6lFNnMWIuGsSOCFSsBuXW
-    LbDJxfVrfV3cl+wc1JM2qA4EvGILGxXqZILW7GfZPYDe6vWDeehuWas6PsFLq2rp3ZCMLK
-    vb2ZkQs61G65smsTsr3W8fx/U8N5II0Wva1plTCgHg5UpMnhi5PWu1EQKVr47yDlfh1UvS
-    LYKjU/U9x7MTbsMHbdhB5rWUTX8pbvj9eAIRg5DGXYvFzZokg4/nvH5yq0IUoDc8xEYNrb
-    hSXdXqov4GW1obuCd3P9CA8Y5vszeSouSKwogVvelkFQGttmZKq/NF5ipA4vDPXyrU1Xrm
-    Zrz3WElYlhVCDcPNRnAGrD/gNAj1b7M9bHXUiJrCqgmTebsAx0cfPWnZGZ3/j9Ea2UWcPj
-    qqJZ67js4v5NriJFPwSb5fBisbBQrZL2hM4YjWQCJ9uoloExIgLFI0L7sZA853RBWP4ncp
-    DBuj0o8Fkgdi7cJEPrTBBMdPRnMErqVngCb+aWeUA0zKt+uaR6UB1bg9ZicNV0ayYa37yt
-    I8T18lqRGBzHHbPK9Mrtu/1JSrYmpYKqgKJaY1owBZ4nprZ++3QPl5fwcLNIPsiGvSmzop
-    Zbr1xrRPLyP5mMh+v5LgBzIwywaOGj2L4LIDZM+0lWqxfhjtWj2WgxvXglrg
-X-ME-Proxy: <xmx:xQj5avAwgflb4ksIG5XRwHT6xxt96MMxRO3omUvuEt-3k_ppqJzgYw>
-    <xmx:xQj5aka9rFrx7_oeihBM0qdilVdSsLFNvKaV60FpVwOaq7EoVM3bNQ>
-    <xmx:xQj5ak3AzNFqwOx2mTfPhYibu1bQ_UDkW9NgFtUhfBWBcyXvs0uL4A>
-    <xmx:xQj5aoGo_8KYcqvEjpNAxM_sotiXZsyQPcuJ_BoRuwGjdfls4pLNfg>
-    <xmx:yQj5amBDENmX5NhRabHbZy5mqP0Iv6_jzPBpOZyadDNP-V1uD_qCKZw->
-Feedback-ID: ie8e14432:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 14 Nov 2026 20:19:47 -0500 (EST)
-Date: Sun, 15 Nov 2026 10:19:45 +0900
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org,
-	David Hildenbrand <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Leon Romanovsky <leonro@nvidia.com>, linux-mm@kvack.org,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-sound@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-	linux-block@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	linux-bluetooth@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
-	oe-linux-nfc@lists.linux.dev, Chas Williams <3chas3@gmail.com>,
-	linux-atm-general@lists.sourceforge.net,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, Helge Deller <deller@gmx.de>,
-	linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	MPT-FusionLinux.pdl@broadcom.com,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Zhihao Cheng <chengzhihao1@huawei.com>,
-	linux-mtd@lists.infradead.org, Neill Kapron <nkapron@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-usb@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	xen-devel@lists.xenproject.org, Hans de Goede <hansg@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, Jan Kara <jack@suse.cz>,
-	linux-fsdevel@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
-	linux-ext4@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>,
-	devel@lists.orangefs.org, Paulo Alcantara <pc@manguebit.org>,
-	Namjae Jeon <linkinjeon@kernel.org>, linux-cifs@vger.kernel.org,
-	Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
-	linux-f2fs-devel@lists.sourceforge.net,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Benson Leung <bleung@chromium.org>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	amd-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	intel-gfx@lists.freedesktop.org,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	intel-xe@lists.freedesktop.org
-Subject: Re: [PATCH 02/12] docs: ioctl-number: update sound entries
-Message-ID: <20261115011945.GA238787@sakamocchi.jp>
-Mail-Followup-To: Randy Dunlap <rdunlap@infradead.org>,
-	linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org,
-	David Hildenbrand <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Leon Romanovsky <leonro@nvidia.com>, linux-mm@kvack.org,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	linux-sound@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-	linux-block@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	linux-bluetooth@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
-	oe-linux-nfc@lists.linux.dev, Chas Williams <3chas3@gmail.com>,
-	linux-atm-general@lists.sourceforge.net,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, Helge Deller <deller@gmx.de>,
-	linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	MPT-FusionLinux.pdl@broadcom.com,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Zhihao Cheng <chengzhihao1@huawei.com>,
-	linux-mtd@lists.infradead.org, Neill Kapron <nkapron@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-usb@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	xen-devel@lists.xenproject.org, Hans de Goede <hansg@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, Jan Kara <jack@suse.cz>,
-	linux-fsdevel@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
-	linux-ext4@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>,
-	devel@lists.orangefs.org, Paulo Alcantara <pc@manguebit.org>,
-	Namjae Jeon <linkinjeon@kernel.org>, linux-cifs@vger.kernel.org,
-	Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
-	linux-f2fs-devel@lists.sourceforge.net,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Benson Leung <bleung@chromium.org>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	amd-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	intel-gfx@lists.freedesktop.org,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	intel-xe@lists.freedesktop.org
-References: <20261114202653.3113381-1-rdunlap@infradead.org>
- <20261114202653.3113381-3-rdunlap@infradead.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BX4bTuim
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA991F000C6;
+	Sun, 15 Nov 2026 03:21:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794712870;
+	bh=yYI5gepbeux3oiB+Nf4asNNGZW3iCTJ9RdpyTtjwEmo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=BX4bTuimbBpQZjFGhkl26ojtad4OyBqDZDpaUabAk9IDaspa0YB66eDSpvJWXIuGq
+	 5xBiV2jFvICCG4tCBM79/dawuBnzzfybz80wVYtzew7F/LB6SMAgLhgTa1O6UbuKqR
+	 yT+OlPEE6gLmRue0VgNUKZRFnfvYRok5YgoqbKq73TRuQdiCM9rwsmkm6lpTuHu8ei
+	 H27yidDpulv1vX93E8hovUUAs/IK01RUXBR3SikintGLWDfZAqalbl43k/kolHQCwF
+	 iLf428PBRtaX8T6FVLi+z5vu2QRYuRWb1hX3XP4rxgrlquJXOxFe9mxnn+DAgdG0eb
+	 EMhPtf0vSm1GQ==
+Message-ID: <sashiko-outbox-215194@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net-next v6 1/8] vsock: only undo SS_CONNECTING when
+ connect() fails
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bobby Eshleman" <bobbyeshleman@meta.com>
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261113-vsock-guest-ns-v6-1-3737ce4673c0@meta.com>
+References: <20261113-vsock-guest-ns-v6-0-3737ce4673c0@meta.com>
+ <20261113-vsock-guest-ns-v6-1-3737ce4673c0@meta.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 15 Nov 2026 03:21:10 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -248,56 +61,145 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261114202653.3113381-3-rdunlap@infradead.org>
 
-Hi,
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] vsock: vsock_connect() fails on SS_CONNECTED sockets reset to
+  TCP_CLOSE
+- [Medium] vsock: vsock_connect_close() sets TCP_CLOSE when state !=3D
+  SS_CONNECTING
+--
 
-On Sat, Nov 14, 2026 at 12:26:40PM -0800, Randy Dunlap wrote:
-> Update the list of files where sound ioctls are defined and update
-> the ranges of function numbers that are used.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> ---
-> [Since having multiple maintainers trying to merge these would
-> cause some conflicts, it would be more manageable for Jon to
-> take all of these through the docs-next tree.]
-> 
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Shuah Khan <skhan@linuxfoundation.org>
-> Cc: linux-doc@vger.kernel.org
-> Cc: Jaroslav Kysela <perex@perex.cz>
-> Cc: Takashi Iwai <tiwai@suse.com>
-> Cc: linux-sound@vger.kernel.org
-> 
->  Documentation/userspace-api/ioctl/ioctl-number.rst |   12 +++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
-> 
-> --- linux-next-20261111.orig/Documentation/userspace-api/ioctl/ioctl-number.rst
-> +++ linux-next-20261111/Documentation/userspace-api/ioctl/ioctl-number.rst
-> ...(snip)...
-> @@ -168,7 +174,7 @@ Code  Seq#    Include File
->  'H'   C0-DF  net/bluetooth/cmtp/cmtp.h                                 conflict!
->  'H'   C0-DF  net/bluetooth/bnep/bnep.h                                 conflict!
->  'H'   F1     linux/hid-roccat.h                                        <mailto:erazor_de@users.sourceforge.net>
-> -'H'   F8-FA  sound/firewire.h
-> +'H'   F8-FE  sound/firewire.h                                          conflict!
-> ...(snip)...
+commit 02952dc6bba9fe20e7c14b7fd24b6a5865ca1aab
+Author: Bobby Eshleman <bobbyeshleman@meta.com>
 
-I overlooked this entry when inserting the additional ioctl commands in
-the following commits:
+vsock: only undo SS_CONNECTING when connect() fails
 
-* 90e8ac5c9d446 ("ALSA: firewire-tascam: add new hwdep ioctl command to get state image")
-* 58b62ab702591 ("ALSA: firewire-motu: add ioctl command to read cached hardware meter")
-* ca15a09ccc5bd ("ALSA: firewire-motu: add ioctl command to read cached parameters in register DSP model")
+This commit adds vsock_connect_close() so that a failed vsock_connect()
+only resets sock->state to SS_UNCONNECTED if it is still SS_CONNECTING,
+leaving sockets that became SS_CONNECTED while sleeping in that state.
 
-Thank you for catching and correcting this.
+Link: https://lore.kernel.org/netdev/179447093204.2199510.88956774219946129=
+94@kernel.org/
 
-Reviewed-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 483af15a5109e..dc81cd47f099d 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -1703,6 +1703,16 @@ static void vsock_connect_timeout(struct work_stru=
+ct *work)
+>  	sock_put(sk);
+>  }
+> =20
+> +/* Avoid breaking the socket when another thread has changed its sock->s=
+tate
+> + * while we were asleep.
+> + */
+> +static void vsock_connect_close(struct socket *sock)
+> +{
+> +	sock->sk->sk_state =3D TCP_CLOSE;
+> +	if (sock->state =3D=3D SS_CONNECTING)
+> +		sock->state =3D SS_UNCONNECTED;
+> +}
 
+[Severity: Medium]
+Can vsock_connect_close() overwrite sk->sk_state with TCP_CLOSE after
+another thread has moved the socket out of SS_CONNECTING?
 
-Thanks
+Because vsock_connect() allows a second blocking caller into the wait loop
+when sock->state is SS_CONNECTING, two threads can sleep in
+schedule_timeout() on the same socket:
 
-Takashi Sakamoto
+CPU0                                  CPU1
+vsock_connect()
+  sock->state =3D SS_CONNECTING
+  schedule_timeout()
+                                      vsock_connect()
+                                        case SS_CONNECTING:
+                                        schedule_timeout()
+  <connect fails>
+  err =3D sock_error(sk)
+  vsock_connect_close(sock)
+    sk->sk_state =3D TCP_CLOSE
+    sock->state =3D SS_UNCONNECTED
+vsock_listen()
+  sk->sk_state =3D TCP_LISTEN
+                                        <timeout or signal>
+                                        vsock_connect_close(sock)
+                                          sk->sk_state =3D TCP_CLOSE
+
+When CPU0 consumes sk->sk_err via sock_error(sk), CPU1 stays in the wait
+loop because sk->sk_state is TCP_CLOSE and sk->sk_err is 0.  If CPU0 then
+calls vsock_listen() (which leaves sock->state as SS_UNCONNECTED and sets
+sk->sk_state to TCP_LISTEN), CPU1 waking on a timeout or signal calls
+vsock_connect_close() and clobbers TCP_LISTEN with TCP_CLOSE, allowing a
+subsequent vsock_connect() to bypass the sk->sk_state =3D=3D TCP_LISTEN che=
+ck.
+
+> @@ -1861,8 +1871,7 @@ static int vsock_connect(struct socket *sock, struc=
+t sockaddr_unsized *addr,
+>  			 * sk_state =3D=3D TCP_SYN_SENT, which hereby we break.
+>  			 * In such case VIRTIO_VSOCK_OP_RST will follow.
+>  			 */
+> -			sk->sk_state =3D TCP_CLOSE;
+> -			sock->state =3D SS_UNCONNECTED;
+> +			vsock_connect_close(sock);
+> =20
+>  			/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
+>  			 * transport->connect().
+> @@ -1876,10 +1885,8 @@ static int vsock_connect(struct socket *sock, stru=
+ct sockaddr_unsized *addr,
+>  	}
+> =20
+>  	err =3D sock_error(sk);
+> -	if (err) {
+> -		sk->sk_state =3D TCP_CLOSE;
+> -		sock->state =3D SS_UNCONNECTED;
+> -	}
+> +	if (err)
+> +		vsock_connect_close(sock);
+
+[Severity: Medium]
+What happens in vsock_connect() if the handshake completes (setting
+sock->state to SS_CONNECTED) and the connection is then reset to TCP_CLOSE
+while schedule_timeout() is sleeping?
+
+Both virtio_vsock_reset_sock() and vmci_transport_handle_detach() move an
+established socket directly to TCP_CLOSE rather than TCP_CLOSING:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
+    ...
+		} else {
+			if (sk->sk_state =3D=3D TCP_SYN_SENT) {
+				sk->sk_state =3D TCP_CLOSE;
+				sk->sk_err =3D ECONNRESET;
+				sk_error_report(sk);
+				return;
+			}
+			sk->sk_state =3D TCP_CLOSE;
+    ...
+}
+
+When vsock_connect() reacquires lock_sock(sk), the check for
+sk->sk_state =3D=3D TCP_ESTABLISHED || sk->sk_state =3D=3D TCP_CLOSING miss=
+es
+this socket because sk->sk_state is already TCP_CLOSE.
+
+If vmci_transport_handle_detach() ran on an established socket (leaving
+sk->sk_err =3D=3D 0), or if another thread consumed sk->sk_err via
+getsockopt(SO_ERROR) or sendmsg(), the wait loop condition
+(sk->sk_state !=3D TCP_ESTABLISHED && sk->sk_state !=3D TCP_CLOSING &&
+sk->sk_err =3D=3D 0) remains true and vsock_connect() sleeps until
+connect_timeout expires or a signal arrives.  It then enters the
+timeout/signal path, leaves sock->state as SS_CONNECTED via
+vsock_connect_close(), and calls vsock_transport_cancel_pkt(vsk).  If a
+concurrent sendmsg() queued VIRTIO_VSOCK_OP_RW skbs while the socket was
+connected, purging them via virtio_transport_purge_skbs() without calling
+virtio_transport_consume_skb_sent() leaks vvs->bytes_unsent, breaking
+SIOCOUTQ and causing vsock_linger() to wait on close.  Returning
+-ERESTARTSYS on a signal while leaving sock->state as SS_CONNECTED also
+causes a restarted connect() syscall to fail with -EISCONN.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-vsock-gues=
+t-ns-v6-0-3737ce4673c0@meta.com?part=3D1
