@@ -1,101 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.226.149.38
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794784065;
-	b=1U6+D2JLpcLnFd20l3kZsbrLWUy3Hd04c96pUIzNTL6zKY7UPKs6nHwBGC2ZnyQoLpdP
-	 7QcSwx68vu5Qy4AO7qJYlSncdFLUV3YlGWA6Fgk+OEMGz2Y7BTAIfZYCo8Nt1e7y3l2pE
-	 Ou1aQE1u6shjueWXCQ25/L8s5EOJ8d7wR60W6lQ0ST7OmNeUUP4PXtIVb9lAtGSimjZlp
-	 xSo+qe3FaS6scyiDB1QNcgm3F0hwn1ZuYH2ob1w7oeNdj1srhXTzfA29sO2Zzbl8AKMM7
-	 fQXfLKzgaaOmK0laAjoJP1M9vynbfuMpcYXb/WeYghkkjsA1zBgls4syiryo7iUnwhw==
+	t=1794784256;
+	b=xYdaOoTcCw2a6cYLdHoGLhxHyu9jmDLHErFUgrt9BFIxSBx2Eh3R0DDkawajECV8oV98
+	 oXwJqOyS7IBCahQ+VscnTb1Nd1iKjragDB+D4HLRvTGsXdFRzWxookco0dlAUEBr05FLk
+	 ku4ZdeOuVR7gl63tQfCrbexkU0AqVuGz86fB2xACjakLhhSgR9cevS4nfZVS7O2UIa481
+	 vte2KQw3Ugq4csXvNPXQZQMNHYKZJ+oZvbZDtvUuy3hVd+L9bTCBZAqoxoPZxqxKCRlQ3
+	 B0ffRvuQIS7qXyw3FF+9x72NSuCiSjKHhFw1djEjAbk4Tj1zMOddax4mTCAJku5P15Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794784065;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=qSuk1jbsdV+iZEtNlLpPi3t1jVjwwjZENkNYPa18BIE=;
-	b=fimCPhkafYcUDIdGVQYHxEAhISnA8mED2X0yOVsiAW5oTacLIF4BaDvGPplUuUF/8GN2
-	 50YHw9GH5baV5+E1qwKdbBhhATtaaE05iBVGvC15XkLr6iNNV7PuHW6vKdxX/dffm8jqp
-	 NXx9zxopTFEJApoWKWZ88oX2scFjA1UmEDC0TpyOghrNZDe87ODUynlC98h8RgUx/5XvU
-	 h26FyW/cB+Bvz0f9d6T4VKMCp8ib43nHd1QPWzQGWjJ8FYuj2fUO8/V/S9UWE4aEY1Qoi
-	 v6OCznABm3V88UsQrm4bWPjy9oi8/zK7PM+oPU3CjUjlAj4+F3chOsKtxP6OuvI1IzQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794784256;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:From:Subject:To:Cc:References:
+	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=54DqklQJRU5E5sAvgMJe/3GZgyr2z79+L1pPnq+zQII=;
+	b=fDkkS+xiXJ1BxX7WjJ9C+OPQEuLYuKz6v6FYZ7j0++EONf8GGv25loAp5iojsSr9w5zZ
+	 XxwU/bu47F6wH69DyTBnZBSTIDIpt1+vV6krsBgTN+6vkHVpEcKTR5hzUaGImDy3GnP/d
+	 NwzAyUK+MmfkQdwvdmQg+67KzynYTPTNOmDqZsD1VSSZQJNifPjOHk/P40oGe14rCPeYJ
+	 LXRo626gUNe9qD068njJ9OpZUYC8IFYYqcCGBo2WVV7sP2ZYWoVEsWji9BhAhVKJrpDMp
+	 6uVCzmz+eI6/rbV+FFQ+TqT8q19WH/JQzlU+ugoIZb5Z48on9QGdCewRzMZeu/ur/Mg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZwaK02Gi;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dmarc=pass header.from=rbox.co;
+	spf=pass smtp.mailfrom=rbox.co;
+	dkim=pass header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=F3DWF8eP;
+	arc=none smtp.remote-ip=185.226.149.38
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56FB8606A882
-	for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 23:07:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56FB8606A882
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00B03606A323;
+	Sun, 15 Nov 2026 23:10:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 00B03606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZwaK02Gi
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794784062;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qSuk1jbsdV+iZEtNlLpPi3t1jVjwwjZENkNYPa18BIE=;
-	b=ZwaK02GiuylODvQ5bnPr2xb8/x1Q9YHXKnwy5iHl4pr8axLvyZB7lJGOQg4arxXo+kyvWv
-	dd6wehp8HU9LQ7F0DxygCKIImxv46nBwi+ETDdl6oCL4GNJ/FIZiXDIOovb7eVLhUe6pNi
-	ef4bP11lJYgIjpXvXu6JDbtxRzwA2aM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-528-sfUS_sjaOhCvHpJ6b6ojjQ-1; Sun, 15 Nov 2026 18:07:40 -0500
-X-MC-Unique: sfUS_sjaOhCvHpJ6b6ojjQ-1
-X-Mimecast-MFC-AGG-ID: sfUS_sjaOhCvHpJ6b6ojjQ_1794784059
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4a359c7f47bso23132585e9.2
-        for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 15:07:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794784059; x=1795388859;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qSuk1jbsdV+iZEtNlLpPi3t1jVjwwjZENkNYPa18BIE=;
-        b=ND0WXVH3uvHlc+yvv11GbXQ6lq/SsLZ/JOmaRHVJ7nBDzmv5F54KKb7R4V/bRIc87T
-         UFFU+hAqck1hWVQP4FnuJug2eWP4rMKOZe1VhNXHrFyCB+Yzuh/wTmab8+T6xQ7eNYl5
-         J4DK6/UXIrg+JV37cTOlLrhApQOXjUS5yucS4rUifYCV8dtWoV47yjBslTPRp6vr+rWx
-         QNg53hOORT5oQy3sARyRPAIu7Pq2lyaviaQ7h0of9ybwsbP9eJgGZsXCJPI2DldZCSmN
-         koxhZMiTJpYlyG46h3Bpsa9XKymm2XtICpjnZ81rDhS0q2Ilo6QbiGnuQP+pBofcYj6k
-         ulpg==
-X-Forwarded-Encrypted: i=1; AL+hErFwmQAhE4qCMIbbjWD8ZiiN/fvQy0UxxvJZvQeZpjHStlKUCcVg0HqPiJHei+Xj95lNSnWwSm71neLbQ13brA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8hx8W9+g8gBUUHbe8lql3p3s6i+FysPZmeXg8a206JlYARZCJ7
-	Hag/e2BBdURWsm3X9Eu/VBJv2NCZrY2/1Mrxx7n2a1DZuF5SAc+8htTgjdsdwvVb7BpcrqsnLrO
-	16q2fmumWahuYvxmkWPMzCc7Rd3MyWUdSPN2BpUitz2aOyo3AZ4SQ+P8ID99HA/GPHcYB
-X-Gm-Gg: AYBFou1Ec4EelArKnStotCp8KUiDCefxj5c96WKvxt0RT0fjfpX3GVneubo84Ggx+P0
-	nnZYVtpG+kguWOAkpTrIsZqk6xwPgL/rThRPhejKoRp3SGkSquUnxNOGU7QYfXFuMqAlxG/1HqD
-	+3g/9ki/mH9/tefecT38Nycrxokyr2s0PBitEcniVWRzbSQHVuGLt7bUofVa+3/TYVHeZAO0FSA
-	aQg3EaWbVkEnSeGy5uO0nwO/mLOoas/VLK4KSvD027Tvtd3KM5RbcldALRDC7gvIf+CbvdC6Sig
-	HQsDA00Zc0PylSkEMxtYMA7r+g95ZZxa8yPRgL1wNGmKJAUmontqICZmpXSQhv0cAt+CJ1aoR3y
-	kWeYKCsbU6vIGt53pJ2/0s/lHQc028Wz4LZGTbnblxA==
-X-Received: by 2002:a05:600c:8b6c:b0:4a3:5a7b:6002 with SMTP id 5b1f17b1804b1-4bb649d4148mr97699765e9.28.1794784059307;
-        Sun, 15 Nov 2026 15:07:39 -0800 (PST)
-X-Received: by 2002:a05:600c:8b6c:b0:4a3:5a7b:6002 with SMTP id 5b1f17b1804b1-4bb649d4148mr97699295e9.28.1794784058388;
-        Sun, 15 Nov 2026 15:07:38 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:151e:a200:7a96:1b15:81f:ebed])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb5b4a3fcdsm213451595e9.0.2026.11.15.15.07.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Nov 2026 15:07:37 -0800 (PST)
-Date: Sun, 15 Nov 2026 18:07:33 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Congjie Zhou <zcjie0802@qq.com>
-Cc: netdev@vger.kernel.org, jasowangio@gmail.com, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [BUG] virtio_net: RX stall caused by masking callbacks after
- NAPI ownership release
-Message-ID: <20261115175445-mutt-send-email-mst@kernel.org>
-References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
+	dkim=pass (2048-bit key, unprotected) header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=F3DWF8eP
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1xSjMy-00FKBo-SX; Mon, 16 Nov 2026 00:10:44 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=54DqklQJRU5E5sAvgMJe/3GZgyr2z79+L1pPnq+zQII=; b=F3DWF8ePjOro893G9DPFG9cjA5
+	m/V/eoM7PuzpWe9M9OfLhr61T5tRk3EJqylSekZclnYIqLPteYV68SY9FSU5u00hqJ5KvXkon639Z
+	yjz9GkcQOuaCnaAyspNsaErReoRkUNgPDTs3xVe4aLTjtAemeC4wwt+B3i8yKVJAi0eXvFuHzpBwl
+	xGMKL2gc/YXjrfgMfpnMlv7eoQGc6O4Fi5y6wlk39seZJSoBLRrJfBuUVXxDahZRDfWdzzJ1yuqj6
+	cqQhTCWnTzn4MAgPwUyouA8ESD4chI15qM04xXnNJ7pLlgPvJNPqisz6Ql3owj2F/6sZ5Hzr52kNT
+	u9l6tWpA==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1xSjMh-0004wX-B4; Mon, 16 Nov 2026 00:10:27 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.95)
+	id 1xSjMb-000ing-CY;
+	Mon, 16 Nov 2026 00:10:21 +0100
+Message-ID: <6bdfe6f7-aba8-4fb8-ac24-62fe020e1422@rbox.co>
+Date: Mon, 16 Nov 2026 00:10:19 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,71 +66,68 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vGbJ9VteZRf4ci5vCBr7cACSKRDJ_Gx5frSnLbb2HSM_1794784059
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH net-next v6 1/8] vsock: only undo SS_CONNECTING when
+ connect() fails
+To: Bobby Eshleman <bobbyeshleman@meta.com>,
+ Stefano Garzarella <sgarzare@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>,
+ Randy Dunlap <rdunlap@infradead.org>, Donald Hunter
+ <donald.hunter@gmail.com>, Eric Dumazet <edumazet@kernel.org>,
+ George Zhang <georgezhang@vmware.com>, Andy King <acking@vmware.com>,
+ Dmitry Torokhov <dtor@vmware.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+ kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, sargun@sargun.me,
+ jlinbox@meta.com, Bobby Eshleman <bobbyeshleman@gmail.com>
+References: <20261113-vsock-guest-ns-v6-0-3737ce4673c0@meta.com>
+ <20261113-vsock-guest-ns-v6-1-3737ce4673c0@meta.com>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <20261113-vsock-guest-ns-v6-1-3737ce4673c0@meta.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 11, 2026 at 09:36:10PM +0800, Congjie Zhou wrote:
-> Hello,
+On 11/14/26 04:14, Bobby Eshleman wrote:
+> vsock_connect() sleeps with the socket unlocked. Meanwhile the transport
+> can complete the handshake, setting sock->state to SS_CONNECTED, and then
+> reset the connection, e.g. in vhost_vsock_reset_orphans(),
+> virtio_vsock_reset_sock() or vmci_transport_handle_detach(). When
+> connect() gets the lock back, it finds sk_err set and moves the socket
+> back to SS_UNCONNECTED. Userspace can then connect() the socket again,
+> and a connect() to a CID on another transport makes
+> vsock_assign_transport() release the transport the socket was connected
+> on.
 > 
-> I observed a persistent virtio-net RX stall on Linux 6.18.58 during a
-> multi-threaded TCP receive workload. After the stall, the RX virtqueue
-> contained unconsumed used entries, but its NAPI instance had no owner,
-> the NAPI timer was inactive and virtqueue notifications were disabled.
-> The receiving TCP threads remained blocked waiting for data.
+> Only move the socket back to SS_UNCONNECTED if it is still
+> SS_CONNECTING. A socket that got connected stays SS_CONNECTED, and
+> another connect() fails with -EISCONN.
+> 
+> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+> Suggested-by: Michal Luczaj <mhal@rbox.co>
+> Link: https://lore.kernel.org/netdev/179447093204.2199510.8895677421994612994@kernel.org/
+> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 
+Reviewed-by: Michal Luczaj <mhal@rbox.co>
 
-Played with it a bit since. I think the below should do it?
-Can you confirm?
+Thanks! To be precise, the Link: above is more of Sashiko's musings on
+what's wrong with Jerome's (not merged) patch. The patch of yours makes it
+moot.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index dd2c41ef6fbe7..7bc7306231521 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -740,6 +740,8 @@ static bool virtqueue_napi_complete(struct napi_struct *napi,
- 			return true;
- 	} else {
- 		virtqueue_disable_cb(vq);
-+		if (!napi_is_deferred(napi) && !napi_is_scheduled(napi))
-+			napi_schedule(napi);
- 	}
- 
- 	return false;
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index c0ae442c4344b..2199750825d4f 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -22,6 +22,7 @@
- #define _LINUX_NETDEVICE_H
- 
- #include <linux/timer.h>
-+#include <linux/hrtimer.h>
- #include <linux/bug.h>
- #include <linux/delay.h>
- #include <linux/atomic.h>
-@@ -553,6 +554,21 @@ static inline bool napi_is_scheduled(struct napi_struct *n)
- 	return test_bit(NAPI_STATE_SCHED, &n->state);
- }
- 
-+/**
-+ * napi_is_deferred - test if the NAPI timer is armed and will schedule NAPI
-+ * @n: NAPI context
-+ *
-+ * A true answer guarantees NAPI will be polled again without driver
-+ * action.  A false answer is "best-effort": the timer can be armed
-+ * right after the check.
-+ *
-+ * Return: True if timer is armed, False otherwise.
-+ */
-+static inline bool napi_is_deferred(struct napi_struct *n)
-+{
-+	return hrtimer_active(&n->timer);
-+}
-+
- bool napi_schedule_prep(struct napi_struct *n);
- 
- /**
+I believe the first time lore mentions the issue at hand:
+Link:
+https://lore.kernel.org/netdev/20260909-vsock-connect-reset-closing-v1-1-50298b9ccfbf@rbox.co/
+
+And there was at least one report off-list, so:
+Reported-by: Kyle Zeng <kylebot@openai.com>
+
+BTW, I've noticed Sashiko already commented on this patch. I feel I'm
+responsible for that wall of text, so I took the liberty to reply. Hope
+this will help.
 
