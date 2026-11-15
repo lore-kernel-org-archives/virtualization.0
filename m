@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794774473;
-	b=BciJELx9ZfAwHXOqqxBapJbzqgsloMzGYfdPxFZZdWgGVIBF7/JX0pJ5mOfExFAf5jU/
-	 gYlVv6A6oWARXBQrr8i+AzKwlknAU8I+o3GFAlyEBasOANdcbCemhgRewkzZlZ4KP6a2I
-	 cbRLL0s96uEa/EM506D595rT8z12T5eRJy7o2EWk1xWckXI0W0JNljXcaOp6JoeXGcU4U
-	 Bgx94kCeV4N6eW+DmtKTkkhEkYQpMvcKwYbcgtzN+WgIDfHt4aBGJZc9z0JtN1Po7w8XW
-	 oEGOoIbh+wc6faus+7OLNm6qC6ycMMo7q4Lozn7yqdIgCLaG08pc/qUh2+kDmVDkrFw==
+	t=1794774474;
+	b=2bQTO9S1kU6l1tek0gV78V23oZd+qpt8RtrwPO5oABN634LQpAloXsRnRcuO2mM8T24E
+	 VHsAgluYXTjc29OwJb8tHsuGo/NDthT2TC/8fnvmjN14OUH3wEK4I2l1Wb9/QC+PTMjzU
+	 YoqYECOWCaXOBvYi8NZw6tazelpV/XxPsigP3pa7DhIbOfvwbs5pki6yOYVI4qd7eB09E
+	 fEED7xAqpfoQzE/q778/WAwVo9CKEW8DqXiXPOWN8B4VsYC748QLsFM369CHevQ1Erbzf
+	 pwLefNSwpivQ59W3cK+9GkzvBNk2KIw7Fwj+qrbMoACciqMRETXETZjCmdurzNWqS/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794774473;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794774474;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=njL8//ozwB9ckvTpo0EBZJRah/W/mOz/aTNxkAI1Esc=;
-	b=z3TvumSWiI9OXDibl7DKHfB/2JfKLLzTOSScd/SelhhKMQPBIgvD3A36duQXU5qW8poi
-	 Sj+e395mPfJGQCmUXvwgecBkM3XFP4ty7ej8LniqUlAYdt3xkU8eT3xbtojTqi5SjYmHm
-	 EWj3sBOu1xkziLdYV05ugXTxcqfH96O7cG7ShCCj51zpyBxbUj20jE0kYUg6pySndiySU
-	 BSvpACwM1AYLE0Rh/ZEwr8CPsu4p4QWnDB0BT8poT5mJZ5p4Dni+itxBzPMU7v3J4Ruaz
-	 kNQuN7nqALGBk3rz8kZcbvtBgJQ/iHz5A3Ufo8vsr0FJDEWbeb9Ml/QRRfaS3fqb4dA==
+	bh=hBSgvfWNvJCthbjdW1nz5di6PD/8JDUir7Adz4W79pM=;
+	b=IbpA+y2M14AIBsDS2BdrmGLCfQLJfl7BvpslnQQK6G2m/sE5EhN3jviCpCWcMkxRD3D7
+	 NpZ3sflzT7hv4i6Tt6ADiGH4Xi5lV1L6yDx6ycxOFarbE+EZv749OdtcbdLnsISR/D2JZ
+	 cqwaQQO4wMUuAwRXgcCR551PV5nFqtuLoLp2L9fs4r0DHdhGbfJkilxJUmtmQBRcfesDj
+	 UvDgYe4yuljlKYaymn6JWE4G7EbqClU9MdFCgKyzip0yQrNd7Go8C3jMV3HFg8MiD0vRJ
+	 1VpC4I0JppgC+CXIkw2XG8ewGBJ1phQlqvukiwNx+rtbjswYw+dXAq8yqqy+7q2G9dQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OlhSBQoc;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="I/QCvQJ3";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A224606A33B;
-	Sun, 15 Nov 2026 20:27:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93A8760A2601;
+	Sun, 15 Nov 2026 20:27:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OlhSBQoc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 179131F000C5;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I/QCvQJ3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F35D81F000C5;
 	Sun, 15 Nov 2026 20:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794774473;
-	bh=njL8//ozwB9ckvTpo0EBZJRah/W/mOz/aTNxkAI1Esc=;
+	s=k20260515; t=1794774474;
+	bh=hBSgvfWNvJCthbjdW1nz5di6PD/8JDUir7Adz4W79pM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OlhSBQocVMtTqLHR93BMw6xYlfrBMWRevZbmbkcvpmd8y+jwC/JHxLhUNVF7LIss+
-	 kvVWe2blGoVA7DoTD0Fx6hoECJ1diQlBVUXdcoRmNPlmvlQXdxkywpoE8TjPioe5js
-	 HRuXZwr5at6KNfB1vA8kGvqMlPvbJryfQY896MwxwaQGiqF7VMuv/8LVJxFuUScaVM
-	 mbg0ZT03YVPwQEdWw70cHTO041BqmDIcwp2qFZ/EZ8F8Abv6it0/NnMgQgyuHbaK8c
-	 4f9GYsRzMmR3FJnsl9sgzek5Zj8Ltp+0bFsGBFqeOZebwmXy1SubBnQJG0CbsJpVQs
-	 kyKldJyA9LVJg==
-Message-ID: <sashiko-outbox-215808@kernel.org>
+	b=I/QCvQJ3gm/MLlBJi+KPtbH8SqpHUAj9oFH+KxU7s2j9P2gXdcrziv9sPKqkhBvs9
+	 YoOv8qmjK+TU8+B21h7ZoMHchRbETwp5n8DQUDyMqgTmCiDiv2hlxs7/n1qzteJAaY
+	 w9KoKqdNuQgunG1N5hnM3tt3Lt5q/gIwfBRidfQ/8+oox27wr6CEEvJ1snEVQbnmUz
+	 LVNIM2+1yZXkSfaUTqunu0GRX0fIH/WZJrcfntD69qFF44lRyLov2hR3rJ4WqLAmNU
+	 o7eQ/wHtCeIiALeLaYJLgYuMrWsBrK9h5os0yM5KLtdfxNbWjghb51xr7CY81sn4yT
+	 a4eYzwspjznWg==
+Message-ID: <sashiko-outbox-215809@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 08/12] docs: ioctl-number: update USB entries
+Subject: Re: [PATCH 09/12] docs: ioctl-number: update virtualization entries
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Randy Dunlap" <rdunlap@infradead.org>
 Cc: linux-usb@vger.kernel.org, virtualization@lists.linux.dev, linux-ext4@vger.kernel.org, tytso@mit.edu, "Michael
  S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261114202653.3113381-9-rdunlap@infradead.org>
+In-Reply-To: <20261114202653.3113381-10-rdunlap@infradead.org>
 References: <20261114202653.3113381-1-rdunlap@infradead.org>
- <20261114202653.3113381-9-rdunlap@infradead.org>
+ <20261114202653.3113381-10-rdunlap@infradead.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 15 Nov 2026 20:27:52 +0000
+Date: Sun, 15 Nov 2026 20:27:53 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,7 +61,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Update the list of files where USB ioctls are defined.
+> Update the list of files where virtualization ioctls are defined.
 >=20
 > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 
@@ -69,5 +69,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114202653.3113=
-381-1-rdunlap@infradead.org?part=3D8
+381-1-rdunlap@infradead.org?part=3D9
 
