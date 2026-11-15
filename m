@@ -1,46 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794728577;
-	b=AG7ELtfXGb/4mduRseYk78Lj60dzEW5u+QhR7Ga+rrnoJmitHd4OFk3jvTtK2K97DEgJ
-	 BfTuaHTsYIsslsu7ZqvcR596UwFKlz7c5XNLLaz+8q0ksjskqFOoZIyLYeCzksv68pNJu
-	 DVDbsjN55v74i6ECCQkcApcE8nRCnnUthR20ce+JfsMmIr3A6Gae0kzCS6tVARuFdhRK1
-	 0hzarw6lmoLNR6tXy/AuySdt2/0tAKNnwFEmbmGZicIpVkh06jFeG4T0ad8uQrjToZiQD
-	 us7eMQyNgG6M9LIYFyKLxSgZT51LA8d1asQzcTXPj4+d4taSWwqPDuUoTEzHvf3hudQ==
+	t=1794728579;
+	b=D8bP+M2kCXO7yF9v3ezEfCdxFNERPJ7rZO641hRHdiALMl1BieE1XFI8VtChqulFvGlc
+	 8vDxCfjuru+07RInhEwbjDgnQzscTn6UD/zS9II2Un06jDmP7AJ8gnmLJ0QjI5rOILoKk
+	 LJGKznEEyyuprrkEwGZ9wjSutPxW2pfg0dMha7gY68yI6FTTpjsWZMlk5p/fmP+KKu7k1
+	 wk7T15u7Y9yBXofoDvgSiBHtN2LEOEzrJq3eDt/b/pg8YRojuUGdMquA0d6qci60Zo+di
+	 MQoKM+oUDu2GGNRPfMaonRfxZUMiwL1j+kfP92QYsDaQ49dzVkJJPz6L8+C4228IoNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794728577;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794728579;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=GPVorwWextWqTeqhLKlgJWaB2HerQm/MmIfhM1PDl2w=;
-	b=fWLRDBTizf14awtzL/Eop6M0KMkMFmjENe8oYbTD016RqdrWrSYKoa68z1KZkx+kuMlp
-	 4gEPmUpROyrRrA4X1Cf5wyqRNAlG4X9rsib2kT0fshB78kZ73qoVuMgasVixdkTQNHU96
-	 2qQIJYUa2eiB7TiqIos/7Q17wJECWgAgLGKI2Lq88MXwPUK0jB3GtZKgefaYEQWuMQdsm
-	 Fts1bO7Tx/DKIfkyhEonrHhVkVxPD24TY7dO/F7Tvv7ccmD8UKoMShN4VS+TBtsN1njka
-	 QlVyzld5k3J8gFlopjODrdf9YGa2CKcsBsyb9elV90LbItB1uyfgGnOI6O5JMW3Ogfg==
+	bh=BnAgR70dI64mrGytYJ8dh2rslfwpurTWIUgVQFHKtog=;
+	b=3HS7e7Gtp9qcRt38aWgqp5Y99TxUzjXVWj5pzt4T6UZFgFE63/QrCQOrz6D4RnG/tMTt
+	 ZRD1sZ3AhgQ36OwluduK65Kn8YXT+7SY/akyhBZO5ZhEZxbvSSQmONyWSS6BG+7qiJsgK
+	 RKxn51Y0G1HQz7hPpAkBDstysOVmCXzOa4142b9t5RRLuD4ugOloAH6R6QNVEiOyNjsEu
+	 19fnPe3CCSWYTDLgjorDYhrwiUJbisaIUTN3l8M+gWF0+NIIT1y7q8RcJMcdbgr/oY2tt
+	 JKXDNIIARegBpxMY8P26SOFhp56EcWZIu6XW/cjQ0ZECf/voKWFroW2V/5odowIVlEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KA9hFhdc;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jG9ILaf6;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B5E606A31A;
-	Sun, 15 Nov 2026 07:42:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FE01606A331;
+	Sun, 15 Nov 2026 07:42:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KA9hFhdc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5371A1F000C4;
-	Sun, 15 Nov 2026 07:42:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jG9ILaf6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB231F000C4;
+	Sun, 15 Nov 2026 07:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794728577;
-	bh=GPVorwWextWqTeqhLKlgJWaB2HerQm/MmIfhM1PDl2w=;
+	s=k20260515; t=1794728579;
+	bh=BnAgR70dI64mrGytYJ8dh2rslfwpurTWIUgVQFHKtog=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=KA9hFhdck9Pu0lR2PrmhwtsDEAvpYWSx2ULFs9xe8v42JnsLvlTL9VTH1YD/0KQzI
-	 ejzUQnKFBhTpv5vIhRvfiNJ9gw9oB1RbSmj0/PiJNo96TBXhWcyd1S9v+VjtdEoROI
-	 tV9z87/AmMV0mu4Oh1b1WfE9BNi7icrFg3Lik9P2pgTigu09OWkEUb1cWrt4qP0TN1
-	 fBAm2VusjA6VVhBK1yKmGJ/ugo58sBzS7eTruLD6k8kqWoC617h0FxWiPmrbAJ08Ry
-	 7/EkBoBNjj6wqNa5V6u8WYH9UGKp0dnNoDnZbRHY9whoItb6Vq/B4VjtKFkXQDK3Ho
-	 GX/F/bWX8u1zg==
-Subject: Re: [PATCH net v5 1/2] tun: bound the NAPI receive queue
+	b=jG9ILaf62hiV+h0J94yiV39nP/SghgM7S/2YiZWx+1zAzXhiq/g1Enhw9CmLSAUIL
+	 6aFMio48HgSxsdKFO7R5GYifcBypAfbuLDya6inq0PRuqy3JZ5W+Zc5WED7MYNhttX
+	 rVIVdLhiVR2Px34l4uAzQ0gDMM3hyvjbWsUhQjVblx4EuulKClK+WZY0ZSZSJKWN1p
+	 ic0Ck20pRhXSjsIxCS9/Uxy5iUJgQulgRTAqtniNMTHTgZ5+OCX3E6Bz33PkwtkQhw
+	 PbZvhp8stOxmAUvccijHFo3PMqDA4SsWR0/AD7eVj7NKnjq014orhjn67cAkdK6S4m
+	 n+K3/4G0uYVuA==
+Subject: Re: [PATCH net v5 2/2] selftests: net: add a vhost-net test for the
+ tun NAPI queue bound
 From: netdev-bot+sashiko@kernel.org
 To: antonio@mandelbit.com
 Cc: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
@@ -51,11 +52,11 @@ Cc: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
  maheshb@google.com, peterpenkov96@gmail.com, netdev@vger.kernel.org,
  virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org,
  bpf@vger.kernel.org
-Date: Sun, 15 Nov 2026 07:42:55 +0000
-Message-ID: <179472857592.2199510.16416804582528441222@kernel.org>
-In-Reply-To: <20261111014208.1795777-2-antonio@mandelbit.com>
-References: <20261111014208.1795777-2-antonio@mandelbit.com>
-X-sashiko-severity: High
+Date: Sun, 15 Nov 2026 07:42:57 +0000
+Message-ID: <179472857762.2199510.12782959547104801304@kernel.org>
+In-Reply-To: <20261111014208.1795777-3-antonio@mandelbit.com>
+References: <20261111014208.1795777-3-antonio@mandelbit.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
@@ -68,10 +69,10 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 5 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 2
+Critical: 0 · High: 0 · Medium: 1 · Low: 4
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -79,172 +80,209 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] The new bound is a packet count on each tun_file's
-  sk_write_queue, compared against net_hotdata.max_backlog (default…
-- [Low] The new full-queue check runs before every XDP hook, in both
-  paths the patch changes.
-- [Low] The new comment in tun_napi_receive() says it takes "at most
-  budget skbs, so that the queue never looks emptier to writers than it…
+- [Medium] napi_queue_bounded lowers the system-wide
+  net.core.netdev_max_backlog to 8 (tun_vhost.c:379).
+- [Low] Claim: the zerocopy variant only tests a dropped zerocopy buffer
+  by chance, because vhost_net_tx_select_zcopy() turns zerocopy off once…
+- [Low] The commit message says that if a dropped zerocopy buffer is
+  never completed, 'closing vhost-net then blocks until the buffer is…
+- [Low] The header comment in tun_vhost.c (lines 15-19) says that with
+  netdev_max_backlog below 64, only the NAPI schedule done on a queue-…
+- [Low] Claim: tv_reap() (tun_vhost.c:353-357) trusts used-ring ids and
+  used->idx from vhost, so a bad id or an inflated count could overflow…
 
 --
 
-tun: bound the NAPI receive queue
+selftests: net: add a vhost-net test for the tun NAPI queue bound
 
-In IFF_NAPI mode, this patch drops new packets in tun_get_user() and
-tun_xdp_one() once the tfile's sk_write_queue holds more than
-netdev_max_backlog packets, and counts them as rx_dropped. It also changes
-tun_napi_receive() to take at most budget skbs from the queue instead of
-splicing out the whole queue and putting the rest back.
+This adds a kselftest that sends 16k packets from vhost-net into an
+IFF_NAPI tap device with netdev_max_backlog lowered to 8. It covers the
+batch, copy and zerocopy paths. It checks that excess packets are dropped
+and counted, that the queue keeps draining, and that every buffer comes
+back to the ring.
 
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 3b292bce4438c..e2fda570b90f6 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
+> to the ring. If a dropped zerocopy buffer is never completed, the test
+> fails, and closing vhost-net then blocks until the buffer is released.
+
+[Severity: Low]
+Is "blocks until the buffer is released" accurate for the case this test
+is meant to catch? A buffer that is never completed is also never
+released.
+
+FIXTURE_TEARDOWN(tun_vhost) calls close(self->vhost). That goes through
+vhost_net_release()->vhost_net_flush()->vhost_net_ubuf_put_and_wait():
+
+	wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
+
+This is an uninterruptible wait with no timeout.
+
+The harness still records a failure. After 30s, __wait_for_test() sends
+SIGKILL to the process group and prints "Test terminated by timeout".
+
+The child stuck in D state still holds its inherited stdout/stderr,
+though. So the tap_prefix side of the pipeline in run_one() in
+kselftest/runner.sh never sees EOF, and run_kselftest.sh hangs. The stuck
+process also pins the vhost_net module and triggers hung task warnings.
+
+Could the commit message say that on an affected kernel this variant
+leaves an unkillable process and can hang the runner?
+
+> diff --git a/tools/testing/selftests/net/tun_vhost.c b/tools/testing/selftests/net/tun_vhost.c
+> new file mode 100644
+> index 0000000000000..ed35435df90eb
+> --- /dev/null
+> +++ b/tools/testing/selftests/net/tun_vhost.c
+> @@ -0,0 +1,409 @@
 
 [ ... ]
 
-> @@ -227,6 +228,16 @@ struct veth {
->  static void tun_flow_init(struct tun_struct *tun);
->  static void tun_flow_uninit(struct tun_struct *tun);
->  
-> +/* In IFF_NAPI mode written packets wait in the tfile's sk_write_queue for the
-> + * NAPI poll, which may run later in a kthread or ksoftirqd. Bound that queue
-> + * like the per-CPU backlog of netif_rx().
-> + */
-> +static bool tun_napi_queue_full(const struct sk_buff_head *queue)
+> + * Tun schedules NAPI after a batch, after the last of a series of MSG_MORE
+> + * packets, once more than NAPI_POLL_WEIGHT (64) packets are queued, and
+> + * when it drops a packet because the queue is full. With netdev_max_backlog
+> + * below 64, the queue always overflows and only the last of these keeps it
+> + * draining while the sender keeps sending.
+
+[Severity: Low]
+Is this accurate for the batch variant?
+
+tun_sendmsg() handles the whole TUN_MSG_PTR batch under
+local_bh_disable(). It schedules NAPI whenever anything was queued:
+
+	if (tfile->napi_enabled && queued > 0)
+		napi_schedule(&tfile->napi);
+
+local_bh_enable() follows, which runs the NET_RX softirq inline and drains
+the queue. Each batch therefore starts with an empty queue. About 9 of
+every 64 XDP buffers get queued, so queued > 0 is always true.
+
+That means the drop-time napi_schedule() in tun_xdp_one() never runs in
+the case it exists for, where nothing in the batch gets queued:
+
+	if (tfile->napi_enabled &&
+	    unlikely(tun_napi_queue_full(&tfile->sk.sk_write_queue))) {
+		napi_schedule(&tfile->napi);
+
+If that schedule were removed, delivery would stay around 2300 of 16384.
+That is well above TV_PKTS / 64.
+
+So can EXPECT_GE(delivered, TV_PKTS / 64) catch a regression of that
+schedule in the batch variant?
+
+The copy and zerocopy variants do seem to depend on the drop-time schedule
+in tun_get_user(). There the last packet without MSG_MORE is itself
+dropped before it can reach the !more napi_schedule().
+
+[ ... ]
+
+> +FIXTURE_VARIANT_ADD(tun_vhost, zerocopy)
 > +{
-> +	return skb_queue_len_lockless(queue) >
-> +	       READ_ONCE(net_hotdata.max_backlog);
-> +}
-
-[Severity: High]
-Does a per-queue packet count bound the uncharged memory that an
-unprivileged user can pin?
-
-This limit is about 1000 packets on one tfile's sk_write_queue. It has no
-byte accounting and no limit across tfiles. The same user who can run the
-reproducer can also open IFF_MULTI_QUEUE devices. tun_set_iff() only checks
-CAP_NET_ADMIN in the user's own user namespace:
-
-    int queues = ifr->ifr_flags & IFF_MULTI_QUEUE ?
-                 MAX_TAP_QUEUES : 1;
-
-    if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
-        return -EPERM;
-
-That gives up to 256 queues per device, and as many devices as
-RLIMIT_NOFILE allows. Each tfile still has sk_sndbuf = INT_MAX from
-tun_chr_open(), and its queued skbs are not charged to the writer's memcg.
-The only admission check on the write path is this one in tun_get_user()
-and tun_xdp_one().
-
-The commit message says:
-
-    Still open: the limit counts packets rather than bytes and applies per
-    queue, so with large packets and many queues (IFF_MULTI_QUEUE works in a
-    user namespace too) the queued skbs, which are not charged to the
-    writer's memcg, can still add up to an OOM. This is hard to reach in
-    practice: with large packets the writer's copy is slower than the NAPI
-    poll, so the queue does not fill.
-
-That argument covers large packets only. The reproducer itself shows
-1400-byte writes outrunning threaded NAPI. All queues drain on the same
-CPUs, so if the writer cycles small packets through every queue fd, can
-each queue reach max_backlog?
-
-With roughly 2.3 KB of truesize per 1400-byte skb, about 1000 tfiles (the
-default soft RLIMIT_NOFILE) would pin around 2.3 GB, and a higher fd limit
-pins more. Does that still allow the global OOM from a memcg-limited user
-that this patch is meant to fix?
-
-A bound that does not scale with the number of tfiles would close this.
-Two options would be charging queued skb truesize to the socket or memcg on
-every enqueue path, or a per-device or per-netns aggregate limit. Either
-would replace the per-queue packet count.
-
-> +
->  static int tun_napi_receive(struct napi_struct *napi, int budget)
->  {
->  	struct tun_file *tfile = container_of(napi, struct tun_file, napi);
-> @@ -237,21 +248,24 @@ static int tun_napi_receive(struct napi_struct *napi, int budget)
->  
->  	__skb_queue_head_init(&process_queue);
->  
-> +	/* Take at most budget skbs, so that the queue never looks emptier to
-> +	 * writers than it is.
-> +	 */
->  	spin_lock(&queue->lock);
-> -	skb_queue_splice_tail_init(queue, &process_queue);
-> +	if (skb_queue_len(queue) <= budget) {
-> +		skb_queue_splice_tail_init(queue, &process_queue);
-> +	} else {
-> +		while (skb_queue_len(&process_queue) < budget &&
-> +		       (skb = __skb_dequeue(queue)))
-> +			__skb_queue_tail(&process_queue, skb);
-> +	}
->  	spin_unlock(&queue->lock);
->  
-> -	while (received < budget && (skb = __skb_dequeue(&process_queue))) {
-> +	while ((skb = __skb_dequeue(&process_queue))) {
->  		napi_gro_receive(napi, skb);
->  		++received;
->  	}
+> +	.limit_sndbuf = true,
+> +	.zerocopy = true,
+> +	.pktlen = 1000,
+> +};
 
 [Severity: Low]
-Is the "never looks emptier to writers than it is" part of this comment
-accurate?
+Does this variant always reach the dropped zerocopy path?
+vhost_net_tx_select_zcopy() turns zerocopy off once errors build up:
 
-When skb_queue_len(queue) <= budget, skb_queue_splice_tail_init() resets
-the queue's qlen to 0. Otherwise each __skb_dequeue() lowers qlen by one,
-for up to budget skbs.
+	return !net->tx_flush &&
+		net->tx_packets / 64 >= net->tx_zcopy_err;
 
-In both cases, while napi_gro_receive() works through process_queue,
-possibly on another CPU with threaded NAPI, tun_napi_queue_full() sees up to
-budget fewer pending skbs than are really pending. The real bound comes out
-to about max_backlog + budget, plus one per concurrent lockless writer.
+>From the current code, it looks like it does reach that path on every run:
 
-This is much better than hiding the whole backlog as before. Could the
-comment say the queue looks emptier by at most budget, so later code does
-not rely on a strict invariant?
+- VHOST_NET_SET_BACKEND resets tx_packets and tx_zcopy_err, and
+  vhost_net_tx_packet() resets them again every 1024 packets.
+- tv_post() publishes all 256 descriptors at once, so MSG_MORE is set on
+  every packet but the last.
+- Packet 10 is then dropped in tun_get_user() while tx_zcopy_err is still
+  0:
+
+	if (tfile->napi_enabled &&
+	    unlikely(tun_napi_queue_full(&tfile->sk.sk_write_queue))) {
+		...
+			uarg->ops->complete(NULL, uarg, false);
+
+So the coverage claim in the commit message appears to hold, and no change
+seems needed here. The test just doesn't assert that a zerocopy drop
+actually happened.
 
 [ ... ]
 
-> @@ -2561,6 +2593,17 @@ static int tun_xdp_one(struct tun_struct *tun,
->  		return -EIO;
->  	}
->  
-> +	/* NAPI queue full: drop, and schedule NAPI so that it drains even if
-> +	 * nothing in this batch gets queued
-> +	 */
-> +	if (tfile->napi_enabled &&
-> +	    unlikely(tun_napi_queue_full(&tfile->sk.sk_write_queue))) {
-> +		napi_schedule(&tfile->napi);
-> +		put_page(virt_to_head_page(xdp->data));
-> +		dev_core_stats_rx_dropped_inc(tun->dev);
-> +		return 0;
-> +	}
+> +/* reap returned buffers, waiting up to @ms for at least one */
+> +static int tv_reap(struct tv_ring *r, int ms)
+> +{
+
+[ ... ]
+
+> +		while (r->used_idx != used) {
+> +			struct vring_used_elem *e;
 > +
->  	xdp_prog = rcu_dereference(tun->xdp_prog);
+> +			e = &r->vr.used->ring[r->used_idx % TV_RING_NUM];
+> +			r->free[r->nfree++] = le32toh(e->id);
 
 [Severity: Low]
-Should this check come after the XDP program runs?
+This isn't a bug, but tv_reap() stores the id written by the kernel into
+free[] without checking it against TV_RING_NUM. tv_post() later uses that
+id to index vr.desc[].
 
-Here it sits before rcu_dereference(tun->xdp_prog) and bpf_prog_run_xdp().
-In tun_get_user() the new check also comes before tun_build_skb(), which
-runs native XDP and returns NULL when the program consumes the packet, and
-before do_xdp_generic().
+vhost_get_vq_desc() already rejects heads outside the ring:
 
-Packets the program would REDIRECT, TX or DROP never reach sk_write_queue.
-They add nothing to the queue being bounded.
+	if (unlikely(head >= vq->num)) {
+		vq_err(vq, "Guest says index %u > %u is available",
 
-Once XDP_PASS traffic fills the queue past netdev_max_backlog, those packets
-are dropped without the program seeing them. They are also counted in
-rx_dropped. Would redirected or XDP_TX flows on that tfile stall whenever
-the stack path is congested?
+Used entries also only come from heads the test made available. So with a
+correct kernel this can't overflow free[], and a broken vhost could at
+worst crash the test process itself.
 
-The commit message only says packets are dropped "before allocating and
-copying them". If this trade-off is intended, could the commit message
-mention the effect on XDP?
+[ ... ]
+
+> +TEST_F(tun_vhost, napi_queue_bounded)
+> +{
+> +	struct tv_stats before, after;
+> +	unsigned long long delivered, dropped;
+> +	int posted = 0, reaped = 0, n;
+> +
+> +	ASSERT_EQ(tv_read_stats(TV_IFNAME, &before), 0);
+> +	/* lowered only now, so that a failed setup leaves it alone */
+> +	ASSERT_EQ(pwrite(self->backlog_fd, TV_BACKLOG, strlen(TV_BACKLOG), 0),
+> +		  strlen(TV_BACKLOG));
+> +
+> +	while (reaped < TV_PKTS) {
+> +		n = tv_post(&self->ring, variant->pktlen, TV_PKTS - posted);
+> +		ASSERT_GE(n, 0);
+> +		posted += n;
+> +		n = tv_reap(&self->ring, 5000);
+
+[Severity: Medium]
+What restores the global net.core.netdev_max_backlog if the test is killed
+before FIXTURE_TEARDOWN(tun_vhost) runs?
+
+That teardown only runs in the forked test child. With a plain
+FIXTURE_TEARDOWN, the parent-side teardown_fn(true, ...) call in
+__TEST_F_IMPL() does nothing.
+
+On the default 30s harness timeout, __wait_for_test() does:
+
+	kill(-(t->pid), SIGKILL);
+
+That kills the whole process group, wrapper and child, without running any
+teardown. SIGINT, SIGSEGV or an OOM kill of the child have the same
+effect.
+
+The loop has no overall deadline either. Each tv_reap(..., 5000) returns
+as soon as one buffer comes back, and at least 64 rounds are needed. A
+slow kernel that keeps returning buffers slowly can therefore run past 30s
+without any ASSERT firing.
+
+In that case the host is left with netdev_max_backlog set to 8 until a
+reboot or manual reset. This affects later tests in the same run and any
+traffic that uses the per-CPU backlog.
+
+FIXTURE_TEARDOWN_PARENT alone would not help, because the wrapper is in
+the killed process group too. Would a per-loop deadline well under the
+harness timeout, and/or TEST_F_TIMEOUT, make sure the restore path runs?
+
+[ ... ]
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261111014208.1795777-1-antonio%40mandelbit.com
