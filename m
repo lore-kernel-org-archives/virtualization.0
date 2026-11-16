@@ -1,87 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794831371;
-	b=exlM1JCw5qrIO/e1vRVmL6LOSawCGscic3zqlbq2cpujPexGUhJEOvq2X4Q5JsEOq5oN
-	 SdRk1ZRjF5/GvqMwP2sDxQJUJhtimR3BXLc0/AvdV4JMqerhdnv4fgmf1kgRgrd786uJ6
-	 uTNDk1U6JCB8BYcUmWjN8u8zVsxN3p1Gv4ijiK+QgmRP9KiY8nRVQa2kmlB1gAjX3JozG
-	 K0mQVJUvUiLz30+DDtFjsCusW3kzsFiKGWIr5xD52brxOqD8oTeDB/zs5zzx0LKMFFNLg
-	 Q/GalHaULYNkOHWbWlMM65kUWIolfNq8gi541xfgUxeVolzbhe9bCoo0f+T+9T6+dRw==
+	t=1794837305;
+	b=0e3Kn4//WAOCM7i/qHM1QnQNnCvDum1dAOQ60X/MrzDwG+I4Adlcx1En/JpiIhGJDrWn
+	 LwD/rDn+k49FWQTxBJMIBAhSJnPxOo/2BzkQlf7UrLB1Es+KAGDKTvZCD/5fM/P1G8bgx
+	 GTsHfPjhm4549SQoYgeaCoHnMPxnrsvhLNib8czvbkeqxMfYbP2OsUraoNPWuEmjXsKDg
+	 NFD6k5AwaR7ctoeKVIqrgt/ajQ5Fa864mNRgwmDplBg4ZGFA2FwFAn6ihWQ6YoyIotyFK
+	 mjx6qtaqbQqT7y6lb6sLoDzO+Bd/+j7r6thhaPDQz47F9LQjjCYV34+LC5GoIaK345g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794831371;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=hagfi1157KenUDCT/Gf/vwimxfuG+ZLb+Q+ggtjfRr8=;
-	b=VFTvfRYhohUx3iK8ZHFKav4eEAsq1OWcMamxWNHDpoDEUee7huxK5qLxDofmzpxR1h3G
-	 XbIGVIk7nsxG/7s2PMPnf0Pgpxoz8nlv0mitu2eX7BZG6msPsWG1uBvdcYAnu2yz9Rzck
-	 OzgPliBctQSraEtnzNobcwLPGwCHM9HtkANTuyn0/jmluwKXSWrzG2iSI6tSbY1zwmS5i
-	 Xc19AmQedyQdfGP8q+C4Z45yXFA5PJtTI+odxs8Mm4mnpQ55cQKzG8fuxorfoFzizSJZl
-	 rZWjvrNhgfOI4YL0rsY+MLGSMkudRtQjKUZYXzAiqv04vPDc59ywNxbbp2ahiCGT5GQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794837305;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=ZSJToYozTYxAoX2DSMhPYtF3x2Zug3BZ5Yp5Zwq1bHs=;
+	b=DlubN8mhM/0C42zKBSQ6JdGF4j6tmYvntcFGrQd7IHJu9Zzuv9V+PTBVs3E41m1msFdv
+	 UJOkN1EKBMxtE8esN3gIS+qwLxJiZJHyOmVD3VOn1JhluD/EDnuVHAhOY3FgHf9GThqaO
+	 rDWJY9h73vZGld5OcKYZqHyjsUBOneNuzDP8yPFWX9FWIsQg+DueVH7DXPHvD7QbQTSJd
+	 088coX39qHx+gNsF8QrGjyAx/AxAzyHCccOb/l6E2cRuOgl4eH7Xgvslq+jy70Y82RnCD
+	 suluvirLwlO05pzq/EI18jEq+9KLY4WbLmVXuHFjPRKXf6uzkmDDEcjNfdb25OwRjpw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EU8U93LM;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ojnttcYQ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D402606A332
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 12:16:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9D402606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BB9560A2624;
+	Mon, 16 Nov 2026 13:55:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EU8U93LM
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794831369;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hagfi1157KenUDCT/Gf/vwimxfuG+ZLb+Q+ggtjfRr8=;
-	b=EU8U93LMgTjjplNGeidaoVrxdStg30sW3oKHjPyPu/4tUK+GseT1VIDTh7UyTQaDhY1SzF
-	QXDNkAXizx9qLkytoa+kXsHS7ZEhnjADOz90WOzHrMlptow/M/CD0GMuAiqbhQ16FKmPEd
-	mr9Po3YluGXuqv7V5rI19NYUkz3wAjo=
-Received: from mail-yx1-f71.google.com (mail-yx1-f71.google.com
- [74.125.224.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-561-D3pGrA1rM6iDl5YkHrL1cQ-1; Mon, 16 Nov 2026 07:16:06 -0500
-X-MC-Unique: D3pGrA1rM6iDl5YkHrL1cQ-1
-X-Mimecast-MFC-AGG-ID: D3pGrA1rM6iDl5YkHrL1cQ_1794831366
-Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-67dbb53a803so1279705d50.0
-        for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 04:16:06 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794831366; x=1795436166;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hagfi1157KenUDCT/Gf/vwimxfuG+ZLb+Q+ggtjfRr8=;
-        b=06R/f1Pn/+Omodzve7/oAgdqV8uoo5NLjT7MCnUkRjiT5IQAjt9cB4ahfKi0I8G6I6
-         G53vBqtP/FO5D8pVgAsT2VBT9+OqM67890ZVY3X25UR9rIzMrKWduq2d+afKzqcifQqt
-         jFtzsmJyflJA6+CJAGTJVaBHma7ZxVsphLweK4IKREAZGi38FObPEEHbxOP2uaRHW1fr
-         LKYivmiNwmrqu1waQhRRBfKpAoPvb7246MuaMpuxdmqGyMqPs5wOElzA1WDZ7bW0k7jC
-         7zW2OVwgJz/kAGzXIDoL1T+FC07Ws3t4AfMk9/Z+0Nnww/IztMU6ETHk8Vy/Br+69gOw
-         tU5A==
-X-Forwarded-Encrypted: i=1; AL+hErEfQ8ictophDhooiF0yrnLX3w9uNhjbESHmcL7DwtsneHR42XKisEh3mS2/Us2fPU2qTGLl+HOSf845OEdfvQ==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8ypbIxduqhcNFpxHzXCGiesDl5nwyC228mPgWa3CUxFizM46n4
-	w7l5bhWpoAgdppmHn6BVgY1vkLGvNRCFSbCygyDVgG2rdadUxEcPSTlgzVR1r8KyCUt+FAPl+eP
-	mkuCMA35AlNxcUUSnCNffyw3smSz5MXAmXQUHF1ymcSQDLdzWYLZpO7+EaZ8knTZ99L5Ia76GlB
-	M2fYNWlQ7JcDJHwZZWwgbKqsFIYJMGiW5esN71DT9dCDw=
-X-Gm-Gg: AZFdTZd7c9IKZvyxMjY9ZXDF2YPWj2op+H3ypZ1knWz00NJPTCi2tdmO1XE8pVZ3wsP
-	7JTVyp5leMaYmP2fNQCKm6lf69wCkjVEJNeNhh5myU87MopgD22aaGmFX5COVzPDNdQj29ytr4M
-	67sof0CGIoKqfa39SnDWyWpT67TiOdqLhfNTg/9L8HLMN9ZrvYa2kg10XiPKkUa8zs18KCQ6vLo
-	/Vu1tIY4wVgE5m00jWYryIlbeJOEhX3pSKApE1YIY0l3hX3oqoYZQdozS8=
-X-Received: by 2002:a05:690e:1447:b0:67c:11c9:2d10 with SMTP id 956f58d0204a3-67d89828203mr7426508d50.89.1794831365838;
-        Mon, 16 Nov 2026 04:16:05 -0800 (PST)
-X-Received: by 2002:a05:690e:1447:b0:67c:11c9:2d10 with SMTP id
- 956f58d0204a3-67d89828203mr7426492d50.89.1794831365223; Mon, 16 Nov 2026
- 04:16:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ojnttcYQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E2771F000C6;
+	Mon, 16 Nov 2026 13:55:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794837304;
+	bh=ZSJToYozTYxAoX2DSMhPYtF3x2Zug3BZ5Yp5Zwq1bHs=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=ojnttcYQczskVLAWIQCzK/VB4k1GAQix19HvlONXnJ1thQ+Oo1tgiEZPyxnaPU8lg
+	 Q7NCrq7A8gYKz/TawlMkFKSmeazTobmJxK2a+2woscXmIFT+YZrdPP86tTBfY3OrNI
+	 SGbUmoLHnaaRTN0jd4jE7s8c1SiTZXBw/oJB07mRG62Wx7UrX2OpVndsbVyTGYdKwF
+	 An/GRp2qUrX/9g+qMRjwod8qwSCFfECjz8K1bN8IzhvRoYP/BZ3wDgcE/Cw6N87dSs
+	 /pYiQaney9BkzjPMfy5pcY7p6A8wFg+tR7rjMxsaOa5st+O5OlON36SoduDLERZdbc
+	 LY72u30mt6new==
+Subject: Re: [PATCH net-next v5 2/9] virtio-net: zero the whole tx header
+From: netdev-bot+sashiko@kernel.org
+To: s.trumtrar@pengutronix.de
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, davem@davemloft.net,
+ kuba@kernel.org, pabeni@redhat.com, richardcochran@gmail.com,
+ willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, eperezma@redhat.com,
+ jasowangio@gmail.com, ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+ john.fastabend@gmail.com, sdf@fomichev.me, edumazet@kernel.org,
+ andrew@lunn.ch, horms@kernel.org, kory.maincent@bootlin.com,
+ liangchen.linux@gmail.com, hengqi@linux.alibaba.com,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org, kvm@vger.kernel.org,
+ kernel@pengutronix.de
+Date: Mon, 16 Nov 2026 13:55:02 +0000
+Message-ID: <179483730268.3136.457734979427680662@kernel.org>
+In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-2-7ab67b572f4f@pengutronix.de>
+References: <20261112-v6-7-topic-virtio-net-ptp-v5-2-7ab67b572f4f@pengutronix.de>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,87 +69,107 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261112154927.4004184-1-stjepan.poljak@gmail.com> <20261112154927.4004184-2-stjepan.poljak@gmail.com>
-In-Reply-To: <20261112154927.4004184-2-stjepan.poljak@gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 16 Nov 2026 13:15:26 +0100
-X-Gm-Features: AclHuK9hknMzCwQmnyctLW_nYU9P8TLzSSsy1qjPj1v2VPieAeY0m88QS7tIYa4
-Message-ID: <CAJaqyWdB=qZddhEPmKPOdUDALM-3M3z2OvwWq6hzfTAjETQnVA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] virtio_ring: reject a split ring size that is not
- a power of two again
-To: Stjepan Poljak <stjepan.poljak@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	Francesco Valla <francesco@valla.it>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andy Lutomirski <luto@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, virtualization@lists.linux.dev, 
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9hDLm06VgxrLAiO8pfEfBeUconfuCN4Yl1XiAp_n_jo_1794831366
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2026 at 4:49=E2=80=AFPM Stjepan Poljak <stjepan.poljak@gmai=
-l.com> wrote:
->
-> The split ring indexes its avail and used rings with num - 1 as a mask,
-> so its size must be a power of two. Commit 2a2d1382fe9d ("virtio: Add
-> improved queue allocation API") moved that check from
-> vring_new_virtqueue() into the new allocation path, which
-> vring_new_virtqueue() does not use.
->
-> remoteproc calls vring_new_virtqueue() with a ring size from the
-> firmware, checked only to be non-zero. With 100 entries, for example,
-> the driver would put buffers 4 and 8 in avail slot 0. The device would
-> look for them at slots 4 and 8, possibly reading the wrong data.
->
-> Put the check back for the split ring; the packed ring has no such
-> restriction.
->
-> Fixes: 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider.
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Critical: 0 · High: 0 · Medium: 1 · Low: 1
 
-Thanks!
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-> Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
-> ---
-> remoteproc still reports this as -ENOMEM, although the "Bad virtqueue
-> length" error names the cause. Returning an error pointer from
-> vring_new_virtqueue() is left for later; the same change for
-> vring_create_virtqueue() is here:
-> https://lore.kernel.org/r/20261106055635.3019889-1-stjepan.poljak@gmail.c=
-om
->
-> v2:
-> - Log with dev_err() rather than dev_warn(), and say in the message why
->   the length is bad (Francesco)
-> ---
->  drivers/virtio/virtio_ring.c | 7 +++++++
->  1 file changed, 7 insertions(+)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index f683a2d6a200..f855b8d41575 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -3513,6 +3513,13 @@ struct virtqueue *vring_new_virtqueue(unsigned int=
- index,
->                                                     name, map);
->         }
->
-> +       /* The split ring indexes its rings with num - 1 as a mask. */
-> +       if (!is_power_of_2(num)) {
-> +               dev_err(&vdev->dev,
-> +                       "Bad virtqueue length %u (not a power of two)\n",=
- num);
-> +               return NULL;
-> +       }
+- [Medium] The commit fixes a real bug: virtio-net TX headers reach the
+  device with stale or uninitialised bytes.
+- [Low] The commit message says the bytes the helper does not set "go to
+  the device as they were in skb->cb or the headroom", but it never says…
+
+--
+
+virtio-net: zero the whole tx header
+
+This commit clears the whole negotiated virtio-net header in xmit_skb()
+before virtio_net_hdr_tnl_from_skb() fills it in. Bytes past struct
+virtio_net_hdr no longer carry stale skb->cb or headroom contents to the
+device. The separate num_buffers assignment for mergeable rx buffers is
+dropped because the memset covers it.
+
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index dd2c41ef6fbe7..4c740b403ad1e 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3326,14 +3326,16 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+>  	else
+>  		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
+>  
+> +	/* Fields the helper below does not fill in must not carry stale
+> +	 * skb->cb or headroom bytes to the device.
+> +	 */
+> +	memset(hdr, 0, hdr_len);
 > +
->         vring_init(&vring_split.vring, num, pages, vring_align);
->         return __vring_new_virtqueue_split(index, &vring_split, vdev, wea=
-k_barriers,
->                                      context, notify, callback, name,
-> --
-> 2.53.0
->
 
+[Severity: Medium]
+This fixes uninitialized bytes reaching the device. Should it carry a Fixes:
+tag and go to net on its own, rather than as part of a net-next series?
+
+Before this change, non-tunnel skbs only went through
+virtio_net_hdr_from_skb(). That clears sizeof(struct virtio_net_hdr), which
+is 10 bytes.
+
+virtnet_probe() sets vi->hdr_len to 12 (VIRTIO_F_VERSION_1 or MRG_RXBUF), 20
+(hash report) or 24 (UDP tunnel GSO). So bytes 10 through hdr_len - 1 went to
+the device unchanged from skb->cb or the headroom.
+
+The 24-byte layout and the current form of the num_buffers assignment come
+from this commit, which is in currently maintained stable kernels:
+
+Fixes: 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
+
+The 12-byte and 20-byte cases are older, so their origin commits could be
+named as well.
+
+Without the tag, the fix only lives in a net-next feature series (RX
+timestamp support). Would stable and distro kernels then keep sending up to
+14 stale bytes per packet?
+
+>  	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
+>  					virtio_is_little_endian(vi->vdev), 0,
+>  					false, feature_hdrlen))
+>  		return -EPROTO;
+>  
+> -	if (vi->mergeable_rx_bufs)
+> -		hdr->hash_hdr.hdr.num_buffers = 0;
+> -
+
+[Severity: Low]
+The commit message says the remaining bytes "go to the device as they were
+in skb->cb or the headroom". It does not say that this exposes kernel memory
+to the device. Could the message state that?
+
+In the can_push case of xmit_skb(), hdr points into the skb headroom:
+
+	if (can_push)
+		hdr = (struct virtio_net_hdr_v1_hash_tunnel *)(skb->data -
+							       hdr_len);
+
+The skb allocators don't zero the headroom, and nothing writes the bytes in
+front of the Ethernet header. So up to 14 bytes of uninitialized slab
+content per packet ended up in buffers the device can read. This matters
+when the host or backend is not trusted, for example SEV-SNP/TDX guests or
+VDUSE and vhost-user backends.
+
+Also, the virtio spec requires the driver to set num_buffers to zero on
+transmit, so a non-zero value there breaks the spec.
+
+The XDP TX path in the same driver already zeroes the whole header in
+__virtnet_xdp_xmit_one():
+
+	memset(hdr, 0, vi->hdr_len);
+
+Without words like "info leak" or "uninitialized memory", might maintainers
+and stable reviewers treat this patch as a cleanup?
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f%40pengutronix.de
