@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794822126;
-	b=WsMMvWrE/lP7EXQiTUgOZRcKTMRXvNJTp7OEfiRp3DJyl/ByQpGzrQ9gU+yWIsIu9Eyf
-	 gtKGfnR+bb1SsOPXrmNeteqhDQrUaI+v61fXBRoN0LYVMwE6hjPb+5ugVbC4lPBziPjZv
-	 Y4gIFPGRwUmH4wUm2adSv6WWpmdddWy9/pl8jQwyD8hAS1Id71os2//GFoGvek7YjZ1+K
-	 aM7xK+QKGDusISukrMrOvmiS2IL+tQwofclE96dFMZF7qqF0IEUF4ZONWaFjq0VIUFvBz
-	 jwloPHPivdFovQC1lDQDCj0YzgA+VJMMLWkuq90C1mgATV3p74t0OZmjp/BzhRT+a9g==
+	b=ygsRXvY1uI39j/4xs35XVdmT2Oc4vMZiYkUdByTNo5tpQHm6WUVlTuDOti7+D3uYuKI+
+	 01fgLBu0tzFJPh1MIMM8gz1DNpfbzxMfA5VhIwMpBYm9QfgBggU4MbfSRPD+m+dLz2zEa
+	 IBUgA/JzW/LDfgQXoRnqYZJmK3Ed5F9BufQETXndA1/WgTelsYOkQkAAxarvkcCYPKXcc
+	 NuUs+F5n0J8354Vn14FNZHnbR1poQDN/F1AommZuukGiMsBlxYuf7Fr1A50L5ImAp8gLv
+	 rYQM3lPtfUjkFKEroJSyfnKAeLA2CRwB2gZFbSfR5WXIkzLPZ0X4qF95dUCYd3BXfXw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794822126;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=gaPGQdx6+lKEgEfnae9vJxdxobJJtoQIV+PfsJY1GNE=;
-	b=dXVE2k7cOA3YbnZmABAL0xDq85Y/3Zw7QQX+OtEemAJwvNOcSkLbMsXRfNY+zaJ3UGtG
-	 EijRSSg3XpaaGKjKLSMhS+EjeK3+k3UWIM+hUM9N/ijh8dgEkH4xso+FoRfM26srfQQke
-	 B0CphpNWGnGkGRBPObXN2pmcMs8wCH3W/jGWR6JX1W24gUUkUL+SCNIFz1BjoWyGXhqur
-	 2/g4mszi2pg2OucLNjOvBMBVrbphpvnk8sfhH6m/dZOWW/ZzJSxZAf4Iexc48lq5HtP2U
-	 7O3xPcs6fqGONWvHKlg53989ioJvtPIsJhmEBs8lFalzlePiU1lvWc1ljWzwQEJFXwA==
+	bh=8ZfjSarc28lVAkF2CB82kK62/MsMeeIueZyFdCa1ScY=;
+	b=d9N/4tYvdZB2VhQUYxWBxoUiixK27xyQIjSnrjrQ6XstLWObnuN9DZog0PzNK5exQYHe
+	 HH1Yos1ppRmSoP5r41f/Dg6nZDRXFOh1xQyMkXK6oy1HTPSFFBpe1zTbBXf6Tzr9zBhk8
+	 J1giQNmDZ67VvI5Fa5rtfYR6iN4U2CZ0F3lwzThmfpwiKR6tbYQQmQNHqYXLlQpoXX1RT
+	 TuSHVUz0L5nD7Lla4ajxgTK/qz/cDymI0sPElXGoBpD5jBhEmFgfbopBxSMUohKkreSbB
+	 l2zSimQuBuzYfhRXK7Q3BYdEplWtW6wZVO+2MHIbXchd5Ah/3MLleTrjXVrvtUmgUyA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g1qDy5DP;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="SEu34H/f";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF4DE606A323
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 09:42:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6062F606A330
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 09:42:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g1qDy5DP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D681F000C7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SEu34H/f
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E871F000C6;
 	Mon, 16 Nov 2026 09:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794822125;
-	bh=gaPGQdx6+lKEgEfnae9vJxdxobJJtoQIV+PfsJY1GNE=;
+	s=k20260515; t=1794822126;
+	bh=8ZfjSarc28lVAkF2CB82kK62/MsMeeIueZyFdCa1ScY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=g1qDy5DP4xlmfgbwO+S8HLLcD/Vayso5bltE++yv9Dgg/h2mPRLOsLIf5nFQC8lz6
-	 0mZTqWetTJNByIFo03FpnAm/ibrH2VVKC5iEqHt4APrVP9gTU0mFTYRAzoD2bfr1Et
-	 jvw7PkvkhKsakP1yRP15gahBoLPtGaa/Q6q8Z7nt0r1nKjmhvL3OhUHYWOwkHDHuIN
-	 WDwLzmB4oA/0bNNUoaSKUua69QMsPACn6/F1Qh5MR1Dx1t/qO+Vj0gZT4JIZLPdSAN
-	 vfUs2sJcK85FGCARIKOKTXfWkvWur7eqWYbRiVpALU2OjhHGSB5E/F4WsVhHve4Dqe
-	 iY7imN6JykvYQ==
-Message-ID: <sashiko-outbox-216626@kernel.org>
+	b=SEu34H/fM6fORX1i5o3omeuCM/ioSHgM5rJxorvJW9nlWLjqshnV1r7+ClUAOcDjF
+	 3PFi32KBh+xjD63XPmWLxBPsASYVYyEsSITur8UGpEd7tOP45AQoZW7QufSADD/hkO
+	 xYWoT6KmTLp+s3BBkr3LWPcaQ2uYlwkfoaE4yWdZFn82M2Rvhxq0UxX4Eh22cY6USf
+	 FUIQR+qASHByQqfyhyhHR9qQFYWibvDpHldE6Tc56klbAqK9anWVZUxOUBqmRX12p+
+	 PiesNRq9N3VMB+TJnV8go1uEfcR1KQJsyiYq9ECbUDvahV/ex1G0UvvtN7NoZG6Dnw
+	 hcWY8ZCguqC1w==
+Message-ID: <sashiko-outbox-216627@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v3 1/4] virtio_net: reject stats replies for queues
- outside the request
+Subject: Re: [PATCH net v3 2/4] virtio_net: zero the stats reply buffer
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lianjie Wang" <lian@is.s.u-tokyo.ac.jp>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261116092445.3391334-2-lian@is.s.u-tokyo.ac.jp>
+In-Reply-To: <20261116092445.3391334-3-lian@is.s.u-tokyo.ac.jp>
 References: <20261116092445.3391334-1-lian@is.s.u-tokyo.ac.jp>
- <20261116092445.3391334-2-lian@is.s.u-tokyo.ac.jp>
+ <20261116092445.3391334-3-lian@is.s.u-tokyo.ac.jp>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 09:42:04 +0000
+Date: Mon, 16 Nov 2026 09:42:05 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,25 +61,35 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> __virtnet_get_hw_stats() passes the vq_index of each record in the
-> device's statistics reply to virtnet_fill_stats() without checking it.
+> virtnet_get_hw_stats() allocates the reply buffer of the device
+> statistics command with kmalloc(), and __virtnet_get_hw_stats() parses
+> the whole buffer. When the device writes less than the buffer holds,
+> stale heap bytes are reported as counters through ethtool -S and the
+> per-queue netlink statistics.
 >=20
-> For ethtool -S, virtnet_fill_stats() uses vq_index as an offset into the
-> output array, which the ethtool core sized for curr_queue_pairs. A
-> record with the vq_index of a higher queue can make the driver write
-> past the end of the array.
+> Allocate the buffer with kzalloc(), so that the counters the device
+> didn't write are zeroed. An unwritten record header then has size 0, so
+> reject it when walking on that header to avoid an infinite loop.
 >=20
-> For the per-queue netlink stats, the queue type also comes from
-> vq_index. A receive record in reply to a request for a transmit queue
-> makes the driver fill the struct netdev_queue_stats_tx on the stack as
-> if it were a struct netdev_queue_stats_rx. If the device offers
-> VIRTIO_NET_STATS_TYPE_RX_SPEED, this writes one counter to the eight
-> bytes after the tx struct.
+> The used length cannot replace the zeroing here, since the device can
+> also report a larger value than it wrote.
 >=20
-> [ ... ]
+> Claude Opus 5.5 was used to audit the driver and draft this patch. To
+> reproduce, the virtio-net device in QEMU was modified to offer device
+> statistics and to leave the counters of a receive record unwritten. On
+> an unmodified kernel, ethtool -S reported kernel pointers as rx0
+> counters. With this patch, the counters are zeroed, and a reply with
+> missing records or a record of size 0 is rejected. The
+> drivers/net/stats.py selftest passes when the device answers with
+> well-formed records.
 >=20
+> Reported-by: Michael Bommarito <michael.bommarito@gmail.com>
+> Link: https://lore.kernel.org/all/20260711150754.2918392-1-michael.bommar=
+ito@gmail.com/
+> Reported-by: Jakub Kicinski <kuba@kernel.org>
+> Link: https://lore.kernel.org/all/20261110001659.1654289-2-kuba@kernel.or=
+g/
 > Fixes: 941168f8b40e ("virtio_net: support device stats")
-> Fixes: d888f04c09bb ("virtio-net: support queue stat")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>
 
@@ -88,5 +97,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116092445.3391=
-334-1-lian@is.s.u-tokyo.ac.jp?part=3D1
+334-1-lian@is.s.u-tokyo.ac.jp?part=3D2
 
