@@ -1,99 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.210
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794817107;
-	b=Ci71RaRXfo3YxUVD9KLmcHrkQJ98UksiWeiYdHm0wVqbFmiJD5cO1P8Vu8Lu1gVoTYGz
-	 VWUWCzZeivNhN7L8lx+/DwmVPj7HQLVCIZmetx9z/2fC7u5DlF05pUQ5dha53WIBRNDyk
-	 6jYbxqaUsCBE6JUMBcpRFS51+WV4VOeuEUD18sOabwxtwdq70wZD0BzCWmX5ep/1dnPeZ
-	 xIqREzGT5FshcGheFVc7BdUnlC/ATMqLjQr2ccApO2gMqqugG0n2Nzg/mJmTZBPH9Gbgh
-	 yBFsdpGBfigYG36xPKVZ/josahmznPAsEF+r16c8nWs0RZoVN1wfSDF8F4J25CzZy6Q==
+	t=1794818846;
+	b=jc1FUtUoJ5/vYehElW7cGbw6onJ0VIN/zDQL+UYFLKfm5+XXpuvm+zVz8RtskMjmUBbT
+	 w4sD2sFjAdsmrTMdPpAgaYmVDbP8XuC7t2F7kTNb4rKrT9D8mG7TzQ8VJah61MX8nd5xR
+	 gTexa/C+ZRfILJrk7IHAZgA7EFXgsM04l+x9U2UgcPC/K9FR3bBqdKu8YnjJt4QH6iBFj
+	 rgyh32RfUwSxW6aYDbM36TZQU52Xs/Sj3kFKwvHk7UvDHYgGR56sgiAMY1zzYzSu0bZOG
+	 L1VPR4lGAmTFsYrJQBCrBZH6EAMTc5YtCHyOCIvmOWFd9j+w8pw+xxCZWg5/zunYudQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794817107;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=/MsxKHT1v+wbsuT8knl2lByYutV0BQaZynJDwVTf7Q8=;
-	b=lNTghhlC+Wq0JRdHPjfAYKhenmDg33VkbVzQpIwLpelzioCJKD23HxlqbdU3al8vjQeh
-	 hDaQ1717I3PEO1lWJq57wzvkj9hyyCJegDn4mmToyuy9ZSKz56TuNoMPFCONXAwNB6v2W
-	 Yi3RmrMu+9CeqjDfgS0b01z05aa0Y/Ou+iJpG6Jto072a7ZPjvc9JyPTg4EZRwGm/aURm
-	 LpxW0fl2Qivae3GD/UfCa7rRkI2mz6/4AOt369vHDRMomWY/n+PKW8hi0Z1AzoUXCP4TI
-	 ef/iILo6VLz9VKGSgSZsqnbvTy9jneM0EwyF1txrG4vpyrZqPWTb62poxpySUEGWuBg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794818846;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-XMRINFO:X-QQ-XMAILINFO:From:To:Cc:
+	 Subject:Mime-Version:Content-Type:Content-Transfer-Encoding:Date:
+	 X-Priority:Message-ID:X-QQ-MIME:X-Mailer:X-QQ-Mailer:References:
+	 In-Reply-To:X-QQ-mid;
+	bh=CpxPwjwc+ZYwJ/LLzCiMIrB17AE2heuOVpqJXUeodI4=;
+	b=xOxcVTpq5LjEVgbwyEfjLuVKtC6lpv0R136oSKkcMkTNgyBdc7V+OuN10rIiPZGeSMf5
+	 s/TbBrPkCQcMeNKGymtnNsAs0Jlez/Mp8FdawAtoa2zZI4dO2FPXCLMRm/Zj147kasTBi
+	 D3SKh+l8yLZXaM1rRwZxePZd625gYxfxyd+oL/+Zxp2q9bFNmfDDPpuorXByOVrRfu9a7
+	 Qun7cE94ca7JAAuVjsLOhd6ZUwwSIOqoY4Td1eb3yp9FEA6nykEsg1eLFhlvBL7zRhn7T
+	 QFdosPp6Zhft8qFiTjpeyKoGAE778V/7RuhJcvtrC4gA+iCM7vpa7CcMJdEfdAoQAyw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VPy25xh8;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b="OJKud/HL";
+	arc=none smtp.remote-ip=162.62.57.210
+Received: from out162-62-57-210.mail.qq.com (out162-62-57-210.mail.qq.com [162.62.57.210])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E4CB606A323
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 08:18:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7E4CB606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A79606A329
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 08:47:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 18A79606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VPy25xh8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794817105;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/MsxKHT1v+wbsuT8knl2lByYutV0BQaZynJDwVTf7Q8=;
-	b=VPy25xh8KWskD9Vzf9ch16EDrB9ITsqyptN8gu+jtuZbT5z4GJYCQ/NW2Lma5zPezJglsE
-	+v1daWHsc98CQbN2Z/8PA1EEUBHBX+RcBpwlqYqzyhF+qq80Yrd7pAbJ+F7lqTiI0SHZTU
-	79T7G62S3Mvhs33owP+3LYNPKRLvTTQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-101-n-0kiS9iOTaZlUEku2aC4A-1; Mon, 16 Nov 2026 03:18:24 -0500
-X-MC-Unique: n-0kiS9iOTaZlUEku2aC4A-1
-X-Mimecast-MFC-AGG-ID: n-0kiS9iOTaZlUEku2aC4A_1794817103
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a027f2e364so17313725e9.3
-        for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 00:18:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794817103; x=1795421903;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/MsxKHT1v+wbsuT8knl2lByYutV0BQaZynJDwVTf7Q8=;
-        b=Val4wlgAA7bGr28A5iuojO3NCtS66bYaEiQBsrNoJPRIS+Vy7qPrr73qd1q7fn4RNJ
-         eFhNc3+p8SQ8HpJbHBPZd0SNnr4IkoYg1xpoxWao2jsziQOLWyYppS/agov9DExNhwjO
-         WnJUTci+hDdX+CNhCIIJOWbENWAp+qpEiVj/jxkNP219C95uKnzyUQ1uS9PZg2OYitTn
-         fwlB2/sn60rXCXro8t8hIxh0yg/0WBagUxQHW33oGGdkFL9ynFYw+wY3g33indooIFur
-         UOVPulXzxTwIRVixAEGqbKwDFrPU9V7WUKHK96h7hEQbNBE8z5VDjVCuHvFpMBR/HZgY
-         6TSQ==
-X-Forwarded-Encrypted: i=1; AL+hErEc1GiG1c6dq42JMXYrq+gJ3DcPlrt3KEqo3x7sEiL2zJUfOAwb8hj5T0ECmBwtwqAK8xnoICVxzor7FpBJ4g==@lists.linux.dev
-X-Gm-Message-State: APuU4Z82mD+cLTLR0SexJq30d01Okvf9b3E5KFKLuIuyoIriWzPlQB8Q
-	0eNPMeSLM4ajgowY3xYdMhtRIDbHXbZswx254iAyMwrorn5pcgJo1mhQzO2QSGG5R2x9rbthZ2p
-	NPePZBL9B4eLIk9VzTa6LxI+YqrB0/qJEjG7n6Xbyy3IcjfMw/jAAgIRKZgi1fjwKt+5K
-X-Gm-Gg: AYBFou1BZP+5XMa0WCJCxQOVQSMpi+CAPgSyxeLIzMMe4txwqLWD2CvPb0hieMllvPo
-	DhKaUsjg9bpP5FqgLY6YwICagS+MJu/RQfvLbLsVWezfKrU8uw8wanfCu8GncbybuGE40rwisLr
-	JqrFNUknverWfroLPt65BowA64J+JFzO9paIj5eUz47xWKus8PiNwcKTJUAkBhOvE5YMGZExmzq
-	O8LFQhezRtAdlk6AsuLqcLrtEMBKXr6l5+B28F4p0r4DZJIeHHLMpGeAFZgzqZksYl5pTRvpqzP
-	otGZHJdMnv7ONFdm0Z8GX9Vjnb68c2V7Go67/8vCQPGRzrY0vVkNTLmeHkNTAjP3dsno0D4fiwo
-	uT4ZFHX/8gU0+o3AYMmE0s0hvlj7PLJCFu1K7SsNXsg==
-X-Received: by 2002:a05:600c:3ba1:b0:4bb:6847:792d with SMTP id 5b1f17b1804b1-4bb68477c2dmr108079575e9.20.1794817102831;
-        Mon, 16 Nov 2026 00:18:22 -0800 (PST)
-X-Received: by 2002:a05:600c:3ba1:b0:4bb:6847:792d with SMTP id 5b1f17b1804b1-4bb68477c2dmr108079055e9.20.1794817102280;
-        Mon, 16 Nov 2026 00:18:22 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:151e:a200:7a96:1b15:81f:ebed])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb64ec7b58sm207200255e9.5.2026.11.16.00.18.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 00:18:21 -0800 (PST)
-Date: Mon, 16 Nov 2026 03:18:18 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yuho Choi <oss.patchbox@gmail.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] vdpa/vp_vdpa: Wait for device reset to complete
-Message-ID: <20261116031658-mutt-send-email-mst@kernel.org>
-References: <20261116030152.1704527-2-oss.patchbox@gmail.com>
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=OJKud/HL
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1794818840; bh=CpxPwjwc+ZYwJ/LLzCiMIrB17AE2heuOVpqJXUeodI4=;
+	h=From:To:Cc:Subject:Date:References:In-Reply-To;
+	b=OJKud/HL7j3AnzRax8m47eAu9osWYEA4hfCKkJQpqt3iFgy/KiU4p9pPmfdsLF75y
+	 6OwRFZ2cRJH35VbU8vV+wUyyP9UYhkbPOMwStU2yoI8oumhNeTMyfUMXOU1zbC5rU0
+	 9djvJReELh5QqaeO+SNtYNW+SdtXgvrj07GB859o=
+X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
+X-QQ-XMAILINFO: MOlL/R5ZerVSsEILqNUQZvi905V4kz6vdNEMMv4LhLrR/Cm4NYPbmgljNldmcC
+	 Oyh7P0HeRQvjyE27KO9DYiUjUAzsD11Q115RnJLJnOR+fNuqMeDJ+FRn1aMZjX1x3ZktrvASlJHLG
+	 iON4r1macmMCK5h62McjsDDRHjSmopwPTPypik3ECCntbE3qPlVptwEnGx23XTPTYm73JoXRtmZ6G
+	 E4vi9RnuwUdI9M39DAP/KRac/YVWPsDqidzWhQUzfC/cMs8YlhALh3Da/JqssVVP1IsOz5MnkvzKh
+	 XSHU8t6vSq3jA+6F1EoZAfLGYnd37rhvvmIlHzoo/xfDLcrNYhTH5iRu3ghCuatnfnNwc6+5qhSvA
+	 gImX9z2Y1lzoRAyvYcegHPFgHYhVqh1bcjnxqSpR/B9xhkAxFiJOgZAVt2gITV5gsi4c214O6CeA+
+	 nn43qs2No947Yb+pZYWSU/kL3HC3y7mHw5Db2nDaIRNaCBkB9jECeact6DIPO0kXJoQTJlCCoh4XP
+	 0R0lhFRjXyKMnA7csfrkULzgl7kAvb5Fz472M7JKLrkdCncp9mPWCB/tE9D7jQAJNkG3RKXmnAcdL
+	 FUaQ4S2EPF7Ga9MzSoM+u53x+Hc+uSdckpnkGMyngLdxbYym14jsKqydfjYWMGRx2V4TXO8CrqV1N
+	 V57joEdo7m2sYdlmSFObEU+pQGz8TtP7VFCNt5/7FiLgRujLMJekqjLwzRqmzt9tbphlwwExvNkvm
+	 uN72DVmwIkk4p3aG896sBzJ9RBhxjE9GLsonJO4//IgxGig723+FtW+5NyuAcrWLGpmxklUiAWFdk
+	 7JTeDq5fZlAlHh1sAW/S5uU17c3cz/mU95uPwCNJcIGRfKt5VxLl8C07ZmcCd0f5RSkEMqF+guPf8
+	 4cNfb0C/h4VddRGv1LBR+lpRvnlBfyX3rTzKx4EpNsZZyjZLt0nJJb/d0S8isvNDp/lqtqULJW+VM
+	 VVzpxDk3K7wqZde04guvyc5AwVeKqMk1ONyeiE0TXMUZ2Fs5HxA/y9lQPDeWMg2jEYxLPvZ/WrvQ3
+	 51Gv/z6JTGgUiyQoIK+Of+v8AeYMNgg7+jaZlRN61B/5v0/08IlJq5Nu/TlzPSMVs8BUIKP2NaWQo
+	 uIvkNW0MpSCoPQ==
+From: "=?utf-8?B?Q29uZ2ppZSBaaG91?=" <zcjie0802@qq.com>
+To: "=?utf-8?B?TWljaGFlbCBTLiBUc2lya2lu?=" <mst@redhat.com>
+Cc: "=?utf-8?B?bmV0ZGV2?=" <netdev@vger.kernel.org>, "=?utf-8?B?amFzb3dhbmdpbw==?=" <jasowangio@gmail.com>, "=?utf-8?B?ZXBlcmV6bWE=?=" <eperezma@redhat.com>, "=?utf-8?B?eHVhbnpodW8=?=" <xuanzhuo@linux.alibaba.com>, "=?utf-8?B?YW5kcmV3K25ldGRldg==?=" <andrew+netdev@lunn.ch>, "=?utf-8?B?ZGF2ZW0=?=" <davem@davemloft.net>, "=?utf-8?B?ZWR1bWF6ZXQ=?=" <edumazet@kernel.org>, "=?utf-8?B?a3ViYQ==?=" <kuba@kernel.org>, "=?utf-8?B?cGFiZW5p?=" <pabeni@redhat.com>, "=?utf-8?B?aG9ybXM=?=" <horms@kernel.org>, "=?utf-8?B?dmlydHVhbGl6YXRpb24=?=" <virtualization@lists.linux.dev>, "=?utf-8?B?bGludXgta2VybmVs?=" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] virtio_net: RX stall caused by masking callbacks after NAPI ownership release
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -102,76 +68,45 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-In-Reply-To: <20261116030152.1704527-2-oss.patchbox@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6EHPV4lO2htUPqzRxaaZ2N3aNnOy3TGt2jELItdlHxk_1794817103
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Date: Mon, 16 Nov 2026 16:47:17 +0800
+X-Priority: 3
+Message-ID: <tencent_94953697D2BA27275BEF7A26404E69800605@qq.com>
+X-QQ-MIME: TCMime 1.0 by Tencent
+X-Mailer: QQMail 2.x
+X-QQ-Mailer: QQMail 2.x
+References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
+	<20261115175445-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261115175445-mutt-send-email-mst@kernel.org>
+X-QQ-mid: xmsezc52-0t1794818837tna47ww5b
 
-On Sun, Nov 15, 2026 at 10:01:44PM -0500, Yuho Choi wrote:
-> vp_vdpa_reset() writes 0 to device_status and returns success right
-> away. The virtio specification requires the driver to wait until a read
-> of device_status returns 0 before reinitializing the device, and
-> virtio_pci_modern's vp_reset() does exactly that: the read-back flushes
-> the posted status write and any in-flight device writes, including
-> MSI-X messages.
-> 
-> Without it, vhost-vdpa (or virtio-vdpa) can go on to tear down the
-> IOTLB/IOMMU mappings or reprogram the queues while the device has not
-> yet finished its reset, and may still be DMAing to the old virtqueue
-> addresses. The MSI-X vectors are also freed while an interrupt from
-> the old configuration may still be in flight.
-> 
-> Poll device_status after writing 0, in the same way as vp_reset(),
-> before freeing the IRQs and returning.
-> 
-> Fixes: 64b9f64f80a6 ("vdpa: introduce virtio pci driver")
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
-> ---
-> v2:
-> - Drop Cc: stable, as this has not been reproduced.
-> - Rebased on current mainline. No code change.
-> 
-> v1: https://lore.kernel.org/r/20260926211507.1330179-1-oss.patchbox@gmail.com
-> 
-> Like vp_reset(), the new loop has no bound, so a surprise-removed
-> device that reads back all ones would keep it spinning (the Sashiko
-> review of v1 pointed this out). I kept it the same as vp_reset()
-> rather than handling that case only here.
-> 
-> Compile-tested only (x86_64 defconfig + VP_VDPA, W=1).
-
-If you can't bother testing, why should I bother merging?
-
->  drivers/vdpa/virtio_pci/vp_vdpa.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index 646efd9384fb..eba82ff253ea 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -8,6 +8,7 @@
->   * Based on virtio_pci_modern.c.
->   */
->  
-> +#include <linux/delay.h>
->  #include <linux/interrupt.h>
->  #include <linux/module.h>
->  #include <linux/pci.h>
-> @@ -236,6 +237,9 @@ static int vp_vdpa_reset(struct vdpa_device *vdpa)
->  	u8 s = vp_vdpa_get_status(vdpa);
->  
->  	vp_modern_set_status(mdev, 0);
-> +	/* Wait for the reset to complete */
-> +	while (vp_modern_get_status(mdev))
-> +		fsleep(1000);
->  
->  	if (s & VIRTIO_CONFIG_S_DRIVER_OK)
->  		vp_vdpa_free_irq(vp_vdpa);
-> 
-> base-commit: 067c5c24cef23d913b67eaaf71ae67e7169a6620
-> -- 
-> 2.43.0
+VHJpZWQgeW91ciBwYXRjaCB3aXRoIG15IGVhcmxpZXIgVENQIHRlc3QuIE5vIG1vcmUgY29t
+cGxldGUgTkFQSQpzdGFsbHMgc28gZmFyLCB0aGFua3MhCgpCdXQgTExNIGZvdW5kIGFub3Ro
+ZXIgcG9zc2libGUgaW50ZXJsZWF2aW5nLCB0aG91Z2guIEkgcmVwcm9kdWNlZCBpdAppbiBh
+biBpbnN0cnVtZW50ZWQgS1VuaXQgdGVzdCB3aXRoIGluamVjdGVkIGRlbGF5cywgYnV0IGhh
+dmVuJ3QgaGl0Cml0IGluIHRoZSBUQ1AgdGVzdC4KCldpdGggZGVmZXJfaGFyZF9pcnFzPTEs
+IGl0IGdvZXMgbGlrZSB0aGlzOgoKQ1BVMSAvIG9sZCBwb2xsICAgICAgICAgICAgICAgICAg
+Q1BVMiAvIGJ1c3ktcG9sbAotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgICAtLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpDb21wbGV0ZTogY2xlYXIgU0NIRUQsCmFybSB0
+aW1lciwgcmV0dXJuIGZhbHNlLgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBU
+YWtlIE5BUEkgb3duZXJzaGlwLgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBF
+bnRlciBidXN5X3BvbGxfc3RvcCgpLCBjbGVhcgogICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICBJTl9CVVNZX1BPTEwuIFRoZSBmaW5hbCBwb2xsCiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIGVuYWJsZXMgY2FsbGJhY2tzLCB0aGVuIHBhdXNlcwogICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBiZWZvcmUgY29tcGxldGlvbi4KV2F0Y2hkb2cg
+ZXhwaXJlcywgc2VlcwpTQ0hFRD0xLCBleGl0cyB3aXRob3V0CnNjaGVkdWxpbmcgb3Igc2V0
+dGluZyBNSVNTRUQuCkRpc2FibGUgY2FsbGJhY2tzLgpUaW1lcj0wLCBTQ0hFRD0xLCBzbyBz
+a2lwCm5hcGlfc2NoZWR1bGUoKSBhbmQgZXhpdC4KICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgbmFwaV9jb21wbGV0ZV9kb25lKC4uLiwgMCk6CiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIGRlZmVyIGNvdW50PTAsIG5vIE1JU1NFRC4KICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgQ2xlYXIgU0NIRUQsIHJldHVybiB0cnVlLgogICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBRdWV1ZSBpcyBlbXB0eSwgZXhpdC4KClRoZW4g
+dGhlIGRldmljZSBhZGRzIGEgdXNlZCBlbnRyeSwgYnV0IGNhbGxiYWNrcyBhcmUgc3RpbGwg
+ZGlzYWJsZWQsCndpdGggbm8gdGltZXIgb3IgcG9sbCBwZW5kaW5nLgoKU28gU0NIRUQ9MSBh
+dCB0aGUgY2hlY2ssIGJ1dCB0aGF0IHBvbGwgaGFzIGFscmVhZHkgZW5hYmxlZCBjYWxsYmFj
+a3MKYW5kIHdvbid0IGVuYWJsZSB0aGVtIGFnYWluIGFmdGVyIHRoZSBvbGQgcG9sbCBtYXNr
+cyB0aGVtLgoK
 
