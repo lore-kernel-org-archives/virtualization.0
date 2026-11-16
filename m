@@ -1,116 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794862883;
-	b=MYv+sssRceZgXTeLcPVfOyG4mf5/BUY+rTgLe8kJVIcX2kzdaX4iNJ4Lc9shSh+jyuns
-	 h1ZukrD0ZRUnt98orqG5XwDVvqr0ofW9W9Cs/hN7LXZJxkEZixrsd3T43b7ONXCwiaR0l
-	 cgzOKwIkLv7lfJ7ub1f0z0a+JR+3nb0T4cpwOsno/Ar5fMnOdaFTJp7Wt8zbzjwUrfkB8
-	 W+h0E+nliqCFYNM08krTj+0E7sd9oqaAaUEE7Y6VH2TZi36vBZ/CXwOqeSC1shDs/1nvY
-	 KSe6XZY+hHR6WozuMVGYbGOgPinzIogipiLmw5t2NwGG6l0mrjV510DKnHbubbkRvLg==
+	t=1794867681;
+	b=t61v6YeTAto91/DzmC09uzF4ylkH15T6ktH4UXpROQzgtCtrm/WDuxgv+lj9XRqJRSRg
+	 aekHFrXxD1tRNBNYHPutZcztQL8TaUz7iAJI/XMW9MMxbbVViedUrNAnkZur+Y5FZ+/AT
+	 c9Uo6lpBD11Tqx3k8e0I3IUXmdKGkWO7rI9KMr/gSbHzg4Cj9szNMUgRMAGLTvX4xAmeG
+	 cygqQ76vLbAaD/AHIAQ+nIiDBiJHUFMETDyq4CclfpPzMFNyC1xwWmqYgR7DJk0ygqFrb
+	 V24PnzdMKDnMgMzBUBZwxaiDZwuwJv1vj5KENDJURyKLyD5gS6mHy2K/VC9ZPXbELgQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794862883;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=SZoIL09apRESCSVy9LvCJwT2nl+8SSwpAsQe0tMlFOU=;
-	b=uDmW6EN4c7C2wlqCaHSVu86+GMYoHtOxEPlXOYNTjbFP7t6gUIbq6jZaN+hPsTSJaRpM
-	 +4/7oTq8ByTn0b00lL7zo3l2ScZ1hbReL/oWPl7w2ggL6TN2dPq0zd6QJ/Vtf1jIgQjwT
-	 EathbkTgzItqBzPOLZhlei8nSLh+tWqhB5a2f4eudhf+lvtRtXCTrwmtbLe+9kzrxn9Dd
-	 tYUCjG3oS7lyimY+gv+4nCUDVqAh2ByYPLT63gD0xGtuMJV+cKHw10gjqdfMHzULphQMj
-	 rX4rbFPnNjXOYOzFWOdmTDBN+pDMpDarK3AZ9DL3keZdPOztOe+PWoIaotgMFwYvRwA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794867681;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=BXL/fDhspKdov1Fv9R2cAMXBgedf/LG6cvi6/7Jo65c=;
+	b=NVwdxoYAW8UUkS37HCnUpIxatbGHdyqcbWW/sL7FwdzOdOyeyuatp8K2zKIkrjLHh+Bq
+	 DgcRfG6RQL3diGvGPv/xdSPALyhxspZvHGOlH8hY+Fm5+AobJbpOvvh0kT4UB8b4VdG2o
+	 KPnZ5M0jKw5/gDvkuOkF627k24G/JYBmlakHRqxhV5846mH9Jszb+1mfMYjmp97LENOM8
+	 84L3rH5mIVbMImEvjFrSd3CMtemKNR91YrXGNzm4d5oDaTmFAfQPT4ORu5zMYRCUWxCRL
+	 SKMpAwnaDcNtjs1pzfl/euwhyDgcdKBOkxtKyIlEd18KYfHOJdWj22LXYKO5QwAe70Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L6uUzIuu;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=VThYQCTK;
+	arc=none smtp.remote-ip=198.137.202.133
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2C2C606A333
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 21:01:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2C2C606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1411E606A31C;
+	Mon, 16 Nov 2026 22:21:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1411E606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L6uUzIuu
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794862881;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SZoIL09apRESCSVy9LvCJwT2nl+8SSwpAsQe0tMlFOU=;
-	b=L6uUzIuu9sGhWZiaXdVNhmWShvxtQC9UDHSuU/qCHzS0corWiFXBXbybYvNUI9qDheRkPF
-	R6EVj4NCJrY2qUO7YG8bWn9LWTbaSzdBmi2BTlOeIyQxHQtOz2bevupKBQbaszHX6VrPCD
-	UKlk/aTPNJYakgZ3hLi/CwIi+TUV0Tw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-472-iOrxqjJXM3GDKxu6shk_OQ-1; Mon, 16 Nov 2026 16:01:18 -0500
-X-MC-Unique: iOrxqjJXM3GDKxu6shk_OQ-1
-X-Mimecast-MFC-AGG-ID: iOrxqjJXM3GDKxu6shk_OQ_1794862877
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4bb66fc3aa6so20143965e9.2
-        for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 13:01:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794862877; x=1795467677;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=SZoIL09apRESCSVy9LvCJwT2nl+8SSwpAsQe0tMlFOU=;
-        b=QyVFpuDS9aSqGnSlxAUX/zGosRN2GO/9Jgbl2fo2Ya0O+UFnk07l2vZhahzM0NW/by
-         5Cg2lAp+gLFQ98D5PIie3PBocWaymEKP5V05VuSalB3UV3N2AWZjkNB3c4ZhoYqUw0MM
-         CSavgYUGgoxZTPXiaM3zLAJG2e7LN3dLyQA+pzTJaBa308SEcresIF4PSKMGWAqOwQW2
-         YC3SvxJ7HWJkXr2FqxtVgg9zVuLKhmmGNMKRofmKs6DNzDE0BLWqReZChgIVepZPpI6a
-         LD/8+7FxppIy4A315kcaROVy6MxvOqBPH2OulQqjfHWt1CBXSSjzeT9pcYb7CA6prIeL
-         c+0Q==
-X-Forwarded-Encrypted: i=1; AL+hErGzlsjNBExQEd8hLYrTchOVw2x71EwCQCYmi6Znj45AVOQqJO/WiIkcJJTfACZgkGGjCDfq38Hdkc48qNtlRg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/rwgprXZUvESqnvwe9wmPNmo6MWyEgxi91Snd4DugFMaPJPOnY
-	ufHih9w+KuXfCfhZVa7Q9wahxB/rwH0GyDjMaZmle4Md9imaAbxEBe7kM3fHt5lg3voxBUCUiGK
-	L3pshK/kKno+HZjqFTiJ3DLf3Qz3yy7st5tkl6BvV3HH4IDr77ssLG6NDKBDIZuYiM5Dx
-X-Gm-Gg: AYBFou1iRol4RE+2FRWjp1Zye/+qhKgKB8UKw3wVue5Oz0iW0tGX+zfidrxTU+o1XqK
-	4erscGDW0QjmjzaN4QskCaTn19AiEgbhNynMCBd9z1TOJP/oQRqYxkjQlvXi6pBL4pTj03RhGJD
-	gvqbEQMvjwfapBl7n33LhX2X4vKsDVr7Dmr5KJ31qzCiPQN9sEWjaAz2r69qmV+AnwDrLKlzpL8
-	aJGGtdyTLD0C6W89oUcze9JLarN4PGbAW8sLbvCe3yEQQFYywVP7O+ZZWcz6xMGJM2cxr036PA/
-	ljfYiBAWi8Lf21uqrpBallvnbm4FOuJm6eXWHg3aDLveiRVR6d8d6RjrHbClLzS7F1GPvAeU/bd
-	t8/mpyuQoHtpVAyw2zO5tyYYtgvBG7yBsA50riy4aMg==
-X-Received: by 2002:a05:600c:e555:20b0:4ba:761:97a1 with SMTP id 5b1f17b1804b1-4bb55a50f1cmr166278165e9.14.1794862877097;
-        Mon, 16 Nov 2026 13:01:17 -0800 (PST)
-X-Received: by 2002:a05:600c:e555:20b0:4ba:761:97a1 with SMTP id 5b1f17b1804b1-4bb55a50f1cmr166277685e9.14.1794862876566;
-        Mon, 16 Nov 2026 13:01:16 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:151e:a200:7a96:1b15:81f:ebed])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb7813fa23sm22454295e9.2.2026.11.16.13.01.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 13:01:15 -0800 (PST)
-Date: Mon, 16 Nov 2026 16:01:11 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Eric Dumazet <edumazet@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
-	Simon Horman <horms@kernel.org>,
-	Kory Maincent <kory.maincent@bootlin.com>,
-	Liang Chen <liangchen.linux@gmail.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org, kvm@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH net-next v5 6/9] virtio-net: assert header sizes
-Message-ID: <20261116160026-mutt-send-email-mst@kernel.org>
-References: <20261112-v6-7-topic-virtio-net-ptp-v5-0-7ab67b572f4f@pengutronix.de>
- <20261112-v6-7-topic-virtio-net-ptp-v5-6-7ab67b572f4f@pengutronix.de>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=VThYQCTK
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=BXL/fDhspKdov1Fv9R2cAMXBgedf/LG6cvi6/7Jo65c=; b=VThYQCTK0+YExl2+ZO7Tuknnrf
+	6kyowduHpBQVpfb7n1tSXedtpFNkU4jMk3jIu9Hkgh6YTzADUmrCxgKLrv9IjmY8LwM/wyAWTvTDD
+	e/sSQp4UOb5tjuY3MxqRJvsxNsiNknNcq0RGaoSG8yJ8wUiQCVmAZBGlVLxfcZjyr94azpjr9IOnd
+	AWdz3ni0uhKjLd3gREkk+4rC3s26NSvhlfY2UUaXgX8uIh0R2U5pwjQCQjGVYJS1A2bXWMI8l49wW
+	l2fyCL1r+D2yYRXbpcd1pUH4Eqp+JWnGEwFXHp6SFfFUzbYmxjvOpOGIgf4yt8A3Gek5Rph3JughC
+	ysCNVjJg==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xT54Y-000000042c2-2GpG;
+	Mon, 16 Nov 2026 22:21:10 +0000
+Message-ID: <65bab646-fbf6-4da0-b833-2314d568a845@infradead.org>
+Date: Mon, 16 Nov 2026 14:21:07 -0800
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -120,50 +58,146 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261112-v6-7-topic-virtio-net-ptp-v5-6-7ab67b572f4f@pengutronix.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 7bp5kSCnpEoSP9f4L3ri5_69DqtcvZaEsEg6cBpSdGI_1794862877
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 09/12] docs: ioctl-number: update virtualization entries
+To: Sean Christopherson <seanjc@google.com>
+Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org,
+ David Hildenbrand <david@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
+ Leon Romanovsky <leonro@nvidia.com>, linux-mm@kvack.org,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ linux-sound@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+ linux-block@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ linux-bluetooth@vger.kernel.org,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
+ oe-linux-nfc@lists.linux.dev, Chas Williams <3chas3@gmail.com>,
+ linux-atm-general@lists.sourceforge.net,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org, Helge Deller <deller@gmx.de>,
+ linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ MPT-FusionLinux.pdl@broadcom.com,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
+ Miquel Raynal <miquel.raynal@bootlin.com>,
+ Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+ Zhihao Cheng <chengzhihao1@huawei.com>, linux-mtd@lists.infradead.org,
+ Neill Kapron <nkapron@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>, xen-devel@lists.xenproject.org,
+ Hans de Goede <hansg@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, Jan Kara
+ <jack@suse.cz>, linux-fsdevel@vger.kernel.org, Theodore Ts'o
+ <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+ Mike Marshall <hubcap@omnibond.com>, devel@lists.orangefs.org,
+ Paulo Alcantara <pc@manguebit.org>, Namjae Jeon <linkinjeon@kernel.org>,
+ linux-cifs@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
+ Chao Yu <chao@kernel.org>, linux-f2fs-devel@lists.sourceforge.net,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ Tzung-Bi Shih <tzungbi@kernel.org>, Benson Leung <bleung@chromium.org>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ amd-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, intel-gfx@lists.freedesktop.org,
+ Matthew Brost <matthew.brost@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ intel-xe@lists.freedesktop.org
+References: <20261114202653.3113381-1-rdunlap@infradead.org>
+ <20261114202653.3113381-10-rdunlap@infradead.org>
+ <avsSjioXqbCOn834@seanjc-mac.roam.internal>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <avsSjioXqbCOn834@seanjc-mac.roam.internal>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Nov 12, 2026 at 12:19:38PM +0100, Steffen Trumtrar wrote:
-> The header is cast from skb->cb and from device buffers, so its layout
-> must not change silently. Add static_asserts for the offset of tstamp,
-> the total size, the alignment, and that the header fits into skb->cb.
+
+
+On 11/16/26 6:26 AM, Sean Christopherson wrote:
+> On Sat, Nov 14, 2026, Randy Dunlap wrote:
+>> Update the list of files where virtualization ioctls are defined.
+>>
+>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+>> ---
+>> [Since having multiple maintainers trying to merge these would
+>> cause some conflicts, it would be more manageable for Jon to
+>> take all of these through the docs-next tree.]
+>>
+>> Cc: Jonathan Corbet <corbet@lwn.net>
+>> Cc: Shuah Khan <skhan@linuxfoundation.org>
+>> Cc: linux-doc@vger.kernel.org
+>> Cc: Juergen Gross <jgross@suse.com>
+>> Cc: Stefano Stabellini <sstabellini@kernel.org>
+>> Cc: xen-devel@lists.xenproject.org
+>> Cc: Hans de Goede <hansg@kernel.org>
+>> Cc: Arnd Bergmann <arnd@arndb.de>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>> Cc: Jason Wang <jasowangio@gmail.com>
+>> Cc: Eugenio Pérez <eperezma@redhat.com>
+>> Cc: Sean Christopherson <seanjc@google.com>
+>> Cc: Paolo Bonzini <pbonzini@redhat.com>
+>> Cc: kvm@vger.kernel.org
+>> Cc: virtualization@lists.linux.dev
+>>
+>>  Documentation/userspace-api/ioctl/ioctl-number.rst |    6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> --- linux-next-20261113.orig/Documentation/userspace-api/ioctl/ioctl-number.rst
+>> +++ linux-next-20261113/Documentation/userspace-api/ioctl/ioctl-number.rst
+>> @@ -200,6 +200,7 @@ Code  Seq#    Include File
+>>  'M'   01-03  drivers/scsi/megaraid/megaraid_sas.h
+>>  'M'   00-03  drivers/video/fbdev/mb862xx/mb862xxfb.h
+>>  'M'   00-0F  drivers/video/fsl-diu-fb.h                                conflict!
+>> +'M'   01-03  xen/interface/xen-mca.h                                   conflict!
+>>  'N'   00-1F  drivers/usb/scanner.h
+>>  'N'   40-7F  uapi/linux/nvme_ioctl.h
+>>  'N'   80-83  uapi/linux/ntsync.h and uapi/linux/nvme_ioctl.h           conflict!
+>> @@ -239,6 +240,7 @@ Code  Seq#    Include File
+>>  'U'   64     drivers/usb/misc/usbtest.c                                conflict!
+>>  'V'   all    linux/vt.h                                                conflict!
+>>  'V'   all    linux/videodev2.h                                         conflict!
+>> +'V'   00-1F  linux/vboxguest.h                                         conflict!
+>>  'V'   C0     linux/ivtvfb.h                                            conflict!
+>>  'V'   C0     linux/ivtv.h                                              conflict!
+>>  'V'   C0     media/si4713.h                                            conflict!
+>> @@ -357,6 +359,7 @@ Code  Seq#    Include File
+>>  '|'   80-9F  samples/                                                  Any sample and example drivers
+>>  0x80  00-1F  linux/fb.h
+>>  0x81  00-1F  linux/vduse.h
+>> +             drivers/vdpa/vdpa_user/vduse_dev.c
+>>  0x89  00-07  asm-generic/sockios.h
+>>  0x89  06-07  linux/sockios.h
+>>  0x89  0B-DF  linux/sockios.h
+>> @@ -398,8 +401,11 @@ Code  Seq#    Include File
+>>                                                                         <mailto:kvm@vger.kernel.org>
+>>  0xAE  40-FF  linux/kvm.h                                               Kernel-based Virtual Machine
+>>                                                                         <mailto:kvm@vger.kernel.org>
+>> +0xAE  C6     arch/x86/kvm/x86.c                                        X86 KVM
 > 
-> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> ---
->  include/linux/virtio_net.h | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 2abd8a614a23f..e7776a37a486b 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -29,6 +29,17 @@ struct virtio_net_common_hdr {
->  	__le16 tstamp[4];	/* le64 TAI receive time in ns, 0 if none */
->  };
->  
-> +/*
-> + * The header is cast from skb->cb and from device buffers, the layout must not
-> + * change silently.
-> + */
-> +static_assert(offsetof(struct virtio_net_common_hdr, tstamp) == 32);
-> +static_assert(sizeof(struct virtio_net_common_hdr) ==
-> +	      offsetofend(struct virtio_net_common_hdr, tstamp));
-> +static_assert(__alignof__(struct virtio_net_common_hdr) == 2);
-> +/* virtio_net_common_hdr must fit into skb->cb */
-> +static_assert(sizeof(struct virtio_net_common_hdr) <= sizeof_field(struct sk_buff, cb));
-> +
->  static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
->  {
->  	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+> I'd rather omit this entry.  0xAE C6 is covered by the entry above, and the horror
+> in arch/x86/kvm/x86.c is purely a 32-bit compatibility alias for an ioctl that is
+> defined in kvm.h (the structure payload defines an pointer instead of a __u64).
 
+OK.
 
-Waste of time. We know how to maintain stable UAPIs without this
-kind of stuff.
+> If it's a sticking point, e.g. this will trip automated tooling over and over, then
+> I vote to move the relevant definitions to uapi headers, e.g.
 
-> -- 
-> 2.56.0
+I don't know of anything like that.
+
+-- 
+~Randy
 
