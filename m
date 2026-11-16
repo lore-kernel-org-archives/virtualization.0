@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794826352;
-	b=IC0RPQ60ighXHt5LMtkPdJIlXJ05QzER8SECZorGhwIFfQsct7AoQqa26wpsRdKj1xSa
-	 IRDpFupXioFPAV9D9VD8pPbYRw98xJXGpCFwVedCnBJeIt3GxxctZomyTcyptAfRfltFD
-	 kk3XEdYRQAQJ9xG+IBqJCLP4UCRPiVffI5lomqKtUZ0JppbBKK1YbjBaqSqjILUF7Kc5f
-	 nyJ2lzcRjwkWfw4QwCUNqcCrH7OkxIe5zCBoYE2G4KbvKD8ErpJsO49xuv3nZJZzOsjng
-	 FwMxVeYiAAanWzgP/QDk1cqOaMaAia9xt19EjVeCCipZEEXgrFLJ+74gu19IjT6J5nQ==
+	t=1794826446;
+	b=gZzYrVUjzcFi83auAbO/6ifN5/0cfO15pqPlhQnbyLX8pz6fWuGPZlocxrKbmXk936KO
+	 qSFGzmqZpstcS9bYvxN2WiWHeNiw92wzM62S5qzivrHfgkexZ+ic8qw8NZpz9qeHkpeGV
+	 et5sn8mHjinVlnYaEI+KN/rsKi/1+5tAyVtr6YaY+weeaaGexbqKI3OP5q3Gmk8ihgGRp
+	 Pq7PVQafmoEU+26SRn3Ze2IJqpsTopqeQIHVlFgxE3WoMaXIQW5spI0+PFOkwtiOE4Ezh
+	 ePFLCpLPjE9whWaYTVFZ2eN6hp6xNnH/L7H+8v5IOH0S9JtoKlSLaadN81k/MrhN6eQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794826352;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794826446;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0U5S7HYQyT7NzJucTJ1huyg+TfP6GaBdkKBQXfJ96pc=;
-	b=AgHLRuAb5MqKYW8Xe81CZiis/YKKSC7PAI7VgZQ8l1FU77J86/75uTGR0kXPP2pTj8Yh
-	 V6t4KwaYT/YXRhsbZ8BN5TwNNASOnjQb4lWotMzJx0GXVM5BcgP/Inu013bzdi68+E7RK
-	 uBH533jmPV96Bw5xjjWCnC96hBr6lb22HdgUXDqMC2gVUh98LKqrXKgWjd1PU0fcA8BO3
-	 pr7GY82ww9N2ykMZsSIIqLiM/ZAAfgunKKsKD27UN6i1MJ6EGDJtiAdsdqClYzWmZjK15
-	 Az1XGO2vFpQLzHC7XsJFlerNcxwO/FrTrmsrIeOdPTjRoy5hebib8Mnzuuvpd9GgTEQ==
+	bh=4gurq50p80/oLJ6G/qzQvcXPZQG9fjbfkZ/uA/k5MUU=;
+	b=aeF5+3QHmKHVATP1vsHEytiFTMJnthlfIhIgx0f4N7tR8V+7Kqd+Luns0LTqZay4aaE7
+	 Yp4TiJa50x+wrzKTtyG6lNyL3RMP2rw+hbgjF3KBjl/H8mIKfYhgZQVzYC90iS18E1uXl
+	 EqrPef4I2qcdwhGursAaWM23rOfh4MEecLTFthZ3sqIMpLwUl3GeubGG5zTnqnAvsuTa5
+	 PeLCbh2UarATZePpy5hgSv9wet+pGFYDAF1r0ruMcyNFzjf0evB3HkJysLJWkvfNYfncy
+	 tEj/OZLoVLToqxFoNfPgPKo/gwj7bw5HvdFjVZk+GBfEL8drXaV90ufxaMqwAbKE5Ng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Lb0ftr55;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="D1c/LSVY";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70D1606A31C
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 10:52:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39833606A323
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 10:54:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Lb0ftr55
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F7F11F000C4;
-	Mon, 16 Nov 2026 10:52:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D1c/LSVY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 883B81F000C4;
+	Mon, 16 Nov 2026 10:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794826351;
-	bh=0U5S7HYQyT7NzJucTJ1huyg+TfP6GaBdkKBQXfJ96pc=;
+	s=k20260515; t=1794826445;
+	bh=4gurq50p80/oLJ6G/qzQvcXPZQG9fjbfkZ/uA/k5MUU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Lb0ftr55+imBGwCKD4eUhiLdAsbMkQREizC+5cw3ZoE6cowAUlB9zvkoFyM0EyGMC
-	 T9qBglftrszCuOzzKaNtSb92TyeDfjIOgwNw3rQWNji+3sZ+yMVFCO/+iVSnGe1ddq
-	 crBNmUhynXpjNRut99wHUTMXf6IttfouxUTFlgc0TUFTltwD2hfrXt5IlMoueON5EW
-	 xNiUQ6IpjA3Fd+8PXfz85B5ScYwgxDjD909WLbbxH+6T9p0j1uhI/t3+o8xYuBcFpu
-	 hIO0VRYVUa28BLE87fZOdqZjD5dsg2a5DPeQqasO5lVe/GlMjH+MaVnfRzI4M+U52V
-	 Hknd63s1UgIkw==
-Message-ID: <sashiko-outbox-216787@kernel.org>
+	b=D1c/LSVYhKjDVhiE0cmnidK2s8jSHD9BnzPEbBpg/L241QLvDCkOhRnaB3ck5tiQW
+	 QF6+wvLbIRpaAk4VA18jNAemX4otTe4L/CwBcW7SOSMvRGdpwiRIMZenQd7FoezuMw
+	 ZNfz/Wy3RNwYodYR5Hn0TS7ZjDmmLIBw6NQXeNpY+DNJkESEAxR+90RlxGsLCo/Aj0
+	 W13KWBq12qzMw8D2RD0SchJMRl8/Uc3TCCH3SpYC6Czb3BP6vlBnvAytcbp6wncP2F
+	 SpXIcx4bTofHyGG7fgb8GQLSo0psKf1IKhXwridvROKXMuw99+BVyKj3mS9q9oZtxP
+	 /KSsSAcSJWaMg==
+Message-ID: <sashiko-outbox-216791@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 24/64] drm/qxl: Switch to
+Subject: Re: [PATCH v2 46/64] drm/cirrus-qemu: Switch to
  drm_mode_config_create_initial_state
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Maxime Ripard" <mripard@kernel.org>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261116-drm-no-more-config-reset-v2-24-0bb471f4d1e0@kernel.org>
+In-Reply-To: <20261116-drm-no-more-config-reset-v2-46-0bb471f4d1e0@kernel.org>
 References: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
- <20261116-drm-no-more-config-reset-v2-24-0bb471f4d1e0@kernel.org>
+ <20261116-drm-no-more-config-reset-v2-46-0bb471f4d1e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 10:52:31 +0000
+Date: Mon, 16 Nov 2026 10:54:05 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -79,5 +79,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-drm-no-mor=
-e-config-reset-v2-0-0bb471f4d1e0@kernel.org?part=3D24
+e-config-reset-v2-0-0bb471f4d1e0@kernel.org?part=3D46
 
