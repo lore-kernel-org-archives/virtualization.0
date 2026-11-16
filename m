@@ -1,54 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794867681;
-	b=t61v6YeTAto91/DzmC09uzF4ylkH15T6ktH4UXpROQzgtCtrm/WDuxgv+lj9XRqJRSRg
-	 aekHFrXxD1tRNBNYHPutZcztQL8TaUz7iAJI/XMW9MMxbbVViedUrNAnkZur+Y5FZ+/AT
-	 c9Uo6lpBD11Tqx3k8e0I3IUXmdKGkWO7rI9KMr/gSbHzg4Cj9szNMUgRMAGLTvX4xAmeG
-	 cygqQ76vLbAaD/AHIAQ+nIiDBiJHUFMETDyq4CclfpPzMFNyC1xwWmqYgR7DJk0ygqFrb
-	 V24PnzdMKDnMgMzBUBZwxaiDZwuwJv1vj5KENDJURyKLyD5gS6mHy2K/VC9ZPXbELgQ==
+	t=1794872831;
+	b=2eHJ61Ycb3SvbCoOwRYkeFuW0F4fMCeqkIB+3wqfW0+yPohe8zLrQzaxwxC/DXEYN2Oj
+	 OnqpQO/r6eXAEX9oNeilUkjYdY7HQBBmnuYRu/JuTs2Mgur7XzcKb8Plms4ZZFlW+yxkx
+	 MgoiONKFAynEBmpMWsjY79tOybu5quQ5ShELMXyvFHs+XN+L+FSVyNj7g6VZW5vuDV6Q3
+	 /E1FVN5N8bwIijVZGxHMBUys9SfgK3jy+A4S6jgpNPYXcxeShx1r6uzQze4SfN7xW+0ts
+	 8oDQsKkGkZjR/mN00KEcfiBran/OIZWIROJ9EAaS01sqnrDikmWuGylCs7taNVVzIKA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794867681;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=BXL/fDhspKdov1Fv9R2cAMXBgedf/LG6cvi6/7Jo65c=;
-	b=NVwdxoYAW8UUkS37HCnUpIxatbGHdyqcbWW/sL7FwdzOdOyeyuatp8K2zKIkrjLHh+Bq
-	 DgcRfG6RQL3diGvGPv/xdSPALyhxspZvHGOlH8hY+Fm5+AobJbpOvvh0kT4UB8b4VdG2o
-	 KPnZ5M0jKw5/gDvkuOkF627k24G/JYBmlakHRqxhV5846mH9Jszb+1mfMYjmp97LENOM8
-	 84L3rH5mIVbMImEvjFrSd3CMtemKNR91YrXGNzm4d5oDaTmFAfQPT4ORu5zMYRCUWxCRL
-	 SKMpAwnaDcNtjs1pzfl/euwhyDgcdKBOkxtKyIlEd18KYfHOJdWj22LXYKO5QwAe70Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794872831;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
+	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Message-ID:X-B4-Tracking:X-Change-ID:To:CC:X-Mailer:X-Originating-IP:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Virus-Version;
+	bh=erW4QNXmLOEoWNGzUnD+FqnM0gfstb4jmRqULXnvHQ8=;
+	b=cLfhpQmbgeHYh/27WWu/oSig1VLlplYbItv37CWuOB1BSmzk8T9FUN1DvItwDF0OoaT3
+	 L8fWBZ5JhRSN/GUdAMjBY9Nzb2onvd5Rsc+NmXw6yAkTYNLWJ95eyqf/fqjLcBHYAN8y+
+	 S7f8YMrMDjmdZTLSOV0QUjQlN0uZsQVJpj0NrI6BmGaRkh7BzcdurSVoijoVD40QvX0TR
+	 NNXHS/Yf3fzvficgmQCQXEjYQJBUvXo9/OcLLHEh9zJlmiTggHj7iE9Vf7iNfGH2abXWX
+	 w8GynocDh5whrCBfGBxcZUzI7bt+W4e11wPq1vdU19UIBGHKmrCjAFajvJVMQ39K4lw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=VThYQCTK;
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=nbMwOWrq;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1411E606A31C;
-	Mon, 16 Nov 2026 22:21:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1411E606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAABD606A32F
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 23:47:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EAABD606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=VThYQCTK
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=BXL/fDhspKdov1Fv9R2cAMXBgedf/LG6cvi6/7Jo65c=; b=VThYQCTK0+YExl2+ZO7Tuknnrf
-	6kyowduHpBQVpfb7n1tSXedtpFNkU4jMk3jIu9Hkgh6YTzADUmrCxgKLrv9IjmY8LwM/wyAWTvTDD
-	e/sSQp4UOb5tjuY3MxqRJvsxNsiNknNcq0RGaoSG8yJ8wUiQCVmAZBGlVLxfcZjyr94azpjr9IOnd
-	AWdz3ni0uhKjLd3gREkk+4rC3s26NSvhlfY2UUaXgX8uIh0R2U5pwjQCQjGVYJS1A2bXWMI8l49wW
-	l2fyCL1r+D2yYRXbpcd1pUH4Eqp+JWnGEwFXHp6SFfFUzbYmxjvOpOGIgf4yt8A3Gek5Rph3JughC
-	ysCNVjJg==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xT54Y-000000042c2-2GpG;
-	Mon, 16 Nov 2026 22:21:10 +0000
-Message-ID: <65bab646-fbf6-4da0-b833-2314d568a845@infradead.org>
-Date: Mon, 16 Nov 2026 14:21:07 -0800
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=nbMwOWrq
+Received: from pps.filterd (m0528009.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGNOh3p3594659;
+	Mon, 16 Nov 2026 15:47:04 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pps82601-s2048-2026-q3; bh=erW4QNXmL
+	OEoWNGzUnD+FqnM0gfstb4jmRqULXnvHQ8=; b=nbMwOWrq1FCjXpZAMziSKloxO
+	zi38uycTZxz4RhG0ErmURTCmDPzlMFUlHF70UfXsSUE8H/AOpDfkshVZ5vh4vNl9
+	19O/ae4UZ0O+CW6Fl7uwLAGLEuRDpyhnALi5hdyq8m+7vXE5TS3aBy5ORHktjkf4
+	vr6G6M/HiwKmnfoVFWKEym3mkA/PzlOQ7wYJ6RLb29P1earatDEFhj514QAL/wif
+	tL7TnS02pBiBeUopsYAtqd/Js/xwL/OioPfb60K8Serwk1cRwNoRUU70WuRDrhK+
+	BIveU6pSZF+aME3DVkhV6zhpuqlgmPYEG8N44/w6n3XUm7U0fkOin3ORflIJg==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hya99spbp-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Mon, 16 Nov 2026 15:47:04 -0800 (PST)
+Received: from localhost (2620:10d:c0a8:1b::8e35) by mail.thefacebook.com
+ (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Mon, 16 Nov
+ 2026 23:47:02 +0000
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+Date: Mon, 16 Nov 2026 15:46:49 -0800
+Subject: [PATCH net] vsock: only deliver taps to namespaces that can reach
+ the device
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -58,146 +69,224 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 09/12] docs: ioctl-number: update virtualization entries
-To: Sean Christopherson <seanjc@google.com>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
- Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org,
- David Hildenbrand <david@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Leon Romanovsky <leonro@nvidia.com>, linux-mm@kvack.org,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-sound@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
- linux-block@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- linux-bluetooth@vger.kernel.org,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
- oe-linux-nfc@lists.linux.dev, Chas Williams <3chas3@gmail.com>,
- linux-atm-general@lists.sourceforge.net,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org, Helge Deller <deller@gmx.de>,
- linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
- MPT-FusionLinux.pdl@broadcom.com,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Zhihao Cheng <chengzhihao1@huawei.com>, linux-mtd@lists.infradead.org,
- Neill Kapron <nkapron@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
- Juergen Gross <jgross@suse.com>, Stefano Stabellini
- <sstabellini@kernel.org>, xen-devel@lists.xenproject.org,
- Hans de Goede <hansg@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
- kvm@vger.kernel.org, virtualization@lists.linux.dev, Jan Kara
- <jack@suse.cz>, linux-fsdevel@vger.kernel.org, Theodore Ts'o
- <tytso@mit.edu>, linux-ext4@vger.kernel.org,
- Mike Marshall <hubcap@omnibond.com>, devel@lists.orangefs.org,
- Paulo Alcantara <pc@manguebit.org>, Namjae Jeon <linkinjeon@kernel.org>,
- linux-cifs@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
- Chao Yu <chao@kernel.org>, linux-f2fs-devel@lists.sourceforge.net,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
- linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- Tzung-Bi Shih <tzungbi@kernel.org>, Benson Leung <bleung@chromium.org>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- amd-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, intel-gfx@lists.freedesktop.org,
- Matthew Brost <matthew.brost@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- intel-xe@lists.freedesktop.org
-References: <20261114202653.3113381-1-rdunlap@infradead.org>
- <20261114202653.3113381-10-rdunlap@infradead.org>
- <avsSjioXqbCOn834@seanjc-mac.roam.internal>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <avsSjioXqbCOn834@seanjc-mac.roam.internal>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
+X-B4-Tracking: v=1; b=H4sIAOmV+2oC/x3MQQqDMBAF0KsMf+1ARqySXKV0EXXaDkKUJIgg3
+ l3wHeCdKJpNCwKdyLpbsTUhkDSE6R/TT9lmBELr2l5Eet7LOi1c48ZJK8vofHS+ew2DR0PYsn7
+ teL43klZ8rusGdSxwmGQAAAA=
+X-Change-ID: 20261116-vsock-tap-net-1b09a0945779
+To: Stefan Hajnoczi <stefanha@redhat.com>,
+        Stefano Garzarella
+	<sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+	<jasowangio@gmail.com>,
+        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "David S. Miller"
+	<davem@davemloft.net>,
+        Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski
+	<kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman
+	<horms@kernel.org>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Bobby Eshleman
+	<bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE2MDA5NCBTYWx0ZWRfX5OJdBdyViD+U
+ 5F5qWrd7qt7HJHlgLcOwnoLNFmKtmG14C7DdtKhbqiYTAEl/W0ZljvsQWch9+bnVZ/GJDHMTWi3
+ iUAzps/HhAHyCtAsa+HoAxf+wqCUjj0=
+X-Proofpoint-ORIG-GUID: gKDNQAj56r8459FNniU9y9-fMq_ecPmD
+X-Authority-Analysis: v=2.4 cv=ZuN4uN7G c=1 sm=1 tr=0 ts=6afb95f8 cx=c_pps
+ a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=U_y8lYiYyhHBU5rMqhb2:22 a=VabnemYjAAAA:8
+ a=SWFGfQgXnGc93N8zE1QA:9 a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-GUID: gKDNQAj56r8459FNniU9y9-fMq_ecPmD
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE2MDA5NCBTYWx0ZWRfX4CTqCEvwyK4k
+ 1gKYYYNFViwq/KsAmDiIDlUCOYPpP+uGeKEv6CtdZHnO0TjYuVuEQv+mJG9glxn52sBbSOH8w4H
+ 3oosVpURYlbLlCHjnqmV1hfrCDBPQQaWSFHy9sJkewGwR/+nEP5MjpsgXoziYWegJad/xGJ/1Ol
+ 6H1nRgxWdSf8zYKHVJfHU9+AnuDHYXoeJoOPZ6uJwdX5OLXJGhLbKivTVH07gBIbuWLlllqng2F
+ F5qyc16f4TqlZ0EsgKPld8ZV5CP5Iwwh6b2tcLAwZ+jvyS8unjNuU2vD0KfaVr/L6w0R/xG9A3A
+ krRB7fpzVZVdvYh7W4224s7gqen4uXe0gwljy+u62N4ipijBDD2xamoMv0s4+AVUFJ68TT7W68B
+ CVZigCjqRTArHF2nzqFbBfN+ONC6d0u/i8JzYeNWeX7rG9VCmSx7ZzjDOrTZUr7H4IMn86jE03T
+ z1ceLjsuI8HmVaCMscg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-16_07,2026-11-16_01,2025-10-01_01
 
+vsock_deliver_tap() clones every packet to every vsockmon device on the
+system. Creating one needs only CAP_NET_ADMIN in the owning user
+namespace, so an unprivileged user can capture the traffic of local mode
+namespaces.
 
+Pass the packet's netns to vsock_deliver_tap() and only deliver to
+devices that pass vsock_net_check_mode(), the same rule socket lookups
+use. vhost passes the vhost_vsock netns, loopback the sending socket's
+netns, and virtio-vsock NULL (global mode).
 
-On 11/16/26 6:26 AM, Sean Christopherson wrote:
-> On Sat, Nov 14, 2026, Randy Dunlap wrote:
->> Update the list of files where virtualization ioctls are defined.
->>
->> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
->> ---
->> [Since having multiple maintainers trying to merge these would
->> cause some conflicts, it would be more manageable for Jon to
->> take all of these through the docs-next tree.]
->>
->> Cc: Jonathan Corbet <corbet@lwn.net>
->> Cc: Shuah Khan <skhan@linuxfoundation.org>
->> Cc: linux-doc@vger.kernel.org
->> Cc: Juergen Gross <jgross@suse.com>
->> Cc: Stefano Stabellini <sstabellini@kernel.org>
->> Cc: xen-devel@lists.xenproject.org
->> Cc: Hans de Goede <hansg@kernel.org>
->> Cc: Arnd Bergmann <arnd@arndb.de>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->> Cc: Jason Wang <jasowangio@gmail.com>
->> Cc: Eugenio Pérez <eperezma@redhat.com>
->> Cc: Sean Christopherson <seanjc@google.com>
->> Cc: Paolo Bonzini <pbonzini@redhat.com>
->> Cc: kvm@vger.kernel.org
->> Cc: virtualization@lists.linux.dev
->>
->>  Documentation/userspace-api/ioctl/ioctl-number.rst |    6 ++++++
->>  1 file changed, 6 insertions(+)
->>
->> --- linux-next-20261113.orig/Documentation/userspace-api/ioctl/ioctl-number.rst
->> +++ linux-next-20261113/Documentation/userspace-api/ioctl/ioctl-number.rst
->> @@ -200,6 +200,7 @@ Code  Seq#    Include File
->>  'M'   01-03  drivers/scsi/megaraid/megaraid_sas.h
->>  'M'   00-03  drivers/video/fbdev/mb862xx/mb862xxfb.h
->>  'M'   00-0F  drivers/video/fsl-diu-fb.h                                conflict!
->> +'M'   01-03  xen/interface/xen-mca.h                                   conflict!
->>  'N'   00-1F  drivers/usb/scanner.h
->>  'N'   40-7F  uapi/linux/nvme_ioctl.h
->>  'N'   80-83  uapi/linux/ntsync.h and uapi/linux/nvme_ioctl.h           conflict!
->> @@ -239,6 +240,7 @@ Code  Seq#    Include File
->>  'U'   64     drivers/usb/misc/usbtest.c                                conflict!
->>  'V'   all    linux/vt.h                                                conflict!
->>  'V'   all    linux/videodev2.h                                         conflict!
->> +'V'   00-1F  linux/vboxguest.h                                         conflict!
->>  'V'   C0     linux/ivtvfb.h                                            conflict!
->>  'V'   C0     linux/ivtv.h                                              conflict!
->>  'V'   C0     media/si4713.h                                            conflict!
->> @@ -357,6 +359,7 @@ Code  Seq#    Include File
->>  '|'   80-9F  samples/                                                  Any sample and example drivers
->>  0x80  00-1F  linux/fb.h
->>  0x81  00-1F  linux/vduse.h
->> +             drivers/vdpa/vdpa_user/vduse_dev.c
->>  0x89  00-07  asm-generic/sockios.h
->>  0x89  06-07  linux/sockios.h
->>  0x89  0B-DF  linux/sockios.h
->> @@ -398,8 +401,11 @@ Code  Seq#    Include File
->>                                                                         <mailto:kvm@vger.kernel.org>
->>  0xAE  40-FF  linux/kvm.h                                               Kernel-based Virtual Machine
->>                                                                         <mailto:kvm@vger.kernel.org>
->> +0xAE  C6     arch/x86/kvm/x86.c                                        X86 KVM
-> 
-> I'd rather omit this entry.  0xAE C6 is covered by the entry above, and the horror
-> in arch/x86/kvm/x86.c is purely a 32-bit compatibility alias for an ioctl that is
-> defined in kvm.h (the structure payload defines an pointer instead of a __u64).
+Fixes: a69686327e42 ("vsock: add netns support to virtio transports")
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+ drivers/vhost/vsock.c                   |  4 ++--
+ include/linux/virtio_vsock.h            |  2 +-
+ include/net/af_vsock.h                  |  3 ++-
+ net/vmw_vsock/af_vsock_tap.c            | 10 +++++++---
+ net/vmw_vsock/virtio_transport.c        |  4 ++--
+ net/vmw_vsock/virtio_transport_common.c |  4 ++--
+ net/vmw_vsock/vsock_loopback.c          |  2 +-
+ 7 files changed, 17 insertions(+), 12 deletions(-)
 
-OK.
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 88a310390eb0..3de1f1920717 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -229,7 +229,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 		/* Deliver to monitoring devices all packets that we
+ 		 * will transmit.
+ 		 */
+-		virtio_transport_deliver_tap_pkt(skb);
++		virtio_transport_deliver_tap_pkt(skb, vsock->net);
+ 
+ 		vhost_add_used(vq, head, sizeof(*hdr) + payload_len);
+ 		added = true;
+@@ -567,7 +567,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+ 		total_len += sizeof(*hdr) + skb->len;
+ 
+ 		/* Deliver to monitoring devices all received packets */
+-		virtio_transport_deliver_tap_pkt(skb);
++		virtio_transport_deliver_tap_pkt(skb, vsock->net);
+ 
+ 		hdr = virtio_vsock_hdr(skb);
+ 
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index f91704731057..46058d354940 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -285,7 +285,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *skb);
+ u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 wanted);
+ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
+-void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
++void virtio_transport_deliver_tap_pkt(struct sk_buff *skb, struct net *net);
+ int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
+ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
+ int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index e8481f12312e..3e28865578eb 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -250,7 +250,8 @@ struct vsock_tap {
+ 
+ int vsock_add_tap(struct vsock_tap *vt);
+ int vsock_remove_tap(struct vsock_tap *vt);
+-void vsock_deliver_tap(struct sk_buff *build_skb(void *opaque), void *opaque);
++void vsock_deliver_tap(struct sk_buff *build_skb(void *opaque), void *opaque,
++		       struct net *net);
+ int __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 				int flags);
+ int vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+diff --git a/net/vmw_vsock/af_vsock_tap.c b/net/vmw_vsock/af_vsock_tap.c
+index 7c5cdceabb2a..4c8821835251 100644
+--- a/net/vmw_vsock/af_vsock_tap.c
++++ b/net/vmw_vsock/af_vsock_tap.c
+@@ -73,19 +73,23 @@ static int __vsock_deliver_tap_skb(struct sk_buff *skb,
+ 	return ret;
+ }
+ 
+-static void __vsock_deliver_tap(struct sk_buff *skb)
++static void __vsock_deliver_tap(struct sk_buff *skb, struct net *net)
+ {
+ 	int ret;
+ 	struct vsock_tap *tmp;
+ 
+ 	list_for_each_entry_rcu(tmp, &vsock_tap_all, list) {
++		if (!vsock_net_check_mode(dev_net(tmp->dev), net))
++			continue;
++
+ 		ret = __vsock_deliver_tap_skb(skb, tmp->dev);
+ 		if (unlikely(ret))
+ 			break;
+ 	}
+ }
+ 
+-void vsock_deliver_tap(struct sk_buff *build_skb(void *opaque), void *opaque)
++void vsock_deliver_tap(struct sk_buff *build_skb(void *opaque), void *opaque,
++		       struct net *net)
+ {
+ 	struct sk_buff *skb;
+ 
+@@ -96,7 +100,7 @@ void vsock_deliver_tap(struct sk_buff *build_skb(void *opaque), void *opaque)
+ 
+ 	skb = build_skb(opaque);
+ 	if (skb) {
+-		__vsock_deliver_tap(skb);
++		__vsock_deliver_tap(skb, net);
+ 		consume_skb(skb);
+ 	}
+ 
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index cf63bc99f3cc..b39c001260a9 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -150,7 +150,7 @@ static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	virtio_transport_deliver_tap_pkt(skb);
++	virtio_transport_deliver_tap_pkt(skb, NULL);
+ 	return 0;
+ }
+ 
+@@ -680,7 +680,7 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 			if (payload_len)
+ 				virtio_vsock_skb_put(skb, payload_len);
+ 
+-			virtio_transport_deliver_tap_pkt(skb);
++			virtio_transport_deliver_tap_pkt(skb, NULL);
+ 
+ 			/* Force virtio-transport into global mode since it
+ 			 * does not yet support local-mode namespacing.
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 1e762a480df4..027fe41c676a 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -190,12 +190,12 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+ 	return skb;
+ }
+ 
+-void virtio_transport_deliver_tap_pkt(struct sk_buff *skb)
++void virtio_transport_deliver_tap_pkt(struct sk_buff *skb, struct net *net)
+ {
+ 	if (virtio_vsock_skb_tap_delivered(skb))
+ 		return;
+ 
+-	vsock_deliver_tap(virtio_transport_build_skb, skb);
++	vsock_deliver_tap(virtio_transport_build_skb, skb, net);
+ 	virtio_vsock_skb_set_tap_delivered(skb);
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_deliver_tap_pkt);
+diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+index 8068d1b6e851..cacd313a454b 100644
+--- a/net/vmw_vsock/vsock_loopback.c
++++ b/net/vmw_vsock/vsock_loopback.c
+@@ -138,7 +138,7 @@ static void vsock_loopback_work(struct work_struct *work)
+ 		 * It is freed by the receiver.
+ 		 */
+ 		virtio_transport_consume_skb_sent(skb, false);
+-		virtio_transport_deliver_tap_pkt(skb);
++		virtio_transport_deliver_tap_pkt(skb, sock_net(skb->sk));
+ 		virtio_transport_recv_pkt(&loopback_transport, skb,
+ 					  sock_net(skb->sk));
+ 	}
 
-> If it's a sticking point, e.g. this will trip automated tooling over and over, then
-> I vote to move the relevant definitions to uapi headers, e.g.
+---
+base-commit: aa40afa831ebfe45e40a23721711059f2ac584d4
+change-id: 20261116-vsock-tap-net-1b09a0945779
 
-I don't know of anything like that.
-
+Best regards,
 -- 
-~Randy
+Bobby Eshleman <bobbyeshleman@meta.com>
 
