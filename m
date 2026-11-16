@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794825202;
-	b=Ivqq+0AjtS/0g9utoZk5N7V062OgYQ38cF/iARNf/5U3p2snJwYi57jgo6mZNn5pcBEd
-	 6SkAq9/bgJfuQhq6Lw2oiv3074Z1vxN7yAqolKtqpk+BOmpbBLEyGkAb9mbCbvCs0/6Vx
-	 kE6DZrt16nEAQ1DBZIx4TszO9zmEAIOleJ6/JFwA2CvDqmo9+z75eHlzmBIfggl/PxI7l
-	 UFKpqWdhfQuqv9u3ptefjmpxh1o3N/BkUiIJPfz2T/VqzpQz+3P7OFnKBN38NTJpRBqcM
-	 XNiuAysdeZyNn/pepX/M53ZFxGwb1w4hb3ThH7R+dRxEpbjCm1Gfg0uBmPqO2Uo99mw==
+	t=1794825205;
+	b=FuMIRVqSTPfWp6L8JihCl7QUr4ZhrRuLYs2MN5HdBipOa8WdZq7qBQHI7efTDlcxfVJl
+	 5qekUGYLlVRMYoDYgoy8GsY1lHiiYECbDEhFRMG8LD+BaXP5WBdTDIkhuk0Cabb9Z5KoX
+	 n4Y6Kj7DmpfRF9Cl04KVNeADC4KuX4Fre5fIieeeid2HC7kpcbybRhhdn8iHuiE/4+dlf
+	 67qwcYskOksQ3yuqPxzEG9eicQbVGNj2RpFZFrwuzsn9xF2Hd5EhtnJkDjFicgXTR1qTg
+	 l6OReWC6ToKiEn+C4Y8PWRkx1GCgTzZp/IkEH8VCoUpkfCMpUsV9g+/zTmPYpJJcbJg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794825202;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794825205;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=fHCFNhOXm/uYkO/gjcQ2RFXJV+23/BKC2Uf0wMQGvlA=;
-	b=hwmV1DU18mACCmr2UxXf2BclJai/2lOefnususRSqNFGnWQ0bUMu3nlFHRxOsFK8oIFZ
-	 39L0B9HpSH6R+vOrmqYNuGCUMcPwHb2yNIPjdfJJgS6prErUvVKGPWqUdR13cOR1/fcRL
-	 ZzETtZLt9EqxWwBBmRhvh8HjxSluqNbReirDNauJqbxELmPt94PyQmJoXp0HOvvo2c3YY
-	 F7qCG63JdlSso6DvyAx3nw1gpB681nkkzLgXuIAlmITGco49Tu3xOQmzZLQzn4SAQJ6pj
-	 i1jLdMsrx+MUYHZMK54d1ASOIq/Risz8Ioda66nrbcFVhN2hXdIvzaBLsEMcNpSTsbQ==
+	bh=WGtNUpx7CBH9AVW0rbFPnwpFHv8Ka71t7S5EnLEFcOI=;
+	b=sGid+SuDuMDWQvDroicBZk8mNuwJP1RUOBkOOyclLeEtfXmtrbmWCnEuemtmvuhbhb+9
+	 U3U0jAZxeY0gaAb5zZzbXNFhSXsm4kUQ2NxMBBuKpO0cC2ngFsO+d2bix+OznRoB3jbsb
+	 1oETIm7i55+bdDgw0Vzvo2Dx/+46KVtN3yPN54nScLlnYbDMGwbQ3pQPjahFbk7WaZJjs
+	 c60Vs8osAWfLvRMPA0tCkrasQw+ZKPuHVgurnYSo7M24ULWZOl8LMVhfhTOKaJi4aKSGN
+	 Vm3jVDxEw2w4c0yF4wb1bVn8huley60o1X+mBULI+6pDrVVTvrt1LEAyb8DpdAaBHkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vk1dznKI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UTy1g1Gr;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ED41606A329
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 10:33:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96CA5606A329
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 10:33:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vk1dznKI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CCA1F000C7;
-	Mon, 16 Nov 2026 10:33:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UTy1g1Gr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5D841F000C4;
+	Mon, 16 Nov 2026 10:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794825202;
-	bh=fHCFNhOXm/uYkO/gjcQ2RFXJV+23/BKC2Uf0wMQGvlA=;
+	s=k20260515; t=1794825205;
+	bh=WGtNUpx7CBH9AVW0rbFPnwpFHv8Ka71t7S5EnLEFcOI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Vk1dznKIyVAHDHBDqjO0NZOoybDNxeU+WhCY1nobUNC2RFXWTIgUP+lUtFhNuQ9d+
-	 8blC3efoqyf4L8U/nflECRTUp25z2xQqfIREfVtgTlzcqkf5mNIEfBn4YTswvqNpqN
-	 dJC0emAgzai72uPw+vl/bZccpHizHCEd8qqsMmEIRMu6W1X2QCEk2vEaNl97eWw+w0
-	 2+BfgLloHiRANBbAcvcNNe4EGtNhnMYpzKMhmjMcZhxDtzBSvc45rPYLa+b7Fpn1pF
-	 JDnfxO10GDTcsZBhnN2/iKQR77bxfbkMtN1ZJb62CD2ni4bnHLki7JZblTbhB5fWBu
-	 uAJckbp+KJo3Q==
+	b=UTy1g1GrGRitYr3yLk/qHaOXhVfVL1IxLWwx1o+VM8w830mO24HQoXCcxDhBYbcEh
+	 7ciFDeBJIcJ+ucOYMHhrYjCgsTYilFUHKJh6KUsKtlmPzooMGOKOJotA4Kg/MBeFw7
+	 +xg0LfplTtCSTaWRkKJyrZCGAdihxUcVIFKJO3OAdscg9vjqDBdOuscVKMMYTG66Iz
+	 iWQsKQy4ckKJN+olqtYthqPjs46QsxNu9aEskMZ9MxcmYJ5MRdk+UMlcVFb+cGeR6L
+	 gWpiaAxw6/uY4R7N4s1Oa8e5t/f6oESsUXKKOiOoJHHI7p+YpkGEJwc/V7cgXY+Ghl
+	 2z+79rUZoELFg==
 From: Maxime Ripard <mripard@kernel.org>
-Date: Mon, 16 Nov 2026 11:31:01 +0100
-Subject: [PATCH v2 45/64] drm/bochs: Switch to
+Date: Mon, 16 Nov 2026 11:31:02 +0100
+Subject: [PATCH v2 46/64] drm/cirrus-qemu: Switch to
  drm_mode_config_create_initial_state
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -55,21 +55,22 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-drm-no-more-config-reset-v2-45-0bb471f4d1e0@kernel.org>
+Message-Id: <20261116-drm-no-more-config-reset-v2-46-0bb471f4d1e0@kernel.org>
 References: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
 In-Reply-To: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
 To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
  Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
  Simona Vetter <simona@ffwll.ch>
 Cc: dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>, 
- Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev
+ Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+ virtualization@lists.linux.dev
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1304; i=mripard@kernel.org;
- h=from:subject:message-id; bh=syV7m+r0g1QmWayj52KuQM5e2jAr/hXX0qcoDG5vABg=;
- b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFm/bgcLWLicPhDR5HT6895Or1SnlnW23ItUn/zyrA/kP
- MW8IX9ix1QWBmFOBlkxRZYnMmGnl7cvrnKwX/kDZg4rE8gQBi5OAZiI3BLGhhspYVsObbbl1/3l
- GZEadt/ijdDifeqXmiV/zvsVWGcfVHHSgr9rxepDInsf9Ye7Xls9nbHed3FO72SN27JVHp2HDqg
- 9WsLaWL2tdtflR/dUX+vH6OlXqfQ41EvUSAZ+OKa3zVf+21cA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1313; i=mripard@kernel.org;
+ h=from:subject:message-id; bh=tgxKCg4Td3S4DS+64eM4+SYN9OtbbAEdjJzeA7C40qU=;
+ b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFm/bocUFBYkF+6z2rdgJktyRWrHipumvFWBnKfVPghfy
+ 7kw58OpjqksDMKcDLJiiixPZMJOL29fXOVgv/IHzBxWJpAhDFycAjCRpjOMtWJazwI7fSTaqqbb
+ cv4KcOLIlvhUcMa1ZM+biLt9H7VdvJ5tW5Gz2bVsw+GVR/nWbD3QxFgrFvl3iqLrDcEb+/VsPh2
+ 9cHp1S37nIQ12C1t28z/T83/9FnS2meB44kT9/Au9XyOaynYAAA==
 X-Developer-Key: i=mripard@kernel.org; a=openpgp;
  fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 
@@ -86,31 +87,32 @@ Switch to drm_mode_config_create_initial_state().
 
 Signed-off-by: Maxime Ripard <mripard@kernel.org>
 ---
+Cc: Dave Airlie <airlied@redhat.com>
 Cc: Gerd Hoffmann <kraxel@redhat.com>
 Cc: virtualization@lists.linux.dev
 ---
- drivers/gpu/drm/tiny/bochs.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/tiny/cirrus-qemu.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 771d59b92f67..c24adbcb77a3 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -681,13 +681,11 @@ static int bochs_kms_init(struct bochs_device *bochs)
+diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
+index 9e3051b9c3f7..98664f573ff8 100644
+--- a/drivers/gpu/drm/tiny/cirrus-qemu.c
++++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
+@@ -621,11 +621,13 @@ static int cirrus_pci_probe(struct pci_dev *pdev,
  
- 	ret = drm_vblank_init(dev, 1);
- 	if (ret)
+ 	ret = cirrus_pipe_init(cirrus);
+ 	if (ret < 0)
  		return ret;
  
 -	drm_mode_config_reset(dev);
--
--	return 0;
-+	return drm_mode_config_create_initial_state(dev);
- }
++	ret = drm_mode_config_create_initial_state(dev);
++	if (ret)
++		return ret;
  
- /* ---------------------------------------------------------------------- */
- /* drm interface                                                          */
- 
+ 	pci_set_drvdata(pdev, dev);
+ 	ret = drm_dev_register(dev, 0);
+ 	if (ret)
+ 		return ret;
 
 -- 
 2.56.1
