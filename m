@@ -1,54 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794789923;
-	b=qLqWPv57iyDayy7LXtSsRn+XmtOBrnpDwjV42ld8lBV02gRBbksqAGqSjVND5Vx2xa7V
-	 NFMciI/hKh0eqD95V/2VEv5E8+yvyn347EWhO/Aip7kBk/heJ3TZSjRQlrcObo1GrsJPx
-	 +BeVud5sYggfDiTi+bvYUYSLUjhBtlxD1/ofgppL32Yv7rQh8Hhe+jJoJTrswuobvxdjq
-	 7IyJ60vpC0Kzl0wCGmNSpte1WqVzHkgRil+5usMKNJULFreSXyWh7gGNpnGgpFnN/84GL
-	 3IfzocYyAhDWwOFFjBP5wpN5KDoW+MX7e1dqVYivxn3eCcXqz+ojhvRvy29zy2b06nA==
+	t=1794798128;
+	b=sGIXcfca6XTJiKEgGXS2l/jf+1oFxYgF5iO96T9jUTh5T5a81c4vkbhfPDs0lM5VEe0/
+	 vSzs6bj8kIRB41vKdYkWdsVav81C2WSp3tpv7X/6CBlFxrwWfj1UV5g5gal1Y+9ZP9SlI
+	 2lH8Oj/EdutCTWY8SzhE70tINKY7Gr7iqFQCx5Dfz9b73djOgjVJcJdvBgrbk7wtWwOPc
+	 L4boM26C3EW7TvpIfx0OIlCiaWhML5gOXrUaxctsvgtvHVEJ2e4H8NhnGQlBh+fSfTiLh
+	 cONX8lVKtOZpoQsu4nyazYKrNbn05qySXjoI5+uZAw70XstTicje4KxmpqK9pPOsEiQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794789923;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=nEPXf1cG5J+Lghgn3UQeDfptX1Hk+zVJPSj0Zk2IzFQ=;
-	b=XA8jO1bImAyQq652g+O9ysgTK9J0LNpAnQUCF6P0+KREaZyDH97zgP0cbZgKW4QBrVzh
-	 0Szb5+liCTrpnniEQpam4TQzQiTdyPwgIetNUM9e4tp1kPMxcqWFH0c28PXNjacbrUwsE
-	 NrEoBQbjRGB0e4L4wkn8WlGuSvRzbsDtErzZd7ZxcYyMgDPnpeiDYfljqMxAet5pOtv96
-	 cLqrf0F+eYXXk0fH05px2IeetyTx8Dj1dyuHWoOJ4XWJ01Q66b8KC9SyJu8ixbF7dWKfl
-	 T6WkWVOEKaypXGwxu+wOStxtQF8PEqc9/NrnbSp9BZUU3iC23HAQuZnqTYjLOkOYrFw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794798128;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=VMrRqMHzjHqGYxf2SI/6lKJFf2peQ7pwuCUbgZFOrI8=;
+	b=yNjhVPAlzj7ak6gd9i+t7GUrDIXVi0gb7+wlrGcIHCy3vllGhZ7HcGicm5nOpCThB5bz
+	 7gADDcUwvuCJwSh5dZout9nA/zmuFF4/kQfjIN0cH28FJIUIdNlloC6dO7gWibcyzzZAn
+	 I3acUjrK2Zm9+vtbASZjuskWGZvqo0YiqoVDglW6pQB9cddkWy1H6BPjSlGPcSuu84yz3
+	 IkmH58bKWnQS+t/vXK9c938BVbQhWbi10/Aqdivt7lB6ttWlh6QwKKUTIwzYxbhIl4/Kp
+	 nnhqQhTAStJiDSiJHuqdbBJNGvyZr97xmcFC2Ueh8lSOBhK6sp2AY9zHOyUTwi5pGiw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=Ov44YrtP;
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qEsGxmLc;
+	arc=none smtp.remote-ip=209.85.222.174
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91A57606A31F;
-	Mon, 16 Nov 2026 00:45:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91A57606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA412606A88A
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 03:01:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA412606A88A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=Ov44YrtP
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=nEPXf1cG5J+Lghgn3UQeDfptX1Hk+zVJPSj0Zk2IzFQ=; b=Ov44YrtPxUC++hYRNDHSdmdpGW
-	JaxLbFR1NnGayLi7FHLtyTi+He4ZYSfoC7yWmGobJ7E/AIaLAiwDiqmK+og7vdQvnP4EzvIpr462x
-	EDmrhZM3u/N2SWbcqZV+o7jR7R+AN7ZLDYmWxP5FpNx3G+I1qCrQflyake80HiJ9rMKVM/x4eT782
-	9JEn4jhTrQPKUH9n7ugwPApkYe7cQrElzRWPUKP8gRVT9cQSw9rpPJq9AX3iS6GqmzfQn0wqcsM7f
-	leTLxbzdojuK+f/LSdN/KzQKSZ97Y6xYotP0eKRTTUizqT5t8J7W/n/cd6b1FIlVQIvCGZw4VHm9P
-	KD0dlVWg==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xSkqM-00000000pP7-2dPd;
-	Mon, 16 Nov 2026 00:45:10 +0000
-Message-ID: <bbdb3140-dc5f-4ae1-a5a9-c2e25387409a@infradead.org>
-Date: Sun, 15 Nov 2026 16:45:07 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qEsGxmLc
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-93a40a9a01aso611575785a.0
+        for <virtualization@lists.linux.dev>; Sun, 15 Nov 2026 19:01:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794798119; x=1795402919; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VMrRqMHzjHqGYxf2SI/6lKJFf2peQ7pwuCUbgZFOrI8=;
+        b=qEsGxmLc0bEO29Op58ZHiknLgM0CNGJFlxptl0OtnUbNDzZDso4m/jQdHdaG+c9WKd
+         RBAJ7ylRHYsmNdrKosCzWJYt3a8D23kt2bEMseZQpf1BO9eSR1oOQuulQpYQlC5+GxEl
+         G80suZpMqN/hSKvSMN0e/BTZyfP2e4OmoepKSdzJytLU9zNoM0KagjUfRAEdBpwnKfZa
+         YAQKCN5ORvC12g1rI8HvEcahKlRkt+zfsyFXCpjaj6sOLbBzb6ptfIVndjuytg9yLH7I
+         EBVreDG/Ny+AoIa/CpyAlsItMxZl6LFJMuSiNu0c4FtJicvB3VJjCx3T5WIfw+hgFPIJ
+         kvJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794798119; x=1795402919;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=VMrRqMHzjHqGYxf2SI/6lKJFf2peQ7pwuCUbgZFOrI8=;
+        b=O13W41qi2qdQuTsHgD54nkhFSwq1jHxMrwmMmY2QU4Fs9qDnflWBCi+xNstBHQY6by
+         RoX6OCQzTGXrdn4hL4Sw4hr968uebz8gHVSRuDdG8TBrvnE27CFOjNS5fJZb8aOHPZNU
+         HfAADutxr/loRbgfMqlIh+4duvZRRA3JTRyQHGTsYsaiS6rPGHJMjLeVjeim5uhP0KGk
+         /crhkY8s7VjHh6X/uskjN3lWJazwyGK+e4MJViTwfw6UFp+wday/60uW7x+4rby4Hub2
+         iREhWUTuvggtTeMEKB7I6cbG1Yw4VHTk44jnkO8SiegJcVZ8gzUv/x4rNCbMkI0LFeVc
+         TiPg==
+X-Forwarded-Encrypted: i=1; AL+hErEk+eod0xfnT/sdL93PfzmBjAilultxLrUCjKTYa8Fu1XfgszeSgnjt4rfqc8/YtbW6w4o68vpFBxqUFLkETw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/fr9L8OasIwaRryBUccPnvFdtH7OYzlThl7e8WERyvrWVdsGSf
+	kI45H+pkCWPBFwNPjH/Ta6NLvHwCQxjz7MMvgMugI4rhGCPNaZBDgXJK
+X-Gm-Gg: AYBFou2t6xaNt6ASrZZceezR3VnT79k5nrEJQiBXWRMLzEXQLK8FUMJuESx1g1FBIXV
+	ao3jKmJC1gwAsjz/mKjaghF1cOh96+LC/I7ADk0Ue17dJtjFR571QxYDwmmTRGR2y3jU7UVRxg7
+	vO4zVkfhZjcTsb6H1V0i5onx2VREhYzfUrfJqd8aNtscMgz0UFAgYJeuGb1K0lVExmdTd8uWt6u
+	y0ZIWlT3XK8A9PTDrFEGKHU5KpYj1WI6Xp6ziqlVXzbaa+C7Lu0m+8KQF7wnE/S7eXPwtpYznk9
+	r5vwR8rEnr89wlpYVte+tj8yRgvJtgcscudZ9g9w/2KUmSvrxjfb4+RWaf4f5Rgb52B1orfhRas
+	YDic4YBQQfHCUq7FboVhK2puj4DZsuxm+qLD5yGCD5i/rvU7uFihK7HqfWZgx3/3zuBX/8iRC0a
+	bbYnsRO/ByZNxou9AAXv8ne11vMc7eSidj2LRKYwb8G2eAkqTlCEarou8Jo0/IBAXceWCiJIZ5N
+	L60iHH/O4gmjDcUavMa+8rmbI4xOlCFqJf/etaf9qpKYtjoH+7n06HqoWnSpb6zLQ4kPqcEOc25
+	4uofx/jXtBlT+L/daEzlAIfUV6LYG19e2oI9HbXlpz8UjQGsU74H
+X-Received: by 2002:a05:620a:6019:b0:93e:95ce:5394 with SMTP id af79cd13be357-9494b9b63acmr1378102485a.2.1794798118524;
+        Sun, 15 Nov 2026 19:01:58 -0800 (PST)
+Received: from i4-gl-tmk5904.ad.psu.edu ([130.203.156.186])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c831b7dsm746297085a.20.2026.11.15.19.01.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Nov 2026 19:01:58 -0800 (PST)
+From: Yuho Choi <oss.patchbox@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Yuho Choi <oss.patchbox@gmail.com>
+Subject: [PATCH v2] vdpa/vp_vdpa: Wait for device reset to complete
+Date: Sun, 15 Nov 2026 22:01:44 -0500
+Message-ID: <20261116030152.1704527-2-oss.patchbox@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -58,87 +98,67 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/12] docs: ioctl-number: update MM entries
-To: "David Hildenbrand (Arm)" <david@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
- linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- Jason Gunthorpe <jgg@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>,
- linux-mm@kvack.org, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, linux-sound@vger.kernel.org,
- Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
- Marcel Holtmann <marcel@holtmann.org>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- linux-bluetooth@vger.kernel.org,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
- oe-linux-nfc@lists.linux.dev, Chas Williams <3chas3@gmail.com>,
- linux-atm-general@lists.sourceforge.net,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org, Helge Deller <deller@gmx.de>,
- linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
- MPT-FusionLinux.pdl@broadcom.com,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Zhihao Cheng <chengzhihao1@huawei.com>, linux-mtd@lists.infradead.org,
- Neill Kapron <nkapron@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
- Juergen Gross <jgross@suse.com>, Stefano Stabellini
- <sstabellini@kernel.org>, xen-devel@lists.xenproject.org,
- Hans de Goede <hansg@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Sean Christopherson <seanjc@google.com>,
- Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
- linux-ext4@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>,
- devel@lists.orangefs.org, Paulo Alcantara <pc@manguebit.org>,
- Namjae Jeon <linkinjeon@kernel.org>, linux-cifs@vger.kernel.org,
- Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
- linux-f2fs-devel@lists.sourceforge.net,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
- linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- Tzung-Bi Shih <tzungbi@kernel.org>, Benson Leung <bleung@chromium.org>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- amd-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, intel-gfx@lists.freedesktop.org,
- Matthew Brost <matthew.brost@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- intel-xe@lists.freedesktop.org
-References: <20261114202653.3113381-1-rdunlap@infradead.org>
- <20261114202653.3113381-2-rdunlap@infradead.org>
- <f37ccd71-8e1d-4dd4-b11a-e22b9e617dea@kernel.org>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <f37ccd71-8e1d-4dd4-b11a-e22b9e617dea@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+vp_vdpa_reset() writes 0 to device_status and returns success right
+away. The virtio specification requires the driver to wait until a read
+of device_status returns 0 before reinitializing the device, and
+virtio_pci_modern's vp_reset() does exactly that: the read-back flushes
+the posted status write and any in-flight device writes, including
+MSI-X messages.
 
+Without it, vhost-vdpa (or virtio-vdpa) can go on to tear down the
+IOTLB/IOMMU mappings or reprogram the queues while the device has not
+yet finished its reset, and may still be DMAing to the old virtqueue
+addresses. The MSI-X vectors are also freed while an interrupt from
+the old configuration may still be in flight.
 
-On 11/15/26 8:58 AM, David Hildenbrand (Arm) wrote:
-> On 11/14/26 21:26, Randy Dunlap wrote:
->> Add ioctl number entries for test_hmm_uapi and gup_test.
-> 
-> Just curious, why do we care about uapi for test interfaces that never see the
-> light of day in production kernels and their sole purpose is to go a long a
-> dedicated selftest?
+Poll device_status after writing 0, in the same way as vp_reset(),
+before freeing the IRQs and returning.
 
-a. We don't control who builds/runs these tests.
-b. There might be some USB gadget or HID driver running at the same time
-   as these tests.
-c. It's preferable not to have conflicts, so any additions to this file
-   should try to avoid these documented ioctls.
+Fixes: 64b9f64f80a6 ("vdpa: introduce virtio pci driver")
+Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
+---
+v2:
+- Drop Cc: stable, as this has not been reproduced.
+- Rebased on current mainline. No code change.
 
+v1: https://lore.kernel.org/r/20260926211507.1330179-1-oss.patchbox@gmail.com
+
+Like vp_reset(), the new loop has no bound, so a surprise-removed
+device that reads back all ones would keep it spinning (the Sashiko
+review of v1 pointed this out). I kept it the same as vp_reset()
+rather than handling that case only here.
+
+Compile-tested only (x86_64 defconfig + VP_VDPA, W=1).
+
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index 646efd9384fb..eba82ff253ea 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -8,6 +8,7 @@
+  * Based on virtio_pci_modern.c.
+  */
+ 
++#include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+@@ -236,6 +237,9 @@ static int vp_vdpa_reset(struct vdpa_device *vdpa)
+ 	u8 s = vp_vdpa_get_status(vdpa);
+ 
+ 	vp_modern_set_status(mdev, 0);
++	/* Wait for the reset to complete */
++	while (vp_modern_get_status(mdev))
++		fsleep(1000);
+ 
+ 	if (s & VIRTIO_CONFIG_S_DRIVER_OK)
+ 		vp_vdpa_free_irq(vp_vdpa);
+
+base-commit: 067c5c24cef23d913b67eaaf71ae67e7169a6620
 -- 
-~Randy
+2.43.0
 
