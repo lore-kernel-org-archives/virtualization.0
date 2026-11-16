@@ -1,65 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.210
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794818846;
-	b=jc1FUtUoJ5/vYehElW7cGbw6onJ0VIN/zDQL+UYFLKfm5+XXpuvm+zVz8RtskMjmUBbT
-	 w4sD2sFjAdsmrTMdPpAgaYmVDbP8XuC7t2F7kTNb4rKrT9D8mG7TzQ8VJah61MX8nd5xR
-	 gTexa/C+ZRfILJrk7IHAZgA7EFXgsM04l+x9U2UgcPC/K9FR3bBqdKu8YnjJt4QH6iBFj
-	 rgyh32RfUwSxW6aYDbM36TZQU52Xs/Sj3kFKwvHk7UvDHYgGR56sgiAMY1zzYzSu0bZOG
-	 L1VPR4lGAmTFsYrJQBCrBZH6EAMTc5YtCHyOCIvmOWFd9j+w8pw+xxCZWg5/zunYudQ==
+	t=1794821090;
+	b=KTYDVVv9pdqF1rTZ+fwd7FsobEUHn6Zt3OWZC7XeNi6njCHqQ21al9sCu3tFT09Ct/YQ
+	 1hFGNRSQiFXrghDlEbZip3fbk20R5jREt/pOmV7Jj6JMKNoRKLOYErjVFpk61+K3ML1UI
+	 MdlQ/SY8hKaHHd1XIFoj75tYyZMU/71V3F2MLgR2CJ8wIFtuwUPbzEoLHx1g/8HMKz3yo
+	 Gc3ASad9N8glY2zzOxuUq6fk3NOb7eYkn7shioJ7yAS+yGMGk3hTEG+AC1Em8ts94ukHs
+	 RBph4kTreu4oLFYCM64R12kEAkFFNeU4Fx7ArhP6FjFpU9nrzBHGCzJiTQM4su1e53g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794818846;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-XMRINFO:X-QQ-XMAILINFO:From:To:Cc:
-	 Subject:Mime-Version:Content-Type:Content-Transfer-Encoding:Date:
-	 X-Priority:Message-ID:X-QQ-MIME:X-Mailer:X-QQ-Mailer:References:
-	 In-Reply-To:X-QQ-mid;
-	bh=CpxPwjwc+ZYwJ/LLzCiMIrB17AE2heuOVpqJXUeodI4=;
-	b=xOxcVTpq5LjEVgbwyEfjLuVKtC6lpv0R136oSKkcMkTNgyBdc7V+OuN10rIiPZGeSMf5
-	 s/TbBrPkCQcMeNKGymtnNsAs0Jlez/Mp8FdawAtoa2zZI4dO2FPXCLMRm/Zj147kasTBi
-	 D3SKh+l8yLZXaM1rRwZxePZd625gYxfxyd+oL/+Zxp2q9bFNmfDDPpuorXByOVrRfu9a7
-	 Qun7cE94ca7JAAuVjsLOhd6ZUwwSIOqoY4Td1eb3yp9FEA6nykEsg1eLFhlvBL7zRhn7T
-	 QFdosPp6Zhft8qFiTjpeyKoGAE778V/7RuhJcvtrC4gA+iCM7vpa7CcMJdEfdAoQAyw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794821090;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=2e8OfKa72MuG5l//Gx+5Pa5JLpMbf0mtMmXDlvYAirg=;
+	b=QXj5CEGoqaqtrx3JDPDMMgeLmqijLeLE6ayCQlKyVHwqhftlPioRbc5OT+N7FWNc5uZA
+	 C0OzYlO7aFhE+GLaS9x6MLUZkg8OVnDjD1WOB5ULr8y6KxkEHKNTwkNHacTJ2lGyXwCxT
+	 vJgChJ7hIKLDcHm+d82rrpQp7ovb699bs/Zv28JcCSH18gx0S4h1Q/vkxowqZoVT2wR7a
+	 36QPfF5Lqvu2S46tLDTHno9GBZ6rxbl+aUx+0xYNav/8nRduJ0eV6CkIunh1m5Bqy9ShB
+	 RLOuflxtSEkrJ5H+9cD9To/3FkbV2wLhsZjFnt4GyyD8+VGrC+Au4EQ1IDdxgPTxUAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=qq.com;
-	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b="OJKud/HL";
-	arc=none smtp.remote-ip=162.62.57.210
-Received: from out162-62-57-210.mail.qq.com (out162-62-57-210.mail.qq.com [162.62.57.210])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=is.s.u-tokyo.ac.jp;
+	spf=pass smtp.mailfrom=g.ecc.u-tokyo.ac.jp;
+	dkim=pass header.d=is.s.u-tokyo.ac.jp header.i=@is.s.u-tokyo.ac.jp header.a=rsa-sha256 header.s=google header.b=Mnprid53;
+	arc=none smtp.remote-ip=74.125.82.180
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A79606A329
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 08:47:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 18A79606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28CFF606A329
+	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 09:24:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28CFF606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=is.s.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=g.ecc.u-tokyo.ac.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=OJKud/HL
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1794818840; bh=CpxPwjwc+ZYwJ/LLzCiMIrB17AE2heuOVpqJXUeodI4=;
-	h=From:To:Cc:Subject:Date:References:In-Reply-To;
-	b=OJKud/HL7j3AnzRax8m47eAu9osWYEA4hfCKkJQpqt3iFgy/KiU4p9pPmfdsLF75y
-	 6OwRFZ2cRJH35VbU8vV+wUyyP9UYhkbPOMwStU2yoI8oumhNeTMyfUMXOU1zbC5rU0
-	 9djvJReELh5QqaeO+SNtYNW+SdtXgvrj07GB859o=
-X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
-X-QQ-XMAILINFO: MOlL/R5ZerVSsEILqNUQZvi905V4kz6vdNEMMv4LhLrR/Cm4NYPbmgljNldmcC
-	 Oyh7P0HeRQvjyE27KO9DYiUjUAzsD11Q115RnJLJnOR+fNuqMeDJ+FRn1aMZjX1x3ZktrvASlJHLG
-	 iON4r1macmMCK5h62McjsDDRHjSmopwPTPypik3ECCntbE3qPlVptwEnGx23XTPTYm73JoXRtmZ6G
-	 E4vi9RnuwUdI9M39DAP/KRac/YVWPsDqidzWhQUzfC/cMs8YlhALh3Da/JqssVVP1IsOz5MnkvzKh
-	 XSHU8t6vSq3jA+6F1EoZAfLGYnd37rhvvmIlHzoo/xfDLcrNYhTH5iRu3ghCuatnfnNwc6+5qhSvA
-	 gImX9z2Y1lzoRAyvYcegHPFgHYhVqh1bcjnxqSpR/B9xhkAxFiJOgZAVt2gITV5gsi4c214O6CeA+
-	 nn43qs2No947Yb+pZYWSU/kL3HC3y7mHw5Db2nDaIRNaCBkB9jECeact6DIPO0kXJoQTJlCCoh4XP
-	 0R0lhFRjXyKMnA7csfrkULzgl7kAvb5Fz472M7JKLrkdCncp9mPWCB/tE9D7jQAJNkG3RKXmnAcdL
-	 FUaQ4S2EPF7Ga9MzSoM+u53x+Hc+uSdckpnkGMyngLdxbYym14jsKqydfjYWMGRx2V4TXO8CrqV1N
-	 V57joEdo7m2sYdlmSFObEU+pQGz8TtP7VFCNt5/7FiLgRujLMJekqjLwzRqmzt9tbphlwwExvNkvm
-	 uN72DVmwIkk4p3aG896sBzJ9RBhxjE9GLsonJO4//IgxGig723+FtW+5NyuAcrWLGpmxklUiAWFdk
-	 7JTeDq5fZlAlHh1sAW/S5uU17c3cz/mU95uPwCNJcIGRfKt5VxLl8C07ZmcCd0f5RSkEMqF+guPf8
-	 4cNfb0C/h4VddRGv1LBR+lpRvnlBfyX3rTzKx4EpNsZZyjZLt0nJJb/d0S8isvNDp/lqtqULJW+VM
-	 VVzpxDk3K7wqZde04guvyc5AwVeKqMk1ONyeiE0TXMUZ2Fs5HxA/y9lQPDeWMg2jEYxLPvZ/WrvQ3
-	 51Gv/z6JTGgUiyQoIK+Of+v8AeYMNgg7+jaZlRN61B/5v0/08IlJq5Nu/TlzPSMVs8BUIKP2NaWQo
-	 uIvkNW0MpSCoPQ==
-From: "=?utf-8?B?Q29uZ2ppZSBaaG91?=" <zcjie0802@qq.com>
-To: "=?utf-8?B?TWljaGFlbCBTLiBUc2lya2lu?=" <mst@redhat.com>
-Cc: "=?utf-8?B?bmV0ZGV2?=" <netdev@vger.kernel.org>, "=?utf-8?B?amFzb3dhbmdpbw==?=" <jasowangio@gmail.com>, "=?utf-8?B?ZXBlcmV6bWE=?=" <eperezma@redhat.com>, "=?utf-8?B?eHVhbnpodW8=?=" <xuanzhuo@linux.alibaba.com>, "=?utf-8?B?YW5kcmV3K25ldGRldg==?=" <andrew+netdev@lunn.ch>, "=?utf-8?B?ZGF2ZW0=?=" <davem@davemloft.net>, "=?utf-8?B?ZWR1bWF6ZXQ=?=" <edumazet@kernel.org>, "=?utf-8?B?a3ViYQ==?=" <kuba@kernel.org>, "=?utf-8?B?cGFiZW5p?=" <pabeni@redhat.com>, "=?utf-8?B?aG9ybXM=?=" <horms@kernel.org>, "=?utf-8?B?dmlydHVhbGl6YXRpb24=?=" <virtualization@lists.linux.dev>, "=?utf-8?B?bGludXgta2VybmVs?=" <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] virtio_net: RX stall caused by masking callbacks after NAPI ownership release
+	dkim=pass (2048-bit key) header.d=is.s.u-tokyo.ac.jp header.i=@is.s.u-tokyo.ac.jp header.a=rsa-sha256 header.s=google header.b=Mnprid53
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-37986eb6fa2so3878228eec.0
+        for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 01:24:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=is.s.u-tokyo.ac.jp; s=google; t=1794821089; x=1795425889; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=2e8OfKa72MuG5l//Gx+5Pa5JLpMbf0mtMmXDlvYAirg=;
+        b=Mnprid53+pL613XI6LrMr8eaKOuD+q/iF8MO5mXO80z1sap/YkV/i/h+X18nzHrQUH
+         6bYLREe81MA5uGIQKyqe+KUcjM7L8EEgXgZWzqNBMe5M/WhkuPKOWa5NX6nUl1xTzLKi
+         t1Bqj1dRs+IKiU1mpgfMsBrBsAF97inWKA8h4SBxMedbgzprwL3mgkncvd15tCoMJWkx
+         SZLgOfBnWHXhkluctzWEfeEztAyBpsvY1+j1COJMTkwAy/m6wd7Mve4dCzF7Wjj12ffT
+         yvd3Qf+w4zc0QUwgLwUfWr/AKfc0n8ViN315vGRBdahNXP0LRpYBx1+d5dzQyI/1Hdl+
+         OmaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794821089; x=1795425889;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=2e8OfKa72MuG5l//Gx+5Pa5JLpMbf0mtMmXDlvYAirg=;
+        b=Z0IYtjOcsZqpzDmP+isHy0833ye1eXgJ6FAGNMv2XxEBn3OqBA05y0oPoiERJQyJ77
+         5fBnCjqym4XLGWPGeXy07vpn9X5x5rdpk2O1bs5EqqinnuvlqbP8mghfLalRlW2PjaFx
+         Z6CP6Gswn2nBM1EdQA0/vycRzI08qdzSxqCskY40JgEQC9vZXZF4eWsOBIKaNqgsMoEJ
+         +gwEWEYRAK+F9y6M5hLfp9yui23BpUfnKNbiPVobe8UfaZqIkNxuHc3eeiuvq//cWhiR
+         JNyCGNzwo0u75QRcB+k06lZCIsucAj34Nkxdxz9h6Uqt7vHyuwRBVfT086Q8LbWUuQOR
+         5kwg==
+X-Forwarded-Encrypted: i=1; AL+hErG9dbEvevcNS4mDDmzpLTVDzzHDJUkNf767iy9IY7hYg3fQQHD/YePor99piG4bCA8B1xT1zCRCxkyTz5GbaQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8IDFK55xlFW31tSBzIYCnNuMot7DbudGGTtVlL6xItbkCC725c
+	y/7+tWaGBOGNPhnSnJ7i71RlmrGzN34wi5UxMYgejAIFjlBeRj3LBqC6+i5OfOW9iA==
+X-Gm-Gg: AYBFou0nU0n59jg77yrgE/GvfLuloo8ecUsIercEi3r/tWtPgOwXXbL/4kNm7HMUwsf
+	K/nQSs/3ez0DFNtpLttLaT4rKIU41dd+1Osng8PGyjdtEcvuKMEKX3hw9sVoB8PkUwEkO/757C6
+	9KE6wvzNjYFUpG/Z1kCzcF06SMWtPygUUEmrwpYqASdHT0cKq514sZBcQHqeKqO+mmDlLWcC5Zd
+	vq4ACdVnq3xBwkp+sCfV9sea7KQr1mk+iKuPbGpRpcAOa5wS7I4R/eL7Z/po0SvUrpC5qdgxojT
+	shfpA6eo3b9GYV0ro//91BmCJJhKk/VdX4o1tZAD57jEwM5se1zdT0s7OsMxA2Qam5iVzoZmbeF
+	p9RsFYynfdA+ScsrESU+QzlRD7vuUi0ch+sNP7ZtbeCD7bI2PtxACTUJovkTGjnh+Yh34Na9ylt
+	yvv7BleZ943OHBEN21VYCOnl6dHWAzieqJKUJed4HKsekmLsHEYx6qI8Z5LA+ghfRbolPEharmK
+	hJzsB0GUIA281b03TQX5V3xoQGJ6wA4u+zq3xAz9VDlno6SjxXb0RgsV4ik8pbhWf8ZhsVQIuMq
+	xRATCeRKUW5i+lZsah+4BPl14vS0RpUqJPZLCA==
+X-Received: by 2002:a05:7300:dd03:b0:351:2958:1740 with SMTP id 5a478bee46e88-379681c67bfmr9514769eec.37.1794821089011;
+        Mon, 16 Nov 2026 01:24:49 -0800 (PST)
+Received: from wang0.localdomain ([133.11.33.33])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37956bad6casm32056314eec.26.2026.11.16.01.24.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 01:24:48 -0800 (PST)
+From: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Michael Bommarito <michael.bommarito@gmail.com>,
+	Takahiro Shinagawa <shina@is.s.u-tokyo.ac.jp>
+Subject: [PATCH net v3 0/4] virtio_net: fix out-of-bounds accesses and a heap info leak via the device stats reply
+Date: Mon, 16 Nov 2026 18:24:41 +0900
+Message-ID: <20261116092445.3391334-1-lian@is.s.u-tokyo.ac.jp>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -68,45 +105,35 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Date: Mon, 16 Nov 2026 16:47:17 +0800
-X-Priority: 3
-Message-ID: <tencent_94953697D2BA27275BEF7A26404E69800605@qq.com>
-X-QQ-MIME: TCMime 1.0 by Tencent
-X-Mailer: QQMail 2.x
-X-QQ-Mailer: QQMail 2.x
-References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
-	<20261115175445-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20261115175445-mutt-send-email-mst@kernel.org>
-X-QQ-mid: xmsezc52-0t1794818837tna47ww5b
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-VHJpZWQgeW91ciBwYXRjaCB3aXRoIG15IGVhcmxpZXIgVENQIHRlc3QuIE5vIG1vcmUgY29t
-cGxldGUgTkFQSQpzdGFsbHMgc28gZmFyLCB0aGFua3MhCgpCdXQgTExNIGZvdW5kIGFub3Ro
-ZXIgcG9zc2libGUgaW50ZXJsZWF2aW5nLCB0aG91Z2guIEkgcmVwcm9kdWNlZCBpdAppbiBh
-biBpbnN0cnVtZW50ZWQgS1VuaXQgdGVzdCB3aXRoIGluamVjdGVkIGRlbGF5cywgYnV0IGhh
-dmVuJ3QgaGl0Cml0IGluIHRoZSBUQ1AgdGVzdC4KCldpdGggZGVmZXJfaGFyZF9pcnFzPTEs
-IGl0IGdvZXMgbGlrZSB0aGlzOgoKQ1BVMSAvIG9sZCBwb2xsICAgICAgICAgICAgICAgICAg
-Q1BVMiAvIGJ1c3ktcG9sbAotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgICAtLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpDb21wbGV0ZTogY2xlYXIgU0NIRUQsCmFybSB0
-aW1lciwgcmV0dXJuIGZhbHNlLgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBU
-YWtlIE5BUEkgb3duZXJzaGlwLgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBF
-bnRlciBidXN5X3BvbGxfc3RvcCgpLCBjbGVhcgogICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBJTl9CVVNZX1BPTEwuIFRoZSBmaW5hbCBwb2xsCiAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIGVuYWJsZXMgY2FsbGJhY2tzLCB0aGVuIHBhdXNlcwogICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICBiZWZvcmUgY29tcGxldGlvbi4KV2F0Y2hkb2cg
-ZXhwaXJlcywgc2VlcwpTQ0hFRD0xLCBleGl0cyB3aXRob3V0CnNjaGVkdWxpbmcgb3Igc2V0
-dGluZyBNSVNTRUQuCkRpc2FibGUgY2FsbGJhY2tzLgpUaW1lcj0wLCBTQ0hFRD0xLCBzbyBz
-a2lwCm5hcGlfc2NoZWR1bGUoKSBhbmQgZXhpdC4KICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgbmFwaV9jb21wbGV0ZV9kb25lKC4uLiwgMCk6CiAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIGRlZmVyIGNvdW50PTAsIG5vIE1JU1NFRC4KICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgQ2xlYXIgU0NIRUQsIHJldHVybiB0cnVlLgogICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICBRdWV1ZSBpcyBlbXB0eSwgZXhpdC4KClRoZW4g
-dGhlIGRldmljZSBhZGRzIGEgdXNlZCBlbnRyeSwgYnV0IGNhbGxiYWNrcyBhcmUgc3RpbGwg
-ZGlzYWJsZWQsCndpdGggbm8gdGltZXIgb3IgcG9sbCBwZW5kaW5nLgoKU28gU0NIRUQ9MSBh
-dCB0aGUgY2hlY2ssIGJ1dCB0aGF0IHBvbGwgaGFzIGFscmVhZHkgZW5hYmxlZCBjYWxsYmFj
-a3MKYW5kIHdvbid0IGVuYWJsZSB0aGVtIGFnYWluIGFmdGVyIHRoZSBvbGQgcG9sbCBtYXNr
-cyB0aGVtLgoK
+With the statistics reply, a device can make the driver write past the
+ethtool -S output array (patch 1), leak stale heap or loop forever
+(patch 2), and read past the reply buffer (patch 3). Patch 4 returns an
+error when the statistics command fails.
+
+Claude Opus 5.5 was used to audit the driver and draft the patches.
+
+v3:
+- Rebase onto v7.4-rc3.
+- Add patches 2 to 4 for the issues raised in the review [1].
+
+[1] https://lore.kernel.org/all/20261110001659.1654289-2-kuba@kernel.org/
+v2: https://lore.kernel.org/all/20261102205550.4148064-1-lian@is.s.u-tokyo.ac.jp/
+v1: https://lore.kernel.org/all/20261022182710.2055771-1-karin0.zst@gmail.com/
+
+Lianjie Wang (4):
+  virtio_net: reject stats replies for queues outside the request
+  virtio_net: zero the stats reply buffer
+  virtio_net: keep reads of stats records within the reply buffer
+  virtio_net: report a failed stats command as an error
+
+ drivers/net/virtio_net.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
+
+
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
+-- 
+2.56.1
 
