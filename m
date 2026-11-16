@@ -1,49 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794825255;
-	b=JEzSS1XdgEZZ4eZ05p0udXguF8X+ry4mxABr1UrAojcqKmdhM0uxrLmCj61P18W6vEqE
-	 OHSXBXKPY87Q/ur3ALRiuNjoii7A19T0tQgr8qEzxndpDm66AlLgnd0/k0rNaLPkf5WxP
-	 jSaMDZeZBd1ZvItU5XJo09Y8iLUVB0YTjCZdjN8Y4I7ZHZ6esaTxLGI+0I+UZI3uFbIvu
-	 +fMNrLBqtKVOcqe422qr9aKZY8f6mKQFMzjN0o1XNYBtlWBPW609S6J+ij4k4TPdlNFh9
-	 QJ9b4a+vODxhWmp+AI0iz/0TuW/ihqgO08ki9QNKPHykRWG+SuvjS5C26lVCXRuiyDQ==
+	t=1794825356;
+	b=5NKj+8kCT0vVfxxp+jXRnHYNtMrC/2XwvRuqeu+nccOjmGevAxSExuCbIfSuhKMTIr21
+	 9fj7Jksfwuo2gApXjuwm4toa4apB0gokciHEWR0WWPaqVDgWS/evK/6qbg25IOK6hw4ai
+	 E08mdew5nwNPsdRuLFJXJOV9Bf1tApzbxCih3jTp10GEzmFHaUjix5QA7ugCnzS7xWOu7
+	 lwHuhOFv4DRCRYRlbglYXsNt0fltCwlfm/Scp9G9ZSfxcwfunOXgyeny/9OxSGXKOKLKQ
+	 VPrQO9JfH6kUhXin26Am7N8KfxPQf8al4eu8qoNa+YplnjhF5Tfu01nMkiwt+Y1l2Pg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794825255;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=kwWL85DvbL7XKrUJDk10MPgh9+qW3+FduSxZ9X1zd7M=;
-	b=UXj8cis+Dm8bsatzlRPGPwdQxH5HMNsi+TztIiXKOlA6hJVNRpbb38szY2fxNcUxAytE
-	 K0NVsb6mzbFt1Tbz6n7g/X0sjGYo7FfE+IS69zRjCxj2m7gTOCCfu3MdXnYsFVknhyZ9V
-	 5WUhERNHt5y6MxQd9jSyjbl7OWIr0SwcXzP8aJJYQrRIpvocfU2Sr6fFP1s7UbI3knasi
-	 xiif5UnnT6apRsUAq7vmU50ZP4UT5bC4uz5setz6bBfehp3Jv2yK6AueBF+OELyA9J+Xf
-	 mI4M0nuiavB8OJseNnte0g2eOsb/nQIlVyj3HGaJ2lTsSk9izBXwOC6AnQ9bNFpRMUw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794825356;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=yJIFDAZTBBUc/zWvcjI+JoSUsDm2VmZ4BHMBL+zYoOg=;
+	b=JlzsWN0aYZb+Uu/J4Bb3pkxxvS5/oE4kXRb6wGNZHi4ctl8sTAZOlbp6nCTxes5pKnll
+	 523k8g4Upd3qWJBvvJhP2r9A8+sEJcdIkd2G8fda0NMXnh01M9wzv5GEQuiMd6TPvIg0T
+	 xbFjGNqJyuIe40/eRSO0WAIB5tliwOPhHxFbyz0cs74/imrJlUu51PHaF800bLdYJqPF8
+	 AOFA+8qpxycPuzd2eKTuDmQIzanfsY+ks/Ov8WD4NtRFtYHIydL4qs/xDfNcDKuNdMRcT
+	 7G8vMD66m+5Vx2ucaHbU5z3yEUvpC3gLtgnm5FbPWh/aIG23uiKfCmLxvA4dmltdG1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TyZDKmkh;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Zi9FfVIk;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53355606A31C
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 10:34:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD9E2606A330;
+	Mon, 16 Nov 2026 10:35:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TyZDKmkh
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9383C1F000C5;
-	Mon, 16 Nov 2026 10:34:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Zi9FfVIk
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E732E1F000C4;
+	Mon, 16 Nov 2026 10:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794825255;
-	bh=kwWL85DvbL7XKrUJDk10MPgh9+qW3+FduSxZ9X1zd7M=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=TyZDKmkh6Sn4ckfRxNiEQvxZvHFrEpXcLHBII5UwOhMPUHnzTaCVfTfAHRqTGmCzj
-	 WsRWlFjctmPrZQGcKcA6cfuyqtKcI0XtwPzAnssmmnIuE7LEpZIs3jvNr35lrskNE9
-	 8JRPObz9sNK9m46BQ0AepmUSzSBkYK/YgIp0WNgrqdO4h0YQJB0lCahCkiU78znFRJ
-	 0RUhgPWnZ1tqi2k2T8nUtWarBr/QPHXT3vJ162canEAvwKguw06XMXzsTQ1ojh1V76
-	 7dpas3YKyO/cIPY0g8FAxyEwOV4NEs8AXmKH1pmFAKjbQMkNTXK0foQZF8o6xKgvth
-	 knr2O79OPa71g==
-From: Maxime Ripard <mripard@kernel.org>
-Date: Mon, 16 Nov 2026 11:31:17 +0100
-Subject: [PATCH v2 61/64] drm/virtio: Switch to
- drm_mode_config_create_initial_state
+	s=k20260515; t=1794825356;
+	bh=yJIFDAZTBBUc/zWvcjI+JoSUsDm2VmZ4BHMBL+zYoOg=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=Zi9FfVIkSFfbDd7ubsUktRGMsIHDCNUtu3OnboGf8dkzTfs49fP0b0t5egcZr7qsl
+	 FgA4oO2ko3m9qeqW79ZZQsdSpH+mKFLNJXxWXCgGvOFUVIRUN40XwJyyUW6zpoa7Fl
+	 6S34lMcF5leGhdSQXICkEZ+lQOkiltt65hmsc5eRiBg/SlBDA0grcBIgrD7nl5JEfe
+	 7J559ahYAea0l7MzcGcOVYrynXKwS3nFU08qGujnDW7or4fJpYwf9CgDdIHdGP8ljV
+	 WJj6n/ndblsiL6B+v70t1tWG1KZsyump1VDDjlpWZCTrv6SGVrKYkhz91SmFLwfPB0
+	 yENSLcOVbymag==
+Subject: Re: [PATCH net] vhost/vsock: Fix socket state constant
+From: netdev-bot+sashiko@kernel.org
+To: mhal@rbox.co
+Cc: stefanha@redhat.com, sgarzare@redhat.com, bobbyeshleman@meta.com,
+ mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com,
+ davem@davemloft.net, kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kuba@kernel.org
+Date: Mon, 16 Nov 2026 10:35:55 +0000
+Message-ID: <179482535544.3136.14958523425614003338@kernel.org>
+In-Reply-To: <20261112-transport-reset-state-fix-v1-1-5698375f52a9@rbox.co>
+References: <20261112-transport-reset-state-fix-v1-1-5698375f52a9@rbox.co>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -53,72 +63,169 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-drm-no-more-config-reset-v2-61-0bb471f4d1e0@kernel.org>
-References: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
-In-Reply-To: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
- Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>, 
- Chia-I Wu <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gerd Hoffmann <kraxel@redhat.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- virtualization@lists.linux.dev
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1504; i=mripard@kernel.org;
- h=from:subject:message-id; bh=/KWCci4W0cvR7zHEBm01obn96MRNEVuD0Pd2PNYCxts=;
- b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFm/bkcb/BFLf1nB+Etw01T5Wf69bJ4GlmFum2I/fviae
- 2GmR7B+x1QWBmFOBlkxRZYnMmGnl7cvrnKwX/kDZg4rE8gQBi5OAZgIsxVjfapDj7UIR4LyZLcD
- R74c/fKJZclPpo+Jp79H2ltGP56+Q5F1m6sHn4y2+/6g+Qeuqb9vZmz4bDwjxyJFYvrGv5WdZ5u
- +Riy3uN3BzsEa2/nBfad264KCg1WmV6wtX/VtPjRx7lPd5wsA
-X-Developer-Key: i=mripard@kernel.org; a=openpgp;
- fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 
-drm_mode_config_reset() has a dual role: it creates the initial KMS
-state at probe time, and resets hardware and software state during
-suspend/resume cycles.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider.
 
-Since the two roles need different behaviors (notably for objects like
-drm_private_obj that must persist across suspend/resume),
-drm_mode_config_create_initial_state() was introduced to handle only
-the initial state creation at probe time.
+Critical: 0 · High: 1 · Medium: 1 · Low: 0
 
-Switch to drm_mode_config_create_initial_state().
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-Signed-off-by: Maxime Ripard <mripard@kernel.org>
----
-Cc: Chia-I Wu <olvaffe@gmail.com>
-Cc: David Airlie <airlied@redhat.com>
-Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: virtualization@lists.linux.dev
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+- [High] Writing TCP_CLOSE plus sk_err = ECONNRESET in
+  vhost_vsock_reset_orphans() (drivers/vhost/vsock.c:792-793) brings…
+- [Medium] vhost_vsock_reset_orphans() now moves every orphaned connected
+  socket to TCP_CLOSE unconditionally, after setting SOCK_DONE, even…
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index f0ed9bd27a91..dfc3aed03b8e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -394,12 +394,11 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
- 
- 	ret = drm_vblank_init(vgdev->ddev, vgdev->num_scanouts);
- 	if (ret)
- 		return ret;
- 
--	drm_mode_config_reset(vgdev->ddev);
--	return 0;
-+	return drm_mode_config_create_initial_state(vgdev->ddev);
- }
- 
- void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
- {
- 	int i;
+--
+
+vhost/vsock: Fix socket state constant
+
+This patch replaces SS_UNCONNECTED with TCP_CLOSE in
+vhost_vsock_reset_orphans(). SS_UNCONNECTED has the value 1, which is the
+same as TCP_ESTABLISHED. So far, orphaned sockets have been left in the
+established state after the vhost device was released.
+
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index 88a310390eb0a..fd224f7681d92 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -789,7 +789,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
+>  
+>  	sock_set_flag(sk, SOCK_DONE);
+>  	vsk->peer_shutdown = SHUTDOWN_MASK;
+> -	sk->sk_state = SS_UNCONNECTED;
+> +	sk->sk_state = TCP_CLOSE;
+
+[Severity: High]
+Can this let connect() reset a socket that is still linked in
+vsock_connected_table? Commit 4f6ac74fa594 ("vsock: treat TCP_CLOSING as
+once-established") fixed that problem for the other close paths.
+
+vhost_vsock_reset_orphans() runs without lock_sock(). Suppose it runs
+after virtio_transport_recv_connecting() has handled a RESPONSE, but
+before the waiter in vsock_connect() gets the socket lock back:
+
+vhost TX worker
+virtio_transport_recv_connecting()
+    sk->sk_state = TCP_ESTABLISHED;
+    sk->sk_socket->state = SS_CONNECTED;
+    vsock_insert_connected(vsk);
+
+vhost_vsock_dev_release()
+  vhost_vsock_reset_orphans()
+    sk->sk_state = TCP_CLOSE;
+    sk->sk_err = ECONNRESET;
+
+The waiter then fails the TCP_ESTABLISHED/TCP_CLOSING check and ends up
+here:
+
+net/vmw_vsock/af_vsock.c:vsock_connect() {
+    ...
+	err = sock_error(sk);
+	if (err) {
+		sk->sk_state = TCP_CLOSE;
+		sock->state = SS_UNCONNECTED;
+	}
+    ...
+}
+
+connect() returns -ECONNRESET, but the socket is still in the connected
+table. With the old value (1 == TCP_ESTABLISHED), connect() returned 0 and
+the socket stayed SS_CONNECTED.
+
+After that, ordinary API calls seem to be enough to insert the socket a
+second time:
+
+1. A second connect(): sock->state is SS_UNCONNECTED, so it does not get
+   -EISCONN. vsock_assign_transport() returns early because the transport
+   is the same. That skips both vsock_remove_sock() and
+   sock_reset_flag(sk, SOCK_DONE).
+
+2. shutdown() while the socket is SS_CONNECTING: vsock_shutdown() calls
+   sock_reset_flag(sk, SOCK_DONE). Without that flag,
+   virtio_transport_recv_pkt() no longer drops the incoming RESPONSE.
+
+3. A RESPONSE from a guest with that CID reaches
+   virtio_transport_recv_connecting() in TCP_SYN_SENT. It calls
+   vsock_insert_connected() a second time.
+
+__vsock_insert_connected() then does an unconditional sock_hold() and
+list_add() on a node that is already linked, which corrupts the bucket.
+
+Any later walk of that bucket under vsock_table_lock can then loop forever,
+for example in vsock_find_connected_socket() or
+vsock_for_each_connected_socket(). With CONFIG_DEBUG_LIST it hits the
+list_add double add BUG instead. One socket reference is also leaked.
+
+Only the first step depends on timing, a race with VM teardown. The rest
+is normal use of the socket API.
+
+> +	sk->sk_state = TCP_CLOSE;
+
+[Severity: Medium]
+Does this drop data that is still queued in the socket's rx_queue?
+
+vhost_vsock_reset_orphans() now sets SOCK_DONE and then moves the socket
+to TCP_CLOSE unconditionally. __vsock_connectible_recvmsg() then returns
+early without dequeuing anything:
+
+net/vmw_vsock/af_vsock.c:__vsock_connectible_recvmsg() {
+    ...
+	if (!transport || sk->sk_state != TCP_ESTABLISHED) {
+		...
+		if (sock_flag(sk, SOCK_DONE))
+			err = 0;
+		else
+			err = -ENOTCONN;
+
+		goto out;
+	}
+    ...
+}
+
+So recv() returns 0 (EOF), and sk_err is not reported there.
+
+The other close paths only leave the readable state when no data is
+pending:
+
+net/vmw_vsock/virtio_transport_common.c:virtio_transport_do_close() {
+    ...
+	if (vsock_stream_has_data(vsk) <= 0)
+		sk->sk_state = TCP_CLOSING;
+    ...
+}
+
+hvs_do_close_lock_held() in hyperv_transport.c has the same check.
+vmci_transport_handle_detach() skips the check only on the host side,
+where queue-pair data can't be read once the VM detaches. With vhost, the
+data is still in host-kernel skbs and can be read.
+
+One way to hit this:
+
+1. The guest writes data and sends SHUTDOWN.
+   virtio_transport_recv_connected() keeps the socket TCP_ESTABLISHED
+   because data is pending.
+
+2. The VM exits, or the VMM closes the vhost fd.
+   vhost_vsock_dev_release() calls vhost_vsock_reset_orphans().
+
+3. The host application's next recv() returns 0, and the end of the
+   stream is lost.
+
+With the old value the socket stayed TCP_ESTABLISHED, so the application
+could read the remaining data before seeing EOF.
+
+On the guest side, virtio_vsock_reset_sock() also sets TCP_CLOSE
+unconditionally on a transport reset, so this may be the intended reset
+behaviour. It is still different from the RST path, which keeps queued
+data readable.
+
+Should vhost_vsock_reset_orphans() check vsock_stream_has_data() the way
+the other transports do?
 
 -- 
-2.56.1
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261112-transport-reset-state-fix-v1-1-5698375f52a9%40rbox.co
