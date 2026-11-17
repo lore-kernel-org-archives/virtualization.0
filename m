@@ -1,102 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794921789;
-	b=xpa406G/LYu21aRx/Xj+oYFJxWUk9qUFVjK8NpsUphPxzo8M4j0+cqaSvUw1vlIaG+Ea
-	 uad7K7JCTzw8ZFJ4KZpByvyhC47HS3Lg38DE+Zuughrt0IBiuL65hJWbic9dkBLv3mHBI
-	 otXlG2hQufvFQcEuPqKwzP2pzfN7grnGmAOqX07/OGHDS4l90fzbcmnehytNw/E5nirfC
-	 iILdCRfgKR2jShPkP2EB/wWasMtiS64ZbgAVTfYbsbUAAUXjVuyNcJpPi8V4On1oLKiGW
-	 VzUrei4hRgEvSSHvFzt/OD1en5AAdt0GVk8kXxsstKK1xbdPB2WRVaibNxL6THPFLCw==
+	t=1794927202;
+	b=b7kwwGXVLAoqQ9NbOLGBApw6fa2JoD3aqA58m+ELqc46glXQkah05NtAsJvr1tj86NVT
+	 wBhDGY9kRRCLW9D0/X3/EzX/4/RgFQgsi42NZsgsnzFS4DTJoAx5oPbvW9iLgrKvleLAA
+	 +fd0y3iFqGtjYMCsBHHTJy9dgyAAC+OfezehPlffv7o3j254urBmlTPlPygJ/j0nwRFI6
+	 8gb2+ly8kd4vuh3FXXe9t8V0EdGRdmD3P1csxLdiv44MQMXk9yU8RofwgRgiugGRBqZa1
+	 Pr0K/y8GxXCuo6/DEua+e58K3LMSEj60T5Xxzo/bt21Dhd1HTZj/lQps/oTO3rJx/qQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794921789;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Spamd-Result:
-	 X-Spam-Score:X-Spam-Level:X-Spam-Flag;
-	bh=rcC5LgWPdWSZHMv7xIAt2KV/AX/DvKKoKQ8foLqzlw4=;
-	b=aKXbh+W1Q3mH5ylJaN1UfgEuLGuUIqoST0n31pnyShGyB9usEv+C/spHdbo5RzNGudU3
-	 kVtOu4ATtATtGDb5AckuzjgmIbbRqGXiGRskfoJdn2Gkxur6q2aZgw/golwP+oCiNuGwN
-	 dsmW5q3/rLjy90hgy11FfXKjIW6U7CuFJ9vxahP/+LVYMb48ay1N7EvL7HefmQRw7XJDT
-	 NYvhJNuTMvV3TXE8WLWUcs6sEm/y0FHahSNYIfV1gPFNSTvVQe1GKy6QAuPnQIo0756Tw
-	 Te+gmloa4Hd/NGGAf6ryUSSlq3zHnEfjnVxc0Q752deETaIL3FvwCkHwlRiDVUTgcVA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794927202;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=LAxy3goky0t3VPjV6FUpbe6k2gJl15O6ptslh5cvBS4=;
+	b=vtmQyLbwgiqjU9tgHYvSBmQjdSVUtyscuIYY2j2sfu7ccpgE3Hg7zRrZJes6RzCcYqZf
+	 Su/8gDhuKydUuDRknVJlrh7itYYRgK2eZKWbmDVuzQabMd1AmT9NfbrBCOMCYq53Wd/aU
+	 3Kbs1Vid0uentFy3GPTggre4Jvzg1O6fmt/NSEbkCWVhzkjk1oEJwKpuk0nGtjlgbgWlQ
+	 Oe8QMajaoBXt9rfUT2xJ0Qnuu4C4xiOqsBoCK9qR8TipIkdkSOMmwAir0JJYtVGny7BFg
+	 /6C2hJd+KkVhdRCCH5GjAuQp9H8OqUtJwwFFIs3ah7AyQc4QoTrif2CFGi/+xgLEbnQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=lTDn19do;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="w/rpPAMl";
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=lTDn19do;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="w/rpPAMl";
-	arc=none smtp.remote-ip=195.135.223.130
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=C0FblvoP;
+	arc=none smtp.remote-ip=209.85.216.45
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC231606A323;
-	Tue, 17 Nov 2026 13:23:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC231606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49A24606A33A
+	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 14:53:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49A24606A33A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=lTDn19do;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=w/rpPAMl;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=lTDn19do;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=w/rpPAMl
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 1107222317;
-	Tue, 17 Nov 2026 13:22:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1794921779; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rcC5LgWPdWSZHMv7xIAt2KV/AX/DvKKoKQ8foLqzlw4=;
-	b=lTDn19doBb9OLIgrH9s1ydM77pm0B1t2S37Nl82CLFgSaf3S4En1q9hthKer8wb9gkaT7Y
-	/Kro6o+bEdwOXoy7w3MkaOyuuUXbNMeIFCaiwwPj2Cj8JhK19MtJ4nrfUdPmxw+1z+3HJM
-	zQ+mW7XQ9Ufy2JUUHRhDf/9PG+BZ7BM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1794921779;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rcC5LgWPdWSZHMv7xIAt2KV/AX/DvKKoKQ8foLqzlw4=;
-	b=w/rpPAMlvECO03bBuWSR5aJcmVie5v1W1Q6fU4W8MSpK9ZAUZCLJjaH840/cVShHHDiHCI
-	2mHuazqbaSOhJ+Aw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1794921779; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rcC5LgWPdWSZHMv7xIAt2KV/AX/DvKKoKQ8foLqzlw4=;
-	b=lTDn19doBb9OLIgrH9s1ydM77pm0B1t2S37Nl82CLFgSaf3S4En1q9hthKer8wb9gkaT7Y
-	/Kro6o+bEdwOXoy7w3MkaOyuuUXbNMeIFCaiwwPj2Cj8JhK19MtJ4nrfUdPmxw+1z+3HJM
-	zQ+mW7XQ9Ufy2JUUHRhDf/9PG+BZ7BM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1794921779;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rcC5LgWPdWSZHMv7xIAt2KV/AX/DvKKoKQ8foLqzlw4=;
-	b=w/rpPAMlvECO03bBuWSR5aJcmVie5v1W1Q6fU4W8MSpK9ZAUZCLJjaH840/cVShHHDiHCI
-	2mHuazqbaSOhJ+Aw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1A1BF1334C;
-	Tue, 17 Nov 2026 13:22:55 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id jinhLy9V/GobdgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 17 Nov 2026 13:22:55 +0000
-Message-ID: <47f0b548-2ce5-4a71-864c-7c98c267c666@suse.de>
-Date: Tue, 17 Nov 2026 14:22:55 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=C0FblvoP
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3b0e0e65adbso2357172a91.3
+        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 06:53:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794927202; x=1795532002; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LAxy3goky0t3VPjV6FUpbe6k2gJl15O6ptslh5cvBS4=;
+        b=C0FblvoPqe2Xt6053R76s2vFtWJQhoSiKBGRpPRlNnCPkaq9z6gdTkvKr+U383RFMD
+         w8+WSsx7Y2YbGJJ4YT89bN0JhQ/lJFmROXrjsTT2EvaCn1k0TAbQwyFYy5K7Z8rJ63sT
+         1mXbHnC14JZc3MVoftdn3B7RH9mJuzqjZAR69Vqe7BpRzYkgGu6CR+6jV8Uzwo7BkA9n
+         zmjRTDNW+IixH4FpEzU+X8o0N31ir7outF8BwQhINFdeclxO1xi6QLeEMRL0UxI4PBet
+         TMjIawETFch+Amr4aILIXxxcQ8WwaviIgcCzrsvJAdx3PeE5mkMlrMaPKJhfmhDkfRsq
+         2SSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794927202; x=1795532002;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LAxy3goky0t3VPjV6FUpbe6k2gJl15O6ptslh5cvBS4=;
+        b=bMSd89aqP5wKXO6YSgE2ltBTdE7H7BCOrIFIzoO7XDkdljm7s9dLp6EY2OQDQR318T
+         z0vXfTTJrefVN60di8HIEFz4t7p6IEKGYZENglNAMBoi8EpcqTa0wmuyo1VM2JoTwDrx
+         +nj4KVMv55SHZ/gtCLKk0gDhMfK4/f4Vzn7cwmUjFG37l6QBo2MJ8LPAiiL6eyFeInog
+         f/xaxPT0Du3LAC+Htssc1avgFyYJchcXo+uS3j7oQtn2cwA+Pvmw+MGOrfA53nF238Ga
+         ZXyFshxfGe2amz3g96pixLfgdoszF2uPBHRHgW4jklbsOnoCP0tln5T0M/xKaj7Xlp3I
+         y6KQ==
+X-Forwarded-Encrypted: i=1; AL+hErG65VchK6iOH7700qf+fHG6K4IWELlt1Rk1rp/iQAhExsFoRqA2Yb6kNbj7HJ8Zvu3pg2wR7hyb6Q0kOHh6dg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9MijTgvt5vn/mcVtoJCKWSGnta20YydIbY+XAsSMhpAg4dA9/J
+	iwNunAgY07BOaBUeIGZ6gapQaNvkP6V2I8JWNaUfMWNwX6BU1eCQMKKl
+X-Gm-Gg: AZFdTZdt3sa4PbKRZuYntzdOOunu0INYcSRlzN8oa6Hl21jGUypZ2cr15GRLMvwzJ+y
+	N3kFAoxkuOJpyGW/O70+LCxxW80fPIXDdLqUVuLFgRQqGVCchrwYAz3OC5RetO41xKGWW+HXIt4
+	FUgTYH+3Vb/3PFc50Ys5W/cVC4Qls37ps9AQvjmltCILFMUuLI9KIfkswnfFuYnz9AkyXn9J/Zu
+	gvtxmITZ1fEEOmP8vAYQ5AM6fLDiFbx4N3G2PN8PVYJndNuPro3fIIAMFV/DG3mu7btUY1wvYLO
+	sqMumj5xIQRtN1uFw+dUxgDO+Sgrzy9Si6qLy+LoavDscdvGE4pbdL32m27bvV+NH7YN8ZpdxJA
+	1LJJlDkx0S1pUDlMhCRxf58QqI3Ggumxif984pzNZQ1ZlYmTqC/CnNygEyYCrUgOiqnyDwwBOqW
+	fwErpWnM5HgksqfhnPuclHuxuzWIJBuBA1FnueIeWnVcrDoKunUpAH41haV/mNEiQSEvk4MmQao
+	fc/4tVKInIBp+AGBK7vHCl2KZEMcgXf8qSgcmEsiD3Idv0D6gQprfWNmPcrn2YqFulzXZD3dwDy
+	4VfQY0a0pf0bCemCbi237WSel2A57aIcTWDFV+N8lXaZEnnX+j7rqPfe4cSXr+woEBgxnc+boNg
+	URG4WZVawUj0joXgHDoHlxKWHtFVEn3VdqsphJleg
+X-Received: by 2002:a17:90b:3a0c:b0:3b1:7329:a121 with SMTP id 98e67ed59e1d1-3b1b0a0e800mr12479951a91.12.1794927201457;
+        Tue, 17 Nov 2026 06:53:21 -0800 (PST)
+Received: from lwq-System-Product-Name.. ([2602:feda:30:cafe:ec49:29ac:0:f6])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cddc18a2191sm6056636a12.21.2026.11.17.06.53.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2026 06:53:20 -0800 (PST)
+From: Yaohan Li <shunsheng1218@gmail.com>
+To: mst@redhat.com,
+	jasowangio@gmail.com,
+	eperezma@redhat.com
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost: synchronize worker freeing on vhost-net teardown
+Date: Tue, 17 Nov 2026 22:53:14 +0800
+Message-Id: <20261117145314.1092372-1-shunsheng1218@gmail.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,333 +99,96 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/64] drm: Switch drivers to
- drm_mode_config_create_initial_state
-To: Maxime Ripard <mripard@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, Janne Grunau <j@jannau.net>,
- Sasha Finkelstein <k@chaosmail.tech>, asahi@lists.linux.dev,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Alex Deucher <alexander.deucher@amd.com>, amd-gfx@lists.freedesktop.org,
- sashiko-bot@kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
- Russell King <linux@armlinux.org.uk>, Dave Airlie <airlied@redhat.com>,
- Jocelyn Falempe <jfalempe@redhat.com>, Alim Akhtar
- <alim.akhtar@samsung.com>, Inki Dae <inki.dae@samsung.com>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Kyungmin Park <kyungmin.park@samsung.com>,
- Peter Griffin <peter.griffin@linaro.org>,
- Seung-Woo Kim <sw0312.kim@samsung.com>, linux-samsung-soc@vger.kernel.org,
- Alison Wang <alison.wang@nxp.com>, Stefan Agner <stefan@agner.ch>,
- Tian Tao <tiantao6@hisilicon.com>,
- Xinwei Kong <kong.kongxinwei@hisilicon.com>,
- Yongbang Shi <shiyongbang@huawei.com>, Dexuan Cui <decui@microsoft.com>,
- Long Li <longli@microsoft.com>, Saurabh Sengar
- <ssengar@linux.microsoft.com>, linux-hyperv@vger.kernel.org,
- Fabio Estevam <festevam@gmail.com>, Frank Li <Frank.Li@nxp.com>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Philipp Zabel <p.zabel@pengutronix.de>, Sascha Hauer
- <s.hauer@pengutronix.de>, imx@lists.linux.dev,
- Paul Cercueil <paul@crapouillou.net>, linux-mips@vger.kernel.org,
- Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- Paul Kocialkowski <paulk@sys-base.io>, Huacai Chen <chenhuacai@kernel.org>,
- Icenowy Zheng <zhengxingda@iscas.ac.cn>, Jianmin Lv <lvjianmin@loongson.cn>,
- Mingcong Bai <jeffbai@aosc.io>, Qianhai Wu <wuqianhai@loongson.cn>,
- Xi Ruoyao <xry111@xry111.site>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Chun-Kuang Hu <chunkuang.hu@kernel.org>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- Abhinav Kumar <abhinav.kumar@linux.dev>, Dmitry Baryshkov
- <lumag@kernel.org>, Jessica Zhang <jesszhan0024@gmail.com>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Rob Clark <robin.clark@oss.qualcomm.com>, Sean Paul <sean@poorly.run>,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- Danilo Krummrich <dakr@kernel.org>, Lyude Paul <lyude@redhat.com>,
- nouveau@lists.freedesktop.org,
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- Gerd Hoffmann <kraxel@redhat.com>, spice-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, Geert Uytterhoeven
- <geert+renesas@glider.be>,
- Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
- Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
- Magnus Damm <magnus.damm@gmail.com>,
- Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
- linux-renesas-soc@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
- Marcus Folkesson <marcus.folkesson@gmail.com>,
- David Lechner <david@lechnology.com>, Iker Pedrosa <ikerpedrosam@gmail.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Chunyan Zhang <zhang.lyra@gmail.com>, Orson Zhai <orsonzhai@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Philippe Cornu <philippe.cornu@foss.st.com>,
- Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>,
- Yannick Fertre <yannick.fertre@foss.st.com>, Chen-Yu Tsai <wens@kernel.org>,
- Samuel Holland <samuel@sholland.org>, linux-sunxi@lists.linux.dev,
- Jonathan Hunter <jonathanh@nvidia.com>,
- Mikko Perttunen <mperttunen@nvidia.com>,
- Thierry Reding <thierry.reding@kernel.org>, linux-tegra@vger.kernel.org,
- Jyri Sarha <jyri.sarha@iki.fi>, Alexey Brodkin <abrodkin@synopsys.com>,
- Hans de Goede <hansg@kernel.org>,
- Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
- Alex Lanzano <lanzano.alex@gmail.com>, LiangCheng Wang <zaq14760@gmail.com>,
- Chia-I Wu <olvaffe@gmail.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Zack Rusin
- <zack.rusin@broadcom.com>,
- Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
- Michal Simek <michal.simek@amd.com>
-References: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20261116-drm-no-more-config-reset-v2-0-0bb471f4d1e0@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-11.79 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	XM_UA_NO_VERSION(0.01)[];
-	RCVD_TLS_ALL(0.00)[];
-	TAGGED_RCPT(0.00)[renesas];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	URIBL_BLOCKED(0.00)[suse.de:email,suse.com:url,imap1.dmz-prg2.suse.org:helo];
-	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,gmail.com,ffwll.ch];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[lists.freedesktop.org,jannau.net,chaosmail.tech,lists.linux.dev,amd.com,kernel.org,arm.com,armlinux.org.uk,redhat.com,samsung.com,linaro.org,vger.kernel.org,nxp.com,agner.ch,hisilicon.com,huawei.com,microsoft.com,linux.microsoft.com,gmail.com,pengutronix.de,crapouillou.net,intel.com,sys-base.io,iscas.ac.cn,loongson.cn,aosc.io,xry111.site,collabora.com,linux.dev,somainline.org,oss.qualcomm.com,poorly.run,ideasonboard.com,glider.be,bp.renesas.com,lechnology.com,linux.alibaba.com,foss.st.com,sholland.org,nvidia.com,iki.fi,synopsys.com,chromium.org,broadcom.com,epam.com];
-	R_RATELIMIT(0.00)[to_ip_from(RLy3j4wzmyjqg3bxpokuu7brne)];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[104];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:url,suse.de:email]
-X-Spam-Score: -11.79
-X-Spam-Level: 
-X-Spam-Flag: NO
 
-Hi Maxime
+vhost_workers_free() only waits for RCU readers when sync is true.  Both
+vhost-net teardown paths pass false, relying on the assumption recorded
+when the sync parameter was introduced (5efd97e6f0c7) that "net and scsi
+stop their virtqueues before the workers are freed".
 
-Am 16.11.26 um 11:30 schrieb Maxime Ripard:
-> drm_mode_config_reset() has a dual role: it creates the initial KMS
-> state at probe time, and resets hardware and software state during
-> suspend/resume cycles. However, the two roles need different
-> behaviors, notably for objects like drm_private_obj that must persist
-> across suspend/resume and are excluded from drm_mode_config_reset()
-> by design.
->
-> Previous series introduced drm_mode_config_create_initial_state() to
-> handle only the initial state creation at probe time, including
-> drm_private_obj. Unlike drm_mode_config_reset(), it returns an error
-> code, allowing drivers to properly handle allocation failures.
->
-> This series switches all drivers calling drm_mode_config_reset() at
-> probe time to drm_mode_config_create_initial_state(). The conversion
-> was done using a Coccinelle semantic patch.
->
-> This is part, and the final piece, of a larger transition to remove the
-> overloaded reset semantics from the KMS subsystem, following similar
-> series for planes, CRTCs, connectors, and bridges.
->
-> Signed-off-by: Maxime Ripard <mripard@kernel.org>
+That assumption does not hold when a tap queue is detached while the
+socket is still attached.  __tun_detach() runs tun_queue_purge() on the
+detaching thread, so skb_queue_purge() releases the zerocopy skbs and
+vhost_zerocopy_complete() -> vhost_poll_queue() runs there rather than on
+the vhost worker.  The vhost_dev_flush() calls in vhost_net_flush() and
+vhost_dev_stop() only wait for the vhost workers, so the queueing can
+still be in flight when vhost_dev_cleanup() frees the worker, and
+vhost_worker_queue() then dereferences freed memory.
 
-For the entire series:
+Pass sync=true from vhost_net_release() and vhost_net_reset_owner() so a
+grace period and a flush are observed before the workers are released,
+matching the vsock RESET_OWNER path.  Both are slow paths, and the extra
+grace period buys back the races described above.
 
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Testing: QEMU/KVM guest with KASAN and CONFIG_VHOST_NET, zerocopy enabled
+via vhost_net.experimental_zcopytx=1.  A second thread detaches one of
+the tap queues and frees the queued skb, and vhost_worker_queue() is
+delayed with a fault-injection module so that the close() or the
+VHOST_RESET_OWNER ioctl completes in between.  The delay only widens an
+existing window; the detach, the purge and the teardown are all
+unmodified upstream behaviour.
 
+Both teardown paths reproduce the use-after-free on this base, and both
+are clean with this change while the injection is still taken.  The same
+injection reproduced on the earlier base where the analysis was done.
 
-> ---
-> Changes in v2:
-> - Fix some sashiko issues
-> - Link to v1: https://lore.kernel.org/r/20261105-drm-no-more-config-reset-v1-0-763560c2cc3f@kernel.org
->
-> ---
-> Maxime Ripard (64):
->        drm/adp: Switch to drm_mode_config_create_initial_state
->        drm/amdgpu: Switch to drm_mode_config_create_initial_state
->        drm/hdlcd: Fix drm_atomic_helper_shutdown() on the probe error path
->        drm/hdlcd: Switch to drm_mode_config_create_initial_state
->        drm/armada: Switch to drm_mode_config_create_initial_state
->        drm/ast: Switch to drm_mode_config_create_initial_state
->        drm/exynos: Switch to drm_mode_config_create_initial_state
->        drm/fsl-dcu: Switch to drm_mode_config_create_initial_state
->        drm/hisilicon/hibmc: Remove hibmc_unload() from the load error path
->        drm/hisilicon/hibmc: Switch to drm_mode_config_create_initial_state
->        drm/hyperv: Switch to drm_mode_config_create_initial_state
->        drm/imx/ipuv3: Switch to drm_mode_config_create_initial_state
->        drm/ingenic: Move the private object creation before the reset
->        drm/ingenic: Switch to drm_mode_config_create_initial_state
->        drm/kmb: Switch to drm_mode_config_create_initial_state
->        drm/logicvc: Switch to drm_mode_config_create_initial_state
->        drm/loongson: Switch to drm_mode_config_create_initial_state
->        drm/mediatek: Switch to drm_mode_config_create_initial_state
->        drm/mgag200: Switch to drm_mode_config_create_initial_state
->        drm/msm: Switch to drm_mode_config_create_initial_state
->        drm/nouveau: Switch to drm_mode_config_create_initial_state
->        drm/omap: Switch to drm_mode_config_create_initial_state
->        drm/qxl: Destroy the monitors object on the modeset init error path
->        drm/qxl: Switch to drm_mode_config_create_initial_state
->        drm/rcar-du: Switch to drm_mode_config_create_initial_state
->        drm/rz-du: Switch to drm_mode_config_create_initial_state
->        drm/shmobile: Switch to drm_mode_config_create_initial_state
->        drm/st7571: Switch to drm_mode_config_create_initial_state
->        drm/st7586: Switch to drm_mode_config_create_initial_state
->        drm/st7735r: Switch to drm_mode_config_create_initial_state
->        drm/st7920: Switch to drm_mode_config_create_initial_state
->        drm/sprd: Switch to drm_mode_config_create_initial_state
->        drm/sti: Fix drm_atomic_helper_shutdown() on the bind error paths
->        drm/sti: Move drm_mode_config_create_initial_state() before drm_dev_register()
->        drm/stm: Switch to drm_mode_config_create_initial_state
->        drm/sun4i: Switch to drm_mode_config_create_initial_state
->        drm/tegra: Switch to drm_mode_config_create_initial_state
->        drm/tests: drm_atomic_state_test: Switch to drm_mode_config_create_initial_state
->        drm/tests: drm_atomic_test: Switch to drm_mode_config_create_initial_state
->        drm/tests: drm_bridge_test: Switch to drm_mode_config_create_initial_state
->        drm/tests: drm_hdmi_state_helper_test: Switch to drm_mode_config_create_initial_state
->        drm/tidss: Switch to drm_mode_config_create_initial_state
->        drm/tilcdc: Switch to drm_mode_config_create_initial_state
->        drm/arcpgu: Switch to drm_mode_config_create_initial_state
->        drm/bochs: Switch to drm_mode_config_create_initial_state
->        drm/cirrus-qemu: Switch to drm_mode_config_create_initial_state
->        drm/gm12u320: Switch to drm_mode_config_create_initial_state
->        drm/hx8357d: Switch to drm_mode_config_create_initial_state
->        drm/ili9163: Switch to drm_mode_config_create_initial_state
->        drm/ili9225: Switch to drm_mode_config_create_initial_state
->        drm/ili9341: Switch to drm_mode_config_create_initial_state
->        drm/ili9486: Switch to drm_mode_config_create_initial_state
->        drm/mi0283qt: Switch to drm_mode_config_create_initial_state
->        drm/panel-mipi-dbi: Switch to drm_mode_config_create_initial_state
->        drm/pixpaper: Switch to drm_mode_config_create_initial_state
->        drm/repaper: Switch to drm_mode_config_create_initial_state
->        drm/sharp-memory: Switch to drm_mode_config_create_initial_state
->        drm/udl: Switch to drm_mode_config_create_initial_state
->        drm/vboxvideo: Switch to drm_mode_config_create_initial_state
->        drm/verisilicon: Switch to drm_mode_config_create_initial_state
->        drm/virtio: Switch to drm_mode_config_create_initial_state
->        drm/vmwgfx: Switch to drm_mode_config_create_initial_state
->        drm/xen: Switch to drm_mode_config_create_initial_state
->        drm/xlnx: Switch to drm_mode_config_create_initial_state
->
->   drivers/gpu/drm/adp/adp_drv.c                      |  4 +---
->   drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c           |  4 +++-
->   .../amdgpu_dm/tests/amdgpu_dm_connector_test.c     |  3 ++-
->   .../amdgpu_dm/tests/amdgpu_dm_mst_types_test.c     |  4 +++-
->   drivers/gpu/drm/arm/hdlcd_drv.c                    |  9 +++++----
->   drivers/gpu/drm/armada/armada_drv.c                |  4 +++-
->   drivers/gpu/drm/ast/ast_mode.c                     |  4 +++-
->   drivers/gpu/drm/exynos/exynos_drm_drv.c            |  4 +++-
->   drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_kms.c          |  4 +++-
->   drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c    |  7 ++++---
->   drivers/gpu/drm/hyperv/hyperv_drm_modeset.c        |  4 +---
->   drivers/gpu/drm/imx/ipuv3/imx-drm-core.c           |  4 +++-
->   drivers/gpu/drm/ingenic/ingenic-drm-drv.c          | 22 +++++++++++++---------
->   drivers/gpu/drm/kmb/kmb_drv.c                      |  3 +--
->   drivers/gpu/drm/logicvc/logicvc_mode.c             |  4 +++-
->   drivers/gpu/drm/loongson/lsdc_drv.c                |  4 +++-
->   drivers/gpu/drm/mediatek/mtk_drm_drv.c             |  8 +++++++-
->   drivers/gpu/drm/mgag200/mgag200_g200.c             |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200eh.c           |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200eh3.c          |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200eh5.c          |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200er.c           |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200ev.c           |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200ew3.c          |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200se.c           |  4 +++-
->   drivers/gpu/drm/mgag200/mgag200_g200wb.c           |  4 +++-
->   drivers/gpu/drm/msm/msm_kms.c                      |  4 +++-
->   drivers/gpu/drm/nouveau/nouveau_display.c          |  4 +++-
->   drivers/gpu/drm/omapdrm/omap_drv.c                 |  4 +++-
->   drivers/gpu/drm/qxl/qxl_display.c                  | 11 +++++++++--
->   drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c      |  4 +++-
->   drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c       |  4 +++-
->   drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c   |  4 +++-
->   drivers/gpu/drm/sitronix/st7571.c                  |  4 +++-
->   drivers/gpu/drm/sitronix/st7586.c                  |  4 +++-
->   drivers/gpu/drm/sitronix/st7735r.c                 |  4 +++-
->   drivers/gpu/drm/sitronix/st7920.c                  |  4 +---
->   drivers/gpu/drm/sprd/sprd_drm.c                    |  6 ++++--
->   drivers/gpu/drm/sti/sti_drv.c                      | 10 ++++------
->   drivers/gpu/drm/stm/drv.c                          |  6 +++++-
->   drivers/gpu/drm/sun4i/sun4i_drv.c                  |  4 +++-
->   drivers/gpu/drm/sun4i/sun4i_framebuffer.c          |  6 +++---
->   drivers/gpu/drm/sun4i/sun4i_framebuffer.h          |  2 +-
->   drivers/gpu/drm/tegra/drm.c                        |  4 +++-
->   drivers/gpu/drm/tests/drm_atomic_commit_test.c     |  3 ++-
->   drivers/gpu/drm/tests/drm_atomic_test.c            |  4 +++-
->   drivers/gpu/drm/tests/drm_bridge_test.c            | 12 +++++++++---
->   drivers/gpu/drm/tests/drm_hdmi_state_helper_test.c |  3 ++-
->   drivers/gpu/drm/tidss/tidss_drv.c                  |  6 +++++-
->   drivers/gpu/drm/tilcdc/tilcdc_drv.c                |  4 +++-
->   drivers/gpu/drm/tiny/arcpgu.c                      |  4 +++-
->   drivers/gpu/drm/tiny/bochs.c                       |  4 +---
->   drivers/gpu/drm/tiny/cirrus-qemu.c                 |  4 +++-
->   drivers/gpu/drm/tiny/gm12u320.c                    |  4 +++-
->   drivers/gpu/drm/tiny/hx8357d.c                     |  4 +++-
->   drivers/gpu/drm/tiny/ili9163.c                     |  4 +++-
->   drivers/gpu/drm/tiny/ili9225.c                     |  4 +++-
->   drivers/gpu/drm/tiny/ili9341.c                     |  4 +++-
->   drivers/gpu/drm/tiny/ili9486.c                     |  4 +++-
->   drivers/gpu/drm/tiny/mi0283qt.c                    |  4 +++-
->   drivers/gpu/drm/tiny/panel-mipi-dbi.c              |  4 +++-
->   drivers/gpu/drm/tiny/pixpaper.c                    |  4 +++-
->   drivers/gpu/drm/tiny/repaper.c                     |  4 +++-
->   drivers/gpu/drm/tiny/sharp-memory.c                |  4 +++-
->   drivers/gpu/drm/udl/udl_modeset.c                  |  4 +++-
->   drivers/gpu/drm/vboxvideo/vbox_mode.c              |  5 ++++-
->   drivers/gpu/drm/verisilicon/vs_drm.c               |  4 +++-
->   drivers/gpu/drm/virtio/virtgpu_display.c           |  3 +--
->   drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                | 14 +++++++++++++-
->   drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c                |  3 ---
->   drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c               |  3 ---
->   drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c               |  3 ---
->   drivers/gpu/drm/xen/xen_drm_front_kms.c            |  4 +++-
->   drivers/gpu/drm/xlnx/zynqmp_kms.c                  |  6 ++++--
->   74 files changed, 243 insertions(+), 115 deletions(-)
-> ---
-> base-commit: a8670a2ab1a81dc3fc30093e47c23b83244ca4d0
-> change-id: 20260712-drm-no-more-config-reset-1ea89f56693d
->
-> Best regards,
+Signed-off-by: Yaohan Li <shunsheng1218@gmail.com>
+---
+Prepared against v7.4-rc1-1969-g666539eecdf4.
 
+AI assistance: the analysis, the change and its review notes were
+prepared with Claude (Anthropic) as a coding assistant.  The author
+reviewed the reasoning and takes responsibility for the content.
+
+Test details.  The guest runs a KASAN kernel with vhost_net built in and
+zerocopy enabled through vhost_net.experimental_zcopytx=1.  The trigger
+attaches a tap queue to a vhost-net socket, queues a zerocopy skb, and
+detaches the queue from a second thread while the owning process closes
+the vhost fd (or issues VHOST_RESET_OWNER).  The second thread is the one
+that reaches vhost_zerocopy_complete() and then vhost_worker_queue().
+The fault-injection module resolves vhost_worker_queue.part.0 from
+/proc/kallsyms and spins only when the caller is that detaching thread,
+which makes the window deterministic; kasan_multi_shot is used so the
+remaining reports are not lost.
+
+Results on 666539eecdf4, one run per teardown path: the close path
+reports slab-use-after-free in vhost_worker_queue() four times, and the
+RESET_OWNER path likewise four times, with the free stack going through
+vhost_dev_cleanup() and vhost_dev_reset_owner() respectively.  With this
+change both paths complete without a report and the injected hit counter
+shows the delay was taken (1 of 5 probes for vhost_worker_queue(),
+the other four being callers outside the detaching thread).  A control
+run that closes mid-test without the delay is clean.
+
+The same injection reported on three consecutive runs on 776b6be748eb,
+which is where the analysis was originally done; the reproduction above
+is the confirmation on the base of this patch.
+---
+ drivers/vhost/net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 4570a4ffbab2..631855064b3d 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1452,7 +1452,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	vhost_net_stop(n, &tx_sock, &rx_sock);
+ 	vhost_net_flush(n);
+ 	vhost_dev_stop(&n->dev);
+-	vhost_dev_cleanup(&n->dev, false);
++	vhost_dev_cleanup(&n->dev, true);
+ 	vhost_net_vq_reset(n);
+ 	if (tx_sock)
+ 		sockfd_put(tx_sock);
+@@ -1661,7 +1661,7 @@ static long vhost_net_reset_owner(struct vhost_net *n)
+ 	vhost_net_stop(n, &tx_sock, &rx_sock);
+ 	vhost_net_flush(n);
+ 	vhost_dev_stop(&n->dev);
+-	vhost_dev_reset_owner(&n->dev, umem, false);
++	vhost_dev_reset_owner(&n->dev, umem, true);
+ 	vhost_net_vq_reset(n);
+ done:
+ 	mutex_unlock(&n->dev.mutex);
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG Nürnberg)
-
+2.34.1
 
