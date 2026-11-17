@@ -1,57 +1,64 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794873184;
-	b=HBiPib7KAmFb/I+fJD2+lj06eid335v/RPrT5vfHld59gDds6vhskDBFdDE14YyHQ7Dp
-	 Tt4pHKwGopxSVV6qwzGX8s7lJb1pK+tLIhCR4yQ8R5u6hHRkKfOIq3iDmARc57l8aW74a
-	 OtKjyjF1m+zYFeT/fPHdEdqwL9nlfaxYK8Wf665vLa5yrubd1kAz2lry0ovGgbtxboHjK
-	 jxH+X3ufjZDkNjz8MgOPvQtCnuSh/OiOx6HhHU1tWA2S/GGBKga9gU2fQtu459eGzpqZq
-	 IVmvteCEni8jlZRm+QxwWikMfaqttF8vLxCsAWP3bM6r4a0tT2WyJs905pHzrB4lHAg==
+	t=1794874132;
+	b=TlC9E0PaZTyRXSAJKrX4Z31L0OQuYNjwrXskuslIJikZkKH0aBARF5xiMDWFakKOuOeA
+	 mddTC5SnDSUIe7HXHaKB/W6+9EWihwa36QUjEYaS4nuCoxmfJJ3xgawoS9ivbM1LttrZW
+	 wxUqajmYclPSplytVaAEKdjuwhwMrln8CdcVo1JgEeFZywR8ZbiEmiRQjllmlvKR8s0I6
+	 6gofNnFUEkntVxMFfsbCWO2k/6Rnd8vtc5GmWUi/w31L2kJxUS87/9M6fyUjtl5w2V9pK
+	 6WhIXPbrLUrpCheW8TRrScUYMf+E4ACZrVwphl5Mre5eB/XtSJv1+2QS4FPEOIPxkyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794873184;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=esXfWMrnsXJWQm2rmAb/6+XsSAi/41B+G873udBcS8I=;
-	b=Eef/B7R9vM8gW5zKsVNtbMEzQqlbechvXLDA6xvTlNxMyxrOK6cRdLryR6C7XE/0uLhD
-	 8FPqEkCQQ/zG1G63pPfPJMKZNDu2w8IK1csTBYZX3H+TCetLc8INuAoCDH4TYqCcLKX6j
-	 fqyBXitGxzuDhfvNImiRZM5oEgbKHzFVhMIl7Hi+lOIZEBNuWYYMOpleW2orkfbfj/E0c
-	 lDrCxxsCqZ9GskTx5QktTBIykdsPmfO+OJ5EOGiYygh/dAnyQHzKSMLQf3/Z2fdxvj1jN
-	 DyHF9Ubt2Ahy8qjc3jCG+s9RNl0TrMidGZAHohO8bBxx9aQjmrHrB5kh+GqccmRb0ZA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794874132;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=fQhaA4t5eCBp8YpwrTq78zNwHUDKMkRDABJ3Yobt/9E=;
+	b=lboHde06dNvVoVUy3Mu3X24ih+1fuMTviKRIaH4HB37F654Dx+KcGiCbhEKM6Q132c5i
+	 8J+l55U9KuUDpYqHIpE/LWzmh8IjuHGzrvF10l8AFnJmT3klsJ/mDjdlblOJYdOyPZCzb
+	 iIyNBVyvjMmgRz63BPguO7qw7e2bmo5XJaSJr9cnLRfsxEgo612bCoeQKIntzUOUl2IFy
+	 cGXxnlNuRSc/XbXMeAbTMTp30pdoegaAiIPmVskTXSm6rhWbJ7I9h95eo5SP8Y9wxA9Mz
+	 9mpCgNj6bDanqmlNjwgTPws7pZpJPnGJm79TbymKKVkKrZIfN5wQY9H0pxpXTpH+MBA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZRLA22ls;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L9qyQHqW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3DA0606A32F
-	for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 23:53:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D7FC606A323;
+	Tue, 17 Nov 2026 00:08:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZRLA22ls
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B30101F000C4;
-	Mon, 16 Nov 2026 23:53:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L9qyQHqW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25D41F000C4;
+	Tue, 17 Nov 2026 00:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794873183;
-	bh=esXfWMrnsXJWQm2rmAb/6+XsSAi/41B+G873udBcS8I=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZRLA22lsRX+xW0xLNgnrorHel7o2pXZ02leTQJ0jQcpWfmZpOnimENb/R2YtQ/Ntx
-	 kREXay0hoavvUa1ukwMERWhmWr83/6gCDj6l/fMGd3eOrMTnKQSAJ1JF+17pPejdZ1
-	 Xu0U2KMXFDYm3AVImowmepU22Dk3HcudWzjVCM02aaoxGBncwAZeHoTWr5ENsDeIF4
-	 ihNBmLUu+n2tf6xKAWlZyspU9r3iai3HqozAilVQsNtlUAFLN2ZLDlddl84ZxPwBkG
-	 kBOTmp6nzv2/BhlNJsDw0nKBJpelGJ67VDDAPGliYRzHn2zheaSTQ7Gt0+9QttXSfu
-	 MQkEePRp0ef8A==
-Message-ID: <sashiko-outbox-217935@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] vsock: only deliver taps to namespaces that can
- reach the device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bobby Eshleman" <bobbyeshleman@meta.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
-References: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 23:53:02 +0000
+	s=k20260515; t=1794874132;
+	bh=fQhaA4t5eCBp8YpwrTq78zNwHUDKMkRDABJ3Yobt/9E=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=L9qyQHqWViDLqBf1ym23/3j0T6giz/0oi9sN/4SOmoXrehOXPAua6/3FcSwriOv7O
+	 hPEhPpl2/nxZkkUE1D9iRZz94wvTYzeQ1xI+3lU6npPohKuZJcSuB5o3bXgS9kEBRf
+	 zzzvs/b5STuca9TZprcetwPVOeqXPQK74Bh/8bbfo63EnJEEklpQm6Plt0aHCs0fxS
+	 AbMKQqyseVRTEkXJhlfpCP9JUP34G4maGQvzPudVmeeQyKohAzWVc8TXdMHiDvjoHP
+	 Q+n7HCqL928MNlCmBAYAsT2ZxRgw0vt5i+b71sEDnhZxo/SsDttSZQmVdXDfu/tAO3
+	 txjGEPX1cChEQ==
+Date: Mon, 16 Nov 2026 16:08:51 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
+ <john.fastabend@gmail.com>, Stanislav Fomichev <sdf@fomichev.me>,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v3 2/2] virtio_net: Disable AF_XDP pools on queues
+ above curr_queue_pairs
+Message-ID: <20261116160851.37a2b158@kernel.org>
+In-Reply-To: <20261110153003.23731-3-yanhaishuang@cmss.chinamobile.com>
+References: <20261110153003.23731-1-yanhaishuang@cmss.chinamobile.com>
+	<20261110153003.23731-3-yanhaishuang@cmss.chinamobile.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,23 +67,17 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> vsock_deliver_tap() clones every packet to every vsockmon device on the
-> system. Creating one needs only CAP_NET_ADMIN in the owning user
-> namespace, so an unprivileged user can capture the traffic of local mode
-> namespaces.
->=20
-> Pass the packet's netns to vsock_deliver_tap() and only deliver to
-> devices that pass vsock_net_check_mode(), the same rule socket lookups
-> use. vhost passes the vhost_vsock netns, loopback the sending socket's
-> netns, and virtio-vsock NULL (global mode).
->=20
-> Fixes: a69686327e42 ("vsock: add netns support to virtio transports")
-> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+On Wed, 11 Nov 2026 00:30:01 +0900 Haishuang Yan wrote:
+> With an XDP program attached, virtnet_xdp_set() adds nr_cpu_ids queue
+> pairs for XDP_TX and raises curr_queue_pairs and real_num_rx_queues to
+> match. virtnet_xsk_pool_enable() accepts any queue below
+> curr_queue_pairs, so an AF_XDP zero-copy socket can be bound to one of
+> them.
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-vsock-tap-=
-net-v1-1-7e24f45adad3@meta.com?part=3D1
-
+Alright. I still think that auto-changing real_num_rx_queues
+to use Rx queues from queue pairs allocated for XDP Tx is fruitcake
+behavior. But the bandaid is simple enough so whatever.
