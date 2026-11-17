@@ -1,110 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794932694;
-	b=K4oYi/zUXruAxQt7nsS+htSLbrKR1d4O875oyv5g8wtztUbT782+UZvpoPhXOPb4her4
-	 JfkUeIhrF131mPmuXe46txF+Ocyqbx9vQqhhbWVqbbKDdSvz5mDXkHRxhGeQjuuNfHUCp
-	 u1KrKLO4AMSF0P42IEHABLgSLPB7cDD9ik/xgIMDaGiH15IXm6VCf4Tg3M8NL+AnzagLe
-	 higyu3pQZSb7YylDWQg4Ta2QHZy9wF8AthxUbJHo9gZchw7BMG5nTINFx0IKDvG+LbA5X
-	 48+Pjktps1O1eG774gb0xbBJtqtBRd2mxBXzIfPM9tEtwzVcamYa20l/2PmWQ9sanoQ==
+	t=1794942173;
+	b=jyppPv6ReyMH/AEWYg+Z91C/tOHCoBuqVtwqfL07XzZurVUzZ0nilh7xT3H7rudg45Ld
+	 cKX/P4zGyW8yYQ6KvRW8LjhFWG7jceY9yFfqY1DE3pfFgDF2H1vRkLffaf+Nrb5DlF3ch
+	 dLzaLiIqk/FhWZgMFdobAealBHobaXYT9g3/f5dXT+Ltt/XdQ2etRUm4+a5a6nH46TWTB
+	 QwP2UnqthL3hD5ZHKIBnOksK7Ypx+QSI91nXh9DEJHBL48ldGvVgZ9kbUW21DkQzs24GT
+	 oVxRI66hsH7DrlbBmjsQDNe3pdO3CAOGsJStMkfL7P0zHKWYdfANG7Z1IrVbn1+qpXA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794932694;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:Content-Language:To:Cc:
-	 References:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=T3Mhl0Vqz4AuhABF36OZze4u1FZDWFRX6ORovKiY0zQ=;
-	b=OUeLnDHxQz4NgENOoorqsNJy2I+rYrLNmHn/bPoddpcZAxl+tQdwFjNGABk70ht6GXeJ
-	 eSfzHReKEvbh5qTHWixjlDMff0O46RLyMBJ9d7+5YyGVHvbPpAo3UMyxr9YjUWB+PgXYv
-	 zI6GLm3hQZQg/ADGFrIMw+HT0v1LgENDI0/D7hpUX/psq6WSSuXaO0ntYDejgrJnzGXDs
-	 TGWpPc16wVDEwc/gkjsBV9SFQBPQWLMZiPtaSgVGD+HwsZwFGCI2B67OUSbmrvrsCkpr8
-	 VfdPV0AFBQVapK3/FdRyidb4s9fuvU+E+cjzjOf+Lk1r2JP5J4rw2oZpQysDNzWsN4g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794942173;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:From:Date:Subject:MIME-Version:Message-Id:
+	 X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:
+	 X-Developer-Key:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Transfer-Encoding;
+	bh=EhI5TLOlL+9vNzhu+UAy+2REBUSKFNqlNp3HDll8Qkg=;
+	b=JNejmBvJhYFleQCrua8xbtkF3BKgtxm9HmDNQI/z6IgyQvLeSDmexPrN3FqEb8Y0QMet
+	 Y37CUtEKGlaYAdYmducnob9rWNhio84VjPLCC4vSwP1zbjBTZHcfH975Kb/5g3QNvEPr5
+	 O545hmGgboNybDK/61HS1txJ0S9vApqzqXwFlvld3i7iPzf2OciT4a1aUCbtMdDQGa7HJ
+	 BVqAOqDt3QaPLElEr1I8twVOSnoXc0+am/Q2R3cLhTZNSiWUpU0FLCXBe3EHpZibYyYpe
+	 N9yRqKjlCwMctiOGeYEDJ/gXGoAyO/IxJjLEzzncpfrg2Hokv+wQQYVDroC65D1rwag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=TOQ8+lCU;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=WxNekRGl;
-	arc=none smtp.remote-ip=205.220.180.131
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NsowI7XI;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B82606A330
-	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 16:24:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39B82606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21939606A32A
+	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 19:02:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 21939606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=TOQ8+lCU;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=WxNekRGl
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AHGJOPe3327669
-	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 16:24:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	T3Mhl0Vqz4AuhABF36OZze4u1FZDWFRX6ORovKiY0zQ=; b=TOQ8+lCUML5ZO5h5
-	H/qF60e2dPbCcKHoYulEN4H55jM5yHe+56cu9z5mHWHJvDpenV3Nx8kiTSJ6jQHp
-	bhh7xA0QexaksUp3Rqqb1lIlzXljRLnYmuNw7tWpcyiizbcPqOpo2hqTwloA5g6s
-	IaovTRep/vtw6UMFwr6B2eV+EAwdQm6qYPEAvPTlxQHd1lzS1wzhOfJGBzi8jOAE
-	rPdLUBbDbWn9VxP2HR6YRcotGmxxAwj7RiauSqrxOxD/Vqk7a9jikwbX8PWixTMc
-	cqAGMcFJYiWnFHqMIe6wY6jJAjQr1q2n9s9/tDRnM9QAfNxNVyXdUyiCFV2xKFtj
-	DC+G2A==
-Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4j0tbar0w2-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 16:24:52 +0000 (GMT)
-Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-36f26e6abe9so63281eec.0
-        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 08:24:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1794932691; x=1795537491; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=T3Mhl0Vqz4AuhABF36OZze4u1FZDWFRX6ORovKiY0zQ=;
-        b=WxNekRGlXmvMGoCQJvnvwtBv2gFhz9ENUYP2+ULRGxscELCp8AHF2GPgjD3f6Cj3vl
-         0ZvDijBjelNcWG//lFw9Z+9Tz9bMBQOTvXjOQw8A4UUzAD4iAwhlcUE4EihUDwvnQHPV
-         o6G6M4NzONyb2Op9OMEf7G3xYxrh4bjMRX3zFnDQAOoUEDri3azZ4XAlx5f6ZONToLSX
-         xbk+aXGCv+JwXkAM/HzKQeWW3Zaozm4y04y8/Ae61P+0IE5/YzGXu8FbYXRdZxXHeUIQ
-         IouIKq3zBIP8B6yqZTEeLYFin0Vwsha89htonnkbCTesyUl51EcMuXSDF2oVI62Zf0cs
-         yBBg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NsowI7XI
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794942172;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=EhI5TLOlL+9vNzhu+UAy+2REBUSKFNqlNp3HDll8Qkg=;
+	b=NsowI7XI6ymOWDlsWIhcnM7dAlecGxLi/s9P1vVi4/Pf3kHsxoIecAhTCVscUMc5o/c4Jk
+	7ZvFm/UVqzPuwHQsUDZg6NSzqTwQoOGsE87Z8mnMk8izjGUPrQ7qnX47dPr0P/2olAFp5q
+	XepyrxZ44C8vFPIZcSZ7gkIGh5/6884=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-516-Yk0T0CjzPI-74OcTCOe8Cg-1; Tue, 17 Nov 2026 14:02:51 -0500
+X-MC-Unique: Yk0T0CjzPI-74OcTCOe8Cg-1
+X-Mimecast-MFC-AGG-ID: Yk0T0CjzPI-74OcTCOe8Cg_1794942170
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48e0389d6f9so56093f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 11:02:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794932691; x=1795537491;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=T3Mhl0Vqz4AuhABF36OZze4u1FZDWFRX6ORovKiY0zQ=;
-        b=rk0wx5QZ3pAz7LJ9biTK/ObdOaEa6nI9VJ92QXq6PiRYb3cu5HA8Zl1Edz1Xt1JZfD
-         kK6rR6enIJYLE2Oe0cxpwBCm/XbwHpHi5C6t+52mjNGDAq7sPEG5cec/FodWGmIbR7Y8
-         onautR2198qZLYXHXkuv+WVEJBtC8EpwY3y9/pETWROUbXIw8MHPOzqAUhxeOzNJgCnw
-         axNUPwbnjnL/YnxUWzDaHpDJvbw8cpWGkAhuOmo5G78z2Rst/AM5m40qQ0f7Mp324UtA
-         tV711fYOacNt854LHrN/W05Hhorp8dFJHiYBm+i13CoDUJG2nYaLVunh3c8oDY+EQWd8
-         TqmQ==
-X-Forwarded-Encrypted: i=1; AL+hErEYRZ6Cmvw6BBOOr/izMHcQg6ey0qgExLFmcNQm1CvB9peCAzdJAKze5dM7Qujv2Dfb6E767ehm40JusoXAqg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9QPIo6xxQOkOYfXpf0naVQ8w7L9pg1vqd2wBOBJxbLYP/WMbPl
-	1ffHLO8WcXrOagqZQrTkLFb3WP0cwSw4eIonmMA7nQOf8FiW2onaocs75GxW3+8A45fvkm1JNpf
-	ET0XWPxot/CwIONqdoeIC7/yrWvXwVccmvxA1PF/W2gBODRv8w893VLFOd+B0YkqkhQOvOA==
-X-Gm-Gg: AZFdTZfn5XxKEagyfJpLxt2J12kD1KgI4mKjIAGB20YXFeVtrOW7Xg0n3FVm0oxcn0P
-	dameV7VbvTIvC44Woo2/uTqNxBQ1F+ulcB6Qn6x41AmamTAa6a3qY1LCTVbpqS9yg9Uk74O8V7c
-	KxdFlOKqBnpeeXgGFMA0jGOJQ+XR55UHqcFIIUcIp7qSYVkU8/M9CbcuO2ulY3foOYuvxExzv03
-	I8HHUzsk91vB9+7gfnTfAPJdfdL3Kza8jALIW4Jr3R94iAef9UkI98K1FWZwTVl77zu9mdDNC33
-	NeAyQyayPa5Z+FJTf1R4vr+O7f3YgUXvCRYvACZ2t8vlmu+TwEmDt6X8gsEh5Dp5ewSC64EBfHb
-	BZWWuZoOBIPluzzdezwwOPfSwmAdNh5lJY6c87xiVIBS0hKTHDWXNvsZe7DgSvMZidX3SR305oG
-	WvWw==
-X-Received: by 2002:a05:7301:d189:b0:376:2ddd:2ab1 with SMTP id 5a478bee46e88-37963660405mr14266833eec.4.1794932690895;
-        Tue, 17 Nov 2026 08:24:50 -0800 (PST)
-X-Received: by 2002:a05:7301:d189:b0:376:2ddd:2ab1 with SMTP id 5a478bee46e88-37963660405mr14266785eec.4.1794932690165;
-        Tue, 17 Nov 2026 08:24:50 -0800 (PST)
-Received: from [192.168.0.6] ([183.83.140.41])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379565d269asm48642584eec.23.2026.11.17.08.24.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Nov 2026 08:24:49 -0800 (PST)
-Message-ID: <ce05d74a-58d1-f605-44c1-ceb9b9d8b9d4@oss.qualcomm.com>
-Date: Tue, 17 Nov 2026 21:54:39 +0530
+        d=1e100.net; s=20260707; t=1794942170; x=1795546970;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=EhI5TLOlL+9vNzhu+UAy+2REBUSKFNqlNp3HDll8Qkg=;
+        b=Jjf2s6QpBfX0t39EC6A11g72r312/EJs4ueQ9oLXNgkdIVAjbqK1eP+GIwrX0wmHFp
+         xOngzykDT5s1p1qcPN0kiCrURIzU5Rm///1ANHYx5wBwESu4BhH128aE/MWTNFhv5bDQ
+         Naw9GXclR5x7mKaSPDHrJZxAD+R0HN7+37k0ic6U95KmJT2qGc1+J115p0IPCCz8dNyt
+         LrLs9qkm5O9lYFkd6h7jQAqBg0ENGl5bNNsQczmLNOUJEeMTPF/00c+PhTqW+CKuPCvq
+         H0bTobtBSB9xgeK8hUBywgb5QyQ6/nvUdQztzMiTGNXWt47KS1B0TZJy968nXs+OBq/j
+         LlyA==
+X-Forwarded-Encrypted: i=1; AL+hErG6v9xMkk0fruc4zIznRjAr6szMoGb2NNb2XS6VopcjhCvW7DuU4e+W3Dpc9NTatThYE+0iEMFtV45Xwo3zRw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8ZB3H9KQRMAphVB6Gov4AQ7rYQRry+GDJm1FsN19Kn9SLeFMYb
+	tmacFOdgXy1pLJeUqrIVLHbAifqc9fNXoB/BNiJBdZGA0M8nXGm5DRzLLj5Ts8ewza4u5mvZxaB
+	K/F31RK5eQj91TGj33OgQluMOlPi2R7kqc3Ed9LcHX+qzzDxgmg9x9uYPv99kQ0VZqY5f
+X-Gm-Gg: AZFdTZcJ6Mdq0qV+Op0OFPPSdy5VNBgFKVcvmNXWH4HZ+qnYWeoGk2Hp4PN4G0yw0Gw
+	Qkx7zX4VBz8HmWygiPpw9/TzjkpSFMT2MBfP+NIas/XySKnoehIZwitbn0EQR7NBe73zRPlszuY
+	Wb/R+wDuiNWmNBEed1LvRKEvz16vbRWm5UEmhWHYWBRwvlWjRdlHdTsUAGXjWOF0ZZbIFq2RECj
+	31Px3yxtFyNmIr7NNxZdyHyCe6pSazUx4FqcFg/KVEyyaN/n67/dFn+8PKH+krHwaVA9KGht4Jz
+	695wDzvS5Ajqp0f4wqw1gyBNiDvKfOPje/n9nFXHXZEpKoVa1ImxM/lob9BcVia10k+52lYuuNK
+	7J9xGom4VOV8eFzFBTZrukX6il0Zx9gGSLkm8f00vWPpG3Kw69n+sgOn4b3xC/6FBByZsQ8gv8G
+	1nXkvPXYXqdIw=
+X-Received: by 2002:a05:6000:3108:b0:48f:bcf0:2026 with SMTP id ffacd0b85a97d-4a6389ed16amr883017f8f.13.1794942169604;
+        Tue, 17 Nov 2026 11:02:49 -0800 (PST)
+X-Received: by 2002:a05:6000:3108:b0:48f:bcf0:2026 with SMTP id ffacd0b85a97d-4a6389ed16amr882975f8f.13.1794942169208;
+        Tue, 17 Nov 2026 11:02:49 -0800 (PST)
+Received: from [192.168.0.19] (217.red-88-4-146.dynamicip.rima-tde.net. [88.4.146.217])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4a656095e98sm276159f8f.42.2026.11.17.11.02.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2026 11:02:48 -0800 (PST)
+From: Sergio Lopez <slp@redhat.com>
+Date: Tue, 17 Nov 2026 20:01:52 +0100
+Subject: [PATCH v2] vsock/vmci: reject datagram binds in local network
+ namespaces
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -114,168 +98,109 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH v7 4/5] iommu/of: Require reg for iommu-addresses
-Content-Language: en-US
-To: Krzysztof Kozlowski <krzk@kernel.org>,
-        Vikash Garodia <vikash.garodia@oss.qualcomm.com>,
-        "Joerg Roedel (AMD)" <joro@8bytes.org>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Jean-Philippe Brucker <jpb@kernel.org>, Rob Herring <robh@kernel.org>,
-        Saravana Kannan <saravanak@kernel.org>,
-        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Joerg Roedel
- <jroedel@suse.de>,
-        Srinath Mannam <srinath.mannam@broadcom.com>,
-        Oza Pawandeep <quic_poza@quicinc.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Alex Williamson <alex@shazbot.org>
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-        virtualization@lists.linux.dev, devicetree@vger.kernel.org,
-        kvm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-media@vger.kernel.org
-References: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
- <20261106-add_iommu_ranges-v7-4-5c0f72083e52@oss.qualcomm.com>
- <3e4b6491-2b58-4b9c-90ad-0912f47cb217@kernel.org>
-From: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-In-Reply-To: <3e4b6491-2b58-4b9c-90ad-0912f47cb217@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Message-Id: <20261117-vsock-vmci-netns-isolation-v2-1-d6f35e86416a@redhat.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42NQQrCMBBFr1Jm7UgnrS248h7SRUhGO2gTyYSgl
+ N7d2BO4fA/++ysoJ2GFc7NC4iIqMVQwhwbcbMOdUXxlMK0ZiKjDotE9sCxOMHAOiqLxaXOd4cj
+ 9MHbGOz92UAOvxDd57/HrVHkWzTF99q9CP/tXthASOvataU8924Euif1s89HFBaZt277ToLM+x
+ QAAAA==
+X-Change-ID: 20261113-vsock-vmci-netns-isolation-7e46732dcd73
+To: Bryan Tan <bryan-bt.tan@broadcom.com>, 
+ Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ Bobby Eshleman <bobbyeshleman@meta.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, stable@vger.kernel.org, 
+ Sergio Lopez <slp@redhat.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2665; i=slp@redhat.com;
+ h=from:subject:message-id; bh=TprLl35HMOZ700RHSD7wldVyF8nfQtfAOCm+aXiPq8I=;
+ b=owEBbQKS/ZANAwAKAfRpJ40vDAI1AcsmYgBq/KTKg78yHHA1T+U5q33lvKFKhEHajCHacKczx
+ gRFaBZa1/uJAjMEAAEKAB0WIQS+1fz3US2GgJFC6KL0aSeNLwwCNQUCavykygAKCRD0aSeNLwwC
+ NZmaD/9qZAz5FLYTpTVOASrTHfMHxQjA4+DunomqrpVGDSV+BIUU2Ro4t/zHcZhv9m3tc0lx8s0
+ FimzrAPcFwIDyWn12MetCnXqsav6Up6oXDk8BTuKWa0wGZbEBoBnlQ25ywTodqur3XXTnkYP+Ls
+ VCCJCeNA0vfttrII+qqFdAHIXDfxPQefp2MFrsplHJQEIrWw6ZUKQ6m9oUDUFmr8PGKhJ0zlnA6
+ b0F6nHW0nyX+mHPh8vVOfpDE1hQIwtxb5IKnpYVpzgBGFAufVfbvl31VzykbyGMJ9bECmhZZ9yN
+ CAIBHlb3PzFNXUT8tHPcpL+jqUC8roU6si7hcqfEiOynAFoiSq0w5lu0HKWxbdwk+thKngd8jzY
+ z3Y6eHNWdUSbdWABZalFGN1yuUe0gp4AyjGlxzvF2AqmhtpvFHGeCehA0WfJEgEDi+pfaNWoJCP
+ mEwSJMxhOKxpfCXAjRK5d/PI0fD0B9TOLxR5JDKUs3CWhc39NTXYxZ5WRAQS2sw27SS8/VLVjF7
+ t3MtOExaHVigSx0R20rRWKNucV7t9gZOFktQXvOYYpKRyOov8EFHkDA1lGlLtaBLn+k++acUzSR
+ Fktu3CdnHDFv9AWIl8hgc1PTbBJhizS50YTN+u1bvIVXMcvV9t5Yufk0RGOKinb0zt6X8293phK
+ vVURjCf2xVn2qNg==
+X-Developer-Key: i=slp@redhat.com; a=openpgp;
+ fpr=BED5FCF7512D86809142E8A2F469278D2F0C0235
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ypeLFZRN8eIJKXpX-lvyx7gbmYWZ2PFqexiPHNRiN88_1794942170
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE3MDA2NCBTYWx0ZWRfX445iL/3YlAhl
- n/6oZ9HrcVmD6TY044YIs9JqriwvWBDSIw87eewSq5aZSdFQUZFJAxHW1mSzqzkqwa4cukDJeao
- hekXMtmp0AFPXSu5dImomSq/nnPN+jjnQOn4j4hybHKUbnB51IxJTHDPui82AE3x+l2NZF1b+re
- cSYRaGk4AA8YvaYIWJvLLoHDOAD2kFUR9aLJd6xKRDJwLtjw/+jxZbYLQ880XQ7y+0D8KeDKDHg
- VFNAtKnGG1FeP2lXqlAMe0efgPIVkpvfzmN/DJpHP5vowcKioI0KthFY+JWGBXBER2ymMaRv956
- cn43mOmzd+2ntrJzfC92qhM6x/8KY2slJMji+DT7S3rb3xd/vbQDLnzzouRO3UVYwFK4nlNki0c
- Z5LY9ion3LOO+88AT1ZjE94x+gj1sNAKOiFwsarlkShP+/eepmt5zBFnuiYd5plGXgc4ILA5OVB
- gNH0r9BpPKg/pBACS5A==
-X-Proofpoint-ORIG-GUID: kqvKz8SjIFYpw-7s5aMK2Ef3IkxdhTIo
-X-Authority-Analysis: v=2.4 cv=Vsy2kO2n c=1 sm=1 tr=0 ts=6afc7fd4 cx=c_pps
- a=wEP8DlPgTf/vqF+yE6f9lg==:117 a=jbSCbZcLpKDW+DqD08IedQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
- a=NEAV23lmAAAA:8 a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=xx2vz8YcUDPT77_BzWYA:9
- a=QEXdDO2ut3YA:10 a=bBxd6f-gb0O0v-kibOvt:22
-X-Proofpoint-GUID: kqvKz8SjIFYpw-7s5aMK2Ef3IkxdhTIo
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE3MDA2NCBTYWx0ZWRfX5nRxAgneWDx5
- VOvz3WsL3wHLyHyfpTHrmPsIR5MFSAo0Bjaoz3E/5iGy08/9Ntra1UB7qNqjc2wdr3Zuoc3XSw5
- PpEaD3gKjWtxCUwhEnVPonLpwxLTayY=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-17_03,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 impostorscore=0 spamscore=0 clxscore=1015 adultscore=0
- malwarescore=0 bulkscore=0 suspectscore=0 priorityscore=1501 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611170064
 
-Hi Krzysztof,
+VMCI already rejects datagram sends from local network namespaces, but a
+datagram bind still creates a receive handle in VMCI's global port space.
+A VMCI sender outside the namespace can therefore deliver to the local
+socket. Its handle also prevents a global-namespace socket from binding
+the same port.
 
-Thanks for review.
+Reject VMCI datagram binds in local namespaces. No namespace-local
+datagram transport exists, so EOPNOTSUPP reflects the available receive
+paths. Unbound datagram connect() and sendmsg() also return EOPNOTSUPP
+because both call vsock_auto_bind(). The receive callback rejects any
+local-mode socket as a defensive check.
 
-On 11/13/2026 6:41 PM, Krzysztof Kozlowski wrote:
-> On 06/11/2026 18:14, Vikash Garodia wrote:
->> The "iommu-addresses" property describes an identity 1:1 mapping between
->> an IOVA range and the physical memory specified by "reg" in the same
->> reserved-memory node. Without "reg", there is no physical memory to map.
-> This looks like ABI break.
+In a KASAN/lockdep QEMU guest, a reproducer observed cross-namespace
+delivery and the global port collision before the fix. After the fix,
+local bind returns EOPNOTSUPP, the global bind succeeds, and a global
+VMCI datagram still reaches the global socket.
 
-The original discussion was to avoid keeping iommu-addresses in the
-reserved-memory, if not backed by reg. In such cases, it is more meaningful
-to move that entry to corresponding device node.
-Given this direction, the schema was defined accordingly and the code is now
-updated to match the dt-schema. At least on Linux, I do not see any client
-using iommu-addresses without reg.
+Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/sashiko-outbox-212907@kernel.org/
+Acked-by: Bobby Eshleman <bobbyeshleman@meta.com>
+Signed-off-by: Sergio Lopez <slp@redhat.com>
+---
+Changes in v2:
+- Combine the VMCI receive checks and clarify the auto-bind effects on
+  datagram connect() and sendmsg() (thanks to Stefano Garzarella).
+- Carry Bobby Eshleman's Acked-by.
+- Link to v1: https://lore.kernel.org/r/20261113-vsock-vmci-netns-isolation-v1-1-ced02054ea61@redhat.com
+---
+ net/vmw_vsock/vmci_transport.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
->
->> The DT schema now requires "reg" whenever "iommu-addresses" is present.
->> Align the kernel implementation with this requirement.
->> https://github.com/devicetree-org/dt-schema/pull/207
->>
->> An identity mapping requires matching IOVA and "reg" ranges. Reject
->> mismatched ranges and report an error.
->>
->> Suggested-by: Rob Herring <robh@kernel.org>
->> Co-developed-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
->> Signed-off-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
->> Signed-off-by: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
->> ---
->>  drivers/iommu/of_iommu.c | 32 +++++++++++++++-----------------
->>  1 file changed, 15 insertions(+), 17 deletions(-)
->>
->> diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
->> index 6675fc900e6c2d55b34c61dc9effaeb48e24f18f..00b02c19f27e195fc36c4bc1d91253255147c9ab 100644
->> --- a/drivers/iommu/of_iommu.c
->> +++ b/drivers/iommu/of_iommu.c
->> @@ -174,19 +174,12 @@ iommu_resv_region_get_type(struct device *dev,
->>  {
->>  	phys_addr_t end = start + length - 1;
->>  
->> -	/*
->> -	 * IOMMU regions without an associated physical region cannot be
->> -	 * mapped and are simply reservations.
->> -	 */
->> -	if (phys->start >= phys->end)
->> -		return IOMMU_RESV_RESERVED;
->> -
->>  	/* may be IOMMU_RESV_DIRECT_RELAXABLE for certain cases */
->>  	if (start == phys->start && end == phys->end)
->>  		return IOMMU_RESV_DIRECT;
->>  
->> -	dev_warn(dev, "treating non-direct mapping [%pr] -> [%pap-%pap] as reservation\n", phys,
->> -		 &start, &end);
->> +	dev_err(dev, "non-direct mapping [%pr] -> [%pap-%pap] is not supported\n", phys,
->> +		&start, &end);
->>  	return IOMMU_RESV_RESERVED;
->>  }
->>  
->> @@ -211,12 +204,14 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
->>  		struct resource phys;
->>  		int size;
->>  
->> -		memset(&phys, 0, sizeof(phys));
->> +		maps = of_get_property(it.node, "iommu-addresses", &size);
->> +		if (!maps)
->> +			continue;
->>  
->>  		/*
->> -		 * The "reg" property is optional and can be omitted by reserved-memory regions
->> -		 * that represent reservations in the IOVA space, which are regions that should
->> -		 * not be mapped.
->> +		 * "iommu-addresses" must be used in combination with a "reg" that provides
->> +		 * the physical address and size of this memory region, for an identity 1:1
->> +		 * IOVA mapping to that physical memory.
->>  		 */
->>  		if (of_property_present(it.node, "reg")) {
->>  			err = of_address_to_resource(it.node, 0, &phys);
->> @@ -225,11 +220,11 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
->>  					it.node, err);
->>  				continue;
->>  			}
->> -		}
->> -
->> -		maps = of_get_property(it.node, "iommu-addresses", &size);
->> -		if (!maps)
-> I miss the point why you are moving this part. Irrespective to actual
-> ABI break, why do you nee to check for iommu-addresses before?
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 1f186e8f8364..d53704e31af3 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -627,7 +627,8 @@ static int vmci_transport_recv_dgram_cb(void *data, struct vmci_datagram *dg)
+ 	 * outside of the create and destruct socket functions.
+ 	 */
+ 	vsk = vsock_sk(sk);
+-	if (!vmci_transport_allow_dgram(vsk, dg->src.context))
++	if (!vsock_net_mode_global(vsk) ||
++	    !vmci_transport_allow_dgram(vsk, dg->src.context))
+ 		return VMCI_ERROR_NO_ACCESS;
+ 
+ 	size = VMCI_DG_SIZE(dg);
+@@ -1697,6 +1698,10 @@ static int vmci_transport_dgram_bind(struct vsock_sock *vsk,
+ 	u32 flags;
+ 	int err;
+ 
++	/* VMCI handles are global and cannot serve local namespaces. */
++	if (!vsock_net_mode_global(vsk))
++		return -EOPNOTSUPP;
++
+ 	/* VMCI will select a resource ID for us if we provide
+ 	 * VMCI_INVALID_ID.
+ 	 */
 
-It is more optimal to check for iommu-addresses and then read the reg. On the
-contrary, earlier reg is read irrespective of iommu-addresses is present or
-not. So in a way reading iommu-addresses first would ensure that reg is read
-only if iommu-addresses is present.
+---
+base-commit: 65ba8f34ec886ec72b2c07ddc8cf3d815c32869d
+change-id: 20261113-vsock-vmci-netns-isolation-7e46732dcd73
 
-Regards,
-Vishnu Reddy
+Best regards,
+-- 
+Sergio Lopez <slp@redhat.com>
 
->
->
-> Best regards,
-> Krzysztof
