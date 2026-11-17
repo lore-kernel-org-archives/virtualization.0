@@ -1,85 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794892221;
-	b=zOeWdPvT79mgNuALXv2jlHTwE+uQoWBMfLVutPn2H4Mv1W/B5OAgmkCgPNqOM9toGO1I
-	 w3zfrkN+52mPmEcWu7pRoD1Vjwk0yI+E1mcQNHNMUwppWbQFoGLcNlu7VvA2fhPcd13LG
-	 x5cdK1pN/qtCF63aRyhg73WSZl962TOCgnihkY6+XlfyXRWf7yJWU4IegTnGb1QdgGqxe
-	 Qd2aah9GBiGzoMVZ6zSGMuNjrBQXUWFUn82yrPxkiLeFc3x3+2ZNwT3dAUBrwadMgW2g9
-	 lu+SRqod2O4EU4+A+jam78ayH+p2ZkcVQlUvJJmFXhm6+YlJYOWGmHAUXnY06SGuWFg==
+	t=1794892233;
+	b=R/Dbp9WhpZOI/YBQ19uZw/mBSjItt5FY7CsKIPJcjpz9IleOR0xfzYrJ3HiWRabUxK/A
+	 JmtRF7jIHCbawk/2QViv4f/DsjFhv/CgFUXtkZRDWdmhCkkSh6slP2PSiAASxmilgmaSM
+	 ftyaVNZO0uZCNk8Ow+FY80J3aSL+ip75TYis+x03lnPZaGsu/zgOs95Y5VM4Q2NLtkM7O
+	 7gvM85UwSshnJF77lc+Ea5zenO87pry41VWugyyQwkI8GppA2eTJD1+WEGcTabFrXbdCG
+	 ztNAANFxNhqneVzwJTQtYYdC4wO6fou6OJ5DKL/1PkmB75RDp//Wfq002mEma8KfWtw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794892221;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794892233;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=2HROhYrsHDpN8EZWrWCuWsnDk1gTxZfjwa9MvLNeoEE=;
-	b=FCMtv8O4pIUd/eRskdCmVbrX8KhyGSC4MPLIVb9u49c7JSXg0diYc8Bp2rNejhfv8zYe
-	 9ia5eOnIG8nj30GOA36HkiNml3W+B5/pYece5wSTzwkr7JJ8vL3M/cvIJrNWMOqfQgFOi
-	 qB5yP5RRY3xm+Lwj1hcJN8jYxxxTDvNDnQh1p/2IG9LwvhZOpy6FWgHJny2wP+kq+4Csz
-	 5kiO4uvQQ4b6yUmXRI4AgdiyT3gyP2e2aN+qtQCy+qX5JP7brg4sh+1K1OkSbOT3sMsZT
-	 +uthghYsJck/EB6vOEtSl+tBOM3q7DUKKj7uGp623Ukqn5Eh6iNpjd9LW2ZwRfcastA==
+	bh=TIi30UMnkbCM4UtGXQM9HLD1fy4eaWCJLQHah5nV8Gg=;
+	b=X+aBB5e2KMRbPBtLse228qCJC0+YXHtSHpTwUKtZK3DCdnjD+TjuLH79okVSnX4P4PSo
+	 KEDCudoNy9mPSjfOb1tmGLurBhTKk++XjiJGIqKi7DBtERJlEOQc6tyQwEcTd/NeKpbKb
+	 38O5n7EbHH5BCtkUK4/ErtzFT3Udk9nnDU+khz5Q4G6JAY59d/pg24g0qxsH4SsYZr2bU
+	 HfiXxO6qzLQs9WzWKvo6TaAOjMvAgupOgJDiC1fT4lRm5woNmaiaTJ4CT/DrOniPT8LFt
+	 7XvtLNTh3F3VdJf9HZL7cFwCJZ9aqOu20a1lSJn0LygAgzM+tFFAemxIWlRv0aqoQrg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linaro.org;
 	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=GywBbgQW;
-	arc=none smtp.remote-ip=74.125.82.44
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=FHgdsm7C;
+	arc=none smtp.remote-ip=74.125.82.50
+Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B008606A31C
-	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 05:10:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3B008606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B65EB606A31C
+	for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 05:10:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B65EB606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=GywBbgQW
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-1b3b4bcbfc9so5034770c88.1
-        for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 21:10:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=FHgdsm7C
+Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-1a2761c69fbso494695c88.0
+        for <virtualization@lists.linux.dev>; Mon, 16 Nov 2026 21:10:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1794892219; x=1795497019; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1794892232; x=1795497032; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=2HROhYrsHDpN8EZWrWCuWsnDk1gTxZfjwa9MvLNeoEE=;
-        b=GywBbgQWf3QEy82S0kj6TLRR+uZpppTQmcgyE9UotDpL2ujjnLZxP/yg9YIwndsTVy
-         lHs+bwLHwQ63HD4erJoALHGIWrNnWUBLGM5GmIjxoq5obZyufN7IzVao3RbJ9sHp3SW6
-         uTK7KXMiPvoxHl9JOfASrBhDiBTlI6aqxlNUIVQws2Cpa79CNPQjACBgjDteYosnaTS7
-         39GpLMLsTNtYBKPG3Ce/ZteJZe1DUrA1l6BwIsyUzZM88Acn3yR3m5fwr+F5hSe9EQWS
-         EQxwK6ZENubeyR/YUl1n8MuIZk4SMowLpccEsasPXtHXr/U8YGosup0+8xBe6wwMogo/
-         wq1Q==
+        bh=TIi30UMnkbCM4UtGXQM9HLD1fy4eaWCJLQHah5nV8Gg=;
+        b=FHgdsm7C1Q3nIPv2CoKGv/DiHbW41Pq/HbSLNn7G+/LQoEjNbl17EJScCn6Hc9oN8E
+         HanFnbKUP5zCEyPg/1lrGWm2jJ53/COcx56MKeUAtB3XyeVuEwXGawgbohPvKa71l2Yn
+         lvd3f0d1HjJRQG18Y4TQrUxDitSr/HQyts2m93qxf7mDsFVfW4TkUXvHkMPyoQhENuLQ
+         lOjtynHv7LNdFes3xm543kzo1ePBYGpLvRCM4TPj8DQxQkRGzfJlq+Lvn3XZhP/ksDvT
+         0kUX6jA/MNpSjlzc5t6AlulG4wottRXTRlYjbYqQkww3LWHj+9ll4854T80nMndPBxJH
+         X7AA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794892219; x=1795497019;
+        d=1e100.net; s=20260707; t=1794892232; x=1795497032;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=2HROhYrsHDpN8EZWrWCuWsnDk1gTxZfjwa9MvLNeoEE=;
-        b=ME8R7Qv2yU1gqP/BMS1UrEOwD4GmoUVKO5MCLIbtFpQ3wy78EsBN3d64CixvgoT1ML
-         bteGYR/iyWOsoxLLZ5XaK9GHz0YNfVV24imRtgfy+TqaGtCIoUIcuT7WtZakarXa5Zxi
-         x9qZbYQQjReGZZJiDDdkMXUNJRXN+Xae24mj+zR/tLeGQ4QjYI/75M12ht6XYsj8C8Ph
-         pP/rwZDNBB3H6nVXLFGaukOfiSW7o49e3+bNijEDFVY7yJu/KIyVmEBUt4tcs65J5Z21
-         rD+zqkCzCi/TYn0uy13WYW+ybyBANFLG9O52C4x8iLCULtOw9HEWZ/JIKVLCS1LkFRmz
-         AEow==
-X-Forwarded-Encrypted: i=1; AL+hErFKThKWWd+xt9j98QUsRyYpSSocwPBN/Ue3I8w7GGR4ZfchPol7cdEsYLE9EA0LkijDQzKF/4IUgGY884fXBg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8tM/stD75hNVMBOHd6oTfR/P8LWMlT4MnuEHj0tyPJxL40K9ly
-	7NbIsKo1LPas8vcgPxlobTS0cocjgVQlq7oTNVO6cGbrONoJV0bxNLYZ6pEd6kM99kA=
-X-Gm-Gg: AYBFou1FyB/tvK7NBMoalHjIchLcwNycliVL99HlYevT0H9VynRqKepy0ZjCnkizvzL
-	f1M9T9l4mqPmUYpPuEeAdnVtRUIBI7sgGY6B3HdYBfFHbaI6MCRDD/hexBG9WVDpDDiCC90gm+y
-	GM+k85f6lY4dHRUW4peVKBYFaBNtSYmvuyyGK2lQMk4mj3ji4y7ZmGkCUG2rUBkZKpMstqyOhOa
-	83IfuqgBav4YsEmsyrY1DPbLXpluyGTYQH59N5AlziZBUv0hrKMDvtlYlK6eHIpkrOS6iylR+vM
-	Y0bDw6zdIqN5G1/8yvJ+e9mI1cqQs4RCh1MpcQmmmWIUKN8zjCS8IOPKdrOCrF3BtNv3SOCtFnA
-	xsEgSa0xnsutOoMpmpp55AO2RbwAa9glFOuIRn8+JK+IDKNh9n9R/3xxUzU93WnggafnNPfqgQM
-	68lc4R3Mo4KEsHadpSd0p1e+zp7XyDENIEJ1QML+GlqU4LdHTx9M+bkLLse4Iw/yG0dwuuTPdbX
-	oXRx8ms7XrFYmeB/7nZyObNzVJDe/3ezxeu3gWQ/O7PeSPO3to/LlrL2sRKnGFU/ipKLgdZP+U1
-	g3MFT9sS5VKMzKBpSB36I1YsExJYzQ==
-X-Received: by 2002:a05:7022:1081:b0:154:e9d2:d741 with SMTP id a92af1059eb24-1b503112e3amr10151143c88.8.1794892218987;
-        Mon, 16 Nov 2026 21:10:18 -0800 (PST)
+        bh=TIi30UMnkbCM4UtGXQM9HLD1fy4eaWCJLQHah5nV8Gg=;
+        b=l2xdwuNbRiR1orUiWO6rp9NrRhiTsmMy7kNRNES23Ewzmml/DHPB8WQZ421+AsXZHt
+         diADfLb2WydX4wvlhVsssdfxDQqoBNgGDIPXOgcZNHEx76U0ExaF+GDBtO8i5PYv6gya
+         3uRwQ1EhqgWQkVuSxsZARhvX5qkE/LOh44IvADWCkXK8vdhNZSvzsKLQLYKdeAqZjutz
+         emkdIVsQGjjRV/QIXs1sFICmrn6ODAiD+3CLUbXNjp7Y011+qRW7uZ2n7LIr9eYHs8gu
+         abj4SeMjb/xdfZXMa/ty6g6tOTbO0aqyfmZRtpuXSx9p3LwWB2+eITVFuOjR0/0f+Fox
+         7xGg==
+X-Forwarded-Encrypted: i=1; AL+hErGx18YsyYhtF7XsCNLjBe+wfiE3WYwyhQdAZjgWNh+I6xtsKjQd0DbWU3hy5udbFWmIX6RZmrJ/FSUFucnJiQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8ywbI+vMW8BMQrJrhZE7yLj0q7dY+K41nLASW1GsnvWZAWbilo
+	VgNeh1osZ2okO80Ag//OchQE0wqaU9vEOH9qmTEs97JvE0PSS8DkEa4MmrCqPVgwFRA=
+X-Gm-Gg: AYBFou2jCypn7IewK6fFOrrE/OyQN061LMGaqf13P1juM3bkmZkj+ylqZpDFwAipH7V
+	QIwGBuvzWvz/WiWIKdvhq7n5/zbRacIozy7jc9DjGH2JcJqvY6ZsI0tWdFMGCJPqf/vaJq4RibS
+	CKlgJMIGTHDfD9mkH2+dxWiwH4Xk4mtLoBcQ+Q4yuGJZ+CMwpG0gwcEeb+hlEYrEkpSYNVyOER0
+	0UXRc+a9NBCXta7D1RSo/xaCXvlr7RnzpzEnnGaPahYDSJznHMWjmXoA/e9zRW5LkNtMVhcNUcv
+	NYcw8weMDZO4HNEYJeEDkCZU5j0X8HeDCms2QmTi1RmoZ87lFwf/8h64DfPx6/A+SUgsuO/Fmex
+	Bcf5oFUsJVutD34fmeZ6Kk23+SdBZiRk5hHARuHU9WpGhLKjJ6eKLi4wkA3o/nDA5b4iTaOqDby
+	9BzZ5FDPtjaIfwwKshJtdnIJeZ3S7CKlm2OXJdkobX6JeG9wlXSI/P2oeAo26jFgmqyjRlAanGf
+	ypCQIJVHwNpL8bJpsCr3EA3gRoW84Af/OFPdedY/w7piLa6yYVtr/dZ5yPOrPoyuwW5mapqRiTZ
+	idA9USskP8ufEY01iStiV6b9fjZF1I4=
+X-Received: by 2002:a05:701b:251b:b0:144:f089:b189 with SMTP id a92af1059eb24-1b50319ce4bmr12633287c88.36.1794892231696;
+        Mon, 16 Nov 2026 21:10:31 -0800 (PST)
 Received: from localhost ([122.172.83.36])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38116afd7f7sm3856351eec.17.2026.11.16.21.10.17
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37956bad6casm38745543eec.26.2026.11.16.21.10.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 21:10:18 -0800 (PST)
-Date: Tue, 17 Nov 2026 10:40:15 +0530
+        Mon, 16 Nov 2026 21:10:30 -0800 (PST)
+Date: Tue, 17 Nov 2026 10:40:28 +0530
 From: Viresh Kumar <viresh.kumar@linaro.org>
 To: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>
 Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
@@ -89,10 +89,10 @@ Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	Takahiro Shinagawa <shina@is.s.u-tokyo.ac.jp>,
 	stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] gpio: virtio: bound the line names block by its
- configured size
-Message-ID: <avvht67hxDh7a9oV@vireshk-B250M-D3H>
+Subject: Re: [PATCH 2/2] gpio: virtio: compute the line names size in a size_t
+Message-ID: <avvhxNXQ3fI73QgD@vireshk-B250M-D3H>
 References: <20261104195632.1702765-1-lian@is.s.u-tokyo.ac.jp>
+ <20261104195632.1702765-2-lian@is.s.u-tokyo.ac.jp>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -104,30 +104,23 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261104195632.1702765-1-lian@is.s.u-tokyo.ac.jp>
+In-Reply-To: <20261104195632.1702765-2-lian@is.s.u-tokyo.ac.jp>
 
 On 05-11-26, 04:56, Lianjie Wang wrote:
-> virtio_gpio_get_names() walks the line names that the device returns in
-> a block of gpio_names_size bytes, which the driver ends with a NUL, and
-> checks each name only after stepping past it. If the block holds fewer
-> than ngpio names, the walk reaches the end of the block after the last
-> name, and the next iteration starts strlen() at the byte after the
-> allocation. With a block that holds one name for four lines, KASAN
-> reports:
+> virtio_gpio_get_names() computes the size of the GET_LINE_NAMES response
+> as sizeof(*res) + gpio_names_size in an int, where gpio_names_size is a
+> u32 from the config space. A gpio_names_size of 0xffffffff makes the
+> size 0, devm_kzalloc() returns ZERO_SIZE_PTR, and reading the status
+> byte of the response through it oopses:
 > 
->   BUG: KASAN: slab-out-of-bounds in strlen+0x57/0x70
->   Read of size 1 at addr ffff8880026687c0 by task swapper/0/1
+>   Oops: general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] SMP KASAN PTI
+>   KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+>   RIP: 0010:_virtio_gpio_req+0x2b8/0x550
 >   Call Trace:
->    strlen+0x57/0x70
->    virtio_gpio_probe+0xcb4/0xfc0
+>    virtio_gpio_probe+0xc2a/0xfc0
 >    virtio_dev_probe+0xa7a/0xc50
->   Allocated by task 1:
->    devm_kmalloc+0x6e/0x280
->    virtio_gpio_probe+0xc06/0xfc0
->   The buggy address is located 0 bytes to the right of
->    allocated 64-byte region [ffff888002668780, ffff8880026687c0)
 > 
-> Check that a name starts inside the block before reading it.
+> Compute the size with struct_size() into a size_t.
 > 
 > This patch is assisted by Claude Opus 5.5.
 > 
@@ -135,31 +128,29 @@ On 05-11-26, 04:56, Lianjie Wang wrote:
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>
 > ---
->  drivers/gpio/gpio-virtio.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/gpio/gpio-virtio.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-> index ed6e0e90fa8aa..32326d91f33d6 100644
+> index 32326d91f33d6..fb7b40eff37dd 100644
 > --- a/drivers/gpio/gpio-virtio.c
 > +++ b/drivers/gpio/gpio-virtio.c
-> @@ -520,13 +520,13 @@ static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio,
->  	gpio_names[gpio_names_size - 1] = '\0';
+> @@ -494,12 +494,13 @@ static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio,
+>  	struct device *dev = &vgpio->vdev->dev;
+>  	u8 *gpio_names, *str;
+>  	const char **names;
+> -	int i, ret, len;
+> +	size_t len;
+> +	int i, ret;
 >  
->  	for (i = 0, str = gpio_names; i < ngpio; i++) {
-> -		names[i] = str;
-> -		str += strlen(str) + 1; /* zero-length strings are allowed */
-> -
-> -		if (str > gpio_names + gpio_names_size) {
-> +		if (str >= gpio_names + gpio_names_size) {
->  			dev_err(dev, "gpio_names block is too short (%d)\n", i);
->  			return NULL;
->  		}
-> +
-> +		names[i] = str;
-> +		str += strlen(str) + 1; /* zero-length strings are allowed */
->  	}
+>  	if (!gpio_names_size)
+>  		return NULL;
 >  
->  	return names;
+> -	len = sizeof(*res) + gpio_names_size;
+> +	len = struct_size(res, value, gpio_names_size);
+>  	res = devm_kzalloc(dev, len, GFP_KERNEL);
+>  	if (!res)
+>  		return NULL;
 
 Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 
