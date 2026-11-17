@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794874807;
-	b=wBplru90nP/dGGh7YlfJzJLPJKc3bLc2NMLyh9ajFh4SnGKNn1mxCqMjveWHvvL6HDNO
-	 V2hCi+15gW57DHElCY6jKeard7GKO/U4Wu5mVaEPLiDtksF8Q1OOfEsMWnssOvmI7f5KT
-	 g+Q0QGiHPj8+Cak+Hp7V7JsoOKaC72Kq05SGN9Es1uTlUX+KsbhknkvqZwhiEn7rI+TB8
-	 51Ke0TE39noY2t9vhY8NqPcvPBaYLtUfAcTyHAx0P3M6A3tkt7XPtZ7dcqaBXHAJIdOJH
-	 S3VcYKUmNodR6evOrx9/MbHPUVcCRYxhJCwNsPLAeuPAAgvp4pqGBNIL1Be5kYGoqPw==
+	t=1794874816;
+	b=yhIVLf20b28o3BoQIAI1l8E3kqgzhpO4QwgepZHRYbbv3KG3RMc8WyaFx2YXQOg/0W3y
+	 pASohtpUzmSLXZftd6NW2FGmGP2Wgefz/fNf/smINxyZwItxzGVz9dBrMhApQg/4o9ZDP
+	 tGwwinxttVNAd78sARIrvWE0WLokr/Adb4S8T8f8rmjA5KoUOijyJ2o5rrYltaYXcilxc
+	 rwnYAXl7EOeBooMePqpoeU7TlPWiKLV0gb/Gq2cJDyX7nILLy4gT/y+mjMZMRhKSBpZFQ
+	 k7z2uTOVBRB2JmvbKLgi89R4yO0EB5m7l7VdYYxq4T1mD6bxna1p3A9Jj1A6VQ9nm3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794874807;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794874816;
 	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
 	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
 	 In-Reply-To:To:Cc;
-	bh=YC0f0CFnTNvYryYxUtUimiX+FDelPcf3dZpNQNi0OF4=;
-	b=ehcACL2Vzz/pe4FzTHbVQnUxilkcdn/K2uRE4N+43R5Q7AuDbAaKbesOH5RVxMtV+C8P
-	 HRxN3gDdNxtzHLmJrfV94BGH/jKhtE20qiE0D6gOwJAqBKT0SdZJToIf7DTOwCJYo/DeE
-	 kJ7FLAxgO85PDbenMlbIc+Qd5TYsbklEj/4u/bqRGOhi9uG98Fu4Whxp8aTnhnBDUBBWt
-	 3Lfmg7nitrM+bqzeph8HW9ERCoDjY2qy1ZThI18oCrQrG1pMme6+o1zCF/BBJEHnKThOg
-	 Sbdl5fRJhdKcjmA6cQiJlvghEnIzHHArFTm67syholuMeuiKt6ow76RASFdJzH0DKvQ==
+	bh=uP7hcZkT230kP7rxF93VkubUnO4lWwFxbpZ6S50BNq8=;
+	b=ON3y0EN76MS/Pd2KUopG7mz9TEQW8Ja38Z7ZkAi9xOlpDALRMTZ59/hK/Bgz5iPljU7N
+	 MLeyQ8a32hzVCMElSAl+rTNOQQc6DsSbDBQ5mFZJ0PhjSdCAUjjlokb4Ce7X5kb/kjCLt
+	 dAiF1jbenOLoirly4KDFlQ1H9z4bq95GdjM3Y4xpDD7GfuE5DVhJ/E73rkcjzTiIE6NYu
+	 gtKs++quEWEVfZbaiEt7KWbnNd3myhAwD9mOVYhjmkxtgOAUA5b6F0ZhovwHAX2cbnWn1
+	 YSLV4UDPZScW8Wg0sNLTLgVTDQhffgvKU4PlWCWWUOoj2xUct2tdR6WBZ/KZ7YnsG9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XQ5MsPkw;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YgbcV909;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10B18606A31C;
-	Tue, 17 Nov 2026 00:20:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB54B606A332;
+	Tue, 17 Nov 2026 00:20:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XQ5MsPkw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82A491F000C4;
-	Tue, 17 Nov 2026 00:20:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YgbcV909
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA4C1F000C7;
+	Tue, 17 Nov 2026 00:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794874806;
-	bh=YC0f0CFnTNvYryYxUtUimiX+FDelPcf3dZpNQNi0OF4=;
+	s=k20260515; t=1794874815;
+	bh=uP7hcZkT230kP7rxF93VkubUnO4lWwFxbpZ6S50BNq8=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=XQ5MsPkwbtaKe8d00NSxPCD6OAKrunNc+QRDoyviqNZYs08ebk67we41baAgJsZ2h
-	 xr/sLWo/CO092gU3aQzAQTvJysQkjXrAg49tqIWdfENtoql3GhutvIf3Mt8KZuscEB
-	 AZ8OAW1wX6zjjl5pIj/ZpB1y7m8GrXJC0nNdB2DeUv2XzPWluTcjA6tD4QzrLTI/Tg
-	 NKu7B2r7c+Ys8EUM1V6IK/wgTgZ/NaydHfhuR8FTEVQdeNGw/NE/FCr5zUrJHHKQbb
-	 smIB7QGSMg6sjhmlGlKpZla6F9JrUQYAt/F647lfLcEIbrTxXnr9ncgQ5qFzaNPc3z
-	 zkYWs2pi127hg==
+	b=YgbcV9091h3ApXJGeCwLZCN3HaswL0Oyj0F2hufau4bmHLaeX9Y7ycxUB1oJUaWtI
+	 8cR8njJzvRA6CBd+F+KNzOlaxXqsng0gHiyLGe+QwMcxNVs61Vm5W4FsCKmkbzXJAX
+	 92lINtoePfXaHtA5OmdE+/zI8yo+p/10hiRG7yTEfoK4xhYLDFZ1u4PimzH5J+AY8o
+	 kRXNGdljIta9XPVtbd9HGrMm/7r6fhT9Gm5Xn34J0xpdWw7PqwnuvyYpGJhEGp3nZv
+	 uLiVP3zYj1FEWGvfiWjQAWXc5uAuZKgV8bY8CG5mOvDnwR2+tfZBJEUwU6XUvqNzLe
+	 hml4C5WKHiVEQ==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7736C391AFE7;
-	Tue, 17 Nov 2026 00:20:06 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B43AD391AFE7;
+	Tue, 17 Nov 2026 00:20:15 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -59,8 +59,8 @@ Subject: Re: [PATCH net v3 0/2] virtio_net: AF_XDP zero-copy fixes for arm64
  XDP queues
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <179487480503.257811.3119115367169464801.git-patchwork-notify@kernel.org>
-Date: Tue, 17 Nov 2026 00:20:05 +0000
+ <179487481427.257811.11536645665053197427.git-patchwork-notify@kernel.org>
+Date: Tue, 17 Nov 2026 00:20:14 +0000
 References: <20261110153003.23731-1-yanhaishuang@cmss.chinamobile.com>
 In-Reply-To: <20261110153003.23731-1-yanhaishuang@cmss.chinamobile.com>
 To: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
@@ -73,7 +73,7 @@ Cc: mst@redhat.com, jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
 
 Hello:
 
-This series was applied to netdev/net.git (main)
+This series was applied to netdev/net-next.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
 On Wed, 11 Nov 2026 00:29:59 +0900 you wrote:
@@ -88,9 +88,9 @@ On Wed, 11 Nov 2026 00:29:59 +0900 you wrote:
 
 Here is the summary with links:
   - [net,v3,1/2] virtio_net: Don't DMA map the kernel image for the AF_XDP TX header
-    (no matching commit)
+    https://git.kernel.org/netdev/net-next/c/5d761fccffdf
   - [net,v3,2/2] virtio_net: Disable AF_XDP pools on queues above curr_queue_pairs
-    https://git.kernel.org/netdev/net/c/1932779607d2
+    (no matching commit)
 
 You are awesome, thank you!
 -- 
