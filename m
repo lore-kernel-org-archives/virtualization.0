@@ -1,99 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794965915;
-	b=iOnLhTVJnYI+9yJILVFQnadt1WSYWwcw95hiRxQz/N7mYxrTOOHlYSFZ5sXU1TjSSGrt
-	 EXHheejanzqqtHBFgNxHGEbdZ8zU1Cif+5/4nn/lsXlmIDnl/sA7AnUTtMkalGtJKX/Co
-	 eZLlhGGPjl7uGIrAwwMciAQ/Mvrzt1/+QajyAWJfyaMkIsjZn+q19gNirDQMmz7AxMoBz
-	 LiNv7/1lrgzgsrt/YtgxR1iZZH2+U/B8ZapU3PvO6ERlMuIHWVemg/Trdm9xiz3gP1Yhn
-	 7rUrEJ3zoGH6TTotmK+tV+X9t70m0Bq9j+r1e5wb1z5OE7A7n62s3GdH0WI5x2ZJnqw==
+	t=1794966919;
+	b=AOEx/Hlj+0aDIOnkxjKDGtD7DOFrAo5R/1MaEwaEQuHNAIVfkAJXop0IKz8xJFaE+UoG
+	 EXhVpY3vDUMmYbZmeGgq1qNskMqBulCnSDcr97HQrLDnq7jdYH6Vw+C8SCVSOWnH/dhYQ
+	 4nGbQ3PC9E3bDfz+e3XvF8XRk+bwJIIJ9BX7kYlPsn7bPsj7KGXpskAaoSfW8UZEkUJ1i
+	 qrnmvZg021SixIGZJZg+HelbrllOwiorEQzCHA19ER/lvHfwRo3WX5W9kzaIMNObNL0XL
+	 Q9Lh7vc0BQmg8EIMZv5xzbjyP3ESwDFUCiu7h4xa9SztjONCiIAwXdVx6xfKdDyxU9w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794965915;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=X4FNYHTT1LKVhYoSP9CXX5H2kEYFt4XaTxI0OzwyTm8=;
-	b=voYV/Dr5j5B9TF92QJ6d8sypeSrfl+6mOim0MpwdZGVdyalhv3svDsR+FFWhQoyS0mwK
-	 uB/EPVbta/1ewqhJ0s/S0eS318Q+1CtQG0PEaOhuEWw7GbojvhqQcb0qjaNbrRMjQr2sR
-	 M+HkvZIOI8HG2pv/1mR7B221S3PsFxmRBlsDGn/TVbCgF7xxWWnxIk86/zlHtw7FxEzSD
-	 H3ZaQ3VLSsE7DEAKSfQ6dpLpDhcc/dLHNbawzKEYLQ5daDmmmgOLlizkA831JxP3WVvx8
-	 CFCKH8ULH2HZ2mEj0Lpw3zjQBGbSkAu5lljWu1oiWZSVS2uSI+Id5gy6JA9wSvjQPvQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794966919;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
+	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Message-ID:References:In-Reply-To:To:CC:X-Mailer:X-Originating-IP:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version;
+	bh=IAFDDFck3TkcsOlyiLhhqw74fLrYiwTEwjL3bipgbAs=;
+	b=xEOg7TL8w+qJGPah3ZdykjXSbfIasAMpnfCMoZzFdyJTCtYecbknO0KkMVQnKxtipSR/
+	 XA+6tNpXy5/ZWoaC49mlKNLNMIhczB2AuFnr9sO/19YMDtKHxMci7uUo50Ttj/d2WoDw+
+	 9f2j8ha1+jBhX98TjC2ENMzWEq8sXH6tyl2MsrNgwCD2LGboWoNayAiP3lKLhaH28MWFd
+	 4Ep6yKDAofwkuuOIWGLGYG0cGlkTIdXNH8uA0hw8x9GrhUn68x3KjxCKhb9v+faMI6nP/
+	 U2hhyWCb5RhynnCPPDedBBMxBcP9NEXJUwg6BEY4llwrL29L239ugqwizGoJyCKnYAw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=pg8HNXQc;
-	arc=none smtp.remote-ip=74.125.82.41
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=fb2VKLPk;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96BA6606A32A
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:38:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 96BA6606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A720606A31C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:55:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0A720606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=pg8HNXQc
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-14394530ec6so749611c88.1
-        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 17:38:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794965914; x=1795570714; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=X4FNYHTT1LKVhYoSP9CXX5H2kEYFt4XaTxI0OzwyTm8=;
-        b=pg8HNXQciooCPokH66dll3QhgUxYEAAnWW/kwbs1py1qCgLtyIuU3wenh2nd+LpIT+
-         aGgmcFar+yG6IILEJVIKc5Wg+dDd/ORfFdpb8e5YuuJU0tZUul7D/UdQlz7d4rOkzN/B
-         kW+AuYGPFN9Mm2GHDK9bXIkMPlfQLZIKVr8di23BJ8E+x/9J0nPoCFPBIxGpqK0egmv/
-         f8j9/lwB1WEiCOZFDIJyjK7fqkt0Z5zM13yESXpZGc3PNdjYliwv/JR+l+MdpZqAdN2N
-         ctnQsplYwXIYAboUBQJcEJ4BMMMDkXpLJeCWu0FyGqea4NjjcgIIUocSCCaaN0G/oN8r
-         IIMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794965914; x=1795570714;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=X4FNYHTT1LKVhYoSP9CXX5H2kEYFt4XaTxI0OzwyTm8=;
-        b=wJbj+auV2ZLBNs5j7JHD7hJrsEX9oojeyoMtu0TJGFA510lQybMJ2R5h+xdsttOFSd
-         3O0yIeA89TiP9OxxEhH9dHpQ8YcjQAKSyNNKea9VboC79wxBjIJnNuD2p863S1IF9gK3
-         EpIe3AP4c1gYHd7LAk6b1aIT4P1C/dVJETO5LG/fuCde0IFK5W8kk7dCsv6CRs9GkxPr
-         Vr/JvKhZICUW8SZJWz9O62r0NcCw+2TMMhcLSsTV2/dqpWe+XoS86ybGS8EasQ/9T6s+
-         5M/PdH3UjHnk+CqxefliILMAFA/tLNfDvE//RJXr3pueDk/dxOqA0130I7dxkmSalS83
-         ZNXw==
-X-Forwarded-Encrypted: i=1; AL+hErEbx92yW9roAcsbQcIJBMg763vQ20L/SGo450eXerKAvjAhD666FAtVMErzOG0qkoUUBkYKq2ZAyGDXrE3ONg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9CDINXltykc9tRCDQ43qO2aPhwXh+K2eBb9NSt63xybhYRwfca
-	8DmC69KzK2t/XlqiDiDb8NXgE/mGqrWEL1DDEbCZvTTB2AbTZX18u2nP
-X-Gm-Gg: AYBFou1juZx51hFJRqoy6AN0ZPLL20KZXyZNaSMjX9x4jAUxqOPwxazvwbM7+uRKaye
-	eZ0DQHaRQiNMT/WnISiZNeFgsuWUMkPIkGtRKfnaXVdezNIT+0vGme6zPJGo5NsLHvji4geVtdY
-	5ooeD0fUeUaJx7LHMxDRxOPDJ2HrHX7ydZHPkrmTw7UgKi/1WNAuBrWigpFxCw2yM8PoawD2qnH
-	EvKVTvPw+aeoAP4TFkeASE/1im3oU/1E+63QhshHmaCpxvcvr4AGHiWBjGC5FsQWHkO2lQKZGwg
-	Fj+ZFnZea+zrp1g2wYyqndj6tDaqL3aQI6tB0b2OjJxtcDBWjQoQ9b7YY0iDr1RDx2F9Pl7GE10
-	ixAXtcktGF5dJvvYwTQjtzCEBehWMAZW9e9zUR/V7W3xPlaPA5dMwRWZrWybNKEwUfXwVSrGmeY
-	KWsaT/NaczzRgtQsyqWUWv8BGdhcWYsW5lxJ/YP2K3rA8Rm93leor9deAeyB+kghMJcPBmwg6ob
-	/75xdV+drvUIeUyrrrGoVnHhLVKSjCVWx00yaKMxY+YqoyQqJvcppdfTx0urhUPiUzBdRw0V9kZ
-	4+xS9ylFUsrE4+DmW8afDEFogmGTaA==
-X-Received: by 2002:a05:7022:170c:b0:1b5:3819:f8a with SMTP id a92af1059eb24-1b543bff8bdmr1034444c88.38.1794965913693;
-        Tue, 17 Nov 2026 17:38:33 -0800 (PST)
-Received: from phi.nguyendp ([116.86.30.120])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5447c5b02sm1909602c88.6.2026.11.17.17.38.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 17:38:33 -0800 (PST)
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Bobby Eshleman <bobbyeshleman@meta.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Asias He <asias@redhat.com>
-Cc: Nguyen Dinh Phi <phind.uet@gmail.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net] vhost/vsock: annotate lockless accesses to guest_cid
-Date: Wed, 18 Nov 2026 00:48:43 +0800
-Message-ID: <20261117164916.2332953-1-phind.uet@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=fb2VKLPk
+Received: from pps.filterd (m0109333.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AI12EgQ2682821;
+	Tue, 17 Nov 2026 17:55:04 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	pps82601-s2048-2026-q3; bh=IAFDDFck3TkcsOlyiLhhqw74fLrYiwTEwjL3b
+	ipgbAs=; b=fb2VKLPkqaeJY/jtcvubx5YZru83lz9GiLpH7Sq0J2gXnYoFPLhtZ
+	saWGApH+eOyQkIvqMXxJJxX46cc7q8hxVBIxHImknlDKSlXIuU8+NMIBRF5LfAn3
+	QjeN0QgW12bLPZAJ7FRrh31Z13f6DMImWqsGsa2lxTpwmYPYvf2AL6tWbfG2flwn
+	8lMQBSodyp3F9BUP4JulZxMw31e0GJw7LX4aX4zbsq0uYeN1ZObjW4Km2MVDfHvY
+	eg8YdQU4UtLAN71nIdXCHgfEQ68ta/zcG/K79X4zBW746ZOz8Hy06/qhXgi3l+NS
+	SNaz4/kqRK80AD4d74K+iJSDZUKF9vqNg==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j0yu69bc7-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Tue, 17 Nov 2026 17:55:03 -0800 (PST)
+Received: from localhost (2620:10d:c085:108::150d) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 18 Nov
+ 2026 01:55:02 +0000
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+Date: Tue, 17 Nov 2026 17:54:44 -0800
+Subject: [PATCH net-next v7 1/7] vsock: constify the transport in
+ vsock_for_each_connected_socket()
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -103,74 +70,106 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20261117-vsock-guest-ns-v7-1-7e522ea9dd9b@meta.com>
+References: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
+In-Reply-To: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
+To: Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller"
+	<davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>,
+        Simon Horman <horms@kernel.org>, Jonathan Corbet
+	<corbet@lwn.net>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Stefan Hajnoczi
+	<stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+	<jasowangio@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Shuah Khan
+	<shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+        Donald Hunter
+	<donald.hunter@gmail.com>,
+        Eric Dumazet <edumazet@kernel.org>,
+        George Zhang
+	<georgezhang@vmware.com>, Andy King <acking@vmware.com>,
+        Dmitry Torokhov
+	<dtor@vmware.com>, Eric Dumazet <edumazet@kernel.org>
+CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+        <sargun@sargun.me>, <jlinbox@meta.com>,
+        Bobby Eshleman <bobbyeshleman@gmail.com>,
+        Bobby Eshleman
+	<bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
+X-Proofpoint-GUID: 18r-78dAn4V1aP2MF3Sf-hdUsTJ10r6Y
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfXyF0iwtGmE0Nm
+ mLRlPTj40gzuWrHpPu5BWJZut50VA/rvsqFi1QQNJ0Ajt/OpTaaOaCQozvbcui1Z9oZVc1nPauz
+ +a4KhIO3biAzSyT+OC1VSeg6eAqLM7g=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfX0TmEC1TAWeIP
+ +8AfjOpk/yKtzXzc390R2KRKSpI2niZrdL5khyBLIkUJRnGHkA57pvUlnZa9X9JC5SzXLuNglNT
+ HW94A/qP+yLPBXdz5Lfh56NWGsHq4YNCPKrnhBiXz4VphBtTFJQtnD+Yx7+PDuY2Jaa+AQQ7zXv
+ nSfukvdk0GBz7UVYnPVdoaKcOIB6tdSWXaD+w55IMN0FqqZu1wt1IXqS1knMpKZP53bgFkeMNsb
+ yKchJQufg0d3JbSviJZEFznKiN1kst3UrjttokqOLbNIiJw9mgDA8qjU9Jqw+qlOjqqJEd8ONvu
+ NtJJH+edsV+aByksv+bY36ajvOSRRmNPX0Mi+cRqk8uy/08EaGj9uL2RUcRgBUxmA9F33YheJOC
+ blp6vdbT8LkhSsOhTCFJAajan4r2aq3H8Q8XSpSnMUoM3oopB65Ach7D5a5oNIixOOQuDwVWSgO
+ UAnQpIvGE72+T7KpQWQ==
+X-Authority-Analysis: v=2.4 cv=H6JOUOYi c=1 sm=1 tr=0 ts=6afd0577 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=tpM8CJlwf7uhpglF1g9U:22 a=20KFwNOVAAAA:8
+ a=VabnemYjAAAA:8 a=YkCHES2veT9o9JeyN-cA:9 a=0bXxn9q0MV6snEgNplNhOjQmxlI=:19
+ a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-ORIG-GUID: 18r-78dAn4V1aP2MF3Sf-hdUsTJ10r6Y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-17_05,2026-11-16_01,2025-10-01_01
 
-vhost_vsock.guest_cid is written by vhost_vsock_set_cid() under
-vhost_vsock_mutex, but It is also read without that mutex in
-vhost_vsock_handle_tx_kick(), and vhost_vsock_get().
+Allow const transports to be passed too. The function only compares the
+pointer against vsk->transport, which is itself const, and never writes
+through it.
 
-KCSAN will report data-race if we issue VHOST_VSOCK_SET_GUEST_CID
-ioctl while the device has TX traffic. For example:
+No functional change.
 
- write to 0xffff88810f1596ac of 4 bytes by task 7914 on cpu 1:
-   vhost_vsock_dev_ioctl+0x25f/0x720
-   __x64_sys_ioctl+0xc2/0x110
-   x64_sys_call+0x299/0x20a0
-   do_syscall_64+0xc9/0x510
-   entry_SYSCALL_64_after_hwframe+0x76/0x7e
-
-  read to 0xffff88810f1596ac of 4 bytes by task 7910 on cpu 3:
-   vhost_vsock_handle_tx_kick+0x41b/0x740
-   vhost_run_work_list+0x97/0xc0
-   vhost_task_fn+0x98/0x1f0
-   ret_from_fork+0x2e2/0x3c0
-   ret_from_fork_asm+0x1a/0x30
-
-  value changed: 0x0000004d -> 0x00000032
-
-Both readers load the CID once and works correctly with either the
-old or the new value.
-
-Mark the store with WRITE_ONCE() and the two lockless loads with
-READ_ONCE(), so KCSAN knows the race is intentional.
-
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
- drivers/vhost/vsock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/net/af_vsock.h   | 2 +-
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 88a310390eb0..f26c59013075 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -78,7 +78,7 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 3e28865578eb..0ddcf2325ba5 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -234,7 +234,7 @@ bool vsock_check_source(const struct vsock_sock *vsk,
+ 			const struct vsock_transport *transport,
+ 			const struct sockaddr_vm *src);
+ void vsock_remove_sock(struct vsock_sock *vsk);
+-void vsock_for_each_connected_socket(struct vsock_transport *transport,
++void vsock_for_each_connected_socket(const struct vsock_transport *transport,
+ 				     void (*fn)(struct sock *sk));
+ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
+ bool vsock_find_cid(unsigned int cid);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index ce958b48295b..a5c805f3b29e 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -480,7 +480,7 @@ void vsock_remove_sock(struct vsock_sock *vsk)
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_sock);
  
- 	hash_for_each_possible_rcu(vhost_vsock_hash, vsock, hash, guest_cid,
- 				   lockdep_is_held(&vhost_vsock_mutex)) {
--		u32 other_cid = vsock->guest_cid;
-+		u32 other_cid = READ_ONCE(vsock->guest_cid);
- 
- 		/* Skip instances that have no CID yet */
- 		if (other_cid == 0)
-@@ -572,7 +572,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 		hdr = virtio_vsock_hdr(skb);
- 
- 		/* Only accept correctly addressed packets */
--		if (le64_to_cpu(hdr->src_cid) == vsock->guest_cid &&
-+		if (le64_to_cpu(hdr->src_cid) == READ_ONCE(vsock->guest_cid) &&
- 		    le64_to_cpu(hdr->dst_cid) ==
- 		    vhost_transport_get_local_cid())
- 			virtio_transport_recv_pkt(&vhost_transport, skb,
-@@ -859,7 +859,7 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
- 	if (vsock->guest_cid)
- 		hash_del_rcu(&vsock->hash);
- 
--	vsock->guest_cid = guest_cid;
-+	WRITE_ONCE(vsock->guest_cid, guest_cid);
- 	hash_add_rcu(vhost_vsock_hash, &vsock->hash, vsock->guest_cid);
- 	mutex_unlock(&vhost_vsock_mutex);
- 
+-void vsock_for_each_connected_socket(struct vsock_transport *transport,
++void vsock_for_each_connected_socket(const struct vsock_transport *transport,
+ 				     void (*fn)(struct sock *sk))
+ {
+ 	int i;
+
 -- 
-2.53.0
+2.53.1-Meta
 
