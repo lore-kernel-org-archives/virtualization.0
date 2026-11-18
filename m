@@ -1,112 +1,159 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795001328;
-	b=c6f6itmy3b5zI+2ma8y17842ogdO4RMixGh79TW/nOVOnyfhNvLYGZQrc62miriXfpBE
-	 nwaFi/1PMCEtE6wTtBnmSXQpEFA6gwPa7eimnS4jDxNfUNDTgUaGNpOcm4rJ+KanipC6f
-	 wFwvXZs2Q/XgqefzTWDskoPvlv/NW/Jci0C5jsuAOnBg5jZLzwOIl+e4o0TYdQpw+Js/V
-	 5Z3Gp4t+9bFJQLcPWMH96EHXTeffbodhGlbyrCDHnsp6Bum1wtLazscQdGZr9ajPHjV9w
-	 DJo4i5iqMpkGh7LwOFA9JH0c/tfeiKOfbXKFWooE/jaRm7nxW2j+SZ8Wx0cIqhtvPBw==
+	t=1795003718;
+	b=YHF0YKrEkgRyQGjf6qqeU9nLveNbHjfs6KosU5CNjclve0GEfverMa8MvpK5NAxUWveU
+	 VSJD3glszCPlwG2EHT6ggjXP+JABmd22y6Ep3b0OpfX+xUfPgTpjQjFwe+tOrL76xa2Ng
+	 pw36Y8UhwSPw2jiHQqLsFCZwYP4QZFeGQSuhV8Y9dzoIQ7LLvLEbA/TPrd/5wKLiPE1Ii
+	 OQ9fW/cR/ZOUezQCm3ofVOf+iFfyV4wVnnWv5FXHCqmo9NPp7gpEkwU/7e0a+X1yMUp8x
+	 aYgAkv8gtx+3drmTJIEz4CjoNclrH19y2nUThS/AoJaKpHRY9S2jSV1yAKuSxXlbHBw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795001328;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=nG1apVdiiVH5xMYZQ+1A0shEqwCnl5EZjE+Zf2il+6o=;
-	b=0GlsqZMw+u9nxU4MSNICQL8yNtV+uO2sTkZY16/5oPSmcV3HE+BJWlS2NwiK6nAMe+/o
-	 kJo34s2evQoW2+v+oOmrb0g1J07tR1OaHhJblCW2zpzxZm7LgNyU3R7+GzfJFRfAdFBe9
-	 jilMNeJALw3/gU2hO4AvMWn0HUSITs/Adx1vkmTCPYaVFYtWV/hHYwAXQh/hQApIMGhs8
-	 SWe6ryurro8pWLueNwgV9umLZHrScrZtecXjhQz9QjvRWoRIwUintElwbyNQrsUVtdMI4
-	 wGv8hn+1xxucw2mM4yZOXdrl9iZFm9a7SqtCY4ca58dFh0wsPT0swOJ5gGrDwGIcHdA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795003718;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
+	bh=ZqIfHdJWGskORflhidLcXHU0GNeut3EmsuGrPNz6McQ=;
+	b=fJ1Gnyat6OiWGDRNmAvrUmU6/t1L51BBPn9ipOzQQVHYgrBn7HsG9k3SD/V5JSYvKgQe
+	 bwtX+dDZAvmLxgbWe8ip8qNnzTOJr9CQsUZdBfvABOiCyUZW8pFvLlB3HTU5RwMONbIM6
+	 qztmnDTtKm6iPg9hUcRzLgRqqurNJ3/XjGhAtg/mhJgz6DUBxpd5qsmMS8zjGQcE8szV2
+	 XQ70qQva/eeAATfFFyj6xLRoRqIYoFdxecja4v9uHPWmpEt0lUPafa30GvdBxwpx0zeuK
+	 CRGrAgb++NymWEjMZC7p4A6qb2fi1LO5UCSyhK9ySGnO/2cF+xCmQjIZdWtxsOplpBg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=ntylGciU;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=Mug1xXvd;
-	arc=none smtp.remote-ip=205.220.180.131
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=baylibre.com;
+	spf=pass smtp.mailfrom=baylibre.com;
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=S3K1xPI0;
+	arc=none smtp.remote-ip=209.85.221.53
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1593160A2603
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 11:28:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1593160A2603
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13B6A606A32C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 12:08:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 13B6A606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=ntylGciU;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=Mug1xXvd
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AIBM3NW100817
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 11:28:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	nG1apVdiiVH5xMYZQ+1A0shEqwCnl5EZjE+Zf2il+6o=; b=ntylGciUuJZfpWf0
-	c9UM6MyqepvVZTCUP0ikndK0p570RLatJXjQ8tNCA42mvik8m09Q7kgxjCpYLS5w
-	3be24pUUqP+OfFXhNIl/dv7A8fLLeH6RfrBGHOO/30xV0aBqh2ZfzKxI677TTEDd
-	KcbZ5VbENV+w640ft3HbjuEvm/246WpbBNMsmpm1min/ZK1eV/GhMmmg5YZH3KU0
-	zAgVZSwH03j1TilDVNNqaeyEAJ8AqtYa9gTsWf9+netIh/R8bQgtN/NKSM5Ri6RX
-	MunrHSIsDg22tgIDcwR6X4XJZb2Z0OVbk665hfMAIpeETNnFmWOLuL8vK6pqqlau
-	GQpvbQ==
-Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4j0yv9jr40-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 11:28:45 +0000 (GMT)
-Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-30bcb065bfdso1091589eec.0
-        for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 03:28:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=S3K1xPI0
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-4a357b1c649so493033f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 04:08:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1795001325; x=1795606125; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+        d=baylibre.com; s=google; t=1795003715; x=1795608515; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=nG1apVdiiVH5xMYZQ+1A0shEqwCnl5EZjE+Zf2il+6o=;
-        b=Mug1xXvdEZjzPEM85EZcd9eQCcITEnXlN1OP2fEDTU7Q9KXHnPDkAJUubwt5zXj1tB
-         syiG4lK7PV2Mm6S2A3b9Kl+hA5sTZEGGD1ei4kIuXS7QjEo+IVi6pg2GK3fjYI1WjVwv
-         dhUMF/cIYNrNkvYpKCK1v/gd/z+wwGjakcuP99eegX+tsXL45a2lqhDdld/bNtHNE/jr
-         udythPw6Vli4Hq1G1phprcfQdJoFGQtTtndg96P3tEccPsbVNcznHFBK5Bepc6OwgSZw
-         r8osPT0zpsmN6RiWdvmvodQqpSDrdfKaMTkFuWSm3Gno412WfUrNx+Q4ZIJzqs1OVzYM
-         s+Jw==
+        bh=ZqIfHdJWGskORflhidLcXHU0GNeut3EmsuGrPNz6McQ=;
+        b=S3K1xPI0+nLnXycJNgRoB020EHMsLPQnxbqAz/AO7xDKy6ysws4g7cdjHu3HIGZBq+
+         ePTtz5RQsKrz1ggPoWkAkAZWO3PyBP4QDXUc415xwOQzzmFLlq9iRcJSqNUV97ENzdJ9
+         8ABGZf4iO0q9JVW1CgfdamhdpT/+BA8j8tMMpOu/qu0tHV4SrZqrKgIH320BK80jnGC6
+         YbvTVY5ljxW50fABT8wC7uuTgzxQeXFAR9sc8zsAD36C53YWfARFJom8CF4NJh6AM1GH
+         pR6Kp/NafSnBgs6QZGecRkC5I4oWNYSrt9S31rWFlPk68OOoPgBt5+T5bswPwRCPGm00
+         m0pA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795001325; x=1795606125;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=nG1apVdiiVH5xMYZQ+1A0shEqwCnl5EZjE+Zf2il+6o=;
-        b=W7w3/n8p2qldWiRceDMVG271SroA4sMQXeOowLXkFATK4YoRnVTpwd31gNn+dkTsCy
-         yNxuwCJnKeWWB350/Dh13h16zCpOgqxefMefXlHdVW/mwfXLdPbLAnOeR6M+yAlJK154
-         jYtDGvHGkZ4nM3WwpMhJE5mM+bg/cagnEdNunLBa9IaTydoCoAy/8KjlyRgi/LGetOpx
-         14x8qV6LwFy2snAbpMHg6gaDzIMybFK/w14ipXBKPNj0wV60pnZgHMQDdUJzEFjLxExK
-         25bl+sDUaT19mB67FQ9WpsgzBNMvUctdmTPEB2vfoKtNmmhPgHyCdy7LugekhQ23Ir4U
-         3Huw==
-X-Forwarded-Encrypted: i=1; AL+hErFsifTuXL23CBs6ulk+WntXcCDDIAdFwnMA9AihGwGgxvTyB+788Tvp4/yTNukHEduK8Cw6NY8zGy6987wWhA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8XDhmXK2MbtGST0XGFZbicIz0qJHaPnJR5LUWKP8XqxJjbQatH
-	6E1G3wbcedETKMk/rdfNyIS68uQOmamPDmtzIpIOfAACpv1imm9PcISkmfY6llbmgUjMf+2sXhu
-	YkiCTYNUURyV6sCqYWmLHsvtL/OE80zhcUofA9/khRwgQSb6bEOR15dno/5J9A41kzaE5Gg==
-X-Gm-Gg: AZFdTZfVgyD4iyXw7Ocp1Z3uhNPX7QGC75jYD/4gP3PPDaRvlaVc8E1039RXEUJ1p5f
-	JKKNZ5mjqM6Gtw0q481NjK+XZTVJ1n3Nie3MITLwrT9NoRjb3gTj45uP1jK0o6X8D7YtBV3ToNU
-	dD1WoflLemw4RNFL7Hy7Dzu0M6Lg2VfpD7IjGDPgMfprR4/8XAR4sBW3nGKWK98PhgW0zRWym9t
-	GXoZU1iTgWZ54rsfI36770kh8+7eksQI+Gj5IbiP07C+ql7YY+zaUZrq7nhUjaEAyrUPt+3OCL5
-	AqShQyYu7sYF19TloNL9TVKWBLOSfdfWhoT2pkv0M2cRZ/+YFJqDT4o+aLABXt8iQogbXLZGr3J
-	8o54tvu0RBGiNtcPW6jeghqSCH/gIq8+tIy9TwVZjgLFkMGP12yRiEfujOfubQZuMr7jgeb+JRN
-	its6gJaQ==
-X-Received: by 2002:a05:7301:18aa:b0:381:e45d:be08 with SMTP id 5a478bee46e88-38280a3c1e2mr2400856eec.21.1795001323967;
-        Wed, 18 Nov 2026 03:28:43 -0800 (PST)
-X-Received: by 2002:a05:7301:18aa:b0:381:e45d:be08 with SMTP id 5a478bee46e88-38280a3c1e2mr2400813eec.21.1795001323169;
-        Wed, 18 Nov 2026 03:28:43 -0800 (PST)
-Received: from [10.204.100.88] ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-382a72eb2f3sm8539071eec.18.2026.11.18.03.28.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Nov 2026 03:28:42 -0800 (PST)
-Message-ID: <1fcd89e4-feaa-4072-a5c4-56318b1d8475@oss.qualcomm.com>
-Date: Wed, 18 Nov 2026 16:58:32 +0530
+        d=1e100.net; s=20260707; t=1795003715; x=1795608515;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ZqIfHdJWGskORflhidLcXHU0GNeut3EmsuGrPNz6McQ=;
+        b=t8xxOfG8Iy7t46w0lG896LHyrLEVrghq5A/kbsOixyK5+a8+a45r3eK68hBYgyBQsh
+         odcZuSHudshDrcUGVDxMy1UDuLf+NY0Wpo1k8rN4IMRvCzQlf82yzaIB1EE38nAMW2am
+         KXPcDTVpzMJHfDWCdInNvs/X5PcIt35tkDmv6qWKKvnQsYdfA5Ohu7Jrv99hNOWX/2/R
+         0uOlxm7TGWNiMhor+5PfCP703fkklUBAZNM27LkZ1rapg8EhPed6PahI0FFPljBMRPaQ
+         jWug83Tqd+Ap258+tomW/d2cJKHi38YZD/y2QOiy43vO74v7C2wCVprFizKvvQMFgCv2
+         2x8Q==
+X-Forwarded-Encrypted: i=1; AL+hErETCHoMwwLFj5+YJXRX//0li0u181i5Ll7LZeeyhIf4FrZN3a+EfIi1UCyfjJJb2GRHvLGVMDJxi2jo/HB+4A==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9ztT2m4zUym5xB56eOC9K5KIphR9ahGmNQ9bZY5GMa6HumqWED
+	mj8TwFqSBwSYONnY0gxkSfRYX92opsdU9eyC954to8NVN5c0gk293ZaVhllCUO7ZnpQ=
+X-Gm-Gg: AZFdTZchzGzcOAzPDzg0nWDdi/wrwKagCht+fJPA9vlmsiUh2WgEmUjDCBwapYDhY5D
+	hrvaVgSkw+LyZdhY3DL1cRczdu3+cL9mcdHgwq8B4xmNAA0D0PU359iedSrKczltsyoGuYkp4QE
+	q+wbBzy7C9EK3z5NbUmbl04oQQ6+cDtZXkynzTVMvMnywSTxP7rDZ2VJ1m8ojL+uenUriccMJxA
+	EgkQb13DImf0qKs5bUWlaBkBFc/+StlpaCCa2GQ+4lBnk+8YKSdwQHmY6FRbDmtpeWFsPKkLrju
+	73lptsvo/7ppBDjBiafFWbyv9kmYeEMGU9d7JSq4a21SSweSHKoFIpjvEbfY2F5B9q6VJHMqWLy
+	atRkNKrjAsbY8NDQeqyxhXlG9aJlaG9/kAK+ms0anRHw9G5N+CQN6ZPIXxF53mshELldJPrVywQ
+	cYJglK9yRfNl1jhkBom3WewCwg19280f5BhLHcU8KByb4aJURTV5YHc/pgsjpXwiAZ2ZVLWY2Og
+	s2d4ZA6o4DdfmwTsbw+xJv2+UZ5WjyzxauIy8juclq100Wfr2/+wLnaiiAp5F40e7mgsaRX6yE4
+	aGZC/Xz5K6O5HCHKsB34yvNnAF4IOmcvCNXrRPBjRzNDQcOvlA/cNqgyfyXXY6mUjILpbQaHZAi
+	pbgdeVyoIRM31qIQ=
+X-Received: by 2002:a05:6000:470a:b0:4a5:a777:b5d5 with SMTP id ffacd0b85a97d-4a63d1da532mr5045850f8f.55.1795003714869;
+        Wed, 18 Nov 2026 04:08:34 -0800 (PST)
+Received: from localhost (p200300f65f19a904dea20c2220232395.dip0.t-ipconnect.de. [2003:f6:5f19:a904:dea2:c22:2023:2395])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4a65541f3b3sm4537428f8f.23.2026.11.18.04.08.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Nov 2026 04:08:34 -0800 (PST)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>
+Cc: Alex Deucher <alexander.deucher@amd.com>,
+	=?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+	Lijo Lazar <lijo.lazar@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	"Mario Limonciello (AMD)" <superm1@kernel.org>,
+	"Yo-Jung Leo Lin (AMD)" <Leo.Lin@amd.com>,
+	Hugo Sales <hugo@hsal.es>,
+	Wentao Liang <vulab@iscas.ac.cn>,
+	Zhigang Luo <Zhigang.Luo@amd.com>,
+	Srinivasan Shanmugam <srinivasan.shanmugam@amd.com>,
+	amd-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	Marcus Folkesson <marcus.folkesson@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Jessica Zhang <jesszhan0024@gmail.com>,
+	David Lechner <david@lechnology.com>,
+	Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+	Alex Lanzano <lanzano.alex@gmail.com>,
+	LiangCheng Wang <zaq14760@gmail.com>,
+	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+	Dave Airlie <airlied@redhat.com>,
+	Jani Nikula <jani.nikula@intel.com>,
+	Kees Cook <kees+treewide@kernel.org>,
+	Michael Walle <mwalle@kernel.org>,
+	Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Jagan Teki <jagan@amarulasolutions.com>,
+	Iker Pedrosa <ikerpedrosam@gmail.com>,
+	Lyude Paul <lyude@redhat.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	nouveau@lists.freedesktop.org,
+	Dave Stevenson <dave.stevenson@raspberrypi.com>,
+	=?utf-8?q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>,
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>,
+	Jocelyn Falempe <jfalempe@redhat.com>,
+	Yongbang Shi <shiyongbang@huawei.com>,
+	Tian Tao <tiantao6@hisilicon.com>,
+	Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+	Sasha Finkelstein <k@chaosmail.tech>,
+	Andrzej Hajda <andrzej.hajda@intel.com>,
+	Robert Foss <rfoss@kernel.org>,
+	asahi@lists.linux.dev,
+	linux-aspeed@lists.ozlabs.org,
+	linux-arm-kernel@lists.infradead.org,
+	imx@lists.linux.dev,
+	linux-riscv@lists.infradead.org,
+	etnaviv@lists.freedesktop.org,
+	linux-samsung-soc@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	imagination@lists.freedesktop.org,
+	linux-mips@vger.kernel.org,
+	lima@lists.freedesktop.org,
+	linux-mediatek@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-amlogic@lists.infradead.org,
+	linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-rockchip@lists.infradead.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org
+Subject: [PATCH v1 0/9] drm: Improvements around device-id arrays
+Date: Wed, 18 Nov 2026 13:08:07 +0100
+Message-ID: <cover.1795002467.git.ukleinek@kernel.org>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -116,123 +163,326 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 3/5] iommu/of: Make OF_IOMMU depend on OF_ADDRESS
-To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Cc: "Joerg Roedel (AMD)" <joro@8bytes.org>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Jean-Philippe Brucker <jpb@kernel.org>, Rob Herring <robh@kernel.org>,
-        Saravana Kannan <saravanak@kernel.org>,
-        Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Joerg Roedel
- <jroedel@suse.de>,
-        Srinath Mannam <srinath.mannam@broadcom.com>,
-        Oza Pawandeep <quic_poza@quicinc.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Alex Williamson <alex@shazbot.org>, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-        devicetree@vger.kernel.org, kvm@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-References: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
- <20261106-add_iommu_ranges-v7-3-5c0f72083e52@oss.qualcomm.com>
- <yvkcq3zirv5tz2amfbk52a7smbsqs7jrzdisq3qxzw6xkoxklu@rplx3gvxhcoz>
- <dd62aee3-4f23-4904-827c-7f776c4be60a@oss.qualcomm.com>
- <vwg74npvbwdhepp4uownnzlj2ybpiknfktfvrpy6462rdw7snd@tj4vgnn3dtml>
-Content-Language: en-US
-From: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
-In-Reply-To: <vwg74npvbwdhepp4uownnzlj2ybpiknfktfvrpy6462rdw7snd@tj4vgnn3dtml>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-GUID: q0a7g6t-FwUok8SN9FHLAvVXdtHmKp_3
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDA0NSBTYWx0ZWRfX2opoLQrzXGyE
- vWQ/FdzBV4+X4KZ82mqQ3LWYfKHrt8ZxKbAD14f7Okls5+J5xpadhuTFQKrSpRoon3XhX/fvPnM
- jYSXue8eYvDWBNZxKAcrYGdx/Uq8J0E=
-X-Proofpoint-ORIG-GUID: q0a7g6t-FwUok8SN9FHLAvVXdtHmKp_3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDA0NSBTYWx0ZWRfXzC2S+Xyo42vt
- cEqn3N8qftLA8a/oheYJPdh/geVs1EKy0+VwjGSWF4IGuhKmlvZQb4VLFn6Hg8RSRWQaUvEoMLU
- B1B7Ba2j31XQdwm/osTIhHbY3fmTvGwO2th9m2bl/4ctJIpurQpIsILqcgfjKCxhcFfqSh59DK0
- dm4yTGcFxOKTSiZ++kbx1vcSLuPnS43f8rKu3EL1RGs2DyXKExReIBsNWL28zLQCIts1hKbNrZU
- xtKJI6KzOMg/aub/cG0LUdprvkv2OSniWoA15RfoB3bYR/sA1qGUUAzToJ0+IgWsXj15SxXbRal
- Jzp/TxwcbavtVdsB3jQ4OtIIzVyXdjw+mlZllkyBpWQ/YLSnYeumGT4EFoEoS9GEqvmUI7Pm9il
- vLzwrB4cvfY0KKdPw2d0m0v/kPazVDWTrOQmhjBnqZDEWMf+AhtJr4M1DLBaWfVQRM4C+xSHSGY
- 6bNC0JWFZIMShAG6Vrg==
-X-Authority-Analysis: v=2.4 cv=RYIFmFtv c=1 sm=1 tr=0 ts=6afd8bed cx=c_pps
- a=wEP8DlPgTf/vqF+yE6f9lg==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=HfRq2NBFtK1Lh0_1ebIA:9 a=QEXdDO2ut3YA:10
- a=bBxd6f-gb0O0v-kibOvt:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-18_03,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 priorityscore=1501 phishscore=0 impostorscore=0
- adultscore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611180045
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=17437; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=cusi/boMbD+x1Pm/G4pa0m2BbrVcm185QOqhPTSRPB4=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBq/ZUnzEwB4mHy5ZgAJ72PvaAQv4DmXs/I31u7G NTyp2l7bSCJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCav2VJwAKCRCPgPtYfRL+ Tv7RB/9msZyqIvVeGaXtwizzwzzkwmEvZBogp403ClUyjQf6dOFf8vD9xdMFNWtqzOwvKhQuXfM SzT9hOFo8OtXAMVgH/GaZrDV2ErZPyGgUIjEDufg9GVearhhRaUM/g83kesoE+IHiG96xKUxBOD wL4cb1gnIAp7Dn7K1azJGWD11ofvPUxBn73KunSE/xmaBZCStfgyl+oMAtdi3ZLcKZwJ3Sud7Lj HBSJhoawj/nWfTauw3Nl/dIZ7tmkEa1Fu8SdGXIk7YEACZ5uawffoHOn9kd1F58wzXUuoCKMmFj NOForLt+l8rIVAUuwfgytSa5MwOZMoz+ZcOSMlzTgvdmZwID
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+
+the motivation for this series is the wish to replace .driver_data in
+various *_device_id structs by an anonymous union. See
+https://lore.kernel.org/all/cover.1780048925.git.u.kleine-koenig@baylibre.com/
+for the idea behind that and the added benefit.
+
+This bases on top of yesterday's next. (Note:
+https://lore.kernel.org/all/cover.1794469153.git.u.kleine-koenig@baylibre.com/
+is also needed for my quest, but this is orthogonal to this series.)
+
+I didn't split the patches per driver or maintainer team, and I hope I
+don't need to because that is quite some effort for very little gain.
+I'm happy to provide a stable branch for the unsplit series if desired.
+For that I'd rebase on top of v7.4-rc1 in the hope that there aren't too
+many changes that were introduced after that point that need adaption
+here.
+
+All but the last patch is necessary to progress with the quest pointed
+out above. If you consider the last patch churn, that's fine for me,
+just drop it then.
+
+I didn't add everyone to Cc: who was emitted by get_maintainer.pl to not
+trigger mail server limits. Even only keeping maintainers and lists was too
+much.
+
+Best regards
+Uwe
+
+Uwe Kleine-König (9):
+  drm/amdgpu: Use named initializer for acpi_device_id array
+  drm/sitronix/st7571-i2c: Drop unused assignment of i2c_device_id
+    driver data
+  drm: Drop unused assignment of spi_device_id driver_data
+  drm: Use designated initializers for spi_device_id arrays
+  drm: Use designated initializers for i2c_device_id arrays
+  drm: Use designated initializers for of_device_id arrays
+  drm: Use an empty initializer as pci_device_id array terminator
+  drm/pl111: Use an empty initializer as amba_id array terminator
+  drm: Unify coding style for *_device_id arrays
+
+ drivers/gpu/drm/adp/adp-mipi.c                |   4 +-
+ drivers/gpu/drm/adp/adp_drv.c                 |   4 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c      |   2 +-
+ .../gpu/drm/arm/display/komeda/komeda_drv.c   |   8 +-
+ drivers/gpu/drm/arm/hdlcd_drv.c               |   4 +-
+ drivers/gpu/drm/arm/malidp_drv.c              |   8 +-
+ drivers/gpu/drm/armada/armada_crtc.c          |   2 +-
+ drivers/gpu/drm/aspeed/aspeed_gfx_drv.c       |   2 +-
+ drivers/gpu/drm/ast/ast_drv.c                 |   2 +-
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c  |   4 +-
+ .../drm/bridge/analogix/analogix-anx6345.c    |   4 +-
+ .../drm/bridge/analogix/analogix-anx78xx.c    |   2 +-
+ drivers/gpu/drm/bridge/analogix/anx7625.c     |   4 +-
+ drivers/gpu/drm/bridge/chipone-icn6211.c      |   2 +-
+ drivers/gpu/drm/bridge/chrontel-ch7033.c      |   2 +-
+ drivers/gpu/drm/bridge/display-connector.c    |   2 +-
+ drivers/gpu/drm/bridge/fsl-ldb.c              |  23 +-
+ drivers/gpu/drm/bridge/imx/imx8mp-hdmi-pvi.c  |   7 +-
+ .../drm/bridge/imx/imx8qxp-pixel-combiner.c   |   4 +-
+ .../gpu/drm/bridge/imx/imx8qxp-pixel-link.c   |   4 +-
+ drivers/gpu/drm/bridge/imx/imx8qxp-pxl2dpi.c  |   2 +-
+ drivers/gpu/drm/bridge/imx/imx93-mipi-dsi.c   |   2 +-
+ drivers/gpu/drm/bridge/imx/imx93-pdfc.c       |   4 +-
+ drivers/gpu/drm/bridge/ite-it6263.c           |   2 +-
+ drivers/gpu/drm/bridge/lontium-lt8912b.c      |   4 +-
+ drivers/gpu/drm/bridge/lontium-lt9211.c       |   2 +-
+ drivers/gpu/drm/bridge/lvds-codec.c           |   2 +-
+ .../bridge/megachips-stdpxxxx-ge-b850v3-fw.c  |   4 +-
+ drivers/gpu/drm/bridge/microchip-lvds.c       |   6 +-
+ drivers/gpu/drm/bridge/nwl-dsi.c              |   2 +-
+ drivers/gpu/drm/bridge/nxp-ptn3460.c          |   2 +-
+ drivers/gpu/drm/bridge/parade-ps8622.c        |   6 +-
+ drivers/gpu/drm/bridge/sii902x.c              |   2 +-
+ drivers/gpu/drm/bridge/sii9234.c              |   2 +-
+ drivers/gpu/drm/bridge/sil-sii8620.c          |   2 +-
+ drivers/gpu/drm/bridge/tc358767.c             |   2 +-
+ drivers/gpu/drm/bridge/tc358768.c             |   4 +-
+ drivers/gpu/drm/bridge/tc358775.c             |   4 +-
+ drivers/gpu/drm/bridge/tda998x_drv.c          |   2 +-
+ drivers/gpu/drm/bridge/th1520-dw-hdmi.c       |   2 +-
+ drivers/gpu/drm/bridge/thc63lvd1024.c         |   4 +-
+ drivers/gpu/drm/bridge/ti-sn65dsi83.c         |   2 +-
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c         |   4 +-
+ drivers/gpu/drm/bridge/ti-tfp410.c            |   2 +-
+ drivers/gpu/drm/bridge/ti-tpd12s015.c         |   4 +-
+ drivers/gpu/drm/bridge/waveshare-dsi.c        |   4 +-
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c         |   2 +-
+ drivers/gpu/drm/exynos/exynos5433_drm_decon.c |   6 +-
+ drivers/gpu/drm/exynos/exynos7_drm_decon.c    |   2 +-
+ drivers/gpu/drm/exynos/exynos_dp.c            |   2 +-
+ drivers/gpu/drm/exynos/exynos_drm_fimc.c      |   2 +-
+ drivers/gpu/drm/exynos/exynos_drm_fimd.c      |  33 +-
+ drivers/gpu/drm/exynos/exynos_drm_g2d.c       |   2 +-
+ drivers/gpu/drm/exynos/exynos_drm_gsc.c       |   2 +-
+ drivers/gpu/drm/exynos/exynos_drm_rotator.c   |   2 +-
+ drivers/gpu/drm/exynos/exynos_drm_scaler.c    |   2 +-
+ drivers/gpu/drm/exynos/exynos_hdmi.c          |   5 +-
+ drivers/gpu/drm/exynos/exynos_mixer.c         |  15 +-
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c     |   2 +-
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |   2 +-
+ drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c  |   2 +-
+ .../gpu/drm/hisilicon/kirin/kirin_drm_drv.c   |   7 +-
+ .../drm/i915/display/intel_display_device.c   |   2 +-
+ .../gpu/drm/i915/display/intel_lpe_audio.c    |   6 +-
+ drivers/gpu/drm/i915/i915_pci.c               |   2 +-
+ drivers/gpu/drm/imagination/pvr_drv.c         |   2 +-
+ drivers/gpu/drm/imx/dc/dc-drv.c               |   2 +-
+ drivers/gpu/drm/imx/dc/dc-ic.c                |   2 +-
+ drivers/gpu/drm/imx/dc/dc-pe.c                |   2 +-
+ drivers/gpu/drm/imx/dcss/dcss-drv.c           |   4 +-
+ drivers/gpu/drm/imx/ipuv3/dw_hdmi-imx.c       |  11 +-
+ drivers/gpu/drm/imx/ipuv3/imx-drm-core.c      |   4 +-
+ drivers/gpu/drm/imx/ipuv3/imx-ldb.c           |   4 +-
+ drivers/gpu/drm/imx/ipuv3/imx-tve.c           |   2 +-
+ drivers/gpu/drm/imx/ipuv3/parallel-display.c  |   2 +-
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c     |   2 +-
+ drivers/gpu/drm/ingenic/ingenic-dw-hdmi.c     |   2 +-
+ drivers/gpu/drm/ingenic/ingenic-ipu.c         |   2 +-
+ drivers/gpu/drm/kmb/kmb_drv.c                 |   4 +-
+ drivers/gpu/drm/lima/lima_drv.c               |   2 +-
+ drivers/gpu/drm/logicvc/logicvc_drm.c         |   2 +-
+ drivers/gpu/drm/mcde/mcde_drv.c               |   2 +-
+ drivers/gpu/drm/mcde/mcde_dsi.c               |   2 +-
+ drivers/gpu/drm/mediatek/mtk_cec.c            |   4 +-
+ drivers/gpu/drm/mediatek/mtk_disp_ccorr.c     |  14 +-
+ drivers/gpu/drm/mediatek/mtk_disp_color.c     |  20 +-
+ drivers/gpu/drm/mediatek/mtk_disp_gamma.c     |  20 +-
+ drivers/gpu/drm/mediatek/mtk_disp_merge.c     |   4 +-
+ drivers/gpu/drm/mediatek/mtk_disp_ovl.c       |  50 ++-
+ drivers/gpu/drm/mediatek/mtk_disp_rdma.c      |  26 +-
+ drivers/gpu/drm/mediatek/mtk_dp.c             |   2 +-
+ drivers/gpu/drm/mediatek/mtk_dpi.c            |   2 +-
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c        | 395 +++++++++++-------
+ drivers/gpu/drm/mediatek/mtk_ethdr.c          |   4 +-
+ drivers/gpu/drm/mediatek/mtk_hdmi_ddc.c       |   4 +-
+ drivers/gpu/drm/mediatek/mtk_mdp_rdma.c       |   4 +-
+ drivers/gpu/drm/meson/meson_drv.c             |  28 +-
+ drivers/gpu/drm/meson/meson_dw_hdmi.c         |  24 +-
+ drivers/gpu/drm/meson/meson_dw_mipi_dsi.c     |   2 +-
+ drivers/gpu/drm/msm/adreno/adreno_device.c    |   2 +-
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c       |  70 ++--
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c      |   6 +-
+ drivers/gpu/drm/msm/dp/dp_display.c           |   2 +-
+ drivers/gpu/drm/msm/dsi/dsi.c                 |   2 +-
+ drivers/gpu/drm/msm/hdmi/hdmi.c               |   2 +-
+ drivers/gpu/drm/msm/hdmi/hdmi_phy.c           |  38 +-
+ drivers/gpu/drm/msm/msm_drv.c                 |   2 +-
+ drivers/gpu/drm/msm/msm_mdss.c                |   2 +-
+ drivers/gpu/drm/mxsfb/mxsfb_drv.c             |   6 +-
+ .../gpu/drm/nouveau/dispnv04/i2c/ch7006_drv.c |   2 +-
+ .../gpu/drm/nouveau/dispnv04/i2c/sil164_drv.c |   2 +-
+ drivers/gpu/drm/nouveau/nouveau_drm.c         |   2 +-
+ drivers/gpu/drm/omapdrm/dss/dispc.c           |   2 +-
+ drivers/gpu/drm/omapdrm/dss/dsi.c             |   8 +-
+ drivers/gpu/drm/omapdrm/dss/dss.c             |   2 +-
+ drivers/gpu/drm/omapdrm/dss/hdmi4.c           |   4 +-
+ drivers/gpu/drm/omapdrm/dss/hdmi5.c           |   6 +-
+ drivers/gpu/drm/omapdrm/dss/venc.c            |   8 +-
+ drivers/gpu/drm/omapdrm/omap_dmm_tiler.c      |   2 +-
+ drivers/gpu/drm/panel/panel-arm-versatile.c   |   4 +-
+ drivers/gpu/drm/panel/panel-auo-a030jtn01.c   |   5 +-
+ drivers/gpu/drm/panel/panel-boe-himax8279d.c  |   4 +-
+ .../drm/panel/panel-boe-th101mb31ig002-28a.c  |   4 +-
+ .../gpu/drm/panel/panel-boe-tv101wum-nl6.c    |  47 ++-
+ drivers/gpu/drm/panel/panel-dsi-cm.c          |   6 +-
+ drivers/gpu/drm/panel/panel-edp.c             |   5 +-
+ .../gpu/drm/panel/panel-feixin-k101-im2ba02.c |   2 +-
+ .../drm/panel/panel-feiyang-fy07024di26a30d.c |   2 +-
+ .../gpu/drm/panel/panel-focaltech-ota7290b.c  |   4 +-
+ drivers/gpu/drm/panel/panel-himax-hx83102.c   |  47 ++-
+ drivers/gpu/drm/panel/panel-ilitek-ili9341.c  |   2 +-
+ .../gpu/drm/panel/panel-ilitek-ili9806e-spi.c |   2 +-
+ drivers/gpu/drm/panel/panel-ilitek-ili9881c.c |   4 +-
+ drivers/gpu/drm/panel/panel-ilitek-ili9882t.c |  17 +-
+ drivers/gpu/drm/panel/panel-innolux-p079zca.c |  11 +-
+ .../gpu/drm/panel/panel-jadard-jd9365da-h3.c  |  30 +-
+ drivers/gpu/drm/panel/panel-jdi-lpm102a188a.c |   2 +-
+ .../gpu/drm/panel/panel-jdi-lt070me05000.c    |   2 +-
+ drivers/gpu/drm/panel/panel-khadas-ts050.c    |   4 +-
+ .../drm/panel/panel-kingdisplay-kd097d04.c    |   2 +-
+ drivers/gpu/drm/panel/panel-lg-lb035q02.c     |   6 +-
+ drivers/gpu/drm/panel/panel-lg-sw43408.c      |   4 +-
+ .../gpu/drm/panel/panel-lincolntech-lcd197.c  |   2 +-
+ drivers/gpu/drm/panel/panel-lvds.c            |   4 +-
+ .../drm/panel/panel-magnachip-d53e6ea8966.c   |   4 +-
+ drivers/gpu/drm/panel/panel-nec-nl8048hl11.c  |   6 +-
+ .../gpu/drm/panel/panel-newvision-nv3052c.c   |   6 +-
+ drivers/gpu/drm/panel/panel-novatek-nt35950.c |   2 +-
+ drivers/gpu/drm/panel/panel-novatek-nt36523.c |   2 +-
+ .../gpu/drm/panel/panel-novatek-nt36672a.c    |   2 +-
+ drivers/gpu/drm/panel/panel-novatek-nt36850.c |   2 +-
+ drivers/gpu/drm/panel/panel-novatek-nt37801.c |   2 +-
+ .../gpu/drm/panel/panel-orisetech-ota5601a.c  |   2 +-
+ .../drm/panel/panel-osd-osd101t2587-53ts.c    |   5 +-
+ .../drm/panel/panel-panasonic-vvx10f034n00.c  |   2 +-
+ drivers/gpu/drm/panel/panel-raydium-rm67191.c |   2 +-
+ drivers/gpu/drm/panel/panel-renesas-r63419.c  |   2 +-
+ drivers/gpu/drm/panel/panel-ronbo-rb070d30.c  |   2 +-
+ .../gpu/drm/panel/panel-samsung-atna33xc20.c  |   2 +-
+ drivers/gpu/drm/panel/panel-samsung-db7430.c  |   8 +-
+ drivers/gpu/drm/panel/panel-samsung-ld9040.c  |   2 +-
+ drivers/gpu/drm/panel/panel-samsung-s6d27a1.c |   4 +-
+ drivers/gpu/drm/panel/panel-samsung-s6d7aa0.c |   6 +-
+ .../panel/panel-samsung-s6e88a0-ams427ap24.c  |   2 +-
+ .../panel/panel-samsung-s6e88a0-ams452ef01.c  |   2 +-
+ drivers/gpu/drm/panel/panel-seiko-43wvf1g.c   |   5 +-
+ .../gpu/drm/panel/panel-sharp-lq101r1sx01.c   |   2 +-
+ .../gpu/drm/panel/panel-sharp-ls037v7dw01.c   |   4 +-
+ .../gpu/drm/panel/panel-sharp-ls043t1le01.c   |   2 +-
+ drivers/gpu/drm/panel/panel-simple.c          |  70 ++--
+ drivers/gpu/drm/panel/panel-sitronix-st7701.c |   2 +-
+ .../gpu/drm/panel/panel-sitronix-st7789v.c    |  26 +-
+ drivers/gpu/drm/panel/panel-sony-acx565akm.c  |   6 +-
+ .../drm/panel/panel-startek-kd070fhfid015.c   |   2 +-
+ drivers/gpu/drm/panel/panel-summit.c          |   2 +-
+ drivers/gpu/drm/panel/panel-tdo-tl070wsh30.c  |   2 +-
+ drivers/gpu/drm/panel/panel-tpo-td028ttec1.c  |   8 +-
+ drivers/gpu/drm/panel/panel-tpo-td043mtea1.c  |   6 +-
+ drivers/gpu/drm/panel/panel-tpo-tpg110.c      |   8 +-
+ drivers/gpu/drm/panel/panel-visionox-r66451.c |   2 +-
+ .../gpu/drm/panel/panel-visionox-rm69299.c    |  12 +-
+ .../gpu/drm/panel/panel-widechips-ws2401.c    |   8 +-
+ drivers/gpu/drm/panfrost/panfrost_drv.c       |  36 +-
+ drivers/gpu/drm/panthor/panthor_drv.c         |   4 +-
+ drivers/gpu/drm/pl111/pl111_drv.c             |   2 +-
+ drivers/gpu/drm/pl111/pl111_versatile.c       |   4 +-
+ drivers/gpu/drm/qxl/qxl_drv.c                 |   6 +-
+ drivers/gpu/drm/renesas/rcar-du/rcar_cmm.c    |   6 +-
+ drivers/gpu/drm/renesas/rcar-du/rcar_dsc.c    |   2 +-
+ .../gpu/drm/renesas/rcar-du/rcar_dw_hdmi.c    |   2 +-
+ .../gpu/drm/renesas/rz-du/rzg2l_mipi_dsi.c    |   6 +-
+ .../gpu/drm/rockchip/analogix_dp-rockchip.c   |  12 +-
+ drivers/gpu/drm/rockchip/cdn-dp-core.c        |   8 +-
+ .../gpu/drm/rockchip/dw-mipi-dsi-rockchip.c   |  32 +-
+ .../gpu/drm/rockchip/dw-mipi-dsi2-rockchip.c  |   2 +-
+ drivers/gpu/drm/rockchip/dw_dp-rockchip.c     |   2 +-
+ drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c   |  32 +-
+ .../gpu/drm/rockchip/dw_hdmi_qp-rockchip.c    |   6 +-
+ drivers/gpu/drm/rockchip/inno_hdmi-rockchip.c |  12 +-
+ drivers/gpu/drm/rockchip/rk3066_hdmi.c        |   2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c   |   4 +-
+ drivers/gpu/drm/rockchip/rockchip_lvds.c      |   6 +-
+ drivers/gpu/drm/rockchip/rockchip_vop2_reg.c  |   4 +-
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c   |  92 ++--
+ drivers/gpu/drm/sitronix/st7571-i2c.c         |   6 +-
+ drivers/gpu/drm/sitronix/st7571-spi.c         |   6 +-
+ drivers/gpu/drm/sitronix/st7586.c             |   6 +-
+ drivers/gpu/drm/sitronix/st7735r.c            |   8 +-
+ drivers/gpu/drm/sitronix/st7920.c             |   2 +-
+ drivers/gpu/drm/sprd/sprd_dpu.c               |   2 +-
+ drivers/gpu/drm/sprd/sprd_drm.c               |   4 +-
+ drivers/gpu/drm/sprd/sprd_dsi.c               |   2 +-
+ drivers/gpu/drm/sti/sti_compositor.c          |   5 +-
+ drivers/gpu/drm/sti/sti_drv.c                 |   4 +-
+ drivers/gpu/drm/sti/sti_dvo.c                 |   2 +-
+ drivers/gpu/drm/sti/sti_hda.c                 |   4 +-
+ drivers/gpu/drm/sti/sti_hdmi.c                |   5 +-
+ drivers/gpu/drm/sti/sti_hqvdp.c               |   2 +-
+ drivers/gpu/drm/sti/sti_tvout.c               |   2 +-
+ drivers/gpu/drm/sti/sti_vtg.c                 |   2 +-
+ drivers/gpu/drm/stm/drv.c                     |   8 +-
+ drivers/gpu/drm/stm/dw_mipi_dsi-stm.c         |   4 +-
+ drivers/gpu/drm/stm/lvds.c                    |   2 +-
+ drivers/gpu/drm/sun4i/sun4i_frontend.c        |   8 +-
+ drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c        |   6 +-
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c        |  12 +-
+ drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c         |   2 +-
+ drivers/gpu/drm/sun4i/sun8i_tcon_top.c        |   6 +-
+ drivers/gpu/drm/sysfb/ofdrm.c                 |   4 +-
+ drivers/gpu/drm/sysfb/simpledrm.c             |   4 +-
+ drivers/gpu/drm/tegra/dc.c                    |   5 +-
+ drivers/gpu/drm/tegra/dpaux.c                 |   2 +-
+ drivers/gpu/drm/tegra/drm.c                   |  84 ++--
+ drivers/gpu/drm/tegra/dsi.c                   |   2 +-
+ drivers/gpu/drm/tegra/gr2d.c                  |   2 +-
+ drivers/gpu/drm/tegra/hdmi.c                  |   2 +-
+ drivers/gpu/drm/tegra/hub.c                   |   9 +-
+ drivers/gpu/drm/tegra/nvdec.c                 |   2 +-
+ drivers/gpu/drm/tegra/nvjpg.c                 |   2 +-
+ drivers/gpu/drm/tegra/sor.c                   |   2 +-
+ drivers/gpu/drm/tegra/vic.c                   |   2 +-
+ drivers/gpu/drm/tidss/tidss_drv.c             |  12 +-
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c           |   6 +-
+ drivers/gpu/drm/tiny/arcpgu.c                 |   4 +-
+ drivers/gpu/drm/tiny/hx8357d.c                |   2 +-
+ drivers/gpu/drm/tiny/ili9163.c                |   2 +-
+ drivers/gpu/drm/tiny/ili9225.c                |   6 +-
+ drivers/gpu/drm/tiny/ili9341.c                |   2 +-
+ drivers/gpu/drm/tiny/ili9486.c                |   8 +-
+ drivers/gpu/drm/tiny/mi0283qt.c               |   6 +-
+ drivers/gpu/drm/tiny/panel-mipi-dbi.c         |   6 +-
+ drivers/gpu/drm/tiny/pixpaper.c               |   7 +-
+ drivers/gpu/drm/tiny/repaper.c                |  12 +-
+ drivers/gpu/drm/tiny/sharp-memory.c           |  44 +-
+ drivers/gpu/drm/tve200/tve200_drv.c           |   2 +-
+ drivers/gpu/drm/v3d/v3d_drv.c                 |   2 +-
+ drivers/gpu/drm/vc4/vc4_crtc.c                |   2 +-
+ drivers/gpu/drm/vc4/vc4_dpi.c                 |   2 +-
+ drivers/gpu/drm/vc4/vc4_drv.c                 |   2 +-
+ drivers/gpu/drm/vc4/vc4_dsi.c                 |   8 +-
+ drivers/gpu/drm/vc4/vc4_hdmi.c                |   2 +-
+ drivers/gpu/drm/vc4/vc4_hvs.c                 |   2 +-
+ drivers/gpu/drm/vc4/vc4_txp.c                 |   2 +-
+ drivers/gpu/drm/vc4/vc4_v3d.c                 |   2 +-
+ drivers/gpu/drm/vc4/vc4_vec.c                 |   2 +-
+ drivers/gpu/drm/verisilicon/vs_dc.c           |   2 +-
+ drivers/gpu/drm/xlnx/zynqmp_dpsub.c           |   4 +-
+ drivers/gpu/host1x/dev.c                      |  20 +-
+ drivers/gpu/host1x/tegra114-mipi.c            |   2 +-
+ drivers/gpu/ipu-v3/ipu-common.c               |   8 +-
+ drivers/gpu/ipu-v3/ipu-pre.c                  |   4 +-
+ drivers/gpu/ipu-v3/ipu-prg.c                  |   4 +-
+ 272 files changed, 1238 insertions(+), 1017 deletions(-)
 
 
-
-On 11/18/2026 2:32 PM, Dmitry Baryshkov wrote:
-> On Thu, Nov 12, 2026 at 07:10:38PM +0530, Vikash Garodia wrote:
->>
->> On 11/11/2026 6:33 PM, Dmitry Baryshkov wrote:
->>> On Fri, Nov 06, 2026 at 10:44:26PM +0530, Vikash Garodia wrote:
->>>> The OF_IOMMU code relies on OF address parsing helpers, but the
->>>> dependency on OF_ADDRESS is not expressed in Kconfig. As a result,
->>>> of_iommu.c contains CONFIG_OF_ADDRESS guards and a __maybe_unused
->>>> annotation to handle configurations where OF_ADDRESS is disabled.
->>>>
->>>> Make OF_IOMMU depend on OF_ADDRESS and remove the now unnecessary
->>>> preprocessor guards and __maybe_unused annotation.
->>>
->>> Why? What's the problem that you are solving? Why is the current code
->>> bad?
->>>
->>
->> The commit describes the problem as "The OF_IOMMU code relies on OF address
->> parsing helpers, but the dependency on OF_ADDRESS is not expressed in
->> Kconfig"...and instead the code had checks for config or __maybe_unused for
->> cases like sparc.
-> 
-> What is wrong with this approach? What is the problem? There is one, but
-> please state it in the commit message. Something is wrong, otherwise you
-> wouldn't be fixing it.
-> 
->>
->> It was discussed in prior rev
->> https://lore.kernel.org/all/20261104160346.GD3951195-robh@kernel.org/
-> 
-> That's fine, but the reason must be capturedd
-> 
-
-Ack.
-
->>
->> Regards,
->> Vikash
->>>>
->>>> The only architecture supporting OF without OF_ADDRESS is SPARC, which
->>>> does not use OF_IOMMU, so no functional change is intended.
->>>>
->>>> Suggested-by: Rob Herring <robh@kernel.org>
->>>> Co-developed-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
->>>> Signed-off-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
->>>> Signed-off-by: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
->>>> ---
->>>>    drivers/iommu/Kconfig    | 2 +-
->>>>    drivers/iommu/of_iommu.c | 4 +---
->>>>    2 files changed, 2 insertions(+), 4 deletions(-)
->>>>
->>>
->>
-> 
+base-commit: 7cfbf79c66c63e807ea452abf0546e6f6d6833a6
+-- 
+2.56.0.rc1
 
