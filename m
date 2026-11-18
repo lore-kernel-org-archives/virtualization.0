@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794984788;
-	b=1VFJc2KgLqF/jKW2EfcoWm0HInUS7cwbe7YdlhdrCOMI8lzBmWpK9FzAwN6EoW77G/r0
-	 yGA8OVsWL10ce4ZzGabeZU/cKhgBnBvNIS3p4krtMGHc/oce4pdS/4hgbKS8/H817QUjc
-	 4GunZu6+0QkyePv6VqwF5JoBVMZF1dDJWK90F7ito+NREbsBCYoUB47Ko3qDgQnUIeE+o
-	 plpO6Qf8VR0hnShiXXIcSVOJh9J4DJ5L/sAeQDKbofox/WXTRs9/E1VWxLNkMj9fhR2wp
-	 ijVrcabG+dK1K1DJ8vFfjZny5jrB7QrFjDIufC3pQsRWqnmCgvFQf1SSQEbOSXbDZLQ==
+	t=1794984804;
+	b=idMkrKNw8GgDUoVV3Dm7SBOCEWVBxupjI0Oq3bhG8ANI6ksFvSaAuSrld1Dt6V4eUA1s
+	 +I6m0Q54RGrUvgqkWIANBZC6YyoWterBOJuQBTJ0IL4NVFOUC9FUXmN3wF9R3x97IMVKj
+	 zvBIHg1VfbZjkw0yrvJXu7BEYLzVas6B2fXXgoHXhLR2aXB3tjH280tYB8uDykiH6mRRe
+	 DQicKzK0KMwaBNfXsgzkP8TrzbiwiLD6z+snyxSHKiJ3FUK31Pr+HW9+KcVw4Snko3XVs
+	 dxEbjUT54NHDlR8PQQJFBscUwz8fbdMwsklCLX7HLYGR03uXONmqwcplg9P9jakgzoA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794984788;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794984804;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=pAX7+YWc1zhaQmOMigmVD+shaCTS6dHwBQ8zFvoDAzk=;
-	b=bu2vx7j3AjEgzvhMP6Kz6DJkb+SpLBAJ8NqI6QBYBlapnXqXt6DB4ZXgLk5IVrR9DQhQ
-	 3rGOzLPs414KDmZTs8VBoDglY89lQi2gxGkBIbWjt4TffvA5DwNxSxRkKC78Y/7PioBNz
-	 T/nPit2yekoMdCQtPUyNE+0qjBCj0jmLnvBxes2qHoxEFGv/leXTIjZlnW/xpREgdn7Po
-	 Q0bqCghoLTjK+w0eCMH9bbSFXl9bQCYdE8cglzqNX1VAwMRnvmyUy/HBcYF/sTryJjo5Y
-	 CCBZJOzp3Saq+Q0plBbjCdUn3TDtyFiyjqw9JOU/A3erqVd6LFKzrMs4jdIut43uECw==
+	bh=S0nfDxGSU6qmU0jGKm52c9MdLeDuadQvfhhQaconSOo=;
+	b=GsF3wju/ebIrfiX4g6mK6oUeh1yvbzdwPt69oyQ8P2UjevBKn9OuIUnAm4Zm/vpDy1lu
+	 EXfxOvWTqGz4w8wLk+JiQCITx7qjcOAqiKHi3+CYBQh1DLvUe/0Qs2niwIzwNtFUVQVZu
+	 drwnOsDXMlg93984qvexy8Pzg3k7MK8U78FhtB5pb/yfl5BSUXlxmtniK8VyakF2dU3To
+	 R3hovExSXKczPIWs3v/GRhQB1wstAf5BUQ9V71/ixWLeSssatIEpXY4m36rOa4k5X9zRI
+	 NsNA3RT2+yrn3uUFSPs/opUDulJn9OEFteZ3e6j3YXiTpRxSYCUxijWhJLmRddWHT6Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LROmWMrC;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CnnREPlf;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F8E606A325
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:53:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84845606A31C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:53:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LROmWMrC
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF541F000C4;
-	Wed, 18 Nov 2026 06:53:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CnnREPlf
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0351F000C4;
+	Wed, 18 Nov 2026 06:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794984788;
-	bh=pAX7+YWc1zhaQmOMigmVD+shaCTS6dHwBQ8zFvoDAzk=;
+	s=k20260515; t=1794984804;
+	bh=S0nfDxGSU6qmU0jGKm52c9MdLeDuadQvfhhQaconSOo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LROmWMrCh/IzBB7C5jnSGs9yVhrDDyo1nK4vzyZuKgrv97CtLxx0XIZesltXOLxXw
-	 nohKcwJIVC3YGmHz2P2A65Res0FZGX4+0nYCyorrsgtoNf9yS059wFMS1/HSNxZKhY
-	 9meFG1D30u/dJtZ8g4XluetHq0/7qCWvV0obEcis34t6R17AMurwNPfTxnFGB39ix6
-	 srsEuixbxebhQVkrlTV9CokweShlwFEWj3faaB6ajnIQL/h5A6UESNajhbiKtouDUV
-	 11DWoZKIyQAzWxmT1yvgoz+FK1nzjttNkoK0odwxGYEHOn5XomLPb1ap2M5wVLGkF+
-	 bNH33R0Yu7Xcg==
-Message-ID: <sashiko-outbox-220276@kernel.org>
+	b=CnnREPlfp/pPrEN4wtpJs3Cnb+PTb2l0BvTYd/xtbTujCV4MadUpiudik+Yf61TUa
+	 DugLAEXvvON0+q8lJNzzh9Xp+1SCxtn7wer9fDOa0w9NQIgi0t0+45kmdFqso/rul/
+	 3DLgqXnvBFTD2tqZ3GlPVn8svxgueN/LHh7v8XWRc9/+UpcDKNarkneJlO2/5I9xrr
+	 knxozQ6ShqwNwxqrF/q2oyvcsnY/MSH8tlxFusSocHwqzTn304Y8Qs+XJU1jKDreg5
+	 CPu+fiQgYzs8/CtMIkkRCfhFSa7XqmeQuIILlb3tkp4O7+CyH6j1/kL8cUCRKXHyYo
+	 Z/LxfG5MVUvUg==
+Message-ID: <sashiko-outbox-220277@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/3] x86/vmware: Route low-bandwidth hypercalls
- through a static call
+Subject: Re: [PATCH v4 1/3] x86/vmware: Move high-bandwidth hypercalls out
+ of line
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Zack Rusin" <zack.rusin@broadcom.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <7c77ebf56fe48daad11a0de31ff41785364e5029.1794206170.git.zack.rusin@broadcom.com>
+In-Reply-To: <59bf54707b78e2a4d2072c1aff6bcf72cb35e6b2.1794206170.git.zack.rusin@broadcom.com>
 References: <cover.1794206170.git.zack.rusin@broadcom.com>
- <7c77ebf56fe48daad11a0de31ff41785364e5029.1794206170.git.zack.rusin@broadcom.com>
+ <59bf54707b78e2a4d2072c1aff6bcf72cb35e6b2.1794206170.git.zack.rusin@broadcom.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 06:53:07 +0000
+Date: Wed, 18 Nov 2026 06:53:23 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,37 +62,22 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> The high-bandwidth helpers contain inline assembly which temporarily uses
+> %bp as a VMware ABI register. Keeping that assembly in vmware.h duplicates
+> it in callers.
 >=20
-> The low-bandwidth wrappers duplicate inline assembly for the backdoor,
-> vmcall and vmmcall paths, and each repeats the TDX check. The early boot
-> path also needs a separate dispatcher until alternatives have been
-> patched.
+> Move both helpers to vmware.c and export them for the vmwgfx module.
+> Preserve their unwind hints and remove the redundant caller-wide objtool
+> annotations from vmwgfx.
 >=20
-> Move the assembly into four backends selected by a static call. Pass the
-> command with input and result structures instead of ten arguments with
-> nullable output pointers, as suggested by Linus. Keep the existing wrapper
-> API for callers.
+> Preserve the argument sequence from commit e0e022004bbe ("x86/vmware:
+> Fix i386 high-bandwidth hypercall arguments").
 >=20
-> The backdoor remains the link-time target for early DMI probing. TDX
-> guests cannot use its I/O port, so it forwards them to the TDX backend,
-> which still rejects other hypervisors such as KVM. Each backend fills
-> the complete result structure. The backdoor replaces the low 16 bits of
-> %edx with its port; vmcall, vmmcall and TDX preserve them. Export only
-> the GPL trampoline so modules can call it but cannot retarget it.
->=20
-> The selected static call also makes vmware_hypercall_slow() obsolete.
-> Remove it in the same change so no runtime code refers to the init-only
-> mode byte. Print the selected backend by name instead of its numeric mode.
->=20
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-> Co-developed-by: Zack Rusin <zack.rusin@broadcom.com>
 > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1794206170.gi=
-t.zack.rusin@broadcom.com?part=3D2
+t.zack.rusin@broadcom.com?part=3D1
 
