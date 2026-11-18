@@ -1,64 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794953832;
-	b=Xrmcc0ShiGqVfHaKOTGGnO5DiXCnbl2qFXgD6iXDYaHtG9xL2dGDR6dJTloI0zAlSI5H
-	 2pwL9qui7nxv1nFKl8f2Z1rfVdBIGjpPkvmZ707BgceEqmimJkZUfaEcpvJ0Qe3BlzuFz
-	 2ZitY4jA0Hs7QSLZV0BlU669u0olNX/eQDbWUuiyDEXIqiGciSThuUZzkThgO6iqIT3O7
-	 s/vJEm1e+a2gzPwfeoFSryvgfOUOGZctPl1foO5/48siFNlPpejXCurc9QTECNK1DvriU
-	 Oz/5Ht9jJuBeHA5XGSSePmvj6jh5pwY/upaZcB0WwRFy0l2hVJiWS3ul45e1Tmk6bUA==
+	t=1794962230;
+	b=Xpoczod5E7Rk+NnYa3AcIVOhXszU/sEoxhn0s1XeX3T+w3FS+K/F7euuCCW8h5ZER9iA
+	 yxwe9hdrp0OBBxbSIGS81GBnO7CN/eB6ThHE2lAmto4HWmNra66A5AAKfYn31Qdz/5aH4
+	 +BXeF3wRj/civ0bHXAk6VvaXbJQm57j0njXV/pWJHPe4SR9JSmuazwUaK5SCKsWUMhmNv
+	 L7bFgRuFxhCrLc9zDsdJwHhGQ8bEuMoKYfK/Fyl7+o7i1cPVaFrWZYern+8kM11rNPpS4
+	 kC8gDQKLnonYBOKFF5a1ZGbqJYleT1qsWT0tCRkeAk4OQZSWDhuW82GtmtkgW3x5q3w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794953832;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=HZmOEPvPxYerhC/fCvV29tXtjTOQjkEufMh7FEDGzeY=;
-	b=uu1pShMa5H0NjbYsJdAIcZrof7pG5bEDoj9P4+bABmxMmWIkYFixcPRbZLllWPED+cXZ
-	 4mb6ipr5Rt6RvLW9AoCciNUpiDHX+YkCyij6Tps4aZROVoydLcN1EzoO72uqKDtTFE/hS
-	 /ryJcnwDxZDsGhHXPf+6vsXhdvsbCB8UVq1AQApJx100T18pH2xzc0os1tfM8fFaNDPtV
-	 QQ5D9qd/10CwRxmRHC3lbzTUvVZiZnEX7dg99YSvN0oKLTLfpRmW40OZT2wPGRO2SZTHo
-	 pvKgjzjLXGNskD2PygzlvwCc8yk5wjp/NC1Nr33UTD/lhDMeQHk61gHgEJb42ZqyOcw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794962230;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=OmzVWCZFDR+bdD7Tn9ufN+qT1kyy1LCr5wTeQGcedQ0=;
+	b=dyHTa1dFKKae+2zvycP0lUOab6G3noNKenGTmhNhaul+sIiOX9Gf51DcgH6Pgs3rxMYC
+	 iBDmH77wHcFX4EaJi8kCu4KnlQUCv7ee5HnBMKokweg/kf0atDANJjCydtJS0eQRMFK9G
+	 +qXMS53kf8pkklaR//UoqrQWttq9zveXmoRV47vtgtZl8TZqstpl30HYCOfFPkMy2oJfv
+	 BvB+flhATPqM96A3lX4XEvuSvCcPQLxVgdjM9lmZeLM59flRwqzU9QBUg2XmZnViEXVO4
+	 8LgygriDLETOQvM3LnMM5D5J39c0kenB2P2RDDB8Fam1S1JazzoLYPWwE25IAuJ23YA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nWHuT+Gm;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=NQX3gFw6;
+	arc=none smtp.remote-ip=198.137.202.133
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 979E8606A880;
-	Tue, 17 Nov 2026 22:17:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68F06606A31C;
+	Wed, 18 Nov 2026 00:37:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68F06606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nWHuT+Gm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB7E1F000C5;
-	Tue, 17 Nov 2026 22:17:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794953832;
-	bh=HZmOEPvPxYerhC/fCvV29tXtjTOQjkEufMh7FEDGzeY=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=nWHuT+GmznUHvzPMjK3A5hMsIa5xkMTH2p+O6c0TqGgm/xW6TJRqWTPA+LxdmxbkZ
-	 tllXWoMDFwVvyyeOTSL3xv8m4BhlKJC9jw+a/8C5aG95bcxVapEJDEIfORBA2bF40u
-	 wYxkA7Lpk1uZyf09PRUkZKVGcjB1Wc/DBp/k8odC4iEVGL4tZ9WygrkMckKVeoarUu
-	 7J5e7YyndkKKqfHyPBC9w63U1IyL8jD7jatCHeQ9hxS2MwhRGgo3uyiaZ1/ymtrKlg
-	 7ROsaIOrbdPg1X7o/6ibkWMQn1Q3xMmBwipb+6oVYjlGuQn4L6n32jVpM+fDd/HpMb
-	 TEEPiciyIlXEg==
-Subject: Re: [PATCH net v6 2/2] selftests: net: add a vhost-net test for the
- tun NAPI queue bound
-From: netdev-bot+sashiko@kernel.org
-To: antonio@mandelbit.com
-Cc: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
- andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
- eperezma@redhat.com, shuah@kernel.org, ast@kernel.org, daniel@iogearbox.net,
- hawk@kernel.org, john.fastabend@gmail.com, sdf@fomichev.me,
- maheshb@google.com, peterpenkov96@gmail.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org,
- bpf@vger.kernel.org
-Date: Tue, 17 Nov 2026 22:17:10 +0000
-Message-ID: <179495383061.3136.10369646169201165375@kernel.org>
-In-Reply-To: <20261113212237.1742984-3-antonio@mandelbit.com>
-References: <20261113212237.1742984-3-antonio@mandelbit.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=NQX3gFw6
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=OmzVWCZFDR+bdD7Tn9ufN+qT1kyy1LCr5wTeQGcedQ0=; b=NQX3gFw6lRvDGC0yU8UhekA5Oy
+	gFdB9ufSeWvr49UuK6RBl0r/Jkg7EEmLVXl49M1vAQmwpt4jPnwuRNUg4fH2h8EUv3+r2bfYBK+Ri
+	MT3Sj71fhCK5Z8RJQv8eXlRacZYSd2tlwRiGvmip3eeMgECvucwbd4PYhOLE7fuL7fszrZVo3VcDx
+	uwHTgIHvJnpG16raAq2xTMQsZV7oIgTl22DdJMeF27myk9XvpF8A+xd+gJ8H3gUv1qkWU91c745Eb
+	48F7QEi5hLKC4O5f3Av2ic/qxUbKL2PeT17YmnVh2Wp8WUYXJQBrqpdMZKVhlAcf+Fied/Kv1sKDo
+	dtocPIYg==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xTTfe-00000007NcH-2Xz4;
+	Wed, 18 Nov 2026 00:37:06 +0000
+Message-ID: <3fe5214e-5699-4cd6-9d5d-f529e49f4928@infradead.org>
+Date: Tue, 17 Nov 2026 16:37:04 -0800
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -68,279 +58,80 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 02/12] docs: ioctl-number: update sound entries
+To: sashiko-reviews@lists.linux.dev
+Cc: Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
+ David Hildenbrand <david@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
+ Leon Romanovsky <leonro@nvidia.com>, linux-mm@kvack.org,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ linux-sound@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+ Marcel Holtmann <marcel@holtmann.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
+ Chas Williams <3chas3@gmail.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Helge Deller <deller@gmx.de>,
+ dri-devel@lists.freedesktop.org, MPT-FusionLinux.pdl@broadcom.com,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
+ Miquel Raynal <miquel.raynal@bootlin.com>,
+ Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+ Zhihao Cheng <chengzhihao1@huawei.com>, linux-mtd@lists.infradead.org,
+ Neill Kapron <nkapron@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>, Hans de Goede <hansg@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Sean Christopherson <seanjc@google.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
+ linux-ext4@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>,
+ devel@lists.orangefs.org, Paulo Alcantara <pc@manguebit.org>,
+ Namjae Jeon <linkinjeon@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+ Chao Yu <chao@kernel.org>, Florian Fainelli <florian.fainelli@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Tzung-Bi Shih <tzungbi@kernel.org>,
+ Benson Leung <bleung@chromium.org>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ amd-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, intel-gfx@lists.freedesktop.org,
+ Matthew Brost <matthew.brost@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ intel-xe@lists.freedesktop.org
+References: <20261114202653.3113381-1-rdunlap@infradead.org>
+ <20261114202653.3113381-3-rdunlap@infradead.org>
+ <sashiko-outbox-215802@kernel.org>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <sashiko-outbox-215802@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 6 potential
-issue(s) to consider.
 
-Critical: 0 · High: 0 · Medium: 4 · Low: 2
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+On 11/15/26 12:27 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 5 potential
+> issues to consider:
+> - [Low] docs: ioctl-number: wrong code, range, and conflict marker for
+>   scarlett2.h
+> - [Low] docs: ioctl-number: incomplete sequence range for sound/pcm.h
+> - [Low] docs: ioctl-number: incomplete range and tab char for
+>   sound/core/pcm_compat.c
+> - [Low] docs: ioctl-number: incomplete sequence range for
+>   sound/core/seq/seq_compat.c
+> - [Low] docs: ioctl-number: missing conflict! marker on switchtec.c
+>   under code 'W'
+> --
 
-- [Medium] In tools/testing/selftests/net/tun_vhost.c, TEST_F(tun_vhost,
-  napi_queue_bounded) opens /proc/sys/net/core/netdev_max_backlog at…
-- [Medium] napi_queue_bounded() writes "8" to the system-wide
-  /proc/sys/net/core/netdev_max_backlog (line 198) and restores it only…
-- [Medium] tools/testing/selftests/net/tun_vhost.sh does not reliably
-  restore vhost_net's module parameter.
-- [Medium] In the zerocopy variant, when ASSERT_LT(ms, 5000) fires
-  because buffers were not returned, __bail() runs FIXTURE_TEARDOWN,…
-- [Low] The test is named after the tun NAPI queue bound, but it cannot
-  catch a regression in the poll half of that fix.
-- [Low] The comment in tun_vhost.c FIXTURE_SETUP (lines 126-128) says the
-  IPv4 frame for another host is one "which the stack drops without…
-
---
-
-selftests: net: add a vhost-net test for the tun NAPI queue bound
-
-This adds a kselftest that feeds an IFF_NAPI tap device from vhost-net
-with netdev_max_backlog lowered to 8, covering XDP batches, MSG_MORE
-single packets and zerocopy buffers. It checks that excess packets are
-dropped and counted, that the queue keeps draining and that every buffer
-comes back. A wrapper script loads vhost_net and, if possible, reloads it
-with experimental_zcopytx=1 for the zerocopy variant.
-
-> diff --git a/tools/testing/selftests/net/tun_vhost.c b/tools/testing/selftests/net/tun_vhost.c
-> new file mode 100644
-> index 0000000000000..c9bf6d07cc265
-> --- /dev/null
-> +++ b/tools/testing/selftests/net/tun_vhost.c
-> @@ -0,0 +1,222 @@
-
-[ ... ]
-
-> +FIXTURE_SETUP(tun_vhost)
-> +{
-
-[ ... ]
-
-> +	fd = socket(AF_INET, SOCK_DGRAM, 0);
-> +	ASSERT_EQ(ioctl(fd, SIOCGIFFLAGS, &ifr), 0);
-> +	ifr.ifr_flags |= IFF_UP;
-> +	ASSERT_EQ(ioctl(fd, SIOCSIFFLAGS, &ifr), 0);
-> +	close(fd);
-
-[Severity: Low]
-Would this test notice a regression in the poll side of the tun NAPI
-queue bound, the "dequeue at most budget" change in tun_napi_receive()?
-
-The tap is brought up here, but threaded NAPI is never turned on through
-/sys/class/net/<ifname>/threaded. So the NAPI poll runs inline from the
-vhost worker's local_bh_enable(), serialised with the writer, and the
-queue is already empty when the next packet arrives.
-
-Turning on threaded NAPI would not be enough either. netdev_max_backlog=8
-is below the NAPI budget of 64. The old behaviour (splice the whole
-queue, process budget, splice the rest back) would process everything it
-took out and never put anything back.
-
-The checks at the end of napi_queue_bounded():
-
-    EXPECT_GT(dropped, 0);
-    EXPECT_GE(rx, PKTS / 16);
-    EXPECT_EQ(rx + dropped, PKTS);
-
-would all still pass if that tun_napi_receive() change were reverted. The
-drop threshold and the schedule-NAPI-on-drop changes do look covered.
-
-> +
-> +	/* each buffer: vnet header and an IPv4 frame for another host, which
-> +	 * the stack drops without counting it
-> +	 */
-
-[Severity: Low]
-Is this comment accurate? The destination MAC 02:00:00:00:00:02 makes
-eth_type_trans() mark the frame PACKET_OTHERHOST, and ip_rcv_core()
-counts it:
-
-net/ipv4/ip_input.c:ip_rcv_core() {
-    ...
-	if (skb->pkt_type == PACKET_OTHERHOST) {
-		dev_core_stats_rx_otherhost_dropped_inc(skb->dev);
-		drop_reason = SKB_DROP_REASON_OTHERHOST;
-		goto drop;
-	}
-    ...
-}
-
-dev_get_stats() reports this as rx_otherhost_dropped. The drop is
-counted, just not in rx_dropped, which is the only counter the test
-reads.
-
-[ ... ]
-
-> +FIXTURE_TEARDOWN(tun_vhost)
-> +{
-> +	/* restore first: closing vhost blocks if buffers are not returned */
-> +	if (self->bl_fd >= 0 &&
-> +	    pwrite(self->bl_fd, self->bl, strlen(self->bl), 0) < 0)
-> +		TH_LOG("cannot restore netdev_max_backlog to %s", self->bl);
-> +	close(self->vhost);
-
-[Severity: Medium]
-In the zerocopy variant, can this close() leave the test process stuck
-in D state for good?
-
-When ASSERT_LT(ms, 5000) fires because buffers were not returned, the
-teardown runs while skbs in the tap's NAPI queue still hold zerocopy
-ubufs. The last fput of the vhost fd then goes through:
-
-vhost_net_release()
-  vhost_net_flush()
-    vhost_net_ubuf_put_and_wait()
-      wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
-
-That wait is uninterruptible and has no timeout. Nothing in the teardown
-schedules the tap's NAPI, and restoring netdev_max_backlog does not do it
-either. The tun file can only be released, which purges the queue, after
-sockfd_put(tx_sock). In vhost_net_release() that call comes after the
-flush:
-
-	vhost_net_stop(n, &tx_sock, &rx_sock);
-	vhost_net_flush(n);
-	...
-	if (tx_sock)
-		sockfd_put(tx_sock);
-
-One concrete case is a regression in the schedule-NAPI-on-drop part of
-the tun fix. The final non-MSG_MORE packet would be dropped without a
-napi_schedule(), and several zerocopy skbs would stay queued.
-
-The harness SIGKILL on timeout cannot reap such a task. It keeps
-/dev/vhost-net and the tap open, keeps vhost_net from being unloaded
-(which also breaks the restore in tun_vhost.sh), and triggers hung task
-warnings.
-
-Would kicking the queue before close(self->vhost) avoid this? For
-example, a write() to the tap fd without MSG_MORE would make
-tun_get_user() call napi_schedule().
-
-> +	close(self->tap);
-> +}
-> +
-> +TEST_F(tun_vhost, napi_queue_bounded)
-> +{
-
-[ ... ]
-
-> +	/* lowered only here, so that a failed setup leaves it alone */
-> +	self->bl_fd = open("/proc/sys/net/core/netdev_max_backlog", O_RDWR);
-> +	ASSERT_GE(self->bl_fd, 0);
-
-[Severity: Medium]
-What happens when this runs outside init_net? netdev_max_backlog is in
-net_core_table, which is only registered for init_net:
-
-net/core/sysctl_net_core.c:sysctl_core_init() {
-    ...
-	register_net_sysctl(&init_net, "net/core", net_core_table);
-    ...
-}
-
-The per-netns table does not include it. In any other network namespace
-the file is missing, so this open() fails with ENOENT.
-
-run_kselftest.sh -n runs each test in a fresh netns through
-run_in_netns() in kselftest/runner.sh. FIXTURE_SETUP still passes there,
-because /dev/vhost-net, /dev/net/tun, TUNSETIFF and SIOCSIFFLAGS all work
-inside the namespace. In that mode the test reports FAIL rather than
-SKIP every time.
-
-Should this SKIP when the sysctl is not present?
-
-> +	n = pread(self->bl_fd, self->bl, sizeof(self->bl) - 1, 0);
-> +	ASSERT_GT(n, 0);
-> +	self->bl[n] = '\0';
-> +	ASSERT_EQ(pwrite(self->bl_fd, "8", 1, 0), 1);
-> +
-> +	/* post the whole ring, wait for every buffer to come back, repeat */
-> +	for (n = 0; n < PKTS; n += RING) {
-> +		idx += RING;
-> +		__atomic_store_n(&self->vr.avail->idx, htole16(idx),
-> +				 __ATOMIC_RELEASE);
-> +		ASSERT_EQ(eventfd_write(self->kick, 1), 0);
-> +		for (ms = 0; le16toh(__atomic_load_n(&self->vr.used->idx,
-> +						     __ATOMIC_ACQUIRE)) != idx;
-> +		     ms++) {
-> +			ASSERT_LT(ms, 5000) TH_LOG("buffers not returned");
-> +			usleep(1000);
-> +		}
-> +	}
-
-[Severity: Medium]
-Can netdev_max_backlog stay at 8 for the whole system if this loop runs
-past the harness timeout?
-
-The only restore is in FIXTURE_TEARDOWN, which runs only in the forked
-test child. With FIXTURE_TEARDOWN, unlike FIXTURE_TEARDOWN_PARENT,
-_teardown_parent is false, so the parent-side teardown does nothing.
-
-TEST_F uses the default 30 second timeout. On timeout, __wait_for_test()
-does:
-
-		kill(-(t->pid), SIGKILL);
-
-so no cleanup runs in the child.
-
-The 5000 x usleep(1000) bound resets for each of the PKTS / RING = 64
-rings. The body can therefore run for about 320 seconds without any
-assertion firing. A drain that is slow but still making progress, for
-example on a debug or KASAN kernel, would hit the timeout.
-
-tun_vhost.sh does not save or restore the value either. Later tests and
-workloads on the host would then run with netdev_max_backlog=8.
-
-[ ... ]
-
-> diff --git a/tools/testing/selftests/net/tun_vhost.sh b/tools/testing/selftests/net/tun_vhost.sh
-> new file mode 100755
-> index 0000000000000..d92707de5e29e
-> --- /dev/null
-> +++ b/tools/testing/selftests/net/tun_vhost.sh
-> @@ -0,0 +1,23 @@
-
-[ ... ]
-
-> +modprobe -q vhost_net
-> +[ -e /dev/vhost-net ] || exit $ksft_skip
-> +
-> +./tun_vhost
-> +ret=$?
-> +
-> +zc=$(cat "$param" 2>/dev/null)
-> +if [ "$zc" = 0 ] && modprobe -q -r vhost_net 2>/dev/null; then
-> +	modprobe vhost_net experimental_zcopytx=1 &&
-> +		{ ./tun_vhost -v zerocopy || ret=1; }
-> +	modprobe -q -r vhost_net
-> +	modprobe vhost_net experimental_zcopytx="$zc"
-> +fi
-
-[Severity: Medium]
-Can experimental_zcopytx still be 1 after this script exits?
-
-The parameter is read-only at runtime:
-
-drivers/vhost/net.c:
-module_param(experimental_zcopytx, int, 0444);
-
-so only a reload can change it back. The result of the second
-modprobe -q -r is not checked. Removal fails if something still holds
-/dev/vhost-net open, such as a tun_vhost child stuck in
-vhost_net_release() as described above, or another vhost user that
-started in the meantime. In that case the next modprobe finds the module
-already loaded and returns success without changing anything.
-
-The script also sets no EXIT or INT trap, so interrupting it during the
-zerocopy run skips the restore.
-
-A separate point: the first modprobe -q vhost_net always loads the
-module, and nothing unloads it afterwards if it was not loaded before.
-
-> +exit $ret
+All review comments correct & fixed.
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261113212237.1742984-1-antonio%40mandelbit.com
+~Randy
+
