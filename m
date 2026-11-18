@@ -1,96 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.227
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.99
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794984335;
-	b=SRnYzyHYdPA2CTDRKpZf0HSH23d2ny1gcXAC903cp+8zxe5oPrkduMXlQxKrb8JapLee
-	 rkWQxwLkwcM1T3mrWvph2e9Mfp9IbPR+P6XgXECfrIYVz9BdXl+WAtODVzHf9ItuDUcEI
-	 NzGAlCZXS/gmDDlS6wgn/rtoEPUaaVG/u9oB9Kps5C2rqfUOiHqy63vKUB5yEow4JX6VP
-	 O83RvJJlNg4acqiN7UdGLc1EiWSsE7OobF8FJeN0/F9goCu7kcrdEIw7dmedGJdLsaG53
-	 Zxxgdxixu9c1PBgFEXU2UIWTzIn4E1v+pUMOcFpDF7P5ymnt4Bkqb12CHWFHkyuoHLQ==
+	t=1794984373;
+	b=znB/LBTzjxV2yVRXk18ZqqvaedctZGkzwQHkzmSQMTGIcWCqDREwL+w/2NdhYaOTLHdW
+	 9ZJrYB+zcAMMQ3G4Pm6KQR/j6I3JvZJhoE9G5AkQddf//IohhGi6XMZgw26CzigtvGx//
+	 QAUdaZ+PLILnzTfnmG2wpg8cnSEYNGQ+UR/31lFc/6wf/Y6UxXRXGPJTBYj1y9xIV4Q0y
+	 v2okqaMVoU1ltK05rAggqmcLGoB6xk7niibav7OsYwLD7/7+d8Fmf0R9t50uUnxsgSwIs
+	 ytMEGSfjtprvUOSv1O22D186BpJ1AZqrwU0ErwINYnPW/oE4dUWee+k1aVHBpnZjMMA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794984335;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794984373;
 	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
 	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Received:X-Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-DetectorID-Processed;
-	bh=BN2eMBIZKP4IgFzjpmqX87SaP1ERJDhlfNIPjHVFBk4=;
-	b=Av/nduaYiDGNAtMDiK/T1JjMr6UE9BseNxiXKT6eSXwRYFDbLpLbexcxm76VjOHnTwHo
-	 NyrZcxhtpSDnZZ+Y+sC2D+RB/Gg5S9qN8b+HcDFQ0/KBVj1XnbGmdPevBs26B8CXyyWoK
-	 ruaixsFlQAJxr2JyYxw837UvBpfDtjshtBwrrJcY5XXTHduBaGY86bqlFfRM9eXAx3Avh
-	 xcKZyRAzG479t+FA9kmjzMLthDEgGG8XRmXMN7G3ZPnmfeFNLN/5G8SitSeTqcaseMinv
-	 gJXA7XT/SeZi4KnWA8CWybcNn9S5dqbB+QrRblu32IZyvk2LrVU1ZmpU7+hXlB9JgaQ==
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-DetectorID-Processed;
+	bh=1wn8B8AtBDch11Kn2VubYj0NKMdWprvKTv7qKouH7kM=;
+	b=jU2K26S2MMBuDHjpRt5f58i47ZhlXmhkVy2ywoGv6j8k3gi8qxkSz5L4kmMiEXuTgGf5
+	 zQjfEVmyIc7rGVLeTlKVEjXeuu8oOxODsOjxp29DKksGCjfcs37IajSHjx/mBCTTjp1rP
+	 AAXkOr8DnvoSXdDWjTL0k2+9aKkz0o+18U/RDqxXWevg84ISB8A23O/v8BnNsviZVt609
+	 QxVUoYD97tilPuJYZC5ZR9RWGThZkmkN7oS9GckmA/6RseG6WHSU9FbGLxiHag5ODXlpQ
+	 eBmQe5xLuHlPBeeSMueGkd2uQILePBz1AWcdYSqTKcm906rOmgdRlJz+O6+crCZ/zqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=broadcom.com;
 	spf=fail smtp.mailfrom=broadcom.com;
-	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=JVfK1YXW;
-	arc=none smtp.remote-ip=209.85.222.227
-Received: from mail-qk1-f227.google.com (mail-qk1-f227.google.com [209.85.222.227])
+	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=gfAK5aqG;
+	arc=none smtp.remote-ip=209.85.222.99
+Received: from mail-ua1-f99.google.com (mail-ua1-f99.google.com [209.85.222.99])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2958F606A31C
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:45:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2958F606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81A9D606A31C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:46:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81A9D606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=JVfK1YXW
-Received: by mail-qk1-f227.google.com with SMTP id af79cd13be357-93f3c616c84so58006385a.1
-        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 22:45:34 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=gfAK5aqG
+Received: by mail-ua1-f99.google.com with SMTP id a1e0cc1a2514c-990fbae94f5so372053241.3
+        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 22:46:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794984334; x=1795589134;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=BN2eMBIZKP4IgFzjpmqX87SaP1ERJDhlfNIPjHVFBk4=;
-        b=04TCLdcCk9BUbSoj6rD34Fe93UjDRFO4uypgxPizss8N6vvTdASeT8JoG6M99Fh2o5
-         itVZ1HZ7GsYD9XU9kkg6KN0Fl9JKGohNYHRX02KqlSIAQhjuVKyYLI2n+ZsTr7sw5ZWi
-         36u+NaZHTKOgQxknL4VZO41bHMxNjtQHQmtvkczaelnUixB3zrTTshDC3KGTAGnTf+Mn
-         +eXuMcGtXLehqHTRvTtLJiE9m2y6uhPppjkWSIKpv2zuaaDIYTAbjciOaGdIpC1ofvVD
-         3Loew88t1rZtuVaMkOV2600BuAPwZC7eEWzyRC0aOkPMjIr1DPKIgJTmViv1NxABFQy2
-         QDGA==
-X-Forwarded-Encrypted: i=1; AL+hErHhzmT5ZwvGvdCnN3NEec0lLge+q/ykk0HjFj32l5IO6EDDDUVEuKmz4/6pKWC+R7L9fQGoZ6F5KI0/5k5iVw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9FZDph6Sc8MtQmmzBkrtTQM4lcKRTXWAkuw97CbBBLZMBG6+oG
-	3LRWGydhQaex6twUNlpVjvOVpFLah95+Fy8XAZAGh/X8xy8aT6fuxAXFXgT3DRVNTnVTTuQ7IfQ
-	JOJg/aZfQrrYzSigxib6cxUJtmV/DuqaYrfkGODtroQLdoqVZu60+pBIJkBYhyhzBYZh61QNd6O
-	NXfmkQjchrTTjspb7WtR3G/nSwTKC/Wa3IG1tRYRxb80lkaKYlyM6QlF1lbNkmKUv93SyZQXn46
-	xenWpLSaYsMtHY/Zxk=
-X-Gm-Gg: AYBFou3RDfDGpWBJX5Up10TC1Wwc9cNSzlYFk/icrHzvCim7txo41+HSeWnHnj7PrOS
-	AbYuHtl5cI52BxbDpsDMwuVfOeMvUOPoN581UHv/OCPH1ngY3yQxJfzKkcIl/LHaEOOFa9Kv7GA
-	sYbf8D8zWc7eppZugSCBEx9gkdDgwtMjZZmgtqkaAROBRV8KOAw2LghkxaD81mFhaoR+6vK/Cbk
-	v3EEJDD63CmbP3XtvNsxDDG3sWheIjiDIFwX5PQPYEms4Y3E/hZFSDHDgi0wdKg2RKl/XNcOhEl
-	W4ZCdlkT1QcJr9SuDevlkTFZLtCuOTV6tbS3dqHoe1CdAJhwG33xHgsOkTsIj8EZ4LqPEmWeYOf
-	8qXypAH27kRbsYlk6cQQ+QDlRifZiYTPrpGBxnglQGqPmzGPWZNqNWUbOfxbaW4CutrT2SEE4XW
-	K3WOfIgPFcKimyiKXH0ZEGGzKiFpJmeKx5Tc0=
-X-Received: by 2002:a05:620a:8388:b0:944:12d5:fd45 with SMTP id af79cd13be357-949996075d7mr301833485a.70.1794984333788;
-        Tue, 17 Nov 2026 22:45:33 -0800 (PST)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-123.dlp.protect.broadcom.com. [144.49.247.123])
-        by smtp-relay.gmail.com with ESMTPS id af79cd13be357-9499b3d39c9sm10802085a.2.2026.11.17.22.45.33
+        d=1e100.net; s=20260707; t=1794984371; x=1795589171;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1wn8B8AtBDch11Kn2VubYj0NKMdWprvKTv7qKouH7kM=;
+        b=HgkFbNDhQZ14+gnCYQXVE7U0A/lbkI4C1MJ7DXT2Q7DE+Iv9N8oDD65ZjQMOXI0d39
+         1gp9O3JGRMjo7Qh2EixaTENbX31EBdJP23W+cP79mTQx6NktPU/+IibztqGN2gnq3VwB
+         PVCDofwkYabL0ooOPQ0j/puestpjKnzH7GYdwMo2pGxW5BW4OT+EzeDJhSrA5cl/KBuv
+         vRLxIIBU8HAFbEFDd7imn1hgaIkrrc1OgZSFAdPRrS/ANDTPj0Fo2dQ0ir0coq5FcYfn
+         TlDByDkXFplX8tRnJLNBzArLQhJDXwWke/C+Kc7zp65vo1w6XZsS7tWEuZhg2/TZQFPI
+         lLyg==
+X-Forwarded-Encrypted: i=1; AL+hErFayVULNshlnMiiP7dwkTfL2P9It93WoPNQyCSzbHIToEXaZaNqfEYu0vr88/H7Z43LSrxjz8VemVPUXZ2GOg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+jUpEpp8l/ka6QtfD2apsrcfoZGX8uC7/8nphQYarAMqsQIrlO
+	9RdC7+QNgP00qhP0zDmy9+J7gqTCRzHoUgFS3QPiQVD23snyJ/tC6O28wepDR2fHAPs93TKy4nA
+	nNqSrtkZwe4Sbw3bg9hIiKRGeWBXWKa8d6R9TsYmO4/2rL8JdQxlG7lOI6P9BGwS07UXu3ZqRFx
+	qMVyWagh0xml9KZ9h0SrMQluVye4SxVTvVJshKsCd6thhh6YamwKM1SwHeYHflEgkxignK2Htd3
+	MoiANT0BcpnjBxvJfI=
+X-Gm-Gg: AYBFou1t+uRjWby2JboqyMsikc8Up3wfINn6jroU1cxhq5rfV/4IUf/hTbrHHiyERJT
+	RVlCi4YB5rD7LeHedFxyS6E/1J96GIdPjKF9dCOgdqyFe9wTZst3hBVZTU7NPHEaxhLZ3IXrr/i
+	msgCaY45Sw1/Kyrb4v0/BsS//sljUYYIhDqIGIzsblzGU3fE99kTZpc4f6DfKGa1hSGD+St0kFb
+	N1tOi1A6Aa1171S1yVhi4cmuIRCRXASmf0dw4Ou0AfCbFOZK+C9pxRUvzuAstAlCydxnxKJHet9
+	3wn/zoIhr5TqvW5q5M6S+OWwnXqP15w6kJYAUcx8xPqRVreA04SQYSWjnqoC1AaDCDSjZZDsPPU
+	BJT1W6W3+ULnp2PIooXinm7VXyVHt7ikbVyTUGJJLyLHuacf6Vg3tfJaHKL5V0V8XtZn4YlS67S
+	QtuLtnJnvkaZfsPWOGIRp+qgJxEGeMn60t
+X-Received: by 2002:a05:6102:644e:b0:7c1:8aa5:36c8 with SMTP id ada2fe7eead31-7d6ba4f29ccmr527682137.36.1794984371377;
+        Tue, 17 Nov 2026 22:46:11 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-26.dlp.protect.broadcom.com. [144.49.247.26])
+        by smtp-relay.gmail.com with ESMTPS id a1e0cc1a2514c-99e4a5fa27esm172656241.16.2026.11.17.22.46.10
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Nov 2026 22:45:33 -0800 (PST)
+        Tue, 17 Nov 2026 22:46:11 -0800 (PST)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-91f2b449480so10635856d6.3
-        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 22:45:32 -0800 (PST)
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-94960131befso117945785a.0
+        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 22:46:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1794984332; x=1795589132; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BN2eMBIZKP4IgFzjpmqX87SaP1ERJDhlfNIPjHVFBk4=;
-        b=JVfK1YXWWdsqQ4MkWGBRj/NgdYQNpJRLS/vaUf+PkkVjBWhAWHm3QVrJ6+mkpJaw8B
-         N5fxMkq32mAuUpC94toMSLwrWgvjz+zMOLrzi0V67y35Tv8E0dG5Ni6QXInKZCjC8Iro
-         pc43LuA3/od1SfApvlSO+cEi5hjMQDfWBCuj4=
-X-Forwarded-Encrypted: i=1; AL+hErHYuiTtlyxBZ1Os0FnrzJ224/XapMhfPBUrDYlPIu1tsOrXw4H43a7i+dfbW9Dtx/sy8wmN2ON8JqMybNXisQ==@lists.linux.dev
-X-Received: by 2002:a05:622a:346:b0:536:7b67:95f7 with SMTP id d75a77b69052e-55d5a7af113mr24847251cf.77.1794984017828;
-        Tue, 17 Nov 2026 22:40:17 -0800 (PST)
-X-Received: by 2002:a05:622a:346:b0:536:7b67:95f7 with SMTP id d75a77b69052e-55d5a7af113mr24847041cf.77.1794984017277;
-        Tue, 17 Nov 2026 22:40:17 -0800 (PST)
+        d=broadcom.com; s=google; t=1794984370; x=1795589170; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1wn8B8AtBDch11Kn2VubYj0NKMdWprvKTv7qKouH7kM=;
+        b=gfAK5aqGlrzRRRr9NfM7VMdZ8O/V4mM+i32fyLPHPf26fmpkHKcvCjzIxV7Y8mg50S
+         e5pYAP0Hb21sVf+k8+D2JqTe4QQInKIC9wgZV69AEFFE5SdFzLfzTaqC1jWYtgHnXnGm
+         msNFXKTFW1LyLV19Zgon9T57MVoGg3w59C7qM=
+X-Forwarded-Encrypted: i=1; AL+hErH/Ip/ErdcpUYuZXiEkZSpDQD/Ig5WIktrD1/zjbcRlWSMPTjW72zoXyoXRwb1xi+aG5WoEl62lTrolkgjSOA==@lists.linux.dev
+X-Received: by 2002:a05:622a:528c:b0:533:8b99:fcd2 with SMTP id d75a77b69052e-55d5a668644mr25275711cf.40.1794984019885;
+        Tue, 17 Nov 2026 22:40:19 -0800 (PST)
+X-Received: by 2002:a05:622a:528c:b0:533:8b99:fcd2 with SMTP id d75a77b69052e-55d5a668644mr25275241cf.40.1794984019244;
+        Tue, 17 Nov 2026 22:40:19 -0800 (PST)
 Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55d61cf3b56sm2078141cf.13.2026.11.17.22.40.15
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55d61cf3b56sm2078141cf.13.2026.11.17.22.40.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 22:40:16 -0800 (PST)
+        Tue, 17 Nov 2026 22:40:18 -0800 (PST)
 From: Zack Rusin <zack.rusin@broadcom.com>
 To: Borislav Petkov <bp@alien8.de>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
@@ -117,10 +119,12 @@ Cc: Thomas Gleixner <tglx@kernel.org>,
 	kvm@vger.kernel.org,
 	dri-devel@lists.freedesktop.org,
 	Zack Rusin <zack.rusin@broadcom.com>
-Subject: [PATCH v4 0/3] x86/vmware: Clean up the hypercall code
-Date: Wed, 18 Nov 2026 01:40:10 -0500
-Message-ID: <cover.1794206170.git.zack.rusin@broadcom.com>
+Subject: [PATCH v4 1/3] x86/vmware: Move high-bandwidth hypercalls out of line
+Date: Wed, 18 Nov 2026 01:40:11 -0500
+Message-ID: <59bf54707b78e2a4d2072c1aff6bcf72cb35e6b2.1794206170.git.zack.rusin@broadcom.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <cover.1794206170.git.zack.rusin@broadcom.com>
+References: <cover.1794206170.git.zack.rusin@broadcom.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -133,69 +137,227 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-Move VMware hypercall assembly out of vmware.h and select the
-low-bandwidth backend with a static call, following Linus's request:
-https://lore.kernel.org/all/CAHk-=wivx7pi+h+hGmvNFAJm6StQLiQ-b8DdsE5J=LMOWae8Ng@mail.gmail.com/
+The high-bandwidth helpers contain inline assembly which temporarily uses
+%bp as a VMware ABI register. Keeping that assembly in vmware.h duplicates
+it in callers.
 
-Patch 1 moves the high-bandwidth helpers out of line and removes the
-redundant vmwgfx caller annotations. Patch 2 uses input and result
-structures for the four low-bandwidth backends, selects the backend
-during VMware platform setup, and removes the early dispatcher. Patch 3
-retires the unused VMware feature bits.
+Move both helpers to vmware.c and export them for the vmwgfx module.
+Preserve their unwind hints and remove the redundant caller-wide objtool
+annotations from vmwgfx.
 
-The caller API is unchanged. The I/O-port backdoor remains the initial
-target for early DMI probing. Modules use the exported high-bandwidth
-helpers and static-call trampoline; the static-call key stays private.
+Preserve the argument sequence from commit e0e022004bbe ("x86/vmware:
+Fix i386 high-bandwidth hypercall arguments").
 
-This series replaces patch 1 of Alexey's v2:
-https://lore.kernel.org/all/20260309235250.2611115-1-alexey.makhalov@broadcom.com/
-Its panic logging patches and steal-time fix were reposted separately:
-https://lore.kernel.org/r/cover.1794201807.git.zack.rusin@broadcom.com
-https://lore.kernel.org/r/cover.1792471114.git.zack.rusin@broadcom.com
+Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+---
+ arch/x86/include/asm/vmware.h       | 62 +-------------------------
+ arch/x86/kernel/cpu/vmware.c        | 68 +++++++++++++++++++++++++++++
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |  3 --
+ 3 files changed, 70 insertions(+), 63 deletions(-)
 
-It is based on v7.4-rc2, which includes the i386 high-bandwidth fix
-this series builds on: e0e022004bbe ("x86/vmware: Fix i386
-high-bandwidth hypercall arguments").
-
-Please route this through tip. As the vmwgfx maintainer, I agree that
-its small annotation removal should go through tip with the assembly
-move. DRM maintainers and dri-devel are copied. I'll make sure there are
-no conflicts in that code while the trees merge.
-
-And yes, this code is a bit like me, meaning it gets on everyone's nerves
-and likely looks awkward in shorts, so we're just trying to make the best
-out of what a politician would call a less-than-ideal situation.
-
-Changes since v3:
-- Forward TDX guests from the backdoor backend to the TDX backend,
-  restoring the pre-series ULONG_MAX return on other hypervisors such
-  as KVM instead of attempting port I/O (reported by Sashiko).
-- Correct patch 2's description of the duplicated assembly.
-- Rebase onto v7.4-rc2.
-
-Changes since v2:
-- Replace the ten-argument backend interface with input/result structures.
-- Move the high-bandwidth assembly out of the header as well.
-- Preserve all low-bandwidth outputs and the backend-specific %dx flags.
-- Export the callable trampoline without exporting its key.
-- Correct the ABI documentation and retire unused feature bits.
-- Keep the backportable i386 fix in its separate posting.
-
-v3:
-https://lore.kernel.org/r/cover.1793685318.git.zack.rusin@broadcom.com
-
-Alexey Makhalov (1):
-  x86/vmware: Route low-bandwidth hypercalls through a static call
-
-Zack Rusin (2):
-  x86/vmware: Move high-bandwidth hypercalls out of line
-  x86/cpufeatures: Remove unused VMware hypercall feature bits
-
- arch/x86/include/asm/cpufeatures.h  |   4 +-
- arch/x86/include/asm/vmware.h       | 371 +++++++++++-----------------
- arch/x86/kernel/cpu/vmware.c        | 307 ++++++++++++++++-------
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |   3 -
- 4 files changed, 359 insertions(+), 326 deletions(-)
-
-
-base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
+index fb011cef01e7..f3ffe358d2a3 100644
+--- a/arch/x86/include/asm/vmware.h
++++ b/arch/x86/include/asm/vmware.h
+@@ -253,12 +253,6 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
+ 	return out0;
+ }
+ 
+-#ifdef CONFIG_X86_64
+-#define VMW_BP_CONSTRAINT "r"
+-#else
+-#define VMW_BP_CONSTRAINT "m"
+-#endif
+-
+ /*
+  * High bandwidth calls are not supported on encrypted memory guests.
+  * The caller should check cc_platform_has(CC_ATTR_MEM_ENCRYPT) and use
+@@ -266,66 +260,14 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
+  * This assumption simplifies HB hypercall implementation to just I/O port
+  * based approach without alternative patching.
+  */
+-static inline
+ unsigned long vmware_hypercall_hb_out(unsigned long cmd, unsigned long in2,
+ 				      unsigned long in3, unsigned long in4,
+ 				      unsigned long in5, unsigned long in6,
+-				      u32 *out1)
+-{
+-	unsigned long out0;
+-
+-	asm_inline volatile (
+-		UNWIND_HINT_SAVE
+-		"mov %[in6], %%" _ASM_AX "\n\t"
+-		"push %%" _ASM_BP "\n\t"
+-		UNWIND_HINT_UNDEFINED
+-		"mov %%" _ASM_AX ", %%" _ASM_BP "\n\t"
+-		"mov %[magic], %%eax\n\t"
+-		"rep outsb\n\t"
+-		"pop %%" _ASM_BP "\n\t"
+-		UNWIND_HINT_RESTORE
+-		: "=&a" (out0), "=b" (*out1)
+-		: "b" (cmd),
+-		  "c" (in2),
+-		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
+-		  "S" (in4),
+-		  "D" (in5),
+-		  [in6] VMW_BP_CONSTRAINT(in6),
+-		  [magic] "i" (VMWARE_HYPERVISOR_MAGIC)
+-		: "cc", "memory");
+-	return out0;
+-}
+-
+-static inline
++				      u32 *out1);
+ unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
+ 				     unsigned long in3, unsigned long in4,
+ 				     unsigned long in5, unsigned long in6,
+-				     u32 *out1)
+-{
+-	unsigned long out0;
+-
+-	asm_inline volatile (
+-		UNWIND_HINT_SAVE
+-		"mov %[in6], %%" _ASM_AX "\n\t"
+-		"push %%" _ASM_BP "\n\t"
+-		UNWIND_HINT_UNDEFINED
+-		"mov %%" _ASM_AX ", %%" _ASM_BP "\n\t"
+-		"mov %[magic], %%eax\n\t"
+-		"rep insb\n\t"
+-		"pop %%" _ASM_BP "\n\t"
+-		UNWIND_HINT_RESTORE
+-		: "=&a" (out0), "=b" (*out1)
+-		: "b" (cmd),
+-		  "c" (in2),
+-		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
+-		  "S" (in4),
+-		  "D" (in5),
+-		  [in6] VMW_BP_CONSTRAINT(in6),
+-		  [magic] "i" (VMWARE_HYPERVISOR_MAGIC)
+-		: "cc", "memory");
+-	return out0;
+-}
+-#undef VMW_BP_CONSTRAINT
++				     u32 *out1);
+ #undef VMWARE_HYPERCALL
+ 
+ #endif
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index f7ab9e7902cf..7cfc894f0663 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -30,12 +30,14 @@
+ #include <linux/reboot.h>
+ #include <linux/static_call.h>
+ #include <linux/sched/cputime.h>
++#include <asm/asm.h>
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
+ #include <asm/cpuid/api.h>
+ #include <asm/timer.h>
+ #include <asm/apic.h>
++#include <asm/unwind_hints.h>
+ #include <asm/vmware.h>
+ #include <asm/svm.h>
+ 
+@@ -67,6 +69,72 @@ struct vmware_steal_time {
+ static unsigned long vmware_tsc_khz __ro_after_init;
+ static u8 vmware_hypercall_mode     __ro_after_init;
+ 
++#ifdef CONFIG_X86_64
++#define VMW_BP_CONSTRAINT "r"
++#else
++#define VMW_BP_CONSTRAINT "m"
++#endif
++
++unsigned long vmware_hypercall_hb_out(unsigned long cmd, unsigned long in2,
++				      unsigned long in3, unsigned long in4,
++				      unsigned long in5, unsigned long in6,
++				      u32 *out1)
++{
++	unsigned long out0;
++
++	asm volatile(UNWIND_HINT_SAVE
++		"mov %[in6], %%" _ASM_AX "\n\t"
++		"push %%" _ASM_BP "\n\t"
++		UNWIND_HINT_UNDEFINED
++		"mov %%" _ASM_AX ", %%" _ASM_BP "\n\t"
++		"mov %[magic], %%eax\n\t"
++		"rep outsb\n\t"
++		"pop %%" _ASM_BP "\n\t"
++		UNWIND_HINT_RESTORE
++		: "=&a" (out0), "=b" (*out1)
++		: "b" (cmd),
++		  "c" (in2),
++		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
++		  "S" (in4),
++		  "D" (in5),
++		  [in6] VMW_BP_CONSTRAINT(in6),
++		  [magic] "i" (VMWARE_HYPERVISOR_MAGIC)
++		: "cc", "memory");
++	return out0;
++}
++EXPORT_SYMBOL_GPL(vmware_hypercall_hb_out);
++
++unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
++				     unsigned long in3, unsigned long in4,
++				     unsigned long in5, unsigned long in6,
++				     u32 *out1)
++{
++	unsigned long out0;
++
++	asm volatile(UNWIND_HINT_SAVE
++		"mov %[in6], %%" _ASM_AX "\n\t"
++		"push %%" _ASM_BP "\n\t"
++		UNWIND_HINT_UNDEFINED
++		"mov %%" _ASM_AX ", %%" _ASM_BP "\n\t"
++		"mov %[magic], %%eax\n\t"
++		"rep insb\n\t"
++		"pop %%" _ASM_BP "\n\t"
++		UNWIND_HINT_RESTORE
++		: "=&a" (out0), "=b" (*out1)
++		: "b" (cmd),
++		  "c" (in2),
++		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
++		  "S" (in4),
++		  "D" (in5),
++		  [in6] VMW_BP_CONSTRAINT(in6),
++		  [magic] "i" (VMWARE_HYPERVISOR_MAGIC)
++		: "cc", "memory");
++	return out0;
++}
++EXPORT_SYMBOL_GPL(vmware_hypercall_hb_in);
++
++#undef VMW_BP_CONSTRAINT
++
+ unsigned long vmware_hypercall_slow(unsigned long cmd,
+ 				    unsigned long in1, unsigned long in3,
+ 				    unsigned long in4, unsigned long in5,
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+index fd77ab6568cb..20ab4019680c 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -24,7 +24,6 @@
+  *
+  */
+ 
+-#include <linux/objtool.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+@@ -289,7 +288,6 @@ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ 
+ 	return -EINVAL;
+ }
+-STACK_FRAME_NON_STANDARD_FP(vmw_send_msg);
+ 
+ 
+ /**
+@@ -384,7 +382,6 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 
+ 	return 0;
+ }
+-STACK_FRAME_NON_STANDARD(vmw_recv_msg);
+ 
+ 
+ /**
