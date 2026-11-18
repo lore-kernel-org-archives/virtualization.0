@@ -1,66 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794966931;
-	b=uLYJmuoARUJcIZ8dkK/blCkODVI3CX116gaQTM5GodCDPC/yzzPITc1gQWurqER8O1Po
-	 rhR0Ht5oqAp6+IN+8DiApZZeBsSneAMhbwfCikkS1+beRQv2GRA17/wVngfCm/IGqzeOy
-	 PyryOf7Eeonjuk1rRY40kMvMwilOE5hG18wBpDQ3ydNiqnaFiEufUvMjin22XjnWx0gPu
-	 EYkSu6i88FJthKNoNPU1phajqSIG0TQ646siO/7hBxfxFDTS87T3P4/VI0b0PiXzzNiSF
-	 kbNh44HP4PqX/2wfUtx16YQe/nuBfP8pgARsj9zUewL66G4sOCzR+lzshAf7VySh1iQ==
+	t=1794967095;
+	b=ckzjH6/alci5C8e+knsqSlVtitsBl3+E24KITLrx0A2lnB9N7lG5pYSlpNtMDQHGrWjI
+	 EEWNUVKmEnnPTeKd7U7KQP6mFUBm/i91JD8i7Mq17xJLp6/VyPh/yflSwfEgIkY2+ld6Y
+	 qZF2xC4h4aL23oBMch1C/vRQd1oyBFLyZkAkM7KO0Fet9UY+LRyNfdJeCyuqczM2ghkDq
+	 NYBAor3WSDR6tFTY3YyGryHN4BrSpOY581dZKQQZIC0soPI6/A/uBbF/BFpRLfrEhrDcA
+	 6mNeu/XWBDu2KXIA2yy0wDDe8Gee+Hw/UC5jrCgI0Yh63rb4+Oy+7BaXaSjVNgnCGgA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794966931;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-ID:References:In-Reply-To:To:CC:X-Mailer:X-Originating-IP:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version;
-	bh=zFY1GmSViuXI0rPHC6t3ZteUEq5nixMZVkXt8LdMcNY=;
-	b=UsmllOHfGkOwQQwUPfqS65KK2ENMn0z+YSXxbcsSp+OVplqZhQTUW/8ef2pTtma2gDyq
-	 OckMQwVmJkCufmg3v0KTniyMRm4ecLHySg9DVycd+BKBMCsune5m37/Qh7RwaWYzK0lYe
-	 X+jOHj3xVXxU0io6aCQbTJ/mAni+pE2wz8tpXpE4hmLbnb8CJI6pokejnlxfw8YcS7Jda
-	 wFrz5zzERTaMPTfo4xOUPRLp4i5OeT/zMLKRHLVZnpD2MekgAyc2Y94/7yQvK/mhOpgMd
-	 5PKXT/pvKkTVnrtTf5JJvs2VAexMST3mz2u6NL3z8nDvN4muTPCFgnmUFc0ejK6gpbQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794967095;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=ex93YETbIMxoA78RvTBTfynISw4jSNCHkjF7RlM/B0g=;
+	b=1HyjG504j6plSpLDYdYGMgUrMsogJtAwq/LJX74uePVS50o/gPsijBhUMx931l81O6k3
+	 j57cxd0ZKbGRmgIKXPGO0+KjbS9cySwK2C+LGUZNRXpRBpJSNKMgbr/YcGyje3tCvEJTk
+	 GI6RuTH9rVzjrs8uFaw598jwhNOwRc6J9ZvCJRXPapacBcFpAmF1R42tSmClgtldvTQpR
+	 nMzSalhtiD7qcwz6L4SXgNjlncxSeFfj0/pD3C0h614epdprFf6OzWti9/8kcb8p57Afm
+	 mcV7BBWrMbUonoil3mytuR0SzkpkHa+yCRoZcStPUtOezFNuxHTVmt+PGpwIS2oWxfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=CVs8weoz;
-	arc=none smtp.remote-ip=67.231.145.42
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d3Hmpel2;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966A160A3808
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:55:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 966A160A3808
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3926606A31C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:58:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=CVs8weoz
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AI11rAC258466;
-	Tue, 17 Nov 2026 17:55:19 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=zFY1GmSViuXI0rPHC6t3ZteUEq5nixMZVkXt8
-	LdMcNY=; b=CVs8weoz86JWvaUASY6ZBMehCnJNzYNJZ9kHX0YqQaF3Vpvmjitq/
-	Jd4XJFY+GNBvFlM/g9KN3kKcBoPkaPipZ5VYmafQbbOkAkBzlE0s0DiSofoXXtVr
-	jjpgA3VkEyKgdPHhvCRBNEdVUftx+CuUb90eoevtgHVwbJVI8D+B+McuTPJvkdPG
-	umHmRZVCCwOM3b5wWRRxGRKzPZtXfKHZXl4rYBQhE4kWsrGcSLOP0slUR59C7t4Y
-	oleIToc32+S83W0Tha1TSAbshE8FdnPvuBOhtJXXf5Xkks063sVGAxnGK1LpA+HS
-	eLxJfTrHthKVmeXlo6IjhUfeAuPzLppfw==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j0yu79b7g-5
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Tue, 17 Nov 2026 17:55:18 -0800 (PST)
-Received: from localhost (2620:10d:c085:208::7cb7) by mail.thefacebook.com
- (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 18 Nov
- 2026 01:55:08 +0000
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-Date: Tue, 17 Nov 2026 17:54:50 -0800
-Subject: [PATCH net-next v7 7/7] selftests/vsock: test the netns assign
- privilege checks
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d3Hmpel2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC1B1F000C4;
+	Wed, 18 Nov 2026 01:58:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794967094;
+	bh=ex93YETbIMxoA78RvTBTfynISw4jSNCHkjF7RlM/B0g=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=d3Hmpel2Yv2sstHhtY8GsXQr4zGNn9FWqkHzuAtO/pO+95drcZdwKk02iIPU5y9yR
+	 sPeZzAWZ4oAFsDxidGcWtTXT05g1lVZoN8VJnWvnPL6XmtANNQ4yK9bEi6PgdqbA16
+	 mRAl0lxjyDvPSUCst8PzIMXqiZXc0r2lm0x9wwTgA0W8svX2DgOn5892vOfGUhlrKb
+	 OzTOL3Q5D54IfwrR/QDX5D5ppk/y7HyOniSZvvYxhV3TCl1icHFx5xfK4kTf/VGJbn
+	 X8j6D58X4sy59Qo0bKa1ZhKyzVJPbEhoUvN28LhTJEmWPqpyJJ1wc89+2MKG71u2Zw
+	 E+z2aqCdx8Vkw==
+Message-ID: <sashiko-outbox-219917@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] vsock: only undo SS_CONNECTING when connect() fails
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bobby Eshleman" <bobbyeshleman@meta.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261116-vsock-connect-close-v1-1-43fb125973dd@meta.com>
+References: <20261116-vsock-connect-close-v1-1-43fb125973dd@meta.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 18 Nov 2026 01:58:13 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -69,212 +59,130 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-ID: <20261117-vsock-guest-ns-v7-7-7e522ea9dd9b@meta.com>
-References: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
-In-Reply-To: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
-To: Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller"
-	<davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>,
-        Simon Horman <horms@kernel.org>, Jonathan Corbet
-	<corbet@lwn.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Stefan Hajnoczi
-	<stefanha@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang
-	<jasowangio@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Shuah Khan
-	<shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
-        Donald Hunter
-	<donald.hunter@gmail.com>,
-        Eric Dumazet <edumazet@kernel.org>,
-        George Zhang
-	<georgezhang@vmware.com>, Andy King <acking@vmware.com>,
-        Dmitry Torokhov
-	<dtor@vmware.com>, Eric Dumazet <edumazet@kernel.org>
-CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-        <sargun@sargun.me>, <jlinbox@meta.com>,
-        Bobby Eshleman <bobbyeshleman@gmail.com>,
-        Bobby Eshleman
-	<bobbyeshleman@meta.com>
-X-Mailer: b4 0.14.3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfX4X5jm5ND0ngv
- Qv2eyerH9J0U+/1HX9mKtdCZFoL2UNP04l4PkltbVNGLQVy5C7q+iT7dS4UUhddkyiO6MingYAh
- eV6KwJUpeZU5mHW/nLDZO928Jbso3VOwqOUCIgUXcllEtF7V0uYqat0X0NwG8y+eChoKtu/EbWz
- w3tUCC2xY3ArKuezy9aE7LLUX/M+XCJch5oj1QKXlgvu7OVizzviPcndMOdqIUpZAXMABplotI7
- mwnLVSBbewu4htQ9QDHK0Pv8FuC6Y6/IFXkIIc9f+R7KvpL3c+1V8o7C3OpAC75cY4EMcY5m38r
- WMOaI0GMJKZxZ3J8a71evs68raQHg0lPKYnlQXUEnTDBL4uicASGa2fTUtJWwCG/JrBbabo+fWy
- tTHyPfQ7vl4lDVtDt2BLQxfaPfUDX/cvWv2htCGDrJD1Sh2wknxwNk5uWgKG/6ru0G4K/ZBJ7AW
- JCRi7XyUy0LQF56yM5w==
-X-Proofpoint-GUID: 6Y-FZ5uo1aR49g4HGwJZtF0lfGDg53aB
-X-Authority-Analysis: v=2.4 cv=Zph4uN7G c=1 sm=1 tr=0 ts=6afd0586 cx=c_pps
- a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=PAz_-FQ8hEVmOPYdF0yf:22 a=VabnemYjAAAA:8
- a=xFiaXek5eyy1MN0Ju3QA:9 a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: 6Y-FZ5uo1aR49g4HGwJZtF0lfGDg53aB
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfX7w4PEP8IuPmu
- pM5lMK35WzOXcFWfw3VES7X/TsLGGcQQDb63Thv1ucWaEqaMFyo24hyGIJYt2Ub2ek6HfBRb815
- ouWbUJo3YmNyILg32L6wNV7IaxlJ1Bg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-17_05,2026-11-16_01,2025-10-01_01
 
-VSOCK_CMD_DEV_NETNS_SET refuses callers without CAP_NET_ADMIN in the
-init user namespace.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] vsock: incomplete handling of post-handshake reset in
+  vsock_connect()
+--
 
-Add two tests: one confirms that CAP_NET_ADMIN is required even by a
-privileged user and the other confirms that CAP_NET_ADMIN in an
-unprivileged user ns alone is insufficient.
+commit bfeaeec883913ff39b46b5892948bd62e612d57c
+Author: Bobby Eshleman <bobbyeshleman@meta.com>
 
-CONFIG_USER_NS is needed to test the CAP_NET_ADMIN + unprivileged user
-ns case.
+vsock: only undo SS_CONNECTING when connect() fails
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
----
-Changes in v6:
-- Require setpriv only for the two privilege tests, not every ns_guest_
-  test (Sashiko)
+This commit introduces vsock_connect_close() so that vsock_connect() only
+resets sock->state to SS_UNCONNECTED if the socket is still in
+SS_CONNECTING.
 
-Changes in v4:
-- Require EPERM in the privilege tests, cli.py does print the errno, and
-  probe unshare -Urn so a setup failure skips (Sashiko)
+Link: https://lore.kernel.org/netdev/20260909-vsock-connect-reset-closing-v=
+1-1-50298b9ccfbf@rbox.co/
 
-Changes in v3:
-- Require setpriv only for the ns_guest_ tests, not the whole script
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 1d7d53542724f..6395c6a7b0b1e 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -1704,6 +1704,16 @@ static void vsock_connect_timeout(struct work_stru=
+ct *work)
+>  	sock_put(sk);
+>  }
+> =20
+> +/* Avoid breaking the socket when another thread has changed its sock->s=
+tate
+> + * while we were asleep.
+> + */
+> +static void vsock_connect_close(struct socket *sock)
+> +{
+> +	sock->sk->sk_state =3D TCP_CLOSE;
+> +	if (sock->state =3D=3D SS_CONNECTING)
+> +		sock->state =3D SS_UNCONNECTED;
+> +}
+> +
+>  static int vsock_connect(struct socket *sock, struct sockaddr_unsized *a=
+ddr,
+>  			 int addr_len, int flags)
+>  {
+> @@ -1862,8 +1872,7 @@ static int vsock_connect(struct socket *sock, struc=
+t sockaddr_unsized *addr,
+>  			 * sk_state =3D=3D TCP_SYN_SENT, which hereby we break.
+>  			 * In such case VIRTIO_VSOCK_OP_RST will follow.
+>  			 */
+> -			sk->sk_state =3D TCP_CLOSE;
+> -			sock->state =3D SS_UNCONNECTED;
+> +			vsock_connect_close(sock);
+> =20
+>  			/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
+>  			 * transport->connect().
+> @@ -1877,10 +1886,8 @@ static int vsock_connect(struct socket *sock, stru=
+ct sockaddr_unsized *addr,
+>  	}
+> =20
+>  	err =3D sock_error(sk);
+> -	if (err) {
+> -		sk->sk_state =3D TCP_CLOSE;
+> -		sock->state =3D SS_UNCONNECTED;
+> -	}
+> +	if (err)
+> +		vsock_connect_close(sock);
+> =20
+>  out_wait:
+>  	finish_wait(sk_sleep(sk), &wait);
 
-Changes in v2:
-- Assert only that the command fails, not EPERM: ynl's cli.py does not
-  report the errno (Sashiko)
-- Use ynl cli.py for the assign
----
- tools/testing/selftests/vsock/config    |  1 +
- tools/testing/selftests/vsock/vmtest.sh | 59 ++++++++++++++++++++++++++++++++-
- 2 files changed, 59 insertions(+), 1 deletion(-)
+[Severity: Medium]
+Can vsock_connect() hang until connect_timeout or corrupt vvs->bytes_unsent
+when a socket completes its handshake and is then reset to TCP_CLOSE while
+vsock_connect() is sleeping?
 
-diff --git a/tools/testing/selftests/vsock/config b/tools/testing/selftests/vsock/config
-index 5f0a4f17dfc9..4b31085558fa 100644
---- a/tools/testing/selftests/vsock/config
-+++ b/tools/testing/selftests/vsock/config
-@@ -109,3 +109,4 @@ CONFIG_FS_DAX=y
- CONFIG_MEMORY_HOTPLUG=y
- CONFIG_MEMORY_HOTREMOVE=y
- CONFIG_ZONE_DEVICE=y
-+CONFIG_USER_NS=y
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index c771d0cb9268..248a4c6900f1 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -94,6 +94,8 @@ readonly TEST_NAMES=(
- 	ns_guest_assign_g2h_netns_host_connect_ok
- 	ns_guest_assign_g2h_netns_pins_ns_ok
- 	ns_guest_assign_g2h_netns_old_conn_send_fails
-+	ns_guest_assign_g2h_netns_no_cap_net_admin_fails
-+	ns_guest_assign_g2h_netns_unpriv_user_ns_fails
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -191,6 +193,12 @@ readonly TEST_DESCS=(
- 
- 	# ns_guest_assign_g2h_netns_old_conn_send_fails
- 	"Check connections made before the assign stop sending once they lose the device."
-+
-+	# ns_guest_assign_g2h_netns_no_cap_net_admin_fails
-+	"Check assigning the guest's vsock device to a namespace needs CAP_NET_ADMIN."
-+
-+	# ns_guest_assign_g2h_netns_unpriv_user_ns_fails
-+	"Check an unprivileged user cannot claim the guest's vsock device via a user ns."
- )
- 
- readonly USE_SHARED_VM=(
-@@ -204,6 +212,8 @@ readonly USE_SHARED_VM=(
- 	ns_guest_assign_g2h_netns_host_connect_ok
- 	ns_guest_assign_g2h_netns_pins_ns_ok
- 	ns_guest_assign_g2h_netns_old_conn_send_fails
-+	ns_guest_assign_g2h_netns_no_cap_net_admin_fails
-+	ns_guest_assign_g2h_netns_unpriv_user_ns_fails
- )
- readonly NS_MODES=("local" "global")
- 
-@@ -367,13 +377,22 @@ check_deps() {
- 
- check_ns_guest_deps() {
- 	local tname=$1
-+	local deps="unshare python3"
- 	local dep
- 
- 	if [[ ! "${tname}" =~ ^ns_guest_ ]]; then
- 		return 0
- 	fi
- 
--	for dep in unshare python3; do
-+	# test-specific guest dep checks
-+	case "${tname}" in
-+	ns_guest_assign_g2h_netns_no_cap_net_admin_fails | \
-+	ns_guest_assign_g2h_netns_unpriv_user_ns_fails)
-+		deps="${deps} setpriv"
-+		;;
-+	esac
-+
-+	for dep in ${deps}; do
- 		if [[ ! -x $(command -v "${dep}") ]]; then
- 			log_host "no ${dep} for test ${tname}"
- 			return 1
-@@ -1951,6 +1970,44 @@ test_ns_guest_assign_g2h_netns_pins_ns_ok() {
- 	return "${KSFT_PASS}"
- }
- 
-+check_assign_g2h_eperm() {
-+	local wrapper=$1
-+	local out
-+
-+	if out=$(vm_ssh "init_ns" -- "${wrapper}" python3 /root/ynl/cli.py \
-+		--no-schema --spec /root/ynl/vsock.yaml \
-+		--do dev-netns-set 2>&1); then
-+		log_host "assign unexpectedly succeeded under '${wrapper}'"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if [[ "${out}" != *"Operation not permitted"* ]]; then
-+		log_host "no EPERM under '${wrapper}': [${out}]"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_no_cap_net_admin_fails() {
-+	check_assign_g2h_eperm "unshare -n setpriv --bounding-set=-net_admin"
-+}
-+
-+test_ns_guest_assign_g2h_netns_unpriv_user_ns_fails() {
-+	local unpriv_uid=65534
-+	local unpriv
-+
-+	unpriv="setpriv --reuid=${unpriv_uid} --regid=${unpriv_uid}"
-+	unpriv="${unpriv} --clear-groups"
-+
-+	if ! vm_ssh "init_ns" -- "${unpriv} unshare -Urn true"; then
-+		log_host "unprivileged user namespaces unavailable, skipping"
-+		return "${KSFT_SKIP}"
-+	fi
-+
-+	check_assign_g2h_eperm "${unpriv} unshare -Urn"
-+}
-+
- shared_vm_test() {
- 	local tname
- 
+CPU0                                CPU1
+vsock_connect()
+  release_sock(sk)
+  schedule_timeout(timeout)
+                                    /* handshake completes */
+                                    sock->state =3D SS_CONNECTED
+                                    sk->sk_state =3D TCP_ESTABLISHED
 
--- 
-2.53.1-Meta
+                                    vmci_transport_handle_detach()
+                                      sk->sk_state =3D TCP_CLOSE
+  lock_sock(sk)
+  if (sk->sk_state =3D=3D TCP_ESTABLISHED ||
+      sk->sk_state =3D=3D TCP_CLOSING)  <-- false
+  if (signal_pending(current) ||
+      timeout =3D=3D 0)                 <-- false
+  /* loops back to schedule_timeout() */
 
+When vmci_transport_handle_detach() runs after the socket has already
+entered TCP_ESTABLISHED, it sets sk->sk_state =3D TCP_CLOSE without setting
+sk->sk_err:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
+    ...
+		if (vsk->local_addr.svm_cid =3D=3D VMADDR_CID_HOST ||
+		    vsock_stream_has_data(vsk) <=3D 0) {
+			if (sk->sk_state =3D=3D TCP_SYN_SENT) {
+				...
+				sk->sk_state =3D TCP_CLOSE;
+				sk->sk_err =3D ECONNRESET;
+				sk_error_report(sk);
+				return;
+			}
+			sk->sk_state =3D TCP_CLOSE;
+		}
+    ...
+}
+
+Because the wait loop only checks for TCP_ESTABLISHED, TCP_CLOSING, and
+sk->sk_err, vsock_connect() stays in the loop and sleeps on the closed
+socket until connect_timeout expires.
+
+Also, if a signal or timeout coincides with a post-handshake reset to
+TCP_CLOSE (via vmci_transport_handle_detach() or
+virtio_vsock_reset_sock()), vsock_connect() enters the signal/timeout path
+and calls vsock_transport_cancel_pkt(vsk) on a socket in SS_CONNECTED.  If
+another thread sent data after the handshake completed,
+virtio_transport_purge_skbs() frees queued VIRTIO_VSOCK_OP_RW packets
+without decrementing vvs->bytes_unsent, breaking SIOCOUTQ and
+vsock_linger() accounting.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-vsock-conn=
+ect-close-v1-1-43fb125973dd@meta.com?part=3D1
