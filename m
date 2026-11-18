@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794982371;
-	b=TMX1ZsGmwuGsDyyOPRrNMmWzKDuTLPFHvVfGxPmccQJdhluLIObXbsnAPrF2hAuuPzAC
-	 yxWv8Ser3lDcsxVd16KyQZOjs9cO64RVpNyPQnUztX6z+/RxPX3D2xKS7bEspkiV89GfN
-	 AjUIbJdcv3cMCrEuFhdjnwsKYycyuECWMkjGwyoB9YrWZtS/Q/ZzHkOjIaWp48seX4/7X
-	 lld5Wxr5wSQhdEDL7vy4H7F/F7ucsqdw188ENdb8+3FtI0MM1YNf36djTPNHMVadtCONl
-	 wFo+pPNWOS7cookDOs0mc6IV1PTyomJJDGOdezFaJ9IMRTkpTY20kJItljgnLgL9Log==
+	t=1794982480;
+	b=vWnSuzEcB0SGyNVksshfMOds4ZM7dN0LpZ9/eyF+E/owPLn9MdTdadUQA3lIjoXYQTb4
+	 t1YDWChlHCUryUf3ul0M6DLsVOvzTHZe5SXKzPYqeUDMPt+6ePWwJzPCR0SBSIgL/Fa+c
+	 AoZRXmgvxOuQHTLEzuuISIN/xDTrnpY4oGTplP9Qc3uYYuRy/iL/SdDJ0boTgqkYy0hkj
+	 dZB9lnOUhIjEox5FQNbp6xFMB3g3NBhKEJI5QuouBF+J0lfYG39hytQwvKdUhM7ICprii
+	 YX02kqBowhWsFVAuOdzV9fiBO39dFbiYGpibgb97JMSCE6zEYIWD7G/gEJ94xK+GTgQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794982371;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794982480;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=7pawrZRlYVDLwnVc36mchILpwWtc+qvWtadmaH7lhXg=;
-	b=ZQIa/gjiN8EtQ4Nmpoeh9wkSEbWhKxWWkMA345hdE8fYCYL0wZxC7kCLjhywlj9eL9hD
-	 8P1W2GKV7bXjJEydogQDRqlfrIDpK2HZrkFggY/T/gcWT5j3w+aBjAGP8olq8ynoXqpI8
-	 xDtjPhQEpVcRbjfQEqQtb3BDurNPSRKDcnvm6st/gl675ir7wr5rX2WAagtvgZKcewhk8
-	 cUVjfWRLEAOAC/sMS12+yLXIvwSuFts1ugnA6SQEqKwBhQBHMwQ/edVDJAZCrrTXOQvht
-	 BzOfib5znGuRgJBbFo7NEkokNP2vcWhLAIARdRAe59LusAwLVUvE/wkKGnZd3g37CVw==
+	bh=GEsC5dU0bfsqEDCQJOmPH05HbP/lwlu2etaBbyPSMes=;
+	b=TxCcCd1gORFSuXd56+A7pyoSDMYl/AUiutFIZmOwEenPJfrha57AAjIpvgtW7/kfxcmb
+	 ssGJLsB3D7w2ER5teQDvHV38HGLsDsU6pRk0v2T5UoRH0zuiLh5a6Z6nhpcvJz+6iRYFQ
+	 kOxdoIeZy7i2u63HCDnR2MO7rdbqtnI5cESrXnbTd5+G5v9wdEtj2Mv6TxjYzQPG1pPE4
+	 2hFfKbAbjVKPgGgHEQ2FevSBP1uNg+IM65/rolTNx6+Dsi8B/5yi7fWsMUX1+qxYbuKwv
+	 FIaN+Nj21ruCoKA5E9/DqkXafDtPOkWxg1Cb/Z76LiQpIjG3ClPEcYzSRD5fQLb5M3A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XGQ8aJ16;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VBRH3nX+;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377D2606A33A
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:12:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FC22606A31C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:14:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XGQ8aJ16
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C6D1F000C5;
-	Wed, 18 Nov 2026 06:12:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VBRH3nX+
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A962E1F000C4;
+	Wed, 18 Nov 2026 06:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794982371;
-	bh=7pawrZRlYVDLwnVc36mchILpwWtc+qvWtadmaH7lhXg=;
+	s=k20260515; t=1794982480;
+	bh=GEsC5dU0bfsqEDCQJOmPH05HbP/lwlu2etaBbyPSMes=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XGQ8aJ167ql8RT2XJgaOf0Eq6Q/gT8pXbnfVX5Ukky44PZgq4eSgl2nZ6ybWVCrJU
-	 tddgUSUIbF0RlDcndQPmxC3KPAY1AX+dcSVxpdYzs1tsFLBf0m/NvQ45mJzKYnBhG9
-	 bwKJiomH6Y6qavZ0/fN5fVOv6mkT3BnWeOBMwV/nMffn+XgN5gNpk6jvxcJ5Ox72Um
-	 Y1D8Qr3ZgnA/NX8tg+1IJ2rddYnGAMOdpFvGh0teUlhMfhHlOudDj/UF1SkaGd76fT
-	 KccOZv+SBIUrBDygTeqJV8qKJ1jyhx6hy8gIXFAuW4SGRVUwQtsikEySaxeheTu5l5
-	 1RWVfoLjmwLBw==
-Message-ID: <sashiko-outbox-220211@kernel.org>
+	b=VBRH3nX+HG7tRJcwuVSjRxroM9vW1LnhK+vZ4rdcUJoOw5LWDg4vrNWwDkbiV6Suk
+	 4woI2ffp2U/etaAL4tAgyBMdYUtalPdg4+VyHt2ZR6zQe5D8kWqojtOgmzuer/IUy2
+	 Uey6NUQ9kGoXtdiev0Y3XJ9/L+316F9hXqKwYdeXVzBvWNZLvoZ5b4Ctk1PTMggtwj
+	 Oaz7fLeFfRWaY0wkH/Gh+ktU/i1/cTUwFVH0tL9es8+bBtoTiDQPfg2S3EaUNabKlM
+	 l8MPXkNfYYQ6qyn2HMHJ7yGlK/m5BPPbYSvSQKUrmwHwZmMd4p65dJIB5ysBt8tTSx
+	 tht8T5pnK0vJg==
+Message-ID: <sashiko-outbox-220212@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 4/4] x86/vmware: Report guest crashes after kmsg
- dumpers
+Subject: Re: [PATCH v4 3/4] x86/vmware: Add the vmware_record_panic_msg
+ sysctl
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Zack Rusin" <zack.rusin@broadcom.com>, "Andrew Morton" <akpm@linux-foundation.org>, "Petr
  Mladek" <pmladek@suse.com>, "Baoquan He" <baoquan.he@linux.dev>, "Mike
@@ -61,12 +61,12 @@ Cc: "Borislav Petkov" <bp@alien8.de>, "Ajay Kaher" <ajay.kaher@broadcom.com>, "A
  Brennan" <stephen.s.brennan@oracle.com>, "Michael Kelley" <mhklinux@outlook.com>, "Ian
  Forbes" <ian.forbes@broadcom.com>, "Bradley Morgan" <brads@mainlining.org>, "Michael
  S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <d0f9c1188b5f78bb20bb43737b3cf80c5c0f94f4.1794980455.git.zack.rusin@broadcom.com>
+In-Reply-To: <4c5de34b10f579368b890eaa9333a2755886bad3.1794980455.git.zack.rusin@broadcom.com>
 References: <cover.1794980455.git.zack.rusin@broadcom.com>
- <d0f9c1188b5f78bb20bb43737b3cf80c5c0f94f4.1794980455.git.zack.rusin@broadcom.com>
+ <4c5de34b10f579368b890eaa9333a2755886bad3.1794980455.git.zack.rusin@broadcom.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 06:12:48 +0000
+Date: Wed, 18 Nov 2026 06:14:38 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -76,31 +76,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> VMware accepts a structured guest-crash event, but a host configured with
-> backdoor.coredumpOnCrash may terminate the VM before the hypercall
-> returns. Keep this event separate from the log sender, which runs
-> earlier in panic.
+> Allow administrators to disable host log transfer on ordinary guests or
+> opt in on encrypted guests. Expose the boolean recording policy through
+> kernel.vmware_record_panic_msg using proc_dobool(), as Joel suggested.
+> Zero disables recording, nonzero integers enable it, and reads return
+> 0 or 1.
 >=20
-> Register a panic-only kmsg dumper with late_initcall_sync(), after built-=
-in
-> dumpers registered by then. Skip the event while a crash kernel is loaded
-> so the host cannot terminate the guest before kdump saves its vmcore.
+> Register the sysctl only after the logger is ready. A registration failure
+> leaves the internal default in force. Document that the log is sent
+> before kdump, and that disable_panic_notifiers_platform_list also skips
+> it.
 >=20
-> Issue the event at most once. With CONFIG_PRINTK=3Dn, use a late INT_MIN
-> panic notifier. An unexpected dumper registration failure with printk
-> enabled leaves reporting disabled rather than overtaking working dumpers.
->=20
-> Link: https://lore.kernel.org/r/20260309235250.2611115-4-alexey.makhalov@=
-broadcom.com
-> Co-developed-by: Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>
-> Signed-off-by: Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>
-> Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> Link: https://lore.kernel.org/r/4e73yd2ofpdzl6rptzvd74no3hnyfblknoq7wzxlw=
+7f3zjbz7c@srfabx6lsusj
 > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1794980455.gi=
-t.zack.rusin@broadcom.com?part=3D4
+t.zack.rusin@broadcom.com?part=3D3
 
