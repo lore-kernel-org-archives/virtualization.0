@@ -1,66 +1,66 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794966923;
-	b=U5m7AgtJ/MrpOnbFvcj5b6HmAdb5FDqTgmjL9Geoz2apoG/HGMigD/RXBbQNHsqhodJ3
-	 yyPcEXQ18i7RfbaJvb2kudGCdlgb1vEZDc1vvO7dfuBBz1hlTjX3/o3xXeclMtMTKp2Zm
-	 G392fgE5qOHMRboxwxPtAdzldjPE04tqgj/9RcN2Gz907DB9GHkU9xzGY9ejuTj+/nDyO
-	 5ojf9UwHs6V90IoREkzvUtf+U5k3q/QTdFEbGE5DwDO8gGVgNZAKnY2B1enuwg8G3KCLG
-	 BRcCybesaFNsSJBKTaADnHz8jS93NaKQJHn7CKk3Xe3zOUCQT9d/worrxwAONeosnkA==
+	t=1794966924;
+	b=ztRR6TysWJlajSGsrGQOp5tfRD16tWomO+NRVTo3H7GqB+swLhFqpemql3QG25pI8T5D
+	 Hl/0C5V0nlL8UxNoxGSNdjkudg4rOytv6X/AFdv7Y37wdDpTpNEj6BpgDxmBkPTBveYYi
+	 tAvNzreDLC/c2flPIk65Bnp6xB2INS6wg04A/fbqwyT7YctPpoodEadoXn90izxP7LMfw
+	 XwSB5xHjqsPBV6qzY6vg7Lfv/+HCgYg7cpTrAUuay+cATVrasjGA/5+j/vaYtvj44N12I
+	 B+AqV7peBUNDIqzlN4CUB2KkfeD23y60QOLIFRk9n+kRJUw1E3oDCMi90I5iBjRmsiQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794966923;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-ID:References:In-Reply-To:To:CC:X-Mailer:X-Originating-IP:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
+	a=rsa-sha256; c=relaxed/relaxed; t=1794966924;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Subject:
+	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-B4-Tracking:X-Change-ID:To:CC:X-Mailer:X-Originating-IP:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
 	 X-Proofpoint-Virus-Version;
-	bh=SjAEkNvEZNFeALSspaTwqYhV3J4sI8amkcGxJP0N7rw=;
-	b=hvtaKsgIpiKDwnDF7ukz5izJEp2ys0HDreRxFhKKpsyrinhn8OvWzc4PKPmnBOJ3oE83
-	 72dVgZRCBINBSPL1RTg8G55yRuqPpsrO41M/EuaGCaWRoQeZHGY2NCwUxR9J3WRAHpwkH
-	 sKB6KYRT5cl7oJhiLM5tEqYfDJcjP7Q8O8LjwMkZTi/+yEDk9NtDwHT15oqGaQgeRAZ+0
-	 EVXakWE6HTkN10v+84flyIvBgOUO063KmedQSeau00PCtGhVLykzptgM5Swa1pxlD5HCy
-	 vLIR4ea4PGNEysJSWUYk+3jk1cpsO86ftkwO+YTRIHspH/NVBEMKQhnge0ZJLXrlhbw==
+	bh=q8YEJgF7CIIPd2vUFvUMuhyzBAULakByEFFvnXQRjFc=;
+	b=4wRWZWkr9CgWYtlySwRD2iLXOqNG3GkLUH28WmR9VzXeuLUaSJrH2sAWrMyzFcxfH2xO
+	 yaEjImV6m+HnH5RbliJ8x5CoZgwmwfnk1Brh6PVti4cgCCvKBn7JFqUWoDO7noiCIg/co
+	 PmTLpu9itulgO0D0+7B9TPWj44hQPBneUd3sxr54kFFzEPn8O2gg1DFh3Op2+kmF4d3Pu
+	 /q1tOyRleiYyhSb+pKok+mb7/N0VRk6T+4cZEp2gIPBeygCyUMTiqOQPDeNvEK04bvk6x
+	 NuQps3VWP8P5KDY3ZPoll2AsAlxoXO+h+5BRe7C+FEMaAZBCfQBa2Omy5LdttNbOqig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=meta.com;
 	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b="hwsJk7/U";
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=QnuVX2Gp;
 	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94EF7606A32A
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:55:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 94EF7606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F117E606A32A
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:55:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F117E606A32A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=hwsJk7/U
-Received: from pps.filterd (m0001303.ppops.net [127.0.0.1])
-	by m0001303.ppops.net (8.18.1.11/8.18.1.11) with ESMTP id 6AI11tRL020755;
-	Tue, 17 Nov 2026 17:55:08 -0800
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=QnuVX2Gp
+Received: from pps.filterd (m0528006.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AI11os41516132;
+	Tue, 17 Nov 2026 17:55:12 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=SjAEkNvEZNFeALSspaTwqYhV3J4sI8amkcGxJ
-	P0N7rw=; b=hwsJk7/UmKNmhDmpybOyniCSYQBGtTYukjZFkJ07hRaOhmrMI+Rv1
-	xgNv8rwNRsZKxbrWB/NLZNzMMfWnU2xYItFUVTcY+DARwwIQU7FNH7xNOLDGIzMr
-	7FBld9wAPrdYaIRb8QTbXDSdYy3cv09jSYvRWcISX0sGTy4e0rhIJ4Sz/6yY6dKu
-	DI43GIpAV+hXIDxFH/+3+jGuw8PqLw9KJ5wTJwPYzP7mYZXoFO57n7EG9r3OuOQ2
-	JHf2mSkvV6DFDCtpi8X9sHXFQuYWc4db+8dRvGp/XnpLWn3cR1oMNBNf10mEcoCN
-	K5G1qiGZcxN0vhU7ao+fWiPwAOgwj8I+A==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by m0001303.ppops.net (PPS) with ESMTPS id 4j0yu7sbsu-2
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pps82601-s2048-2026-q3; bh=q8YEJgF7C
+	IIPd2vUFvUMuhyzBAULakByEFFvnXQRjFc=; b=QnuVX2GpPc1qsjVUZbQ9BzBA0
+	yBGCOBOJ5lcPTZeAESpTClFfyyLOd3g+OH/XTIHkL7TJHwO3jyJUvdhtxceazPqV
+	eVBzoo7GRNShbIo8d5pVYflvvJyRvgYCSl8cSX3CFIapNPpvy+K6IxWjZLowBh0R
+	nFhb+B/WekPSrarF3xr7elWQxRr4FjPoYd3I3HyxfYUPqAMnGe1LUC+eQqlw9oRt
+	PMyw4QyBJB+RNyvQa+fbEHNobHHTEYdYXXT2BcSLyC4oYLg7o0C6iIyOc9J0JLc6
+	jWwOSmdXApBpoUK7UNI67lx0hrMpp3JcKIuPU1W6DG3389AJEa1C1RHvspFSA==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j0yu61by7-3
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Tue, 17 Nov 2026 17:55:08 -0800 (PST)
-Received: from localhost (2620:10d:c0a8:1b::8e35) by mail.thefacebook.com
- (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
+	Tue, 17 Nov 2026 17:55:11 -0800 (PST)
+Received: from localhost (2620:10d:c085:208::7cb7) by mail.thefacebook.com
+ (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 18 Nov
- 2026 01:55:07 +0000
+ 2026 01:55:02 +0000
 From: Bobby Eshleman <bobbyeshleman@meta.com>
-Date: Tue, 17 Nov 2026 17:54:49 -0800
-Subject: [PATCH net-next v7 6/7] selftests/vsock: test the guest vsock
- device network namespace
+Subject: [PATCH net-next v7 0/7] vsock: assign the guest vsock device to a
+ network namespace
+Date: Tue, 17 Nov 2026 17:54:43 -0800
+Message-ID: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -72,9 +72,14 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <20261117-vsock-guest-ns-v7-6-7e522ea9dd9b@meta.com>
-References: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
-In-Reply-To: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
+X-B4-Tracking: v=1; b=H4sIAGQF/WoC/2XS20rEMBCA4VcJud6RnNMUEd9DvEimUw3adm1iU
+ WTfXayLlvY6fP+ETL54oTlT4S374jMtueRp5C3zJ8bxOY5PBLnjLeNKKCcaLWEpE77A0zuVCmO
+ BTrjYGyu76Dw/MX6eqc8fa/CBj1RhpI/KH0+MP+dSp/lznbTI9XyNBqH20UWCgBCC1Y2mEJt0P
+ 1CNNzgNa2lRG60OV1oUCHBBp843fUeBdlr/aSnkcbYGAUkrYzw6l5TeabPRShy0AQHCeKs89og
+ 97rT911Log7YgwDTShxSSc6nZabfR8qgdCNBeeyTjvEax0Zff1cz09p5Lrtf9DFRKXFfcsttr1
+ l2zNZ7hZ3+LBAmelOmNjV3s/t/jjm8/Sct2AZzGkbACvk6FQCZKHpOV5GO7qB+aYiHAaRhybRm
+ mvqHgREixs1ErEYwl41Rwyiqk6KxGUhj54+XyDZZPBQa1AgAA
+X-Change-ID: 20260831-vsock-guest-ns-d06af451da67
 To: Stefano Garzarella <sgarzare@redhat.com>,
         "David S. Miller"
 	<davem@davemloft.net>,
@@ -107,736 +112,202 @@ CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
         Bobby Eshleman
 	<bobbyeshleman@meta.com>
 X-Mailer: b4 0.14.3
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfX5xCxhozw2vb/
- 9ZLwHJn5hfriawy3bLNqWlp3vGd2vy5snC27GVCXbFvb810Qc81A1Rizr330Crs0DOEaW7Luz+/
- f05ojT/8BXCbUU98gg/iKNlu0fOBWAE=
-X-Authority-Analysis: v=2.4 cv=EJmTQFZC c=1 sm=1 tr=0 ts=6afd057c cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfX7m4lQi6ekD+S
+ HjbBOJeSp45oCQIS92R9bt2kbPfLNdISQmXybi3VWeyegm2EWztX/RQ6Uc94C3H0qst9s8Mi+6R
+ afqeVzxKUuJOhzvCqc2uauj3UyWD6ABovoF7VMUvJWSeXyhFtpUhB5OZouEB7HPLjPrfHFlNSXr
+ 5epq2dNX7p5M6CXgDSdDhkLhWz9nl4pwvD1CkvMQJ2oaRt/PdqvOuiRCYZXYSA6vhxcRc6VaEgJ
+ Xp6MGtj9RSpSVkIn+SYGQN5RLWEjyzUzN6IY4m6ePenPLwm3NMvFc7Ou3DbioDBrkNPMYopQbpi
+ yTnnAxoXhAYHxaOBN+ReQewlZ7DVnc6Q/sEuLW5gcb2cNfqIP0Q3vN92aHvxl8FMxpaUb4VM9hq
+ Yggz3hDSaMLDYXwOopRtupGtui4hVidOTCY1tcMPnYiA0ZyKifYv3sX0aH/qTA/fScs9r5y7Q92
+ ghlouoCA43zUY/WbqCQ==
+X-Proofpoint-ORIG-GUID: P6cfV9eCzZ8mQAvg5gg9yYeU0nA0tg7e
+X-Authority-Analysis: v=2.4 cv=DrnDa2/+ c=1 sm=1 tr=0 ts=6afd057f cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=_78whYxrdx1mplLwxq1U:22 a=VabnemYjAAAA:8
- a=x6TjScRT9WED2jFfjV0A:9 a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
+ a=7x6HtfJdh03M6CCDgxCd:22 a=kkcUborcUVj0H7zxAXTl:22 a=VwQbUJbxAAAA:8
+ a=20KFwNOVAAAA:8 a=VabnemYjAAAA:8 a=GJaTUcCZCEZQLXJfTmQA:9 a=QEXdDO2ut3YA:10
  a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-GUID: JbI7hbVZjTNg5QsWhr0ydce_o6SN2rtE
-X-Proofpoint-ORIG-GUID: JbI7hbVZjTNg5QsWhr0ydce_o6SN2rtE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfXx9BxK/MaX1c/
- G2FNnJLPbZ5A15AU6fPkxvrpuNtBZhuRFKFuhFaEv4cioVyL1bMbSbje6ByyVrIlhHrnk/s/nvl
- dSRij/MroxDmjFKHtsauMFRbT5HoGThmFGXj4RMH3vYdQqFAUaEaPIs94Tp0eJyydIR4YahIGqb
- h1q4Nhpzm2kt2PXEkziYBwUrsdntLyrKT+W2Hr3x8j7qjJP4jpImbTKNVakH+4B+U19OwgvjhGn
- HaofNW+o9tuKW8871/zPBg45E892yJjndIQ5D/8YWfP5cd9QSL2tNmLQZ3+xPrWThn7CGIQu7zm
- 1vMF8vTHc0yPwo2oENacqb3JIG1LLPW5yWkRq8MhQK0q+Hv8O3W9QPCyUDNU4m6sDqS03mNiuW1
- Z1Mg/bJCUFfyD6BC+PiOZqUYAwOmHrE+DNlhC3J+N2irlDQZMgybc+3AB2v0ewFdx7xX6gZJAfr
- P4jCcUJq+WQOBQkAMmw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDAwNyBTYWx0ZWRfX3PSIVhLjWVwA
+ UHVjZWhtA1sFWRKSXr4FntUTNo2p4IPvkpc5G+OKkONePrJEKHADMjIFNRbFDmAtxVPj6NkEdUI
+ Iy7MX43ZS+bU9vbXirn7sRIS+7dK0gs=
+X-Proofpoint-GUID: P6cfV9eCzZ8mQAvg5gg9yYeU0nA0tg7e
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-17_05,2026-11-16_01,2025-10-01_01
 
-Add tests for guest vsock device namespace assignment, including ns
-destruction and the device moving between namespaces.
+vsock network namespaces let a host put each VM in a namespace of its
+own. A guest has no equivalent yet. It has a single G2H device that
+cannot be assigned to a network namespace.
 
-The tests drive the device through ynl's cli.py and create guest
-namespaces with unshare, so they need python3, PyYAML and unshare. A
-missing one skips only these tests, not the whole script.
+This series lets a guest move that device into a network namespace. A
+new generic netlink family, "vsock", supports the command
+VSOCK_CMD_DEV_NETNS_SET which assigns the device to the namespace given
+by fd or PID, or else to the namespace the request was sent from. The
+namespace's existing ns_mode then decides who may use it: a "global"
+namespace shares the device with every other global namespace, and a
+"local" namespace keeps the host connection to itself. The device starts
+out in the initial namespace, so until the command is issued global
+namespaces see no change, and local namespaces still cannot use it.
+There is no explicit unassign as assigning the device back to the
+initial namespace is equivalent.
 
+The command requires CAP_NET_ADMIN in the initial user namespace, so
+that an unprivileged user namespace cannot claim the device.
+
+Connections that can no longer reach the device after a move are reset,
+so that a namespace which has lost access cannot keep using a socket it
+opened while it still had access. The assignment holds a reference on
+the namespace, so deleting that namespace does not move the device; only
+another assignment does.
+
+Transports opt in through a new netns_assign_allow flag. Only
+virtio-vsock sets it here, because it is the only guest transport
+that I am able to test against.
+
+Based off of Stefano's original series:
+https://lore.kernel.org/all/20200116172428.311437-1-sgarzare@redhat.com/
+
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
 Changes in v7:
-- Fix the --skip=29 comment (Sashiko)
+- Post the tap netns fix separately to net:
+  https://lore.kernel.org/all/20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com/
+- Post the connect() fix separately to net:
+  https://lore.kernel.org/all/20261117-vsock-connect-close-v2-1-db5388323770@meta.com/
+- Keep swept sockets in the connected table (Sashiko). Reproduced with
+  an ad-hoc Python test, not included as it isn't realy mergeable
+- Reply to VSOCK_CMD_DEV_NETNS_SET now that the return is meaningful (Sashiko)
+- Fail CID 2 with ENETUNREACH when the g2h device is in another netns,
+  instead of falling back to loopback
+- Cancel queued packets of reset swept sockets to avoid driving a bunch
+  of pkts into the tap device that never actually get sent
+- Keep swept sockets readable until drained, so that the behavior is the same
+  as for sockets that are actually reset by a peer (and so that SIOCINQ
+  doesn't report bytes that are never readable)
+- Fix stale docs and comments
+- Link to v6: https://lore.kernel.org/r/20261113-vsock-guest-ns-v6-0-3737ce4673c0@meta.com
 
 Changes in v6:
-- Add ns_guest_assign_g2h_netns_by_pid_ok for the netns-pid attribute
+- New patch 1: move vsock_connect_close() out of the netlink patch, since
+  it also fixes connect() vs transport reset races (Michal)
+- Set swept sockets to TCP_CLOSING instead of TCP_CLOSE, as a peer RST
+  does: they were established, and vsock_connect() handles TCP_CLOSING
+  as such rather than as a failed connect (Sashiko)
+- Accept netns-fd and netns-pid attributes in VSOCK_CMD_DEV_NETNS_SET to
+  name the target namespace, and test the netns-pid one (Stephen)
+- Check reachability in virtio_transport_send_pkt_info() instead of
+  virtio_transport_send_pkt(), so RSTs from
+  virtio_transport_reset_no_sock() reach the host after an assign
+  (Paolo, Sashiko)
+- Revert the v5 change that sent the recv_listen()/recv_connecting()
+  RSTs to the netns the packet arrived on; sock_net(sk) works again now
+  that those RSTs skip the check
+- Export vsock_g2h_reachable_sk() for virtio_transport_send_pkt_info()
+- Rewrite the commit message of the virtio patch (Paolo)
+- Require setpriv only for the two privilege tests, not every ns_guest_
+  test (Sashiko)
+- Link to v5: https://lore.kernel.org/r/20261103-vsock-guest-ns-v5-0-48179b9b66b8@meta.com
+
+Changes in v5:
+- Rename the uapi header to linux/vsock_netlink.h (Stefano)
+- Drop the VSOCK_CMD_DEV_NETNS_SET reply and rely on the netlink ack
+  (Stefano)
+- Keep vsock_register_mutex static, export vsock_cid_lock() and
+  vsock_cid_unlock() for vhost_vsock_set_cid() instead (Stefano)
+- Replace vsock_g2h_next_unreachable() with a generic
+  vsock_next_connected_socket() next to vsock_for_each_connected_socket(),
+  which cannot be reused because the sweep takes lock_sock() (Stefano)
+- Use rcu_dereference_protected() in vsock_nl_dev_netns_fill(), drop the
+  RCU read lock and allocate the nsid with GFP_KERNEL (Stefano)
+- Point to the vsock_g2h_assign_mutex comment for the lock ordering in
+  vsock_g2h_net_assign() (Stefano)
+- Reverse xmas tree in vsock_dev_do_ioctl() (Stefano)
+- Set SOCK_DONE and peer_shutdown on swept sockets, so recv() returns EOF
+  and send() fails with -EPIPE/-ECONNRESET instead of -ENOTCONN (Sashiko)
+- Only move sock->state back to SS_UNCONNECTED in vsock_connect() if it is
+  still SS_CONNECTING, via the new vsock_connect_close(), so a socket
+  swept while connect() sleeps cannot be connect()ed again and have
+  vsk->trans freed under in-flight skbs (Michal)
+- Send the RSTs in virtio_transport_recv_listen() and
+  virtio_transport_recv_connecting() to the netns the packet arrived on,
+  not the socket's: after an assign the socket's netns may no longer
+  reach the device, so the RST would be dropped by the reachability
+  check this patch adds to virtio_transport_send_pkt() (Stefano, Sashiko)
+- Pick up Stefano's RoBs on patches 2 and 3
+- Link to v4: https://lore.kernel.org/r/20261020-vsock-guest-ns-v4-0-047527cfccfc@meta.com
 
 Changes in v4:
-- Start the old_conn_send_fails stopwatch before the sender, so a slow
-  guest skips rather than fails (Sashiko)
+- All Sashiko fixes (see individual patch change lists)
+- Link to v3: https://lore.kernel.org/r/20261012-vsock-guest-ns-v3-0-b32447c66b23@meta.com
 
 Changes in v3:
-- Replace reset_on_ns_delete_ok with pins_ns_ok, to cover the netns
-  pinning
-- Skip only the ns_guest_ tests when PyYAML or the ynl CLI or spec is
-  missing, and ship the ynl bits via TEST_FILES for installed trees
-  (Sashiko)
-- Also skip only the ns_guest_ tests when unshare or python3 is missing
-- Make vm_ns_start() wait for the namespace and report failure (Sashiko)
-- Poll for FIRST in old_conn_send_fails instead of sleeping, and report
-  an over-long assign as a skip (Sashiko)
-- Kill the guest-side socat by name, $! names a local subshell (Sashiko)
-- Wait for the host listener to exit before the next test binds its
-  port (Sashiko)
+- Lots of fixes for race conditions found by local and upstream Sashiko.
+  Sorry for the delayed reposting, it took significant time to track
+  down and confirm that these were real issues, and come up with a
+  decent solution for each...
+- Pin the assigned netns instead of returning the device to init_net
+  when it is deleted, and refuse an assign that would make the device's
+  CID collide with a nested H2G vhost-vsock with the same CID
+- Drop the idea of sending RST to the peer from the reset sweep. Sending
+  a RST required a lock_sock, which can't be acquired underneath the
+  vsock_table_lock.  Splitting into two phases of locking opened up new
+  races, I couldn't find a solution I was really happy with. Probably
+  not worth the complexity
+- New prep patch passing the netns to ->has_remote_cid(), which is used
+  in a later patch in the series for avoid CID collisions between nested
+  H2G guests and the G2H device
+- Various fixes (see individual patch change lists for more details)
+- Link to v2: https://lore.kernel.org/r/20260921-vsock-guest-ns-v2-0-693bd78fde9e@meta.com
 
 Changes in v2:
-- Drive the assign with ynl cli.py, drop the vsock_assign_g2h_netns
-  ioctl helper and its patch
-- Terminate the guest socat sender too, it sometimes outlived the test
-  and kept holding on to a port the next test binds
+- Replace the IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS ioctl with the "vsock"
+  genl family and VSOCK_CMD_DEV_NETNS_SET
+- RST the peer from the reset sweep, v1 only set TCP_CLOSE locally, so
+  the peer waited on a connection the guest had abandoned (Stefano)
+- Drop the vsock_assign_g2h_netns helper patch, the tests use ynl cli.py
+- Note why only virtio-vsock opts in (Stefano)
+- Add a getter to the uAPI
+- Various fixes (see individual patch change list for more details)
+- Link to v1: https://lore.kernel.org/r/20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com
+
 ---
- tools/testing/selftests/vsock/Makefile  |   5 +
- tools/testing/selftests/vsock/vmtest.sh | 554 +++++++++++++++++++++++++++++++-
- 2 files changed, 548 insertions(+), 11 deletions(-)
+Bobby Eshleman (7):
+      vsock: constify the transport in vsock_for_each_connected_socket()
+      vsock: rename the vsock pernet operations
+      vsock: pass the netns to ->has_remote_cid()
+      vsock: add a netlink command to assign the g2h device to a netns
+      vsock/virtio: support guest device network namespace
+      selftests/vsock: test the guest vsock device network namespace
+      selftests/vsock: test the netns assign privilege checks
 
-diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
-index c407c0afd938..2b066ba91bcd 100644
---- a/tools/testing/selftests/vsock/Makefile
-+++ b/tools/testing/selftests/vsock/Makefile
-@@ -13,5 +13,10 @@ $(VSOCK_TEST_DIR)/vsock_test: $(VSOCK_TEST_SRCS)
- TEST_PROGS += vmtest.sh
- TEST_GEN_FILES := vsock_test
- 
-+TEST_FILES := \
-+	../../../net/ynl/pyynl/cli.py \
-+	../../../net/ynl/pyynl/lib \
-+	../../../../Documentation/netlink/specs/vsock.yaml
-+
- include ../lib.mk
- 
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 310dfc2a39ad..c771d0cb9268 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -17,6 +17,20 @@ readonly KERNEL_CHECKOUT=$(realpath "${SCRIPT_DIR}"/../../../../)
- source "${SCRIPT_DIR}"/../kselftest/ktap_helpers.sh
- 
- readonly VSOCK_TEST="${SCRIPT_DIR}"/vsock_test
-+
-+# "make install" copies the ynl CLI, its lib package and the spec next to this
-+# script (see TEST_FILES); in a source tree they stay where they are built.
-+if [[ -r "${SCRIPT_DIR}"/cli.py ]]; then
-+	readonly YNL_CLI="${SCRIPT_DIR}"/cli.py
-+	readonly YNL_LIB="${SCRIPT_DIR}"/lib
-+	readonly VSOCK_SPEC="${SCRIPT_DIR}"/vsock.yaml
-+else
-+	readonly YNL_DIR="${KERNEL_CHECKOUT}"/tools/net/ynl/pyynl
-+	readonly YNL_CLI="${YNL_DIR}"/cli.py
-+	readonly YNL_LIB="${YNL_DIR}"/lib
-+	readonly SPEC_DIR="${KERNEL_CHECKOUT}"/Documentation/netlink/specs
-+	readonly VSOCK_SPEC="${SPEC_DIR}"/vsock.yaml
-+fi
- readonly TEST_GUEST_PORT=51000
- readonly TEST_HOST_PORT=50000
- readonly TEST_HOST_PORT_LISTENER=50001
-@@ -73,6 +87,13 @@ readonly TEST_NAMES=(
- 	ns_delete_vm_ok
- 	ns_delete_host_ok
- 	ns_delete_both_ok
-+	ns_guest_local_connect_to_host_fails
-+	ns_guest_assign_g2h_netns_connect_to_host_ok
-+	ns_guest_assign_g2h_netns_by_pid_ok
-+	ns_guest_assign_g2h_netns_init_ns_connect_fails
-+	ns_guest_assign_g2h_netns_host_connect_ok
-+	ns_guest_assign_g2h_netns_pins_ns_ok
-+	ns_guest_assign_g2h_netns_old_conn_send_fails
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -149,12 +170,40 @@ readonly TEST_DESCS=(
- 
- 	# ns_delete_both_ok
- 	"Check that deleting the VM and host's namespaces does not break the socket connection"
-+
-+	# ns_guest_local_connect_to_host_fails
-+	"Check a guest process in a local ns cannot reach the host without the netns assign."
-+
-+	# ns_guest_assign_g2h_netns_connect_to_host_ok
-+	"Check a guest process in a local ns reaches the host once the vsock device is assigned to it."
-+
-+	# ns_guest_assign_g2h_netns_by_pid_ok
-+	"Check the vsock device can be assigned to a ns given by PID from outside it."
-+
-+	# ns_guest_assign_g2h_netns_init_ns_connect_fails
-+	"Check the guest's initial ns loses vsock once the device is assigned to another ns."
-+
-+	# ns_guest_assign_g2h_netns_host_connect_ok
-+	"Check the host reaches a guest listener in the ns the vsock device is assigned to."
-+
-+	# ns_guest_assign_g2h_netns_pins_ns_ok
-+	"Check the assignment keeps the ns alive when deleted, and that reassigning releases it."
-+
-+	# ns_guest_assign_g2h_netns_old_conn_send_fails
-+	"Check connections made before the assign stop sending once they lose the device."
- )
- 
- readonly USE_SHARED_VM=(
- 	vm_server_host_client
- 	vm_client_host_server
- 	vm_loopback
-+	ns_guest_local_connect_to_host_fails
-+	ns_guest_assign_g2h_netns_connect_to_host_ok
-+	ns_guest_assign_g2h_netns_by_pid_ok
-+	ns_guest_assign_g2h_netns_init_ns_connect_fails
-+	ns_guest_assign_g2h_netns_host_connect_ok
-+	ns_guest_assign_g2h_netns_pins_ns_ok
-+	ns_guest_assign_g2h_netns_old_conn_send_fails
- )
- readonly NS_MODES=("local" "global")
- 
-@@ -316,6 +365,34 @@ check_deps() {
- 	fi
- }
- 
-+check_ns_guest_deps() {
-+	local tname=$1
-+	local dep
-+
-+	if [[ ! "${tname}" =~ ^ns_guest_ ]]; then
-+		return 0
-+	fi
-+
-+	for dep in unshare python3; do
-+		if [[ ! -x $(command -v "${dep}") ]]; then
-+			log_host "no ${dep} for test ${tname}"
-+			return 1
-+		fi
-+	done
-+
-+	if ! python3 -c "import yaml" &>/dev/null; then
-+		log_host "no python3 yaml module for test ${tname}"
-+		return 1
-+	fi
-+
-+	if [[ ! -r "${YNL_CLI}" ]] || [[ ! -r "${VSOCK_SPEC}" ]]; then
-+		log_host "no ynl cli or vsock spec for test ${tname}"
-+		return 1
-+	fi
-+
-+	return 0
-+}
-+
- check_netns() {
- 	local tname=$1
- 
-@@ -401,6 +478,19 @@ setup_home() {
- 	mkdir -p "$(dirname "${SSH_KEY_PATH}")"
- 	ssh-keygen -t ed25519 -f "${SSH_KEY_PATH}" -N "" -q
- 	cp "${VSOCK_TEST}" "${TEST_HOME}"/vsock_test
-+
-+	mkdir -p "${TEST_HOME}"/ynl
-+	if [[ -r "${YNL_CLI}" ]]; then
-+		cp "${YNL_CLI}" "${TEST_HOME}"/ynl/
-+		cp -r "${YNL_LIB}" "${TEST_HOME}"/ynl/
-+		cp "${VSOCK_SPEC}" "${TEST_HOME}"/ynl/
-+	fi
-+
-+	# One of the tests runs the CLI as an unprivileged user, so the CLI
-+	# has to be reachable by one.
-+	chmod -R a+rX "${TEST_HOME}"/ynl
-+
-+	chmod 755 "${TEST_HOME}"
- }
- 
- create_pidfile() {
-@@ -528,6 +618,82 @@ vm_wait_for_ssh() {
- 	done
- }
- 
-+# Create a local mode namespace in the VM and echo the pid holding it open.
-+vm_ns_start() {
-+	local ns=$1
-+	local initns
-+	local nspid
-+	local newns
-+	local i
-+
-+	local mode=/proc/sys/net/vsock/child_ns_mode
-+
-+	if ! vm_ssh "${ns}" -- "echo local > ${mode}" &>/dev/null; then
-+		return
-+	fi
-+
-+	nspid=$(vm_ssh "${ns}" -- "unshare -n sleep infinity" \
-+		'>/dev/null 2>&1 & echo $!')
-+	if [[ -z "${nspid}" ]]; then
-+		return
-+	fi
-+
-+	initns=$(vm_ssh "${ns}" -- "readlink /proc/self/ns/net")
-+	for ((i = 0; i < WAIT_PERIOD_MAX; i++)); do
-+		newns=$(vm_ssh "${ns}" -- "readlink /proc/${nspid}/ns/net" \
-+			2>/dev/null)
-+		if [[ -n "${newns}" ]] && [[ "${newns}" != "${initns}" ]]; then
-+			echo "${nspid}"
-+			return
-+		fi
-+		sleep 1
-+	done
-+
-+	vm_ns_stop "${ns}" "${nspid}"
-+}
-+
-+# Returns once the holder is gone, so that the namespace is unreferenced and
-+# the kernel can start tearing it down.
-+vm_ns_stop() {
-+	local ns=$1
-+	local nspid=$2
-+
-+	vm_ssh "${ns}" <<-EOF &>/dev/null
-+		kill ${nspid}
-+		for ((i = 0; i < ${WAIT_PERIOD_MAX}; i++)); do
-+			kill -0 ${nspid} 2>/dev/null || break
-+			sleep 1
-+		done
-+	EOF
-+}
-+
-+# Runs in the guest's initial namespace when <nspid> is empty. The command must
-+# not contain single quotes.
-+vm_ns_exec() {
-+	local ns=$1
-+	local nspid=$2
-+	local cmd=$3
-+
-+	if [[ -z "${nspid}" ]]; then
-+		vm_ssh "${ns}" -- "${cmd}"
-+		return
-+	fi
-+
-+	vm_ssh "${ns}" -- nsenter -t "${nspid}" -n sh -c "'${cmd}'"
-+}
-+
-+vm_ns_assign_g2h() {
-+	local ns=$1
-+	local nspid=$2
-+
-+	vm_ns_exec "${ns}" "${nspid}" "python3 /root/ynl/cli.py --no-schema \
-+		--spec /root/ynl/vsock.yaml --do dev-netns-set"
-+}
-+
-+vm_reset_g2h() {
-+	vm_ns_assign_g2h "init_ns" "" &>/dev/null
-+}
-+
- # derived from selftests/net/net_helper.sh
- wait_for_listener()
- {
-@@ -564,17 +730,33 @@ wait_for_listener()
- 	done
- }
- 
--vm_wait_for_listener() {
-+# Runs in the guest's initial namespace when <nspid> is empty.
-+vm_ns_wait_for_listener() {
- 	local ns=$1
--	local port=$2
--	local protocol=$3
-+	local nspid=$2
-+	local port=$3
-+	local protocol=$4
-+	local nsenter=
-+	local args
-+
-+	[[ -n "${nspid}" ]] && nsenter="nsenter -t ${nspid} -n"
-+	args="${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX} ${protocol}"
- 
- 	vm_ssh "${ns}" <<EOF
- $(declare -f wait_for_listener)
--wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX} ${protocol}
-+export -f wait_for_listener
-+${nsenter} bash -c "wait_for_listener ${args}"
- EOF
- }
- 
-+vm_wait_for_listener() {
-+	local ns=$1
-+	local port=$2
-+	local protocol=$3
-+
-+	vm_ns_wait_for_listener "${ns}" "" "${port}" "${protocol}"
-+}
-+
- host_wait_for_listener() {
- 	local ns=$1
- 	local port=$2
-@@ -1168,11 +1350,11 @@ test_ns_same_local_host_connect_to_local_vm_ok() {
- 	vm_vsock_test "${ns}" "server" 2 "${TEST_GUEST_PORT}"
- 
- 	# Skip test 29 (transport release use-after-free): This test attempts
--	# binding both G2H and H2G CIDs. Because virtio-vsock (G2H) doesn't
--	# support local namespaces the test will fail when
--	# transport_g2h->stream_allow() returns false. This edge case only
--	# happens for vsock_test in client mode on the host in a local
--	# namespace. This is a false positive.
-+	# binding both G2H and H2G CIDs. The virtio-vsock (G2H) device stays
-+	# assigned to init_net, which a local namespace cannot reach, so the
-+	# test will fail when transport_g2h->stream_allow() returns false. This
-+	# edge case only happens for vsock_test in client mode on the host in a
-+	# local namespace. This is a false positive.
- 	host_vsock_test "${ns}" "127.0.0.1" "${VSOCK_CID}" "${TEST_HOST_PORT}" --skip=29
- 	rc=$?
- 
-@@ -1421,6 +1603,354 @@ test_ns_delete_both_ok() {
- 	check_ns_delete_doesnt_break_connection "both"
- }
- 
-+# Send a string from the guest to a host listener and leave what the host
-+# received in <outfile>.
-+guest_send_to_host() {
-+	local ns=$1
-+	local nspid=$2
-+	local port=$3
-+	local outfile=$4
-+	local cmd="echo TEST | socat -u STDIN VSOCK-CONNECT:2:${port}"
-+	local pid
-+
-+	socat -u VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	host_wait_for_listener "${ns}" "${port}" "vsock"
-+
-+	vm_ns_exec "${ns}" "${nspid}" "${cmd}" 2>/dev/null
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
-+
-+	# Wait for the listener to actually go, or the next test binding the
-+	# same port races it and silently reads nothing.
-+	terminate_pids "${pid}"
-+	wait "${pid}" 2>/dev/null
-+}
-+
-+# Send a string from the host to a listener in the guest and leave what the
-+# guest received in <outfile>.
-+host_send_to_guest() {
-+	local ns=$1
-+	local nspid=$2
-+	local port=$3
-+	local outfile=$4
-+	local cmd="socat -u VSOCK-LISTEN:${port} STDOUT"
-+	local dst="VSOCK-CONNECT:${VSOCK_CID}:${port}"
-+	local pid
-+
-+	vm_ns_exec "${ns}" "${nspid}" "${cmd}" > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	vm_ns_wait_for_listener "${ns}" "${nspid}" "${port}" "vsock"
-+
-+	echo TEST | socat -u STDIN "${dst}" 2>/dev/null
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
-+
-+	vm_ns_exec "${ns}" "${nspid}" \
-+		"pkill -f VSOCK-LISTEN:${port}" &>/dev/null
-+	terminate_pids "${pid}"
-+	wait "${pid}" 2>/dev/null
-+}
-+
-+ns_old_conn_cleanup() {
-+	local port=$1
-+	local pid=$2
-+	local sender=$3
-+	local outfile=$4
-+	local nspid=$5
-+
-+	vm_ns_exec "init_ns" "" "pkill -f VSOCK-CONNECT:2:${port}" &>/dev/null
-+	terminate_pids "${pid}" "${sender}"
-+	wait "${pid}" "${sender}" 2>/dev/null
-+	rm -f "${outfile}"
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+}
-+
-+test_ns_guest_assign_g2h_netns_old_conn_send_fails() {
-+	local gap=$(( WAIT_PERIOD * 3 ))
-+	local port=12346
-+	local elapsed
-+	local started
-+	local outfile
-+	local result
-+	local sender
-+	local nspid
-+	local pid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	socat -u VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	host_wait_for_listener "init_ns" "${port}" "vsock"
-+
-+	# Send a message, wait, then send another. While waiting, assign the
-+	# device to a namespace. Confirm the second message does not arrive.
-+	started=${SECONDS}
-+	vm_ssh "init_ns" -- \
-+		"(echo FIRST; sleep ${gap}; echo SECOND) |" \
-+		"socat -u STDIN VSOCK-CONNECT:2:${port}" &>/dev/null &
-+	sender=$!
-+
-+	timeout "$(( WAIT_PERIOD * WAIT_PERIOD_MAX ))" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		ns_old_conn_cleanup "${port}" "${pid}" "${sender}" \
-+			"${outfile}" "${nspid}"
-+		return "${KSFT_FAIL}"
-+	fi
-+	elapsed=$(( SECONDS - started ))
-+
-+	sleep $(( gap + WAIT_PERIOD ))
-+
-+	result=$(cat "${outfile}")
-+	ns_old_conn_cleanup "${port}" "${pid}" "${sender}" \
-+		"${outfile}" "${nspid}"
-+
-+	if [[ "${result}" != *FIRST* ]]; then
-+		log_host "no connection before the assign: [${result}]"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if [[ $(( elapsed + 1 )) -ge ${gap} ]]; then
-+		log_host "connect and assign took ${elapsed}s of a ${gap}s gap"
-+		return "${KSFT_SKIP}"
-+	fi
-+
-+	if [[ "${result}" == *SECOND* ]]; then
-+		log_host "old connection still delivered after the assign"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_local_connect_to_host_fails() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" == TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_connect_to_host_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_by_pid_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ssh "init_ns" -- python3 /root/ynl/cli.py --no-schema \
-+		--spec /root/ynl/vsock.yaml --do dev-netns-set \
-+		--json "'{\"netns-pid\": ${nspid}}'"; then
-+		log_host "failed to assign the vsock device by PID"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_init_ns_connect_fails() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" == TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_host_connect_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	host_send_to_guest "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_pins_ns_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	sleep "${WAIT_PERIOD}"
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "" "${port}" "${outfile}"
-+	result=$(cat "${outfile}")
-+	if [[ "${result}" == TEST ]]; then
-+		log_host "device returned to the init ns instead of pinning it"
-+		rm -f "${outfile}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	# Assigning it back is what releases the deleted namespace.
-+	vm_reset_g2h
-+
-+	guest_send_to_host "init_ns" "" "$(( port + 1 ))" "${outfile}"
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		log_host "device did not come back on reassign: [${result}]"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
- shared_vm_test() {
- 	local tname
- 
-@@ -1453,7 +1983,8 @@ run_shared_vm_tests() {
- 			continue
- 		fi
- 
--		if ! check_netns "${arg}"; then
-+		if ! check_netns "${arg}" ||
-+		   ! check_ns_guest_deps "${arg}"; then
- 			check_result "${KSFT_SKIP}" "${arg}"
- 			continue
- 		fi
-@@ -1517,7 +2048,8 @@ run_ns_tests() {
- 			continue
- 		fi
- 
--		if ! check_netns "${arg}"; then
-+		if ! check_netns "${arg}" ||
-+		   ! check_ns_guest_deps "${arg}"; then
- 			check_result "${KSFT_SKIP}" "${arg}"
- 			continue
- 		fi
+ Documentation/admin-guide/sysctl/net.rst |  43 +++
+ Documentation/netlink/specs/vsock.yaml   |  95 +++++
+ MAINTAINERS                              |   2 +
+ drivers/vhost/vsock.c                    |  23 +-
+ include/net/af_vsock.h                   |  20 +-
+ include/uapi/linux/vsock_netlink.h       |  30 ++
+ net/vmw_vsock/Makefile                   |   2 +-
+ net/vmw_vsock/af_vsock.c                 | 574 +++++++++++++++++++++++++++--
+ net/vmw_vsock/virtio_transport.c         |  32 +-
+ net/vmw_vsock/virtio_transport_common.c  |  37 +-
+ net/vmw_vsock/vsock_nl_gen.c             |  44 +++
+ net/vmw_vsock/vsock_nl_gen.h             |  20 +
+ tools/net/ynl/Makefile.deps              |   1 +
+ tools/testing/selftests/vsock/Makefile   |   5 +
+ tools/testing/selftests/vsock/config     |   1 +
+ tools/testing/selftests/vsock/vmtest.sh  | 611 ++++++++++++++++++++++++++++++-
+ 16 files changed, 1472 insertions(+), 68 deletions(-)
+---
+base-commit: cbf8e9609bad5a320945e46296252cea653ce2ca
+change-id: 20260831-vsock-guest-ns-d06af451da67
+prerequisite-message-id: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
+prerequisite-patch-id: 556ae59ccb4191bb260c31c09c0480aee4843bd4
+prerequisite-change-id: 20261116-vsock-connect-close-1beb7cb51e7a:v2
+prerequisite-patch-id: ff6a06be92b69c1df866fc1e119e484c4ca8950c
 
+Best regards,
 -- 
-2.53.1-Meta
+Bobby Eshleman <bobbyeshleman@meta.com>
 
