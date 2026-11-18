@@ -1,56 +1,137 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.226
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794967095;
-	b=ckzjH6/alci5C8e+knsqSlVtitsBl3+E24KITLrx0A2lnB9N7lG5pYSlpNtMDQHGrWjI
-	 EEWNUVKmEnnPTeKd7U7KQP6mFUBm/i91JD8i7Mq17xJLp6/VyPh/yflSwfEgIkY2+ld6Y
-	 qZF2xC4h4aL23oBMch1C/vRQd1oyBFLyZkAkM7KO0Fet9UY+LRyNfdJeCyuqczM2ghkDq
-	 NYBAor3WSDR6tFTY3YyGryHN4BrSpOY581dZKQQZIC0soPI6/A/uBbF/BFpRLfrEhrDcA
-	 6mNeu/XWBDu2KXIA2yy0wDDe8Gee+Hw/UC5jrCgI0Yh63rb4+Oy+7BaXaSjVNgnCGgA==
+	t=1794981720;
+	b=BLB4aziTswr5ofT+K5PzIiPjJx9iQZ43rzR0bmrBDDHx15MuWgQuXKDYouJk/kNVJLnu
+	 E/uZ55yZJ3/Y/gbUHPkwiFwOUxp2s/bU0W0WBN8LVAXNxZZtGFIkUgLGfAmIWTkK1hM2n
+	 WR+gpOlKXi9SqLva0/BAUnrm5uJ6Nxsy9eJqWCM1887TYGwgg1aK7Tfhgb4HqRhYlg6UE
+	 KVtMigkb2fIeoqBVTjJ5VlNToW1RXTzIHWjrNd5L3qraqE9IKCENabZQBffWMlaS2osVs
+	 C4D+tPzQddAHEFEX4G/D4KIHnoIsUWoxps1j9MwFtaVKWXKqYQj+dUkMUBDoejoqYDw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794967095;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ex93YETbIMxoA78RvTBTfynISw4jSNCHkjF7RlM/B0g=;
-	b=1HyjG504j6plSpLDYdYGMgUrMsogJtAwq/LJX74uePVS50o/gPsijBhUMx931l81O6k3
-	 j57cxd0ZKbGRmgIKXPGO0+KjbS9cySwK2C+LGUZNRXpRBpJSNKMgbr/YcGyje3tCvEJTk
-	 GI6RuTH9rVzjrs8uFaw598jwhNOwRc6J9ZvCJRXPapacBcFpAmF1R42tSmClgtldvTQpR
-	 nMzSalhtiD7qcwz6L4SXgNjlncxSeFfj0/pD3C0h614epdprFf6OzWti9/8kcb8p57Afm
-	 mcV7BBWrMbUonoil3mytuR0SzkpkHa+yCRoZcStPUtOezFNuxHTVmt+PGpwIS2oWxfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794981720;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
+	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Received:X-Received:Received:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-DetectorID-Processed;
+	bh=AxEJOEfcnyLje8ZmMvx2AZyT7iZftuKYAFChF/A8Hek=;
+	b=peFceIFptIvV5JNyAz1EVRLaLOav7xXt2jF7mKtjZRN3dUV6otu67ueOmhEKSt4/iR4+
+	 CIuabCTTavKdcwwsFt/kINtqh7U1WVnnVIfhKfH9y+0mMM3zjz0KKe2fOMo0s7/bRpLKa
+	 MuP1xp41gp5ItOqswyAuJZefLPXtcMgv89PTlqzMge87o/eMbQMQ9ZtNoT4w37q3cX5sX
+	 cpZwss5+VTNnTptZ+hTrRHZ3JY24/egSowX6FQRPdtnkRbRuwJtaUoLbCi/OHVsY0BO8A
+	 NgtpYZdLdahIhC/La/Naw3Qr5yMQN+ApDK2pLdD8h3PjvG1GIfx8UlykqCs9HpyKfZA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d3Hmpel2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=broadcom.com;
+	spf=fail smtp.mailfrom=broadcom.com;
+	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b="ci/9ZE/8";
+	arc=none smtp.remote-ip=209.85.215.226
+Received: from mail-pg1-f226.google.com (mail-pg1-f226.google.com [209.85.215.226])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3926606A31C
-	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 01:58:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 891EE606A31C
+	for <virtualization@lists.linux.dev>; Wed, 18 Nov 2026 06:01:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 891EE606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d3Hmpel2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC1B1F000C4;
-	Wed, 18 Nov 2026 01:58:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794967094;
-	bh=ex93YETbIMxoA78RvTBTfynISw4jSNCHkjF7RlM/B0g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=d3Hmpel2Yv2sstHhtY8GsXQr4zGNn9FWqkHzuAtO/pO+95drcZdwKk02iIPU5y9yR
-	 sPeZzAWZ4oAFsDxidGcWtTXT05g1lVZoN8VJnWvnPL6XmtANNQ4yK9bEi6PgdqbA16
-	 mRAl0lxjyDvPSUCst8PzIMXqiZXc0r2lm0x9wwTgA0W8svX2DgOn5892vOfGUhlrKb
-	 OzTOL3Q5D54IfwrR/QDX5D5ppk/y7HyOniSZvvYxhV3TCl1icHFx5xfK4kTf/VGJbn
-	 X8j6D58X4sy59Qo0bKa1ZhKyzVJPbEhoUvN28LhTJEmWPqpyJJ1wc89+2MKG71u2Zw
-	 E+z2aqCdx8Vkw==
-Message-ID: <sashiko-outbox-219917@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] vsock: only undo SS_CONNECTING when connect() fails
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bobby Eshleman" <bobbyeshleman@meta.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261116-vsock-connect-close-v1-1-43fb125973dd@meta.com>
-References: <20261116-vsock-connect-close-v1-1-43fb125973dd@meta.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 01:58:13 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=ci/9ZE/8
+Received: by mail-pg1-f226.google.com with SMTP id 41be03b00d2f7-cddc597d062so378751a12.3
+        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 22:01:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794981719; x=1795586519;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=AxEJOEfcnyLje8ZmMvx2AZyT7iZftuKYAFChF/A8Hek=;
+        b=WynsDdBhJhPQXdNZqOmmmXdjFY8myiLfM480zOa/JmXE211CJwxeawrnYKMKY/uvMj
+         aJXP5kiT4x25G25lC9q/WruwYwyvViDJPLK41Cfic9EJHLAM02/uZNtZiAeKmvmP/x9S
+         lFBc2SY8e3BftWNANtCEMm9CPgU343pvjSfSwscrba1d1M57kbl1EyUye2l+QGZJDS06
+         qd5jilogWA8/0QKD/4EBK59DbZYT1aWuiiMbdphJcqdkUwvtM6SEAIknO8iVapHoQOuu
+         dZDGsKTcY8XCOOTt/BZ3wjzEnZbbcRtd+8j3Yo6WdJ073oKsjksZJtlAVtKcFOirjPIs
+         gt4g==
+X-Forwarded-Encrypted: i=1; AL+hErHhn67PGK7xQ5p0A2VaH2hdZfmGCIu9lozjb6mQDRXO9hkWHkCmAdI9qNIy574mxmikJ+paTSpd/sEV0Yph5Q==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9eqezI8ayjOyLvQlRUGYHjfUEQTznF9EcceEwCPsg2RsXX7ytG
+	peMWDC0hUMjtgB2Cm5bisWFBwa2y+NTWjM6PYooxTqC5qb3FNN7nT+6e5/zoWpIuvZcWewzIj9F
+	3m6YYTgOmp2rv12BwZltGkrdchaXk/QJzsU0Nh4zv/ZDEj+mFB+3DuHJRyyUQPVWt24NO2a9eh3
+	/oCrIE5wFcc7Kjhj9/WPIaJ5N6O8v74ay5BBYzZfYGsKzZgE9X6PARCQvDSOcUACuPbQAO6pv9D
+	8niwQDdQmY5T4ZAEpw=
+X-Gm-Gg: AZFdTZdi/k3VtcT1J+FtO2K2ImTAQTFB81O/M5I9JVifgQ6QdpDhDAyUld9wrBollSF
+	++kMIG1hdQ5tmwWlCmuF8BYcYpWcUKPJ0poJ/kUURks/Nx/34tv/RkrdF9tHanYe6Ovk7XInew0
+	lHq2SgnYsKpUjiJf0GQYBpdEdbDR1GlOjw5IBmxoK5ZL/buhGPDHF7N1/espZ0W52l8eLg6bubD
+	pD5ykBDSfgsBHr4yFDshK4u2owS78bAe6RMjoTcc65ugO2KFp0QHq18wsAswXm6fq49BO8H3/qY
+	nuxZnLzpHHxjKCbRuAXerZqj/Jko3gT7juVXoa9BV9VuXWAUf36zk3q581F0tJ/j1TSZkfRxTsE
+	pIf9h4yn4AaSisP+Nu4/LOhx65/58/HcLqjcbSHHkr/q5l4ELHx03OCQWY/npbveXyNyMPxuKJ5
+	A+9k/YzCaIehVf9BgknAePifPJzEdcbILOqbA=
+X-Received: by 2002:a17:90b:39a3:b0:3b0:d0c5:c10e with SMTP id 98e67ed59e1d1-3b3d07a2448mr1661745a91.17.1794981718514;
+        Tue, 17 Nov 2026 22:01:58 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-123.dlp.protect.broadcom.com. [144.49.247.123])
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-3b3abf029a5sm3554849a91.5.2026.11.17.22.01.57
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 17 Nov 2026 22:01:58 -0800 (PST)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-54af6c38092so7715311cf.0
+        for <virtualization@lists.linux.dev>; Tue, 17 Nov 2026 22:01:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1794981717; x=1795586517; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=AxEJOEfcnyLje8ZmMvx2AZyT7iZftuKYAFChF/A8Hek=;
+        b=ci/9ZE/8oUy0DnGALCTZx18M2qkIbySBizESJIfi3g0apXf5K34poXS71kcfmPea2v
+         h+1k2mICI0s3t4DWoOGT9AuO6+rC2OrdTWyNNQMI1kHymfoyYsdKwpFQ3ki62lpoDScw
+         yvhEEuLmy3k7PmLeiPe5sHfZzkcFR6q/jcros=
+X-Forwarded-Encrypted: i=1; AL+hErHW0F36JRR/T+h9+I+GkOoI8t2+xk5+fKkDT/STV9vd62C8tko5u+qqDTjDJNZkaY5VOpUcdDm9VC/NqxF5YQ==@lists.linux.dev
+X-Received: by 2002:ac8:6f0b:0:b0:54a:755d:6fcc with SMTP id d75a77b69052e-55d5a2c46b1mr26201511cf.4.1794981716703;
+        Tue, 17 Nov 2026 22:01:56 -0800 (PST)
+X-Received: by 2002:ac8:6f0b:0:b0:54a:755d:6fcc with SMTP id d75a77b69052e-55d5a2c46b1mr26201071cf.4.1794981716159;
+        Tue, 17 Nov 2026 22:01:56 -0800 (PST)
+Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55d58ff0065sm14886841cf.5.2026.11.17.22.01.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2026 22:01:55 -0800 (PST)
+From: Zack Rusin <zack.rusin@broadcom.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Petr Mladek <pmladek@suse.com>,
+	Baoquan He <baoquan.he@linux.dev>,
+	Mike Rapoport <rppt@kernel.org>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Dave Young <ruirui.yang@linux.dev>
+Cc: Borislav Petkov <bp@alien8.de>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	x86@kernel.org,
+	Joel Granados <joel.granados@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-kernel@vger.kernel.org,
+	John Ogness <john.ogness@linutronix.de>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Kees Cook <kees@kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Bo Gan <bo.gan@broadcom.com>,
+	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
+	kexec@lists.infradead.org,
+	linux-doc@vger.kernel.org,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Maaz Mombasawala <maaz.mombasawala@broadcom.com>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Stephen Brennan <stephen.s.brennan@oracle.com>,
+	Michael Kelley <mhklinux@outlook.com>,
+	Ian Forbes <ian.forbes@broadcom.com>,
+	Bradley Morgan <brads@mainlining.org>
+Subject: [PATCH v4 0/4] panic, x86/vmware: Preserve crash logs before kdump
+Date: Wed, 18 Nov 2026 01:01:47 -0500
+Message-ID: <cover.1794980455.git.zack.rusin@broadcom.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,130 +140,78 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] vsock: incomplete handling of post-handshake reset in
-  vsock_connect()
---
+This series lets VMware guests copy the end of their kernel log to
+the host's vmware.log when they crash, before entering kdump. This
+preserves diagnostic information even if the guest cannot save its
+own logs or the crash dump fails.
 
-commit bfeaeec883913ff39b46b5892948bd62e612d57c
-Author: Bobby Eshleman <bobbyeshleman@meta.com>
+Using the existing panic notifier list for this would require
+crash_kexec_post_notifiers=1, which also runs unrelated callbacks
+before kdump. Following Petr's suggestion, v3 instead adds a separate
+platform panic notifier list for callbacks that need to run early.
+It runs before kdump and before stopping the other CPUs. It also
+covers fatal oopses that enter kdump without going through panic().
+The callbacks run at most once, and the list can be disabled for
+debugging with disable_panic_notifiers_platform_list.
+crash_kexec_post_notifiers, the existing panic notifiers and the
+kmsg dumpers are unchanged.
 
-vsock: only undo SS_CONNECTING when connect() fails
+The VMware log sender is the first user. It uses a preallocated
+8 KiB buffer and limits both the transfer size and the number of
+retries. Logging is enabled by default in ordinary guests; encrypted
+guests must opt in through kernel.vmware_record_panic_msg. The copy
+is best-effort: kdump and reboot do not depend on it succeeding.
 
-This commit introduces vsock_connect_close() so that vsock_connect() only
-resets sock->state to SS_UNCONNECTED if the socket is still in
-SS_CONNECTING.
+The separate VMware guest-crash notification, which can cause the
+host to terminate the VM, is a kmsg dumper registered late in boot,
+so it runs after the built-in log dumpers. It is suppressed while a
+crash kernel is loaded.
 
-Link: https://lore.kernel.org/netdev/20260909-vsock-connect-reset-closing-v=
-1-1-50298b9ccfbf@rbox.co/
+Changes since v3:
+- Call the platform list before taking the kexec lock in __crash_kexec(),
+  so a callback that panics on a direct crash_kexec() can still enter
+  kdump (reported by Sashiko).
+- Rebase onto v7.4-rc3.
 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 1d7d53542724f..6395c6a7b0b1e 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -1704,6 +1704,16 @@ static void vsock_connect_timeout(struct work_stru=
-ct *work)
->  	sock_put(sk);
->  }
-> =20
-> +/* Avoid breaking the socket when another thread has changed its sock->s=
-tate
-> + * while we were asleep.
-> + */
-> +static void vsock_connect_close(struct socket *sock)
-> +{
-> +	sock->sk->sk_state =3D TCP_CLOSE;
-> +	if (sock->state =3D=3D SS_CONNECTING)
-> +		sock->state =3D SS_UNCONNECTED;
-> +}
-> +
->  static int vsock_connect(struct socket *sock, struct sockaddr_unsized *a=
-ddr,
->  			 int addr_len, int flags)
->  {
-> @@ -1862,8 +1872,7 @@ static int vsock_connect(struct socket *sock, struc=
-t sockaddr_unsized *addr,
->  			 * sk_state =3D=3D TCP_SYN_SENT, which hereby we break.
->  			 * In such case VIRTIO_VSOCK_OP_RST will follow.
->  			 */
-> -			sk->sk_state =3D TCP_CLOSE;
-> -			sock->state =3D SS_UNCONNECTED;
-> +			vsock_connect_close(sock);
-> =20
->  			/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
->  			 * transport->connect().
-> @@ -1877,10 +1886,8 @@ static int vsock_connect(struct socket *sock, stru=
-ct sockaddr_unsized *addr,
->  	}
-> =20
->  	err =3D sock_error(sk);
-> -	if (err) {
-> -		sk->sk_state =3D TCP_CLOSE;
-> -		sock->state =3D SS_UNCONNECTED;
-> -	}
-> +	if (err)
-> +		vsock_connect_close(sock);
-> =20
->  out_wait:
->  	finish_wait(sk_sleep(sk), &wait);
+Changes since v2:
+- Replace the pre-kdump list and postponement parameter with the
+  platform list and a debugging switch to disable it.
+- Run the list in vpanic() before the other CPUs are stopped,
+  instead of just before the kmsg dumpers.
+- Correct the sysctl documentation heading.
+- Rebase onto v7.4-rc1.
 
-[Severity: Medium]
-Can vsock_connect() hang until connect_timeout or corrupt vvs->bytes_unsent
-when a socket completes its handshake and is then reset to TCP_CLOSE while
-vsock_connect() is sleeping?
+Tested on x86-64 guests on VMware Workstation, ESXi (ordinary,
+SEV-SNP and TDX) and QEMU/KVM.
 
-CPU0                                CPU1
-vsock_connect()
-  release_sock(sk)
-  schedule_timeout(timeout)
-                                    /* handshake completes */
-                                    sock->state =3D SS_CONNECTED
-                                    sk->sk_state =3D TCP_ESTABLISHED
+Platform list proposal:
+https://lore.kernel.org/r/ateYxCu63pRY9EGq@pathway.suse.cz
 
-                                    vmci_transport_handle_detach()
-                                      sk->sk_state =3D TCP_CLOSE
-  lock_sock(sk)
-  if (sk->sk_state =3D=3D TCP_ESTABLISHED ||
-      sk->sk_state =3D=3D TCP_CLOSING)  <-- false
-  if (signal_pending(current) ||
-      timeout =3D=3D 0)                 <-- false
-  /* loops back to schedule_timeout() */
+v3:
+https://lore.kernel.org/r/cover.1794201807.git.zack.rusin@broadcom.com
+v2:
+https://lore.kernel.org/r/cover.1790014793.git.zack.rusin@broadcom.com
+v1:
+https://lore.kernel.org/r/cover.1788414671.git.zack.rusin@broadcom.com
 
-When vmci_transport_handle_detach() runs after the socket has already
-entered TCP_ESTABLISHED, it sets sk->sk_state =3D TCP_CLOSE without setting
-sk->sk_err:
+Zack Rusin (4):
+  panic: Add a platform panic notifier list
+  x86/vmware: Add a bounded panic log sender
+  x86/vmware: Add the vmware_record_panic_msg sysctl
+  x86/vmware: Report guest crashes after kmsg dumpers
 
-net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
-    ...
-		if (vsk->local_addr.svm_cid =3D=3D VMADDR_CID_HOST ||
-		    vsock_stream_has_data(vsk) <=3D 0) {
-			if (sk->sk_state =3D=3D TCP_SYN_SENT) {
-				...
-				sk->sk_state =3D TCP_CLOSE;
-				sk->sk_err =3D ECONNRESET;
-				sk_error_report(sk);
-				return;
-			}
-			sk->sk_state =3D TCP_CLOSE;
-		}
-    ...
-}
+ .../admin-guide/kernel-parameters.txt         |  12 +
+ Documentation/admin-guide/sysctl/kernel.rst   |  20 ++
+ arch/x86/include/asm/vmware.h                 |   2 +
+ arch/x86/kernel/cpu/vmware.c                  | 250 ++++++++++++++++++
+ include/linux/panic_notifier.h                |   3 +
+ kernel/crash_core.c                           |   8 +
+ kernel/panic.c                                |  51 ++++
+ 7 files changed, 346 insertions(+)
 
-Because the wait loop only checks for TCP_ESTABLISHED, TCP_CLOSING, and
-sk->sk_err, vsock_connect() stays in the loop and sleeps on the closed
-socket until connect_timeout expires.
 
-Also, if a signal or timeout coincides with a post-handshake reset to
-TCP_CLOSE (via vmci_transport_handle_detach() or
-virtio_vsock_reset_sock()), vsock_connect() enters the signal/timeout path
-and calls vsock_transport_cancel_pkt(vsk) on a socket in SS_CONNECTED.  If
-another thread sent data after the handshake completed,
-virtio_transport_purge_skbs() frees queued VIRTIO_VSOCK_OP_RW packets
-without decrementing vvs->bytes_unsent, breaking SIOCOUTQ and
-vsock_linger() accounting.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-vsock-conn=
-ect-close-v1-1-43fb125973dd@meta.com?part=3D1
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
