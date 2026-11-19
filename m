@@ -1,110 +1,110 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795089038;
-	b=kU7GinUbBI3yJkbAnjiQACsg+OC8C9/yuyKw9D616qSBPltvpuCy+Jkq9qWBwBBpllTC
-	 CouUmz0h3uHunCYKf6nenpeolNYCMGNCUk2pk14G7UYLtAik9KKP8cKiHtNzk5Y0yJ/G5
-	 zg8eM1cKVDE0EFwEXEV3zF2Nnenlj8XoZ3pOTIZPoNTvg4CbMOddDq8uNSFNrMmytypOV
-	 xQMvRsAlZbu3JwsNTGp/GyB76UFckRCZ4WtmY6+FrYMPPQWrJS1dXRkF3ybktnvOswZ/E
-	 9O/4y5BMZvubMgL8/LyDxt1WV/ROphU1eoV1I2mBGy3C8A0dqoG6EyOTJO1hB/WhIag==
+	t=1795089757;
+	b=ovX2jQKs/d4Fj/27hH8LqLlq+3KIjQFdoz+gYAoWLh6P2/U3ik2bIe7keg/Zy+VGFwDi
+	 6qQZuJ7zBDsFqi4uCH5ECaOer4XWFID0Y/7XehbEdqpcnSkEb6FZrbCOwIufhLZEajxY4
+	 pVUnXaa8Ut3HFIAytXvn2IQQ3Tbu7FmOKAumAmm61zTbVFqyPD0YmepTxIXrcAyh3Edf/
+	 jrLH1tg0/deAxO1gwZkA8ZJ/LWJZI2/FiilGYq7HRykVOLE/W8t+GO/SH63rELJCJCGcj
+	 N6mVeRDrHCGoPW4KGJATBIS1CscnS6AIEwIqwkpblhnUOOHzvfoonNnjRsWM9dq9WIw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795089038;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795089757;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding;
-	bh=0W+qwjoYXMK+Wkr2hnHwTmEZq17Go6E3zq5Ot2mWL14=;
-	b=UqfKRTZ4PavS5oZ4OpjJViQrcHwk/M5pEW73/qPtyXxOCgD7w/HRHZeL8LXW3znh4eDj
-	 oll5KFhi6VfU23gZ5Sr/utVsSXVoLHMs6hSQrikdUEXaEmn5ABGIXu8yPTBC3AY6ufxsU
-	 T7hwRNXgce+lh82WNtQskmm6KTWKD/x146RuZ7wABgDbN0uvygBrhaxEeENxkJ7zvgGZd
-	 2vnjZpAGoJPE4QncJLoZ2z2ymjtLhxQMh4umMnxT8G/ZZ/upaKM2S4vlG5KtyyiFRzGpk
-	 onpHSVOsXPMU7ZRu3jLkjbo7H3ou6Q+KU9ZeCS5ZuZm5MXK0Nq4dD1kWu5PrkZ3gvDQ==
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:MIME-Version:
+	 X-Mailer:X-Mutt-Fcc:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=8HieDkcA9JIiulz3WEd2PXLQt0iI0kOA0dL+f71dJzo=;
+	b=h08S5Q8u5VuTs3l75NOUCkfPdPjJGcnoOlPHcAnN2ClurvacM2HDglFRYr1WhLWT7KKC
+	 Hi0CMB5smrl7jEoQms7qGVM9SA/RxM4JhAbjSbnVdIGvTSIeJ7weK+wtiosnqwDO9MQpw
+	 tP6tSNh34+hB4AkYjKNkAm7JqVSbILVF9rRbCQ2cm224pfOZgh+fFkxtHgIuVE2up5nCg
+	 OusvMxS9m6bz8BG30oXHSkhsGQ0Di8H8CpVURVzRq0qNMA6kaZ/jKA5vZYIBRM/xqnSii
+	 nh5qugouxBN64HeZZ3DzIBeffkG2ZiuoTP47arIqlb4+4RvejJYvrMqmmBnvDvF/uFA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EPTDUTzh;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=huqiLopD;
 	arc=none smtp.remote-ip=170.10.133.124
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4CB4606A325
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 11:50:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4CB4606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94B3B606A320
+	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 12:02:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 94B3B606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EPTDUTzh
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=huqiLopD
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795089036;
+	s=mimecast20190719; t=1795089755;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0W+qwjoYXMK+Wkr2hnHwTmEZq17Go6E3zq5Ot2mWL14=;
-	b=EPTDUTzhsFb8KHl5FxBEkLWUKUarIKo/ViDoq+weFVu4X18bpzSmpt7/5ZBcVw4C2JKIX9
-	pzIVzu1GqTDimQWwOLZaWZ6yV0ONlQUcSdWyQPwMQtl3L8eINceSrwyUZSwSQWcczhDYX9
-	UvKXtKST9sEOtR/nRxXUR6sSpMzQ28g=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=8HieDkcA9JIiulz3WEd2PXLQt0iI0kOA0dL+f71dJzo=;
+	b=huqiLopDdcjqyzGk+TvsvjYqSHrntAfhigeaRyHU7k157VE8l6w9d/dITvH+rEAGelk6XP
+	4RGorsUxajaE0AhryEBvOYK8VQtTnLLUKsEBi0TWRzk2EKVgtsKps69+KF/xCfkQbmKMRU
+	4zGIHRTjWHFZ8ysDLjk7DKLIhZOUckc=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-296-pH4feSwNMTCP7JDuFEV8rw-1; Thu, 19 Nov 2026 06:50:27 -0500
-X-MC-Unique: pH4feSwNMTCP7JDuFEV8rw-1
-X-Mimecast-MFC-AGG-ID: pH4feSwNMTCP7JDuFEV8rw_1795089027
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4ba01393800so13888115e9.1
-        for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 03:50:27 -0800 (PST)
+ us-mta-292-FWOIgkd6OrKJhz67iPhlXw-1; Thu, 19 Nov 2026 07:02:34 -0500
+X-MC-Unique: FWOIgkd6OrKJhz67iPhlXw-1
+X-Mimecast-MFC-AGG-ID: FWOIgkd6OrKJhz67iPhlXw_1795089753
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4bb68a5e792so5979595e9.0
+        for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 04:02:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795089026; x=1795693826;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=0W+qwjoYXMK+Wkr2hnHwTmEZq17Go6E3zq5Ot2mWL14=;
-        b=1x9XmbrghbV5kDVhfmNWseiI2oJAy+22j93l6DtsDWHaTe6lSddwahdPlie+zVyTUV
-         RbGGQ9vpQgqLM2Qc4FnNYE/RFO1K4Z1I6sdhJy7GxtSfbd69Epeq659PO5ryMCQ1uWs8
-         yRI/C9wgV8owPVe2suql4TyTbkJzrHSoAdS6oixPxx6/PnYEeDfzLPRldXsjImiXYVnN
-         BKyo8PuioskUPylvAyigRaTujdfPg/WDPrnGZcM4S9s2psrdZbdoNkWJCD2TYUt9So/s
-         nNP7ApqHBhJtEM5HEJr9iNnZ9f/eyxD0EyRq9c2ehFrdY7o8246K2nS/xlrib9MEhjUN
-         WrfQ==
-X-Forwarded-Encrypted: i=1; AL+hErFVE2wF5lrm3PMnHV1MVbI5TDNMmYbYdC6I14WnXrr+QgW0altMSMGGGk1In8ISZxTIYu22rSN50eAPvBHCqA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/9pnrB/SVMsacDX13eNA857OgFQVdd135emqaaZznI29BN0N6S
-	cSTC60O1bIKRrjipCxuyOaNrAVNr+YUF/IqweXdDfVut81FCNn8uBGLieUDJiZWiGbHsj+NcUTX
-	WgbKx3ubtNBQF48daCaPLViRfz9ckXaVurMsbzhsHB1RUbsJDJdykAyNHfBkwGfjX3DVc
-X-Gm-Gg: AYBFou2r47JICTOR/ILBX3E4Ek8H0VkMffYm71485YsOmU5S2bZMPgxJAcTlabXlyqR
-	M/qPliDTRTsvC36LtkeBqOP9ticx3jt8tCM9/vawzYQVago1gVlJd9iBtvQ8owIts2nza+hCTti
-	fGu2yMa2otZdEkueQV2J3Q//onqtocBEhauSQj9U57spVbUWybqKC0lpqY7lG4+Orhjh90YPFYw
-	TJFl9PSodWcY6+i0yNv6DidmI7Z+/2Wq4FE6ZCkuc4W295n/4CxlAiaxwoh2BD2hLiG1tYe0/WZ
-	OZKpCcb4DZ7RlLHxAhxR3VH0Aw2+fhaptGwT3aC2l3j3u+0O5P8wp2WE49IkYqULZ+Gd6/A8IPx
-	MeGfrdhmc7tMW0RzCMM7iCYhcfIMMKsHjU/d5yxjhoXE=
-X-Received: by 2002:a05:600c:3494:b0:4a2:267:25b3 with SMTP id 5b1f17b1804b1-4bb7da4efd4mr109616755e9.35.1795089026410;
-        Thu, 19 Nov 2026 03:50:26 -0800 (PST)
-X-Received: by 2002:a05:600c:3494:b0:4a2:267:25b3 with SMTP id 5b1f17b1804b1-4bb7da4efd4mr109616265e9.35.1795089025921;
-        Thu, 19 Nov 2026 03:50:25 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795089753; x=1795694553;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=8HieDkcA9JIiulz3WEd2PXLQt0iI0kOA0dL+f71dJzo=;
+        b=apreUdpZzAya8r/BVjkniVpDxLs9kuImEhVzsMd2CqNASL8tYRY7OFZNbP3bTn9V1o
+         p6ewqeslQbzfp7UXurcRA1bH5fNcwUtSnt2rkWL7BGq4YYXz8HmZvmk9PqRivth0KIRI
+         RmX/o0/rO0cud1S2vGV5ToHHNzlgA92VOjNH4PHdEaUfshKakuFYq0aHUOL9qLGtlLI4
+         1cuRez83VxJk6mlZbhCVrHHnqaYb74WqtN3raMSV5G/fh/rmdL+4b5vsG7bLsqZoatoQ
+         Pmsv32EwSsdaINRGpftQy2WWSCf3iRbXJls+Os9WMhU6sVPeQRc61AR08prwxCpQBJWR
+         HpIA==
+X-Forwarded-Encrypted: i=1; AL+hErFtz1XtbVgIxQ2pEZFNo8L70WmVYnvlGVASnr0Z67JgQ66gyXOr8J+KeMM02JT22TNHuPcy3dPibqhpefT7KQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/Umqd02LEOexiI3vTpj1V7cnjE4rqLf2FpyLqT6/LnTsm5yf7Z
+	MjDjssdBR4IvgveYSpFZrb9lLmyTHv6oF+xa2gcf37kQTmrq1H0T0b4JsauA+NDGQ+AlXBGBFdG
+	sfa5JfZFrN3IzKspD5kTVtzkXKuJC4FovYLmvPvHOv9Ld0SK0pZv6QOJEmVEz6QVkNRco
+X-Gm-Gg: AYBFou0uNYb2iOyEQM3Pp+fv0BldR5mty9zLq/uL24Yzc/MxUC19DdmiMKPPpW1KkxI
+	1T2RsJW51kpZnNEPvwIMJ2ARyfvzFZZv3+/Kly7q3BqV6yNuxgNI8KGmleN0NqRBzOXvJhQ9F6I
+	x+4+Savt3bqtrB1VTLL3b9ysvbcDsbhWJhcfGucC1LBYIymlhE7OWCgbTqw0HCoUDkRn9YpLBOg
+	cnuz8fWT0WpsDQFd4KvOAPx/lQ7+h8FKxaFe6sOKPzTHzExTrcXCawm4YOpjNqiinpI76ZcP2JG
+	bDI7Jm/zQKfk/SMtqnGmDQjE1/N67i1jcB6Vh8IgN5pnGXjLrVVoVhNWC8xBTl9l224tlwarc7B
+	UXLNOylwpeyOWkgunV4tIn2uYR8l4Ulic3fJ6SB2l/so=
+X-Received: by 2002:a05:600c:37c4:b0:4a1:88df:8a2a with SMTP id 5b1f17b1804b1-4bb8611ac9bmr19486905e9.13.1795089752527;
+        Thu, 19 Nov 2026 04:02:32 -0800 (PST)
+X-Received: by 2002:a05:600c:37c4:b0:4a1:88df:8a2a with SMTP id 5b1f17b1804b1-4bb8611ac9bmr19486165e9.13.1795089751833;
+        Thu, 19 Nov 2026 04:02:31 -0800 (PST)
 Received: from redhat.com ([2a0d:6fc0:1520:4400:d78d:7b2d:2f5d:e08f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4a654b807fesm9172572f8f.10.2026.11.19.03.50.23
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb853a9846sm37547505e9.11.2026.11.19.04.02.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 03:50:25 -0800 (PST)
-Date: Thu, 19 Nov 2026 06:50:21 -0500
+        Thu, 19 Nov 2026 04:02:31 -0800 (PST)
+Date: Thu, 19 Nov 2026 07:02:28 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Congjie Zhou <zcjie0802@qq.com>
-Cc: netdev <netdev@vger.kernel.org>, jasowangio <jasowangio@gmail.com>,
-	eperezma <eperezma@redhat.com>,
-	xuanzhuo <xuanzhuo@linux.alibaba.com>,
-	andrew+netdev <andrew+netdev@lunn.ch>, davem <davem@davemloft.net>,
-	edumazet <edumazet@kernel.org>, kuba <kuba@kernel.org>,
-	pabeni <pabeni@redhat.com>, horms <horms@kernel.org>,
-	virtualization <virtualization@lists.linux.dev>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] virtio_net: RX stall caused by masking callbacks after
- NAPI ownership release
-Message-ID: <20261119064843-mutt-send-email-mst@kernel.org>
-References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
- <20261115175445-mutt-send-email-mst@kernel.org>
- <tencent_94953697D2BA27275BEF7A26404E69800605@qq.com>
- <20261116044750-mutt-send-email-mst@kernel.org>
- <tencent_D0650F8CA2AAE4C258BFE5BCE805CDB4CA0A@qq.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrea Arcangeli <aarcange@redhat.com>, Dev Jain <dev.jain@arm.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Greg Ungerer <gerg@linux-m68k.org>,
+	Gregory Price <gourry@gourry.net>,
+	"Huang, Ying" <ying.huang@linux.alibaba.com>,
+	Lance Yang <lance.yang@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Miaohe Lin <linmiaohe@huawei.com>, Zi Yan <ziy@nvidia.com>,
+	linux-mm@kvack.org, virtualization@lists.linux.dev
+Subject: [PATCH v11 0/7] mm/virtio: skip redundant zeroing of host-zeroed
+ reported pages
+Message-ID: <cover.1795089715.git.mst@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -114,247 +114,77 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <tencent_D0650F8CA2AAE4C258BFE5BCE805CDB4CA0A@qq.com>
+X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: DIsG6i0x7kysEgB9F4JLU9YKzsUXHv7t1r3072c5JJI_1795089027
+X-Mimecast-MFC-PROC-ID: pCoc_g78gULrzDhGZpXTXXnB8XCYmzC4d78a4LI3Eec_1795089753
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 17, 2026 at 12:05:24AM +0800, Congjie Zhou wrote:
-> > Maybe let's just check the poll list.
-> 
-> Checking the poll list fixes the earlier race where the watchdog has
-> already finished. However, the timer can still be consumed without
-> triggering another poll if it fires after the old caller's check:
-> 
->   old poll / watchdog                successor busy-poll
->   -------------------                -------------------
->   napi_complete_done():
->     clear SCHED, arm timer,
->     return false
->                                      acquire NAPI
->                                      enable callbacks,
->                                      then pause before completion
->   disable callbacks
->   napi_has_pending_poll():
->     timer is still queued,
->     so skip napi_schedule()
->   old poll exits
->   watchdog expires, sees SCHED=1:
->     no scheduling, no MISSED
->   watchdog returns
->                                      napi_complete_done(..., 0):
->                                        clear SCHED, return true
->                                      queue is empty, exit
-> 
-> At that point, the next used entry ends up with neither notifications
-> enabled nor a pending timer or scheduled poll to process it.
-> 
-> Stepping back, the fundamental ordering issue here is:
-> 
->   old releases SCHED
->     -> successor rearms callbacks
->     -> old masks callbacks
-> 
-> Right now, nothing guarantees that the old mask happens before the
-> successor's rearm. Even if the successor still holds SCHED, it might
-> have already done its final rearm. Similarly, having a queued timer
-> doesn't guarantee another poll—the watchdog will simply bail out without
-> scheduling because SCHED is already set. So all these state checks can
-> look completely valid at the time, yet still fail to guarantee recovery.
-> 
-> The root cause is that with the timer introduced by NAPI defer,
-> napi_complete_done() can return false while still giving up SCHED
-> ownership, leaving us with nothing else to synchronize the callback
-> state. Before NAPI defer, returning false meant we still held onto
-> SCHED, so everything worked as expected.
-> 
-> To fix this properly, I think we either need to call
-> virtqueue_disable_cb() before giving up SCHED ownership, or introduce a
-> separate synchronization mechanism (like a lock) to ensure we can always
-> recover NAPI execution. Simple flag checks alone don't seem enough to
-> close this race completely.
+Many hosts immediately discard each free page guest reports.
+This means that re-zeroing them in the guest after allocation
+is redundant.
 
-Right. So I came up with this then. Pls note i could not repro the
-problem so I am merely reasoning based on theoretical understanding
-of it.
+This series lets a page reporting device advertise that its completed
+reports guarantee zero contents. It tracks that state through the buddy
+allocator and uses it to skip clearing freshly allocated user folios.
 
---->
+The series is based on Linux 7.4-rc3, commit 666539eecdf4d.
 
-virtio_net: mask callbacks before handing off NAPI ownership
+This is the first part of the project. Further hugepage support, along with
+the init_on_free and FPI_ZEROED additions suggested by Matthew Wilcox,
+is left for follow-up work if this series is merged.
 
-Virtio is special in that enabling or disabling callbacks (interrupts)
-accesses shared virtqueue state and must be serialized with polling. It
-therefore enables callbacks before completing NAPI, and disables them
-again if completion returns false.
+Patches 1-2 add PG_zeroed tracking and the page reporting device's zeroing
+guarantee.
 
-With napi_complete_done(), that false return can come after ownership has
-passed to another poll. The first poll can then disable callbacks after
-its successor has enabled them, leaving RX stalled. Virtio therefore
-needs to disable callbacks before handing off NAPI ownership.
+Patches 3-5 skip redundant zeroing in the PMD THP, order-0 (including
+x86), and mTHP anonymous allocation paths.
 
-Add a prepare/finish NAPI completion API so virtio-net can mask interrupts
-before handing ownership off.
+Patch 6 adds VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED to negotiate this
+with host.
 
-This preserves interrupt suppression without a callback or an additional
-data-path barrier. Ordinary napi_complete_done() compiles identically in
-the tested configuration.
+Patch 7 adds a flush parameter with an approximate reporting budget for
+deterministic testing.
 
-Tested on x86-64 KVM with lock debugging, including IRQ deferral, concurrent
-scheduling, busy polling, netpoll, and threaded NAPI. Split and packed
-virtqueue TCP RX tests with IRQ deferral and busy polling also passed.
+For a 512 MiB anonymous allocation using MADV_POPULATE_WRITE in a 2 GiB,
+one-vCPU KVM guest, ten samples per mode gave:
 
-Reported-by: Congjie Zhou <zcjie0802@qq.com>
-Closes: https://lore.kernel.org/netdev/tencent_D0650F8CA2AAE4C258BFE5BCE805CDB4CA0A@qq.com/
-Fixes: 6f8b12d661d0 ("net: napi: add hard irqs deferral feature")
+  task-clock              feature off          feature on
+  PMD THP                 229.0 +/- 20.0 ms     74.7 +/- 35.8 ms
+  order-0                 336.1 +/-  6.5 ms     99.2 +/- 19.3 ms
+
 Assisted-by: LLM
 
----
+Changes since v10:
+- Rewritten along the lines suggested by Matthew Wilcox [1].
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index dd2c41ef6fbe7..de370a39bc8fa 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -730,16 +730,18 @@ static void virtqueue_napi_schedule(struct napi_struct *napi,
- static bool virtqueue_napi_complete(struct napi_struct *napi,
- 				    struct virtqueue *vq, int processed)
- {
-+	struct napi_completion completion;
- 	int opaque;
- 
- 	opaque = virtqueue_enable_cb_prepare(vq);
--	if (napi_complete_done(napi, processed)) {
-+	if (napi_complete_done_prepare(napi, processed, &completion)) {
- 		if (unlikely(virtqueue_poll(vq, opaque)))
- 			virtqueue_napi_schedule(napi, vq);
- 		else
- 			return true;
- 	} else {
- 		virtqueue_disable_cb(vq);
-+		napi_complete_done_finish(napi, &completion);
- 	}
- 
- 	return false;
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index c0ae442c4344b..a182882624d6a 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -599,6 +599,15 @@ static inline void napi_schedule_irqoff(struct napi_struct *n)
-  */
- bool napi_complete_done(struct napi_struct *n, int work_done);
- 
-+struct napi_completion {
-+	unsigned long timeout;
-+};
-+
-+bool napi_complete_done_prepare(struct napi_struct *n, int work_done,
-+				struct napi_completion *completion);
-+void napi_complete_done_finish(struct napi_struct *n,
-+			       struct napi_completion *completion);
-+
- static inline bool napi_complete(struct napi_struct *n)
- {
- 	return napi_complete_done(n, 0);
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 3ac700d37e596..fa9baa70e9d72 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6999,9 +6999,17 @@ void __napi_schedule_irqoff(struct napi_struct *n)
- }
- EXPORT_SYMBOL(__napi_schedule_irqoff);
- 
--bool napi_complete_done(struct napi_struct *n, int work_done)
-+static __always_inline bool
-+__napi_complete_done_finish(struct napi_struct *n, unsigned long timeout,
-+			    bool ret, bool allow_pending,
-+			    struct napi_completion *completion);
-+
-+static __always_inline bool
-+__napi_complete_done_prepare(struct napi_struct *n, int work_done,
-+			     bool allow_pending,
-+			     struct napi_completion *completion)
- {
--	unsigned long flags, val, new, timeout = 0;
-+	unsigned long flags, timeout = 0;
- 	bool ret = true;
- 
- 	/*
-@@ -7041,10 +7049,25 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
- 	}
- 	WRITE_ONCE(n->list_owner, -1);
- 
--	val = READ_ONCE(n->state);
-+	return __napi_complete_done_finish(n, timeout, ret, allow_pending,
-+					   completion);
-+}
-+
-+static __always_inline bool
-+__napi_complete_done_finish(struct napi_struct *n, unsigned long timeout,
-+			    bool ret, bool allow_pending,
-+			    struct napi_completion *completion)
-+{
-+	unsigned long val = READ_ONCE(n->state), new;
-+
- 	do {
- 		WARN_ON_ONCE(!(val & NAPIF_STATE_SCHED));
- 
-+		if (allow_pending && (!ret || (val & NAPIF_STATE_MISSED))) {
-+			completion->timeout = timeout;
-+			return false;
-+		}
-+
- 		new = val & ~(NAPIF_STATE_MISSED | NAPIF_STATE_SCHED |
- 			      NAPIF_STATE_SCHED_THREADED |
- 			      NAPIF_STATE_PREFER_BUSY_POLL);
-@@ -7067,8 +7090,48 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
- 			      HRTIMER_MODE_REL_PINNED);
- 	return ret;
- }
-+
-+bool napi_complete_done(struct napi_struct *n, int work_done)
-+{
-+	return __napi_complete_done_prepare(n, work_done, false, NULL);
-+}
- EXPORT_SYMBOL(napi_complete_done);
- 
-+/**
-+ * napi_complete_done_prepare - prepare NAPI completion
-+ * @n: NAPI context
-+ * @work_done: number of packets processed
-+ * @completion: opaque completion token
-+ *
-+ * Return: true if NAPI is complete and interrupts may remain enabled;
-+ * false if ownership is retained. On false, mask interrupts and call
-+ * napi_complete_done_finish().
-+ */
-+bool napi_complete_done_prepare(struct napi_struct *n, int work_done,
-+				struct napi_completion *completion)
-+{
-+	return __napi_complete_done_prepare(n, work_done, true, completion);
-+}
-+EXPORT_SYMBOL_GPL(napi_complete_done_prepare);
-+
-+/**
-+ * napi_complete_done_finish - finish NAPI completion after masking interrupts
-+ * @n: NAPI context
-+ * @completion: token passed to napi_complete_done_prepare()
-+ *
-+ * The caller must provide any device-specific interrupt ordering.
-+ */
-+void napi_complete_done_finish(struct napi_struct *n,
-+			       struct napi_completion *completion)
-+{
-+	if (unlikely(n->state & (NAPIF_STATE_NPSVC |
-+				 NAPIF_STATE_IN_BUSY_POLL)))
-+		return;
-+
-+	__napi_complete_done_finish(n, completion->timeout, false, false, NULL);
-+}
-+EXPORT_SYMBOL_GPL(napi_complete_done_finish);
-+
- static void __skb_defer_free_flush(struct skb_defer_node *sdn, int budget)
- {
- 	struct llist_node *free_list;
+[1] https://lore.kernel.org/all/aiePVsiV-w-IZ8A4@casper.infradead.org/
+
+Michael S. Tsirkin (7):
+  mm: add PG_zeroed page flag and buddy merge tracking
+  mm: page_reporting: support host-zeroed reported pages
+  mm: skip zeroing in vma_alloc_anon_folio_pmd for pre-zeroed pages
+  mm: skip zeroing of pre-zeroed order-0 user pages
+  mm: skip zeroing in alloc_anon_folio for pre-zeroed pages
+  virtio_balloon: add DEVICE_INIT_REPORTED feature
+  mm: page_reporting: add flush parameter with page budget
+
+ drivers/virtio/virtio_balloon.c     | 33 ++++++++++++++++++++--
+ include/linux/highmem.h             | 29 +++++++++++++++++--
+ include/linux/mm.h                  | 32 +++++++++++++++++----
+ include/linux/page-flags.h          | 15 +++++++++-
+ include/linux/page_reporting.h      |  8 ++++++
+ include/uapi/linux/virtio_balloon.h |  1 +
+ mm/huge_memory.c                    | 11 ++------
+ mm/memory.c                         | 10 +------
+ mm/page_alloc.c                     | 43 ++++++++++++++++++++++++-----
+ mm/page_reporting.c                 | 43 +++++++++++++++++++++++++++++
+ 10 files changed, 189 insertions(+), 36 deletions(-)
+
+
+base-commit: 666539eecdf4db623f5e3c3e55cf9f2dfad24aa4
+-- 
+MST
 
