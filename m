@@ -1,115 +1,100 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795101192;
-	b=bsKExagk6yjvEv/5T8G/H4g0OXNLayzFnNp805We9UqTFNrkPX09g9XOCWF20iV3qm6c
-	 bU198Jn3k3eFrr1IiAa60hujLwAVwHx201zwKWZG11b5pJ3sZJx3OU2PkA1pXFGBaXH62
-	 c3X2jmE0Za2eBmUkXlklZUX8XncPtUgJ/g/LdP2kucE1BGKjD9dEupxTmRIzL5Ljsi/Y/
-	 Pln5Um+O4uHxR8UaM4BHaFmPtty2bhEPSAQxXSQea3u0CjG7ceXNvFmnfBctClnsWLnOs
-	 hgn/2g9DSirnuQMtjJ+hzdhOE3AJHt5mXdOi2QMLlME8McjEzny7EAhFIqpdg0tNxGw==
+	t=1795101342;
+	b=kZLj+LwFhoYKL4dKRYtJdYsUM5FqRTiGxYY54mmQjNkIfNxG/70Ixhyf0Ox7Rkqu9Ycv
+	 ZDH1NHC+3TF481TCQBDS4NAs4PilsQMCdds3iCzZ2UOc3ESuQRwFl2m+AU6XyFyineyon
+	 QENHl0YShA58o147wO4EwOVT5Y1tdm9RS2Ntqg37UO/6s7ZmMC2sh6oeAHQNwkPpC3S6O
+	 XU+k2g2XtW/HXaVt70q+oaTV1AcK2dQkniS/q//cm9T1Apc8YlguLKarocODNGO0s7ljf
+	 OOv7rPtq3VtTds+C5nfpTTOn46E75Y7NEA9d6TvLBCTzWf9WTT7KbSDl1mrdbrDE5cg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795101192;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795101342;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
 	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
 	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=aUaUnGVOD0AnB0qQi2tHlDtmvMhT+a6tdGKKo0EDxDI=;
-	b=CrNLYjZi+9aw3mOVevNW/ntId45iXSprW22/zr6REXx/jbgrVQncaiokX/AL2DCZzLl1
-	 cpmdDRB+/4yNaP4f0z3EqVNr5SacNfa0ztKT+nd9CUpstlD1nytN9KZvlsCm1rV7TInt4
-	 iv4f4DEGKGr9M6kprNg5KMuAyT5UMOTRB2IlhDK6YwPkcNOMUFH7QkUuFRdkZjW1T8f59
-	 funBowM2+JMSF6Mdo/mq50RZ8NN7lw80d0Wt8fmc+qNiTWz/SgMqV+si7uYwuFu+pZrYH
-	 k6k6NDi6FVtjal6THS7NCvawJq0say5mrpWqFjr+524Fb4ZUYrr1KHiKpqrQqHgC08g==
+	bh=bpdlf5Cz0o8Ft5faD611TCWq5HE674yS0Nmt0tA94GI=;
+	b=BINV0h9a1JtjjWRNoCPZ6WdA2T6GanbeRhD/dk85vxBAWqtRkOWQnAmMFlxWEbbBwJuR
+	 5RbNykfCbqD+XB279fzNoZhAiAm/JthZHQew07cSbluvNYujlP8kbeLOZUSgF9GGWxw1i
+	 9INmjANdREuXErFjxdStTprgrsZkGHQZH0XaqKNrBTuAllrpTsGCia82GMSExDtQQXd1j
+	 3rjsg6BNBBBtFfIyJj/AzvA1J1sbYj9MEN6A0GgkECkFEPM2791jFpaK89P08pjvqdvlm
+	 liESGC9/ab9Smoylu09zXqNDvJREX+uZ+jYmX5VoqLsGTqhvnQs7N3EweCq6M8EhDgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cBBWWVap;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VG6ON5y0;
 	arc=none smtp.remote-ip=170.10.133.124
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1FE606A331
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 15:13:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B1FE606A331
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AB05606A325
+	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 15:15:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2AB05606A325
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cBBWWVap
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VG6ON5y0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795101190;
+	s=mimecast20190719; t=1795101341;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=aUaUnGVOD0AnB0qQi2tHlDtmvMhT+a6tdGKKo0EDxDI=;
-	b=cBBWWVapW56sdmwQY5UMddI0JZ00u44zAESJw/cYaa/YKag+oEGwM+Y94SS/4m80b36Kgu
-	jVzZlwz4hIox9aSwqY0g3Dz72dcTMHA/XmrVtIsinizMVXyKEOJldOUFWaorW+m2SJcBu1
-	L8cH9GoeyXINmgQjiv3wDumYUXgu0FI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=bpdlf5Cz0o8Ft5faD611TCWq5HE674yS0Nmt0tA94GI=;
+	b=VG6ON5y0TbfYPw+tC0X+p14S/R+an3NCRQ7cfPVcFh9rdbfYUaQAH72OkW83pGvy+RJ3Iv
+	jWEdl7z1Tqa3vIWMe0QL9Qdv6Bt/1p7nvXjXdhlAIrRsg9sAs961z29MfAKFgl9TgWPmN5
+	6c2ohI/B/ZL7JTWVWQr3RdoDFNFtKYE=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-76-rZFutJbnO1WnQ8qSqqBLgQ-1; Thu, 19 Nov 2026 10:13:07 -0500
-X-MC-Unique: rZFutJbnO1WnQ8qSqqBLgQ-1
-X-Mimecast-MFC-AGG-ID: rZFutJbnO1WnQ8qSqqBLgQ_1795101186
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a35db2d6b3so17129545e9.3
-        for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 07:13:07 -0800 (PST)
+ us-mta-222-5Dxcp0NHPSyV4BJeqpcUfw-1; Thu, 19 Nov 2026 10:15:38 -0500
+X-MC-Unique: 5Dxcp0NHPSyV4BJeqpcUfw-1
+X-Mimecast-MFC-AGG-ID: 5Dxcp0NHPSyV4BJeqpcUfw_1795101337
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4bb6bac1e84so16640795e9.0
+        for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 07:15:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795101186; x=1795705986;
+        d=1e100.net; s=20260707; t=1795101337; x=1795706137;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=aUaUnGVOD0AnB0qQi2tHlDtmvMhT+a6tdGKKo0EDxDI=;
-        b=XPSWNobB9pgo8j09poRUX3kjE8zDNxsWqc4Zn9k1IFn7e+UwKMEk6QsJJtQC1obC4b
-         nZsq5eBC33bmDru3lpV9GZjG8z8DLboZkaQhTheyeNoNqk/K8V6nwWzotVAGSIf8t279
-         NlwrOjylZ48ZVEfvXZGoXV7dvwAPQTY9E/BbevDrPochup5/WRQc5O/5npCO+POMPcB8
-         nPyq5QGjIlRc2Ta2mLzrz7gNXbWI1rcn2f9hg5D4RF04wS7Nh8CqpYGUlFSSIvcWMhmQ
-         fSC4ADH388gKTyceSxxV4JLKGscP+3dOGZBjB190hg44LQ0hF4Lta0yIR6DceAIJVv+Y
-         DjHQ==
-X-Forwarded-Encrypted: i=1; AL+hErHu73pS6S34/c586Kd3IwdAVSw2tCvF0fwCijHZA1Z+U6k9A1wB1Z402yNagYCTPToD6LXVTGDBlGtQK5i5+w==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/26WuQnFMZ60iRWL4a64oB1IXHn4mdX5w31vECf06JrsMDUnrW
-	4uaKkWSW+UbHtfxzgs6ytK9+0HmqF4T7EKOVZfLSGG3BLcwGJSrmMmDHajaXMCw0Sl96KUE2WNz
-	VDB5kv3yDC0BA/ZiPMeclX+KpCMNK6/bmxWrkcuxN8Y+J4AGsz5qWiDbVQmg6KGEcx3hJ
-X-Gm-Gg: AYBFou0rxnlN8CJwdqsXEP5KU4zM1IlaGIWRnUjXqh82nv54C2ujAtvBPXgrNW4vRy6
-	u++urjTiDDWfFDF2TMp3X2u8YODKAOE2pYoz4xXGIOa93Lx5nE+jz76RtkJcSFhdgVw18YqjUb/
-	cP4wfsa5nWHwS8aAPH5srmOywaIOP7r2bsPJurV59lf39DMQguSZiKxL+JkT+slRu4i0QPf6vjB
-	G1KVGu3Vrj06xEJ5ZuBbkPkMbjiFXu2dgPgUh65FZ37hdAKJeOdtyZGx+ijT5QE0cHgwI3M+/89
-	peeUpsA/UjGS/muBWlvgJyG/q9PvPKV3lVLsCNvLsOK3WF6be5lTbjT067d23safWVlGd8I8tTx
-	1J6TNiQs32+2RhrmOmR9pYJwR0NI2eGXkGixRLDFl3g==
-X-Received: by 2002:a05:600c:3107:b0:4ba:eb:eb9b with SMTP id 5b1f17b1804b1-4bb7da1272cmr124142105e9.8.1795101185797;
-        Thu, 19 Nov 2026 07:13:05 -0800 (PST)
-X-Received: by 2002:a05:600c:3107:b0:4ba:eb:eb9b with SMTP id 5b1f17b1804b1-4bb7da1272cmr124141275e9.8.1795101185168;
-        Thu, 19 Nov 2026 07:13:05 -0800 (PST)
+        bh=bpdlf5Cz0o8Ft5faD611TCWq5HE674yS0Nmt0tA94GI=;
+        b=oHs5qrMf2QLcA9xmWErF87KscK0bz1lGv264O5aT04fKGupoop8Qwh7ah1BkjcFd9+
+         W4+yvJviHr5+aubi4GYzpnQbpa5O7iTxKXNrRIGk26piDUNWWSyYHVUwif+KNvASJJKE
+         90ZL1Kg35yD3BOEXSCUBjf4lrJhGGkyy3RLnNUV18j+NYaQpaRang+ZjgwwejmbIjRGp
+         4qETEgR56kGsFSOTrl16nVA3vPjQrXypDNKanwbKbGf3JoU1mx7Ecaggct1xZtp1V1Rt
+         /AO7KWtYy3Y1gqIEsXFzRMxX/PRTOmpzQID9DrGamxtl0vDYtYNq9KTh2o3B/1pc8tPF
+         Dkow==
+X-Forwarded-Encrypted: i=1; AL+hErFJZHgYIid9OGNdguRKzHeuZU9ld2qVT+4O45FG/05F+gyqmYa+QVqyc37pBIJPqzRsxAqQENSLuDAkgO+DpA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8W7mMLJJ/n9ogRR5R7qk6GrozieTZnW0J2f3MMKHYqK9oNMx7p
+	yE81IdorI/uC0YnvsDeJ2T9CgKDMpmp7AoBDcwCH65svgD/4dlRRD7oe0W36RA/9pQF3ixI0Ccf
+	W/+W15y6K2VqaVfMrS8PewXvTAasxQXNzlnWYMvRbf3nXw7VLyZ2qNViZHPR8HP+zTydI
+X-Gm-Gg: AYBFou14EIkO2aqUu5VMp81/DitU8NQHLiPwbc1C7xqe/dzs412MOiPSO3ReYeO9GMu
+	vCqDz7zeBWs4IxiLK+f1zzc80jESvPyTADRDmth9clXpl+wu2HUcSk2Xkx2R0yDgSPGDSDovdZo
+	/IoRZNE1/hqq1U+JxHBi5/pJpCqhyqWXvv2t1dI2Y6kuICuNXDTTKqR6fluIjKI/vNnhJ1BQ0fu
+	uV8QE7zr47jCtKaeXBzgvkiJEAd1oyy23rCJtd6dE9S1mST1buzIto9K+umALWLto47MGMgVcUt
+	XHU0UjqlJlBZb26XiwDXrMOSxAGQdrID76H7bq8zPXeoTwyrShGx+cLp9pHtlN65cPUEPKTrlUq
+	ctSwnnXV9vnHKbIj+lTrjU/XNRa0FuUQtcjZe8rG7cQ==
+X-Received: by 2002:a05:600c:1c11:b0:4a1:e6a9:4086 with SMTP id 5b1f17b1804b1-4bb7d57a536mr140198015e9.0.1795101337274;
+        Thu, 19 Nov 2026 07:15:37 -0800 (PST)
+X-Received: by 2002:a05:600c:1c11:b0:4a1:e6a9:4086 with SMTP id 5b1f17b1804b1-4bb7d57a536mr140197095e9.0.1795101336658;
+        Thu, 19 Nov 2026 07:15:36 -0800 (PST)
 Received: from redhat.com ([2a0d:6fc0:1522:6500:ac93:c62:f076:48c6])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884a3a3dsm3221365e9.10.2026.11.19.07.13.00
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884911e3sm4180165e9.6.2026.11.19.07.15.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 07:13:04 -0800 (PST)
-Date: Thu, 19 Nov 2026 10:12:58 -0500
+        Thu, 19 Nov 2026 07:15:35 -0800 (PST)
+Date: Thu, 19 Nov 2026 10:15:32 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Tao Cui <cui.tao@linux.dev>
-Cc: akpm@linux-foundation.org, dgilbert@interlog.com, mkp@kernel.org,
-	loberman@redhat.com, jmeneghi@redhat.com, kraxel@redhat.com,
-	vivek.kasireddy@intel.com, jasowangio@gmail.com,
-	eperezma@redhat.com, stefanha@redhat.com, sgarzare@redhat.com,
-	rostedt@goodmis.org, vdonnefort@google.com, mhiramat@kernel.org,
-	jgg@ziepe.ca, kevin.tian@intel.com, axboe@kernel.dk,
-	linux-mm@kvack.org, James.Bottomley@hansenpartnership.com,
-	sumit.semwal@linaro.org, christian.koenig@amd.com,
-	phasta@kernel.org, joro@8bytes.org, will@kernel.org,
-	linux-scsi@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-trace-kernel@vger.kernel.org, iommu@lists.linux.dev,
-	io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
-	bobbyeshleman@meta.com, mathieu.desnoyers@efficios.com,
-	robin.murphy@arm.com, mason@kernel.org, aesteve@redhat.com,
-	tjmercier@google.com, harry@kernel.org, vbabka@suse.cz,
-	cuitao@kylinos.cn
-Subject: Re: [PATCH 3/7] vhost: account the per-device kernel allocations to
- memcg
-Message-ID: <20261119101239-mutt-send-email-mst@kernel.org>
-References: <20261106131829.3228926-1-cui.tao@linux.dev>
- <20261106131829.3228926-4-cui.tao@linux.dev>
+To: Vladimir Petrzhikovskii <vladimir@dfb.sh>
+Cc: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, Nikolai Kalinin <nikolai@kalinidze.me>
+Subject: Re: [PATCH] vdpa/mlx5: Bound the KLM count of the user MR
+Message-ID: <20261119101523-mutt-send-email-mst@kernel.org>
+References: <20261109-b4-mlx5-klm-v1-1-787b45145719@dfb.sh>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -119,157 +104,173 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261106131829.3228926-4-cui.tao@linux.dev>
+In-Reply-To: <20261109-b4-mlx5-klm-v1-1-787b45145719@dfb.sh>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CZkUO_HFSbWWqzhLUCGcL7skU3Wm_8UYYzcAhnMK_jk_1795101186
+X-Mimecast-MFC-PROC-ID: 4VMWFi4KDIo5o_xOVdqD3JIgMbQdjok16XUTAb2xekw_1795101337
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Nov 06, 2026 at 09:18:25PM +0800, Tao Cui wrote:
-> From: Tao Cui <cuitao@kylinos.cn>
+On Mon, Nov 09, 2026 at 08:21:28PM +0100, Vladimir Petrzhikovskii wrote:
+> create_user_mr() builds one indirect MKey that covers the whole vhost
+> IOTLB. It fills each gap between two mappings with null KLMs, one per
+> GiB, and never checks the total number of KLMs against the device
+> limit, MLX5_CAP_GEN(log_max_klm_list_size).
 > 
-> Everything except the worker struct is allocated with plain GFP_KERNEL:
-> the per-vq iovec and log arrays at VHOST_SET_OWNER, the memory table at
-> VHOST_SET_MEM_TABLE whose size follows the user supplied region count,
-> the pending message nodes, and the vhost_net/vhost_vsock device structs
-> with their fallback to vmalloc.  The worker has been accounted since the
-> vhost_task conversion.
+> With a virtio-IOMMU the guest chooses the IOVAs: the VMM (QEMU)
+> forwards each map the guest makes to the vhost-vDPA device. If the
+> guest maps one page at IOVA 0 and one at IOVA 2^58, the driver needs
+> more than 2^28 KLMs. create_indirect_key() computes the buffer size in
+> an int, which overflows: the driver allocates 336 bytes, and
+> fill_indir() then writes 16 bytes per KLM, 4 GiB in total, far past
+> the end of the buffer.
 > 
-> A container that can open /dev/vhost-net or /dev/vhost-vsock, which
-> device plugins hand out with passthrough, holds roughly 150KB of
-> resident kernel memory per device after SET_OWNER.  Charge the rest the
-> same way the worker already is.
+> nnuls is an int, so a gap of 2^61 bytes or more is miscounted on every
+> architecture, and on 32-bit the unsigned long num_klms wraps. The gap
+> is rounded up to whole GiB as (size + 2^30 - 1) >> 30. For a gap
+> larger than 2^64 - 2^30, for example below a page mapped in the top
+> GiB, that addition wraps and the driver counts no null KLMs for the
+> gap, while fill_indir() still writes one for every GiB of it.
 > 
-> Signed-off-by: Tao Cui <cuitao@kylinos.cn>
+> Count KLMs in u64 and round the gap up without the overflowing
+> addition. Before creating any direct key, return -E2BIG with a
+> rate-limited warning if the MR needs more KLMs than the device limit,
+> or more than fit in a CREATE_MKEY command whose length is an int.
+> Allocate the command with kvzalloc(), because a list within the device
+> limit can be too large for kzalloc(). A normal guest is unaffected:
+> memory at 0-3 GiB and 4-68 GiB needs 68 KLMs.
+> 
+> Found by an LLM code review agent auditing vhost-vDPA backends. We have
+> no mlx5 hardware, so the fix is untested on it; it builds with W=1 on
+> x86_64 and i386.
+> 
+> Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Nikolai Kalinin <nikolai@kalinidze.me>
+> Signed-off-by: Nikolai Kalinin <nikolai@kalinidze.me>
+> Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
+> ---
+> Dragos, one question on the limit: the patch takes
+> MLX5_CAP_GEN(log_max_klm_list_size) as the largest KLM list an indirect
+> CREATE_MKEY accepts, as mlx5_ib does for fast-reg lists. If firmware
+> applies a different limit to CREATE_MKEY, please say so and I will
+> change the bound.
+> 
+> The guest kernel change used for the reachability check is available
+> on request.
 
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-should each patch be merged individually?
-
+Dragos, care to answer?
 
 > ---
->  drivers/vhost/net.c   | 14 ++++++++------
->  drivers/vhost/vhost.c | 16 ++++++++++------
->  drivers/vhost/vsock.c |  5 +++--
->  3 files changed, 21 insertions(+), 14 deletions(-)
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  2 +-
+>  drivers/vdpa/mlx5/core/mr.c        | 30 +++++++++++++++++++++++++-----
+>  2 files changed, 26 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 4570a4ffbab2..bab6597c696d 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -249,7 +249,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
->  	/* No zero copy backend? Nothing to count. */
->  	if (!zcopy)
->  		return NULL;
-> -	ubufs = kmalloc_obj(*ubufs);
-> +	ubufs = kmalloc_obj(*ubufs, GFP_KERNEL_ACCOUNT);
->  	if (!ubufs)
->  		return ERR_PTR(-ENOMEM);
->  	atomic_set(&ubufs->refcount, 1);
-> @@ -302,7 +302,8 @@ static int vhost_net_set_ubuf_info(struct vhost_net *n)
->  		if (!zcopy)
->  			continue;
->  		n->vqs[i].ubuf_info =
-> -			kmalloc_objs(*n->vqs[i].ubuf_info, UIO_MAXIOV);
-> +			kmalloc_objs(*n->vqs[i].ubuf_info, UIO_MAXIOV,
-> +				     GFP_KERNEL_ACCOUNT);
->  		if  (!n->vqs[i].ubuf_info)
->  			goto err;
->  	}
-> @@ -1344,17 +1345,18 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->  	struct xdp_buff *xdp;
->  	int i;
+> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> index 42f2f44b383c..1d84824ca429 100644
+> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> @@ -32,7 +32,7 @@ struct mlx5_vdpa_mr {
+>  	/* list of direct MRs descendants of this indirect mr */
+>  	struct list_head head;
+>  	unsigned long num_directs;
+> -	unsigned long num_klms;
+> +	u64 num_klms;
 >  
-> -	n = kvmalloc_obj(*n, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> +	n = kvmalloc_obj(*n, GFP_KERNEL | __GFP_RETRY_MAYFAIL |
-> +			 __GFP_ACCOUNT);
->  	if (!n)
->  		return -ENOMEM;
-> -	vqs = kmalloc_objs(*vqs, VHOST_NET_VQ_MAX);
-> +	vqs = kmalloc_objs(*vqs, VHOST_NET_VQ_MAX, GFP_KERNEL_ACCOUNT);
->  	if (!vqs) {
->  		kvfree(n);
->  		return -ENOMEM;
->  	}
+>  	struct vhost_iotlb *iotlb;
 >  
->  	queue = kmalloc_array(VHOST_NET_BATCH, sizeof(void *),
-> -			      GFP_KERNEL);
-> +			      GFP_KERNEL_ACCOUNT);
->  	if (!queue) {
->  		kfree(vqs);
->  		kvfree(n);
-> @@ -1362,7 +1364,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->  	}
->  	n->vqs[VHOST_NET_VQ_RX].rxq.queue = queue;
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index b0c5ff23d022..03db8345c1bb 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -206,6 +206,16 @@ static int klm_byte_size(int nklms)
+>  	return 16 * ALIGN(nklms, 4);
+>  }
 >  
-> -	xdp = kmalloc_objs(*xdp, VHOST_NET_BATCH);
-> +	xdp = kmalloc_objs(*xdp, VHOST_NET_BATCH, GFP_KERNEL_ACCOUNT);
->  	if (!xdp) {
->  		kfree(vqs);
->  		kvfree(n);
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index ea127af58ada..d1274106ad5d 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -526,11 +526,14 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+> +/* Largest KLM count whose CREATE_MKEY input length still fits in an int. */
+> +#define MLX5_VDPA_MAX_KLMS_INLEN \
+> +	ALIGN_DOWN((INT_MAX - MLX5_ST_SZ_BYTES(create_mkey_in)) / 16, 4)
+> +
+> +static u64 max_klms(struct mlx5_vdpa_dev *mvdev)
+> +{
+> +	return min_t(u64, BIT_ULL(MLX5_CAP_GEN(mvdev->mdev, log_max_klm_list_size)),
+> +		     MLX5_VDPA_MAX_KLMS_INLEN);
+> +}
+> +
+>  #define MLX5_VDPA_MTT_ALIGN 16
 >  
->  	for (i = 0; i < dev->nvqs; ++i) {
->  		vq = dev->vqs[i];
-> -		vq->indirect = kmalloc_objs(*vq->indirect, UIO_MAXIOV);
-> -		vq->log = kmalloc_objs(*vq->log, dev->iov_limit);
-> -		vq->heads = kmalloc_objs(*vq->heads, dev->iov_limit);
-> +		vq->indirect = kmalloc_objs(*vq->indirect, UIO_MAXIOV,
-> +					    GFP_KERNEL_ACCOUNT);
-> +		vq->log = kmalloc_objs(*vq->log, dev->iov_limit,
-> +				       GFP_KERNEL_ACCOUNT);
-> +		vq->heads = kmalloc_objs(*vq->heads, dev->iov_limit,
-> +					 GFP_KERNEL_ACCOUNT);
->  		vq->nheads = kmalloc_array(dev->iov_limit, sizeof(*vq->nheads),
-> -					   GFP_KERNEL);
-> +					   GFP_KERNEL_ACCOUNT);
->  		if (!vq->indirect || !vq->log || !vq->heads || !vq->nheads)
->  			goto err_nomem;
->  	}
-> @@ -2053,7 +2056,8 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
->  		return -E2BIG;
->  	if (max_iotlb_entries <= 0)
+>  static int create_direct_keys(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr *mr)
+> @@ -338,7 +348,7 @@ static int create_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr
 >  		return -EINVAL;
-> -	newmem = kvzalloc_flex(*newmem, regions, mem.nregions);
-> +	newmem = kvzalloc_flex(*newmem, regions, mem.nregions,
-> +			       GFP_KERNEL_ACCOUNT);
->  	if (!newmem)
+>  
+>  	inlen = MLX5_ST_SZ_BYTES(create_mkey_in) + klm_byte_size(mr->num_klms);
+> -	in = kzalloc(inlen, GFP_KERNEL);
+> +	in = kvzalloc(inlen, GFP_KERNEL);
+>  	if (!in)
 >  		return -ENOMEM;
 >  
-> @@ -3405,7 +3409,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
->  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
+> @@ -355,7 +365,7 @@ static int create_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr
+>  	MLX5_SET(create_mkey_in, in, translations_octword_actual_size, mr->num_klms);
+>  	fill_indir(mvdev, mr, in);
+>  	err = mlx5_vdpa_create_mkey(mvdev, &mr->mkey, in, inlen);
+> -	kfree(in);
+> +	kvfree(in);
+>  	return err;
+>  }
+>  
+> @@ -501,6 +511,7 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
 >  {
->  	/* Make sure all padding within the structure is initialized. */
-> -	struct vhost_msg_node *node = kzalloc_obj(*node);
-> +	struct vhost_msg_node *node = kzalloc_obj(*node, GFP_KERNEL_ACCOUNT);
->  	if (!node)
->  		return NULL;
+>  	struct mlx5_vdpa_direct_mr *dmr;
+>  	struct mlx5_vdpa_direct_mr *n;
+> +	u64 klm_limit = max_klms(mvdev);
+>  	struct vhost_iotlb_map *map;
+>  	u32 pperm = U16_MAX;
+>  	u64 last = U64_MAX;
+> @@ -508,7 +519,7 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
+>  	u64 pe = U64_MAX;
+>  	u64 start = 0;
+>  	int err = 0;
+> -	int nnuls;
+> +	u64 nnuls;
 >  
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 0cb87971d749..600daeb05e7b 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -721,11 +721,12 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
->  	/* This struct is large and allocation could fail, fall back to vmalloc
->  	 * if there is no other way.
->  	 */
-> -	vsock = kvmalloc_obj(*vsock, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> +	vsock = kvmalloc_obj(*vsock, GFP_KERNEL | __GFP_RETRY_MAYFAIL |
-> +			     __GFP_ACCOUNT);
->  	if (!vsock)
->  		return -ENOMEM;
+>  	INIT_LIST_HEAD(&mr->head);
+>  	for (map = vhost_iotlb_itree_first(iotlb, start, last); map;
+> @@ -521,9 +532,10 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
+>  				if (pe < map->start) {
+>  					/* We have a hole in the map. Check how
+>  					 * many null keys are required to fill it.
+> +					 * The hole can be nearly 2^64 bytes, so
+> +					 * round up without adding to its size.
+>  					 */
+> -					nnuls = MLX5_DIV_ROUND_UP_POW2(map->start - pe,
+> -								       LOG_MAX_KLM_SIZE);
+> +					nnuls = ((map->start - pe - 1) >> LOG_MAX_KLM_SIZE) + 1;
+>  					mr->num_klms += nnuls;
+>  				}
+>  				err = add_direct_chain(mvdev, mr, ps, pe - ps, pperm, iotlb);
+> @@ -539,6 +551,14 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
+>  	if (err)
+>  		goto err_chain;
 >  
-> -	vqs = kmalloc_objs(*vqs, ARRAY_SIZE(vsock->vqs));
-> +	vqs = kmalloc_objs(*vqs, ARRAY_SIZE(vsock->vqs), GFP_KERNEL_ACCOUNT);
->  	if (!vqs) {
->  		ret = -ENOMEM;
->  		goto out;
-> -- 
-> 2.43.0
+> +	if (mr->num_klms > klm_limit) {
+> +		dev_warn_ratelimited(mvdev->mdev->device,
+> +				     "map needs %llu KLMs, limit is %llu\n",
+> +				     mr->num_klms, klm_limit);
+> +		err = -E2BIG;
+> +		goto err_chain;
+> +	}
+> +
+>  	err = create_direct_keys(mvdev, mr);
+>  	if (err)
+>  		goto err_chain;
+> 
+> ---
+> base-commit: d48723711bae9b8cdc56719c448ba42fef28cbee
+> change-id: 20261109-b4-mlx5-klm-798a398a159e
+> 
+> Best regards,
+> --  
+> Vladimir Petrzhikovskii <vladimir@dfb.sh>
+> 
 
