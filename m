@@ -1,77 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795051628;
-	b=dpOL32XfVf/EtmO4SNdO8yLQv3+6nGKL6PjiwsEa8lNWQyh1LCv/aYpgv+wdBGeF9FH2
-	 pqBfP9mf8Zwf+sMRd3m+0+8jFPF8FmukKe+Tn8KfRWvy0hEh0tT1JiEdGD75VLGi8HdBQ
-	 4FXojbigUNKR8dbk5BzsQRq/BJ2nwJoGBTNJ/tvkKRw5oLEwioioWQuz2odMRiavHZ5T2
-	 5vfDM4Fd8gm4coYYCiQ+nMk1QTW1zHK9XklGqPtLGVZytidbRdimFa4KGkYURMpF0GfMH
-	 sq7NYXLso1jLKuDjS2U/BgaJkD3YccnxlHcSfz7uS2A9tTuN4FumE+OMritUvbpsMXw==
+	t=1795052067;
+	b=qroMN0Nxgsmvrink8ltFXhRZmbHZcM1rHPk9X0dOnUCz2IusojAhXidtPbE1I2877itJ
+	 z7Ec8gXxNHAC0P9/BUqfGvKvXeGh2ewiPzs5B6knmAz6NIyfGOFeKqtp8uxI4/yCxlL3J
+	 7s+qCZCJsoE2UZp5ky2a7VZUqVYCrWRhB0Om7noKzuZkpfQt6aOOY/kzVKnGkK2LE2fuN
+	 eRQIffxzdPJX2+rMh1cHNEZ/9OzQ+M1JZltksQf6EOMstFY5UlpEpVzQiIFm3Tc9meh3v
+	 9ylkoPg9bttFBzjOpmo91wDP7j4ArHdJHrdVXnKXQJMxqjUMKIy1F6Ei+9o23i3WLDg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795051628;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=OprzOyo9+JassEd1TEvafiLmaglW2JAX08bz3qXzH+M=;
-	b=bPcM+Wq6+nK5atDs9dGVQjX4yfaN0vq8niEp2j8+ehNdev+lxf0PU2rxJvSiqKOIYG9L
-	 kOFw5RWEEMCH6qJfQpi6QXvNP5lZR0Y8KE3FnDjU+s1tbgdR3u7RUU9DIgnek9wHkEQm/
-	 HXnkYx2dIXX7ZhvtPIv82Xmg66XObjzRKXup6zXP7ZVGB7iTRHiWgCntYpovV3RpGsiJN
-	 LFBe+9e8lfY01uY4aqkhyLiQe468JbQL9GzN9PlE0ZGzxQ+1ffmEduitlxEfu7HB3h1KA
-	 QbugR0Ro/GWDcMp38O+j598QAdpV9Ho/bgVL9wIf7yuCNLtdvKVzUVYQqZi6s+JV+Mw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795052067;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=2Y1nPfNmjmqdVKNfkuaUVVAzb9SxNmHaWMBAbyiMlbE=;
+	b=J+8RPvcq6yG0cxcCQtmAGB71lMc0wB7lBbUJrjTcU8d3hsBoIiRhtuPcHvsPpuqgBo5F
+	 o0MTqo53vZP/6iBIG9rtEs5jcVr0a8r6pO0lH83prxsU+6EUrIucW3PsiTuQWpUHO8R6e
+	 kiZYuiUxeAnMNjw8bLQE3g5IEVote5p+WBTse45H3pOcih7eH34pIJ/fhj60sIs+vyTWO
+	 J7b9xByRJDXYCW12XhFzPihJGvcDjx0kjP70Qj+yzuhHm9Vni+0P+/+lKCU6N85qu2cxR
+	 TGxuxi70gpByk8HASMchD7ZfEjqWLgCppktlUqn2jHnrVNzLuWjS1a3XYFpLnZLLENg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n5rcT0Zl;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OV2ZAk1h;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90EAE606A320;
-	Thu, 19 Nov 2026 01:27:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14038606A31C
+	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 01:34:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n5rcT0Zl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F3471F000C5;
-	Thu, 19 Nov 2026 01:27:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OV2ZAk1h
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1DD11F000C4;
+	Thu, 19 Nov 2026 01:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795051628;
-	bh=OprzOyo9+JassEd1TEvafiLmaglW2JAX08bz3qXzH+M=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=n5rcT0Zl/SE9jHWi65HwpiTbSdysgFWjql0ekarf62v72raja8OOgMi+64tXtTKOa
-	 M5ygoG/bvHgzz8ZIeXIs2ivMgUwHgIEgn7GOBgW3ty0l2awMnvQY9owfOlmYKZD2uU
-	 2IaJgO1zVeoXLDsLzuDkE2VXP7vdpkj0WzaTyH9BUuFigeLVhYz3ZCFE4AeDGyxyAR
-	 U67BOybTOTaQp+T1SaHwEyeHtKvyxjFWydFbtpqNlmTQHU1xt3xlJ8+WoBg8WNChOH
-	 xTcGI0Ji3/zNwyOnhcai3ZPaEx93fKbvlJNQHZs67FMZkQmqfPD+REcBrIBi9qpXuS
-	 REEkUUwWsOnzw==
-Date: Thu, 19 Nov 2026 01:27:00 +0000
-From: Jonathan Cameron <jic23@kernel.org>
-To: Philipp Stanner <phasta@kernel.org>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Alex Deucher <alexander.deucher@amd.com>, David
- Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Sunil Khatri
- <sunil.khatri@amd.com>, Vitaly Prosyak <vitaly.prosyak@amd.com>, Prike
- Liang <Prike.Liang@amd.com>, Thomas =?UTF-8?B?SGVsbHN0csO2bQ==?=
- <thomas.hellstrom@linux.intel.com>, Tvrtko Ursulin
- <tvrtko.ursulin@igalia.com>, David Rosca <david.rosca@amd.com>, Timur
- =?UTF-8?B?S3Jpc3TDs2Y=?= <timur.kristof@gmail.com>, Maxime Ripard
- <mripard@kernel.org>, Dave Stevenson <dave.stevenson@raspberrypi.com>,
- =?UTF-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>, Raspberry Pi Kernel
- Maintenance <kernel-list@raspberrypi.com>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann
- <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
- intel-gfx@lists.freedesktop.org, imagination@lists.freedesktop.org,
- lima@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
- virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, linux-tegra@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-usb@vger.kernel.org,
- rust-for-linux@vger.kernel.or
-Subject: Re: [PATCH v2 1/3] dma-buf: dma-fence: Add flags parameter to
- dma_fence_init()
-Message-ID: <20261119012700.2980cbe3@jic23-hlaptop>
-In-Reply-To: <20261118134522.1646892-3-phasta@kernel.org>
-References: <20261118134522.1646892-2-phasta@kernel.org>
-	<20261118134522.1646892-3-phasta@kernel.org>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	s=k20260515; t=1795052066;
+	bh=2Y1nPfNmjmqdVKNfkuaUVVAzb9SxNmHaWMBAbyiMlbE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=OV2ZAk1hKQAUeFSeYj20ik6X3vV32dC2CuQiklBcPEf+FWfOuZVEtFlulaH0/1Bkh
+	 gqsVJyYnC87F2Aymkyk589qI9ERsSLVopWXunjyQWD3nN9F0LTGPLOqC33KBW+qvz1
+	 NwomZ3ciEcuib07UzilImE5XXoQZhygGB1MHAIGvUs9QgduO8EFJh5Kc+8oJJlv8GS
+	 oe6xTBOIxz17AzPfkUVVEs+wG90uAfn+xxPh3aOqc7fkm0BwltW/iq0p73kAKjZZa2
+	 Mm/vFO/hvn2ELM5Q5Sn5k+iLaxHvyE70exvtwdy8pQL5jkEegtK6MxZTIrFqAO2+kw
+	 c40xVza0yQdUQ==
+Message-ID: <sashiko-outbox-222284@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v2] vsock: only undo SS_CONNECTING when connect()
+ fails
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bobby Eshleman" <bobbyeshleman@meta.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261117-vsock-connect-close-v2-1-db5388323770@meta.com>
+References: <20261117-vsock-connect-close-v2-1-db5388323770@meta.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 19 Nov 2026 01:34:26 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -80,29 +60,168 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 18 Nov 2026 14:45:21 +0100
-Philipp Stanner <phasta@kernel.org> wrote:
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] vsock: incomplete handling of post-handshake reset in
+  vsock_connect()
+- [Medium] vsock: concurrent vsock_connect() waiter stays in loop and
+  clobbers retry
+--
 
-> Currently, there are two init functions for dma_fence, dma_fence_init()
-> and dma_fence_init64().
->=20
-> Since more future user options for dma_fence initialization would
-> require distinct init functions, too, it is better to do this in a
-> unified way.
->=20
-> Add a flags field to dma_fence_init(). Adjust all affected drivers,
-> preserving the old behavior.
->=20
-> Support the SEQNO64 flag, and add a check-function so that the user only
-> sets valid bits.
->=20
-> Signed-off-by: Philipp Stanner <phasta@kernel.org>
-> Reviewed-by: Timur Krist=C3=B3f <timur.kristof@gmail.com>
-> Reviewed-by: Christian K=C3=B6nig <christian.koenig@amd.com>
-For IIO,
+commit 82a88284866b93cccb5d48f9bd76a86ebb091f06
+Author: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+vsock: only undo SS_CONNECTING when connect() fails
+
+This commit adds vsock_connect_close() so vsock_connect() only resets
+sk->sk_state to TCP_CLOSE when it is still TCP_SYN_SENT and sock->state to
+SS_UNCONNECTED when it is still SS_CONNECTING.
+
+Link: https://lore.kernel.org/netdev/20260909-vsock-connect-reset-closing-v=
+1-1-50298b9ccfbf@rbox.co/
+
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 1d7d53542724f..ce958b48295b9 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -1704,6 +1704,19 @@ static void vsock_connect_timeout(struct work_stru=
+ct *work)
+>  	sock_put(sk);
+>  }
+> =20
+> +/* Avoid breaking the socket when another thread has changed its state w=
+hile
+> + * we were asleep.
+> + */
+> +static void vsock_connect_close(struct socket *sock)
+> +{
+> +	struct sock *sk =3D sock->sk;
+> +
+> +	if (sk->sk_state =3D=3D TCP_SYN_SENT)
+> +		sk->sk_state =3D TCP_CLOSE;
+> +	if (sock->state =3D=3D SS_CONNECTING)
+> +		sock->state =3D SS_UNCONNECTED;
+> +}
+
+[Severity: Medium]
+Can a second thread blocked in vsock_connect() stay in the wait loop after
+the first attempt fails, and later clobber a retry connect() on the same
+socket?
+
+CPU0                              CPU1
+vsock_connect()
+  sk->sk_state =3D TCP_SYN_SENT
+  sock->state =3D SS_CONNECTING
+  release_sock(sk)
+                                  vsock_connect()
+                                    /* sees SS_CONNECTING */
+                                    release_sock(sk)
+  /* timeout or peer RST */
+  lock_sock(sk)
+  sock_error(sk) /* clears sk_err */
+  vsock_connect_close(sock)
+    sk->sk_state =3D TCP_CLOSE
+    sock->state =3D SS_UNCONNECTED
+  release_sock(sk)
+                                  lock_sock(sk)
+                                  /* sk_state =3D=3D TCP_CLOSE && sk_err =
+=3D=3D 0,
+                                   * so while loop continues
+                                   */
+                                  release_sock(sk)
+  vsock_connect() /* retry */
+    sk->sk_state =3D TCP_SYN_SENT
+    sock->state =3D SS_CONNECTING
+    release_sock(sk)
+                                  /* timeout or signal */
+                                  lock_sock(sk)
+                                  vsock_connect_close(sock)
+                                    /* resets retry's TCP_SYN_SENT and
+                                     * SS_CONNECTING
+                                     */
+                                  vsock_transport_cancel_pkt(vsk)
+
+Because the wait loop only exits on TCP_ESTABLISHED, TCP_CLOSING or
+sk->sk_err !=3D 0, CPU1 does not see that the socket left TCP_SYN_SENT once
+CPU0 clears sk->sk_err (or times out with sk->sk_err =3D=3D 0).  When CPU1 =
+later
+times out or gets a signal, vsock_connect_close() sees TCP_SYN_SENT and
+SS_CONNECTING from the new connect() attempt, resets them to TCP_CLOSE and
+SS_UNCONNECTED while CPU0 sleeps, and cancels the new attempt's packets.
+Even if userspace called listen() instead of retrying connect(), CPU1 still
+calls vsock_transport_cancel_pkt() on timeout.
+
+Also, if another thread consumes sk->sk_err via getsockopt(SO_ERROR) or
+recvmsg(MSG_ERRQUEUE) before vsock_connect() calls sock_error(sk), err is 0,
+so vsock_connect() skips vsock_connect_close() and returns 0 while leaving
+sock->state as SS_CONNECTING with sk->sk_state =3D=3D TCP_CLOSE.
+
+> @@ -1862,8 +1875,7 @@ static int vsock_connect(struct socket *sock, struc=
+t sockaddr_unsized *addr,
+>  			 * sk_state =3D=3D TCP_SYN_SENT, which hereby we break.
+>  			 * In such case VIRTIO_VSOCK_OP_RST will follow.
+>  			 */
+> -			sk->sk_state =3D TCP_CLOSE;
+> -			sock->state =3D SS_UNCONNECTED;
+> +			vsock_connect_close(sock);
+> =20
+>  			/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
+>  			 * transport->connect().
+> @@ -1877,10 +1889,8 @@ static int vsock_connect(struct socket *sock, stru=
+ct sockaddr_unsized *addr,
+>  	}
+> =20
+>  	err =3D sock_error(sk);
+> -	if (err) {
+> -		sk->sk_state =3D TCP_CLOSE;
+> -		sock->state =3D SS_UNCONNECTED;
+> -	}
+> +	if (err)
+> +		vsock_connect_close(sock);
+> =20
+>  out_wait:
+>  	finish_wait(sk_sleep(sk), &wait);
+
+[Severity: Medium]
+When the transport completes the handshake (setting sock->state to
+SS_CONNECTED and sk->sk_state to TCP_ESTABLISHED) and then resets the
+socket to TCP_CLOSE while vsock_connect() is sleeping, does vsock_connect()
+still mishandle the post-handshake reset in the wait loop and error path?
+
+First, in vmci_transport_handle_detach(), a detach after the socket has
+already reached TCP_ESTABLISHED sets sk->sk_state =3D TCP_CLOSE without
+setting sk->sk_err:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
+    ...
+			if (sk->sk_state =3D=3D TCP_SYN_SENT) {
+				sk->sk_state =3D TCP_CLOSE;
+				sk->sk_err =3D ECONNRESET;
+				sk_error_report(sk);
+				return;
+			}
+			sk->sk_state =3D TCP_CLOSE;
+    ...
+}
+
+When vsock_connect() wakes up, sk->sk_state is neither TCP_ESTABLISHED nor
+TCP_CLOSING and sk->sk_err is 0, so it re-enters schedule_timeout() and
+blocks until connect_timeout expires.
+
+Second, if a timeout or signal coincides with a post-handshake reset to
+TCP_CLOSE, vsock_connect() enters the signal/timeout branch and calls
+vsock_transport_cancel_pkt(vsk) on a socket whose sock->state is already
+SS_CONNECTED.  If another thread called sendmsg() once sock->state became
+SS_CONNECTED, virtio_transport_cancel_pkt() purges queued
+VIRTIO_VSOCK_OP_RW packets without decrementing vvs->bytes_unsent, leaving
+unsent-byte accounting for SIOCOUTQ and vsock_linger() out of sync.
+
+Third, when virtio_vsock_reset_sock() or vhost_vsock_reset_orphans() sets
+sk->sk_err =3D ECONNRESET after the handshake completed, vsock_connect()
+exits the loop, consumes sk->sk_err via sock_error(sk), and returns
+-ECONNRESET from connect() while leaving sock->state as SS_CONNECTED.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117-vsock-conn=
+ect-close-v2-1-db5388323770@meta.com?part=3D1
