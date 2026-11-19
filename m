@@ -1,97 +1,171 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.57.15
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.53.67
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795111984;
-	b=dqS9EQgveMKWY9fr9eNs3frHVFxmk0mhCqD9u54nmztlskYLTP4Vu6Txi1oi1+x4qsTP
-	 ejq9sUFqybOGKCr1e+AQEHuymzPdkjcacAiQLo1d2a9YFMWmU5NVlJbU8N9ei9/7CiWZ4
-	 EZkOawGhnGeXwW16S4XSab/rCEEzeIMQo7PEsEMP4bmdVKn6nAjZOANs016MCLYeUTRKM
-	 MtTHGsAeQwK69H8h999r/s7RcUJ/rCeFtYzFoAPY6U9Y5nIU5mVLL7BDtaPz4ad1hhU9C
-	 pqHSbIxijtzlf643ccTdXKJYabBLojrKA8h8J1JOOW/ZgThO8+IlMrX8L8VaK9lAOHw==
+	t=1795113413;
+	b=E7Xgr2xyfECi740VryQqLuwvnt4nhDvIIt9o6jnSEB25DAdqODfy/g6jZzdmsDmOa8Aj
+	 JIlQzZzZr4VbTU5TjZVJhaoNIg7SRzpqHRRSv5sTfjmuQ3wUX9mSYjHt/wHMQhc+GU50s
+	 zsbbymYcy0XIFtFxuzlp2zrJrQ9QC6N2C9Y/nmllRG1SXKjywuTzwF9JTxDxjUSWxoUMX
+	 h2/wa3KELr2e/09Vf3XORjEab+lXTzmmQhV0tIArcTI6Gtb3Os9ZvkcfV0DKLta0TKuSl
+	 j2Nfju4N7BYARo+Y9poZAOWR6rICleGoc/hcaPpUnbUmZwDPA2yULYVsCl4NsZnBl4A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795111984;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	a=rsa-sha256; c=relaxed/relaxed; t=1795113413;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:CC:Subject:
+	 Thread-Topic:Thread-Index:Date:Message-ID:References:In-Reply-To:
+	 Accept-Language:Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
+	 msip_labels:x-ms-publictraffictype:x-ms-traffictypediagnostic:
+	 x-ms-office365-filtering-correlation-id:x-ms-exchange-senderadcheck:
+	 x-ms-exchange-antispam-relay:x-microsoft-antispam:
+	 x-microsoft-antispam-message-info:x-forefront-antispam-report:
+	 x-ms-exchange-antispam-messagedata-chunkcount:
+	 x-ms-exchange-antispam-messagedata-0:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-AuthAs:X-MS-Exchange-CrossTenant-AuthSource:
 	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-CrossTenant-originalarrivaltime:
+	 X-MS-Exchange-CrossTenant-fromentityheader:
+	 X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+	 X-MS-Exchange-CrossTenant-userprincipalname:
 	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=CK/lAgtEDAfolHjEzg5gX3I6q6BgxFTqGnz+SeIL8qg=;
-	b=Vw38hP+HLxKvBGFL3MHAvJ8oilZy5vaVPMxpMLWCv6r2+xkgxKd9Cjtfs0y00hSMgIrw
-	 uxllxHn8G6gxdB4+/6r+No10xsIcUw3NBTFSb7FMWAA03KnqT8BNFe3SkWOmzqN7leluH
-	 a/IVUeELCLwo/JEuQYrMJEMpNk2HdeVFLrv7n3PvgT0oYXpau7tbYgNYVHinpu32ukjGw
-	 yB2vU1PMMj314csI3bAFnZO7GvN2MlI32lmhsLSSITJMbExfssVcpwmJPk3x5hlX3ywKF
-	 dLnP5h3vOW9b/+7ANA8KdN7aO6Iud7PseJmpRiZ56/DNNdFbYWWwNCFgAl0Vko1aJbA==
+	bh=SbBt2kNglx4CFjfoRHa9xLdMCmxmHW3+wc2Bf0Pf3P4=;
+	b=P6CKbHo+m1m9mdB3HmnnTUy66YijP5uagxvm/OCYodFIZW2N/LSPljiMObAOSF5Di6ld
+	 iSNBVj0HGMQAHDKySBrCzbD4ZjUnwL6vmPQYpohUlefB1Do1kD408Nf7h/hqQ36LET5C2
+	 XOUQMqJER8yjhT9KkV4F6flWSsjguRheM17fBrEbEmG1siOAsRaVPg55E93Cw3/NwCx2V
+	 MaLPm2IjhloJaZ7W4sg7o0HcKqqbe0aNrIK1GN2q6NHiaZxHLtvzCn1C5ThwI8+bsuAI8
+	 km6OaETiZnjlDdQ/XNx+kLc0lOMKFCNasA+9iAOoLp5sQoQD34eM4U4Nkig/0zmaEnw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nvidia.com;
 	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=m8q8ttN1;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.57.15
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011015.outbound.protection.outlook.com [52.101.57.15])
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=C40iEVQo;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.53.67
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012067.outbound.protection.outlook.com [52.101.53.67])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED08606A325
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 18:13:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4ED08606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D53F606A320;
+	Thu, 19 Nov 2026 18:36:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9D53F606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=m8q8ttN1
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=C40iEVQo
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pZurYAvOjjHSaTyAGTh0BmaFiOwzPz8ABsDUrqVwwwWxhaevZTPpsnuXzxZj7rNvdRd5tDZTRjIlMYhGqEvXsRpcn9W29Z8LzZn+KdtyRvB5rT7BEs0ct2lQWVKdH32w9F21XOOhqCnxxNBAiX3UE3nzdZJyu1ciI81M2TXdHdLCGbv2vSui2pnGZptijq3XpsxcebiL42BhVPLaXhLzgpvriHQPgXhbdn3bG3GWQSy4xB/wzPkmZyzd8XTBAqL/Ok1LGvo+eBl40xBlJ1J9/r/Qffupjn9JnckuRKQy55RKsHSL6nlUCtQWbOA7Qsb8VhVePzCC1TUw97L8AQLXPQ==
+ b=u/oiYwpKfX/n5ov34bzGc1yOe/Mu3T9JK5HgGW0IgvtSe3V9IEGQKp1Ojjh+g7eV5ir0ylB0P3i3NhCMUVTkJ1vttsOiiJsK8hg9/Ik/jz8K8XAUZ1AiV+1z57qcbdGZ6oOq38305Fa9KlI5nhI0XksCTAytITuMxBbtosxm/AM8LxCOnR+hkNH9lxfOgjgtzijj2blt7queSj+AntXLMbwjbcT042QTCKdUeRwBHbXRfNrynZWIYoSARInNjs6ZaNu79/64mopsjLJma2zwzGxEgVTVw+Krwakj1BenqQQNyyF+nQu3K9Ig7DWtw4rkPhfH9TLeJwAyJI6L74tfLg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CK/lAgtEDAfolHjEzg5gX3I6q6BgxFTqGnz+SeIL8qg=;
- b=EQ1o0Nfo4VKKpgfuWjxsq9mZ12W5pxPPJU9/568rb4X00+NROBuzOJv3cKD7h+dYWEAT05oOi6S7EAPUHelBPbpifDc5mGgFJwfo5nzPpjUhFbx4E94RdBniw+vMo60/MxPiC/4DK5/o2gUE3hPgp3bl9JRdUmNYGG1HGAC8khDk6a/2Ug6ly7NODHY3HE75fA6hkQWAa4osci4DJzBhGttk76wmi10EcluCKLWG2rUqvMnamsYwFzUcfRGc8aUvzGzQESq18/6JinOWdgquesu9aTDpTPN5RFtm6z7yk/hSa7fgGFnQAdBsDwZYVUK8nzlyVv6zdBNjjse1r+HgbA==
+ bh=SbBt2kNglx4CFjfoRHa9xLdMCmxmHW3+wc2Bf0Pf3P4=;
+ b=TQoGVNLKvN8mhfvXXUSFx3Ni2DQBjoimvNjpnfL8aAblekv3Mqm9VkX8BQfyHYZKvAXTaQQubPtpmIuPxBhmhLXUbIUHNZdrYmKSp98IRYAE3nSpUKmjFC/IqkS7aXWG5DT47UeV0SOFqNcyfi8uhDWH/Gr4a3jlujavSzsSbDUHW63cLBLna+fgVfGv6wNbkbHlYB7OFSxhH74H+TF8HVjcuftJnUzVnNwJD+K2MSVi873aoZC1a54h+VGuvOEVO5ys2Vvee8gx+dg4THsOzqpmEVlneVELVPMrspGDu3cRu5cJwJGrZwP6WDTYVb7l04aWARchNhMkmnnVAJARYQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CK/lAgtEDAfolHjEzg5gX3I6q6BgxFTqGnz+SeIL8qg=;
- b=m8q8ttN1lkKwHCfUZ1sGAwB4FVDDYRjARy2msUX3WYS1IK8uaD6UGB/37l1HwkmJsyTkc1ArQl91mi7ByY0kFP1QO4ieEdv+Sut+u1l9N0NwrZGasVB+WoHPwdk+BAtedH0wP90voO26gxK8a6HN1R/02l+CSxfl9LZ0TTZCXJ2nJ8z3G7Ae17YbSYCP6ECKxtBAaWmxS7i3nT7dkiIAh02zUCbd+0l24iYGZllF1VOrbk2oCEJAmhSyEtT3LOo75/hwPCN1DwIZH5eDWpMVzThHi7lsuO8/Bdd9BcqLgidA+q2FFM82QkCDAxxMJcNLXpqm6CSyQjWKESmFb9t/CA==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CHAPR12MB999248.namprd12.prod.outlook.com
- (2603:10b6:610:2ff::22) by DS7PR12MB5720.namprd12.prod.outlook.com
- (2603:10b6:8:73::21) with Microsoft SMTP Server (version=TLS1_2,
+ bh=SbBt2kNglx4CFjfoRHa9xLdMCmxmHW3+wc2Bf0Pf3P4=;
+ b=C40iEVQo9yUkF1DmscHS7wFj0uN9S37NLr256EQGfyNR6b6I5WG6Z41mJMHdzGiocxhuuFR5gKF2Fqcyxt9Q3KyTAxfLyQqIZJrQR4zkOXjTgmGYltRql0OL3mZQrmg4MHykqtAgnxI3GSkyMSnaHxygoQuFN2aXO08Wvk9TiGZqBUJpaKw0YNPFEeDZ3FsDTpSC42ydeMRM5RB2/kbO4rZoS/CElZxvvHZ7MKD785Q/pcW0PfqDsTEe4zKy5CPwBq3sawpP6YPMGQz5y++pcVVhuBg0uB93HJJI/7e0G4eEZsnnLHxfvooE3VqTEFtqhgWKTc5cbuKOJ78orgL/Rg==
+Received: from SAWPR12MB999267.namprd12.prod.outlook.com
+ (2603:10b6:806:55f::17) by LV0PR12MB507217.namprd12.prod.outlook.com
+ (2603:10b6:408:3b7::7) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Thu, 19 Nov
- 2026 18:12:57 +0000
-Received: from CHAPR12MB999248.namprd12.prod.outlook.com
- ([fe80::4972:8062:d74e:b205]) by CHAPR12MB999248.namprd12.prod.outlook.com
- ([fe80::4972:8062:d74e:b205%6]) with mapi id 15.21.0639.010; Thu, 19 Nov 2026
- 18:12:57 +0000
-Message-ID: <d4f67696-5095-4948-9029-f657058431b0@nvidia.com>
-Date: Thu, 19 Nov 2026 19:12:52 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vdpa/mlx5: Bound the KLM count of the user MR
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- Vladimir Petrzhikovskii <vladimir@dfb.sh>
-Cc: Jason Wang <jasowangio@gmail.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, Nikolai Kalinin <nikolai@kalinidze.me>
-References: <20261109-b4-mlx5-klm-v1-1-787b45145719@dfb.sh>
- <20261119101523-mutt-send-email-mst@kernel.org>
+ 2026 18:36:46 +0000
+Received: from SAWPR12MB999267.namprd12.prod.outlook.com
+ ([fe80::fe35:8a00:d9eb:40f9]) by SAWPR12MB999267.namprd12.prod.outlook.com
+ ([fe80::fe35:8a00:d9eb:40f9%4]) with mapi id 15.21.0615.013; Thu, 19 Nov 2026
+ 18:36:46 +0000
+From: Ankit Agrawal <ankita@nvidia.com>
+To: Alex Williamson <alex@shazbot.org>, =?iso-8859-2?Q?Uwe_Kleine-K=F6nig?=
+	<u.kleine-koenig@baylibre.com>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jonathan Corbet
+	<corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+	<rdunlap@infradead.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Danilo
+ Krummrich <dakr@kernel.org>, Johan Hovold <johan@kernel.org>, Steven Rostedt
+	<rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, David Lechner
+	<dlechner@baylibre.com>, Armin Wolf <W_Armin@gmx.de>, Thierry Reding
+	<thierry.reding@kernel.org>, Mike Rapoport <rppt@kernel.org>, Arnd Bergmann
+	<arnd@arndb.de>, Karl Mehltretter <kmehltretter@gmail.com>, "Paul E .
+ McKenney" <paulmck@kernel.org>, Borislav Petkov <bp@alien8.de>, Dapeng Mi
+	<dapeng1.mi@linux.intel.com>, Marco Elver <elver@google.com>, Ethan
+ Nelson-Moore <enelsonmoore@gmail.com>, Jeff Layton <jlayton@kernel.org>,
+	Bradley Morgan <brads@mainlining.org>, Andrew Morton
+	<akpm@linux-foundation.org>, Petr Mladek <pmladek@suse.com>, Pnina Feder
+	<pnina.feder@mobileye.com>, Mete Durlu <meted@linux.ibm.com>, Aaron Tomlin
+	<atomlin@atomlin.com>, Rio <rioo.tsukatsukii@gmail.com>, Feng Tang
+	<feng.tang@linux.alibaba.com>, "linux-doc@vger.kernel.org"
+	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "driver-core@lists.linux.dev"
+	<driver-core@lists.linux.dev>, "linux-trace-kernel@vger.kernel.org"
+	<linux-trace-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Bjorn
+ Helgaas <bhelgaas@google.com>, Yishai Hadas <yishaih@nvidia.com>, Longfang
+ Liu <liulongfang@huawei.com>, Brett Creeley <brett.creeley@amd.com>, Giovanni
+ Cabiddu <giovanni.cabiddu@intel.com>, =?iso-8859-2?Q?Micha=B3_Winiarski?=
+	<michal.winiarski@intel.com>, Julian Ruess <julianr@linux.ibm.com>, Nipun
+ Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, Eric
+ Auger <eric.auger@redhat.com>, Mostafa Saleh <smostafa@google.com>, Pranjal
+ Shrivastava <praan@google.com>, Ioana Ciornei <ioana.ciornei@nxp.com>,
+	"qat-linux@intel.com" <qat-linux@intel.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "intel-xe@lists.freedesktop.org"
+	<intel-xe@lists.freedesktop.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Subject: Re: [PATCH] vfio: Allow untainted use of driver_override
+Thread-Topic: [PATCH] vfio: Allow untainted use of driver_override
+Thread-Index: AQHdd7iVYKg+W/xA6kCUHlU6oPWyXLc1ujB7
+Date: Thu, 19 Nov 2026 18:36:46 +0000
+Message-ID:
+ <SAWPR12MB9992678CB10A367CEB922F1E70B0792@SAWPR12MB999267.namprd12.prod.outlook.com>
+References: <DMYH4ED3GWDO.29DGXPK4M82VR@kernel.org>
+ <20261118235645.2907908-2-alex@shazbot.org>
+In-Reply-To: <20261118235645.2907908-2-alex@shazbot.org>
+Accept-Language: en-US
 Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <20261119101523-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR2P281CA0035.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:14::22) To CHAPR12MB999248.namprd12.prod.outlook.com
- (2603:10b6:610:2ff::22)
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SAWPR12MB999267:EE_|LV0PR12MB507217:EE_
+x-ms-office365-filtering-correlation-id: 0dba5bdc-b8df-4306-879a-08df466c10fd
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|23010399003|366016|1800799024|376014|7416014|38070700021|10067099003|11063799006|56012099006|4143699003|22082099003|18002099003;
+x-microsoft-antispam-message-info:
+ XCNvFWm7IHh+NokusGc6C60bSA4C+tNfyp0G0JXQO+zfaT9tkF8OkHXjO3O6M3+2Id/dK2YkziQCsJY9nBK4/C1CvX/iDmBra18WuL5Hjc7PYBcodo62PpPpL+OeLod2JBCgFP0lr4qV43jihuPshNyzybjHs+uK3/BaS+mie8c05aDg3nlTrlAdMf+OEw/Bl+BTndCSA6sbg4NR/APKHqDlR+OOdtNYiSdgjQuZVmy6T7AUSKVlbGyYVdAYS7NcbNUqmreIogOAEnFjt3MykWK9WCMLbAqS0OPWk3vWd6eeNMT5XgMzSZYhUMrQOxp5fEOiwQSM9yonGDvxTWvyOrP8i/BdCd9kUemCfmkZCvNVRH3bWxwv7fsQqLyyoCeQVztSA1kd5UPAMh1KOSybOkYVLvOQ1nFsPMfrazkyKwAaJzbZkTU64LZ2sHQCzFDVlo40BOd4jzcim1ET0Ibmlah1FPqzJLwsZ2ZizUM7bkk82MrgxjNkllwtgMjE2A69/+GcJzmVdPO7WwTvB2+gA8UVdstWjKonoxDM3i+uBBOHdprIHG9XnHn9Uwy4A050SQ/cN3hzRp/soG/GKGqAmAKHI22tDwkH8kfu7PEogSbs3ua+x3WAY2mVRiVrpX5DHemdjXMYsakhl9CbKbQ3y1Tb/YUh+SEJyhusoAAwKPw81m2WdgH/JF6xHntN54UrBgZmX8ZrSwfnv9oI4sj2ULiodekWCx7hqIsae+q1FWg=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SAWPR12MB999267.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(1800799024)(376014)(7416014)(38070700021)(10067099003)(11063799006)(56012099006)(4143699003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-2?Q?ibcmCeWYaAEsMeuQBRPyTEYVfWpjTlzXNo3we70IC6T0dea0uEGVg+4ixG?=
+ =?iso-8859-2?Q?Zkj0/7h+vxPfVZbspgC1WC+lwReuB4c1CfUaUQICGti2Gt2UPL4TUtX1Kf?=
+ =?iso-8859-2?Q?NBWnwttRfNVHE0GaZD/P9gPjPYDbp4Ixsdj3Rlpr1m7FaDc+TK/F7NdHvg?=
+ =?iso-8859-2?Q?uKISS30daIe2pv9dikMvwDN//V3ny2Sc+emJZ6q6eaPgrM7E2A1fgTfoZe?=
+ =?iso-8859-2?Q?iWVeU8usjQUVmpD40kWQlumNRM15iy8Seg/yyLPe8g3tnX9WVhl4lW+Rh0?=
+ =?iso-8859-2?Q?F5tOD52WDFMEx3k9uMjwmsXWzN+/NswsYz2Eceyhf+oRIn178ANfXgy7se?=
+ =?iso-8859-2?Q?5HRA9OWHAWPHSJ/7zfCecaq20ZYYALbhsXSda/PQA3ZNtgP3Y6nDUKoHqg?=
+ =?iso-8859-2?Q?AT2+Jy8F4t0138C0JHbclv+1oXZPGHpzBaYwS34svMh1uTt7HqC8ccOZtd?=
+ =?iso-8859-2?Q?727+IaStkF+RkT5iXDw+12AR4Djb5+Xzhm5h1wSKRmfS00tFtI2n5LFzgv?=
+ =?iso-8859-2?Q?DLtEZdJAHFA1fKJJC0qqFJ1Xzh/joJKREaBxKqx/QP9M621gEngbKMV5gX?=
+ =?iso-8859-2?Q?NmAOKo1ZoISTjdHQX1wLE8BHKW5l7MauXHvIyB0OePid8bksiDrhs+Zz2g?=
+ =?iso-8859-2?Q?uCtql/YmLgpI1TX3fl90EAmuEUSazuuULneQzPC5W/qG8AzE+tjH3qOk6O?=
+ =?iso-8859-2?Q?18cdBXsNJErTGhEpQfSglFuXLp/4lr4B8ZqxT3slpBbv/hU4Su6s0y6FwR?=
+ =?iso-8859-2?Q?U9uMr1N2VbP6FrITBg55hkwB9SZC5uO2KQCcEKOMko8NP+siQX8XlyFKRx?=
+ =?iso-8859-2?Q?8FLeQ4dY9YlmrIJyzKL2VV5KLqOlZPkzs2ecKL3cXQ0RvzSEHyiBa4sa31?=
+ =?iso-8859-2?Q?cPGMTeJZfFzL3xhCD2T7t+qAKpv52gBHkZ16zw60/0t9eOnDJ0B635x+G6?=
+ =?iso-8859-2?Q?qf9UNVK0GZUTEn/E/3HxNtprsGtcyy4nO8ZcHq3SEXEURCPOvL2QsSrMF5?=
+ =?iso-8859-2?Q?uQzYqE/1+JVoFyFgooTfqV6K1LmLAL8qfB8h2QqFvcmJU2dZZdazRDYuRH?=
+ =?iso-8859-2?Q?wuZM+Z2EuB/oBsVG4kYk3+RrFJPT+IssRTEneqCems/X/o/QyndDOypH4e?=
+ =?iso-8859-2?Q?APheToAcIVxu9RzdWZeXuf5rKyIyhP5V2DhPRJtT2Vcx2xNVV6Bywniatz?=
+ =?iso-8859-2?Q?HXJbLugbmZWCBMPt1rIMUUfjEqblnlJF9qgg5PchVEl+mGbKF77axsti9f?=
+ =?iso-8859-2?Q?v/I9py4Ddxib73a7QZbjAjsGV52jTaPOJKqmbogFZ4IzIakwIOLgsvfmcB?=
+ =?iso-8859-2?Q?sY4EJtMA58p8DCHFuBoKOAzWdkxhhextNz21HVYx2JbuYycc9EMfxSRD5S?=
+ =?iso-8859-2?Q?i8Lev5k7rwHSHGyaD89TtLqanV4E8ZlXtmOpYWjGDiVLOg5WNL7UcQkUzL?=
+ =?iso-8859-2?Q?Y1kdGIptDUtiishvxDhTEf4VsW3MGHiHpG7qH17IYlKSlm8pCh8pVVWUTf?=
+ =?iso-8859-2?Q?XSBVbZOtNS4U7Rn1L6G76AMFpdRk0OVQd1mEn/832gWt4DI7pGkwtdGCz9?=
+ =?iso-8859-2?Q?DSpSiykBRtFq68y58uMM2B/BG+Tb5kpHg9i7gtXUolNckrlPH0qQFhcHR4?=
+ =?iso-8859-2?Q?MPwJuccy4ziNPp64ot+PVeQI177n+m4EbD5JVjfxcfKOm7r0qidCIyyoIz?=
+ =?iso-8859-2?Q?gip1xQwxFPDxm1cJ9lA5geMi3k1xjGLatkbYDcY2arHJfZfv5zGdDHhOVM?=
+ =?iso-8859-2?Q?P8ulrRZyi7qpJs/TTAt04ERvc76YnHkJVW9dlJzN5bUTsA?=
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -101,234 +175,18 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CHAPR12MB999248:EE_|DS7PR12MB5720:EE_
-X-MS-Office365-Filtering-Correlation-Id: efc1eabf-b031-4f6a-2594-08df4668bd16
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|366016|376014|261102123227099003|261026140227099003|261026121527099003|11063799006|261028144727099003|261021121427099003|261021123027099003|261022105027099003|261022075727099003|261022113327099003|56012099006|4143699003|10067099003|18002099003|22082099003|261009223027099003|6133799003;
-X-Microsoft-Antispam-Message-Info:
-	CDtJd7MzVEwzhLo5YgqiWr3xYb3sw3ZLgANneOxGCjJRrMXJjojwgqj4GdreiZb/DbWxmcq/47slnxURb6H1FYjXBivlfahqpUAmW2sCiLnJpgEAiKkS9NLLRgFjrl8VTsb09vMztpXjEJrY06ftI/RT+/hWAuOIzR3uoQyF9rvEAYuFOpvcZFiMiuFz8HEv83V5CP6wY3wUbm11Ti8ihjKKP/g5LHGUNRNUEDChvBEcndl0GmnKmh4ldsIXvaktTiidxBW0k0Ywaj9AkVePwJNjdibkP1Z4s5vqc4VQaxC7FGF2o2avg+Ky1NQrwxeqN0Q/dbpmVMkPP8sTSPj18Z6Ax0Sfiftu6UROBCVY8f7ZsXefDIhD4RslsWJ2Rm/nmggMnEUDTNmGRgmbANbf+KaaL1koCdenw5TH14mU2tyxdnhmJad3JP768HOkNpvpXAnFfdtiiz3EvmwIsXTwwXIZrT3w4cmsDXB+R45hKb54ge3iL36yr1HpRzlmhlKLkyF+9Q3AjjSeJOUMAYGG8jtQPlDo5K9766a3YOWk3fgIFzfxZuuEppJyxwc1TfCzI7kkRMi5V+lLebtWSxHrXFYTSTb7JtYHDNaP4eOTHM88RGOXESNl6R6kJL1xXzjSxExwfTiACHU5Qov88lFLBX4UCqJlNhVGjgZjzThKPFI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CHAPR12MB999248.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(366016)(376014)(261102123227099003)(261026140227099003)(261026121527099003)(11063799006)(261028144727099003)(261021121427099003)(261021123027099003)(261022105027099003)(261022075727099003)(261022113327099003)(56012099006)(4143699003)(10067099003)(18002099003)(22082099003)(261009223027099003)(6133799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?S0ZuZGNGODJoa1oyU3kyNXkvb0NOSUhsSVltSWJIV3hCRmk4MU1lOGErWW1Y?=
- =?utf-8?B?WURsTHJJdGdnR0NvLy9jdS9EZ09oTHdBblF5QW83VERabStPS0JVSEFKTUJw?=
- =?utf-8?B?NlIxc0d1dHlDNi9JZTdWWW9Bc01iTk5CdjdIMnIzdnBpU0U0YVBqeGFzLzlo?=
- =?utf-8?B?ZDd5Q3BUQ3FqSVo2TXkrdk4xYm5RakJkUGdqY0dOV2ZGZ1JzWHdYS3VtSjRP?=
- =?utf-8?B?THMwRHlWdUFzSHE4UUcreTA1YTNYWFUvQmxHaGhhN1g5ME9FOHBtdEloQStO?=
- =?utf-8?B?ZzFwb0xRK01ma1k5VXl5VEU0SnBBdFh5WUpaREd3UVZTSWV6UkRUMlN1b3dE?=
- =?utf-8?B?K0llMk90eHRxM203SklSK3ZqRTQrMUlqcVNpd1dLWlMrUlI1OGpmVVRGMHNS?=
- =?utf-8?B?SUkyYlVMY2NRQkN4TmtOTENkWEp4aTRPWXVjdVBJdXRCK0pkNEt3OUpqKy9T?=
- =?utf-8?B?N1p5MDhiblhSZWIvc2YrMUUzaDdkcy8xZVlheFNNQlRqeFoyV3Y3L3E3UEQ2?=
- =?utf-8?B?WEhCeHRpdlA1MXdpRDdiT1BBdHdGUExNOHExMXYxUjcxc3ZQZTlqTWJ4KytC?=
- =?utf-8?B?ZkkrN0xwZmxzVzJUalVOVmZKRk5xVTZQUXhaUmVNV2U4emc2U1lyN01VcHNS?=
- =?utf-8?B?UkkxUHBUSWpqMk15OUNGZ3RCRjNhT1FLMzRWMjlmemp3THVRK3poM0ZqdkRO?=
- =?utf-8?B?QUpZQ25IYVA2S3NlVytvVjdUenFYYW5iUW5hbDJ1Ny8rdi9Wd2h1V2UrbndX?=
- =?utf-8?B?ZDFsYlhpYjFQUEowYzdka2EvYkhsd1pRSnNHNWZsZXhYMUg5dTNCaVk1dHJn?=
- =?utf-8?B?VVIvUFA5OWM3MDNsQkovRHlhd1lUVmh4Um14Yy9XZkxKc1BsWFBiWkgrL0pP?=
- =?utf-8?B?THYvbjd1ZEx0d1hNVERMamtNN3hDVnBQSnZuTTZvY0t3OWVhazdDZTNJb1lO?=
- =?utf-8?B?RkF6OFlBWWhmZDY5UkRFUUc3cVczQ1czUVhnOUY4eFE5c0Fub1VkbGp4eURx?=
- =?utf-8?B?NWxiajljei9lSkdlQSsydkx2eWkyNmZ2ZVQva2dkSjZQKzJuOFFWR0s4RlZW?=
- =?utf-8?B?UVhuZVBaSVZzbHRaR0J3aVM2SlJ1NlNnQWdMcWN4S2t5Q2lQT3NlUVc3Smlx?=
- =?utf-8?B?YTl6c3JIV2gvMWhhdEZIeFFFMTVxV1A0eVNhM25Va0phZHNONWpWSlVZTDhi?=
- =?utf-8?B?UmFvemU4VWZYdTZVUjRLaytpbUd1N3RoRUkyRHIzaDJFcXc1cEJ5SkEwSTkv?=
- =?utf-8?B?Z0IzQUUxeFp4aWFWWlM4VnZ5VndMQ3pGMXkxNFcwOGpyQ3FoT3RZTWo4cDl1?=
- =?utf-8?B?YkI5dVNsaS9rMm9TWXA0WEZhbngrOGoydVFoUUVUd2V3cm5hdEU1QkJaMDZm?=
- =?utf-8?B?WlBZQmg2akRMMjdlRHBMY1lXaE1UWFR3RDdia1RzTzJUVWpZd0VPTTNjaHk2?=
- =?utf-8?B?eXhib1gxU2hiM29ZV29tTG1ZQU9kRDhGMkN4a2lnTno3N1lsUU9DSml5TmI1?=
- =?utf-8?B?STQxMlRDMHdUa0xvb2lrYjBBSTc0aFpoWHoxUlJIWnRKNWxSTDNtVkk5cE1a?=
- =?utf-8?B?b1pLL2tNc0hXa1V4aFJZSmo4T1dTdWFsdHkvTkJQaTVFa0RNaFJ3OVhLQ1FB?=
- =?utf-8?B?OWdZT0NBNXovZ3h1VFhUZ0VqV3BDeGpqZFhxenU2TEh5ZXJpMkxZd2tiQjB4?=
- =?utf-8?B?TCtjRmZFb1RxZkV0S3VWeDZyZ3MzTitJTlJqSk1LenRuWTFvV0VlL0ZleGlo?=
- =?utf-8?B?Z3Nqd25UQUxzMitBWngrVEorTzEyTk1vZUdXUVlGSVBqdWtrUTNOc0t1V0k4?=
- =?utf-8?B?cGFPaDBKN2VXRnhIMjQ2QmY4eG43Qzd6ckNJWC9GUTBYU3M4S1pjZGZSNXA1?=
- =?utf-8?B?bDdoSFhOZWpMa3hML0FIeXBaM1UxZ0lnVzRMSFk4YmlDQWJlODR0azhzdXAz?=
- =?utf-8?B?ZzIzTFZaS0oySzAwN3gxMUF0T1NPZGgvZit3SUVNVSswRDVkdTdMK0k2ZWdT?=
- =?utf-8?B?Sm52ZFdxSVgvMHl6MU1aaHlKdkt0Nm1sWFpQVVJSUTdtWS9neHdMOHdBaHJL?=
- =?utf-8?B?Rlp6L0ZLL05DWWZobGlaOHZRNmVmcHN2eDFHeCtpKy9hS1ljY2dDV3d6UC9n?=
- =?utf-8?B?MHRyTjF2RnZJMDRBZG54ZXhUNU9DZ2t4RDdVWlMvRzlpbUZpWjN4cFEvSWNa?=
- =?utf-8?B?MmcyV0Y2VU56UXhoMGQxUnF6NTdCdFdMOWlJVjJSZXRBeDJZa2d0alZveURv?=
- =?utf-8?B?RnBzSTJZKzdHUlpDNHpGUTA2Ymh4elF3NWNTeDRVSlc2UEpNYlpSRE1iZVlS?=
- =?utf-8?B?cWNLbDM4VHQxVmRtbnVxNWo3NmxqNlY4WDI5VGZiQXJzaExjZ29XUT09?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: efc1eabf-b031-4f6a-2594-08df4668bd16
-X-MS-Exchange-CrossTenant-AuthSource: CHAPR12MB999248.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2026 18:12:57.4334
+X-MS-Exchange-CrossTenant-AuthSource: SAWPR12MB999267.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0dba5bdc-b8df-4306-879a-08df466c10fd
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Nov 2026 18:36:46.4939
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0bSKrsvi7h8/of39f3/ae8skm91SjuCnqOyPDa4GCuwV8XJAeTuR8a9+iA29tLiywp1DMCaLEt8el/PIWzT5lA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5720
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: y8q8h07uVpspkfij4V8lXCF+oeriL+wLdqQ6NhZst3HpD99Igb1z4M1RdPeR+vtB68A1rx7FmfkgyN65yIjQLg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV0PR12MB507217
 
-On 19.11.26 16:15, Michael S. Tsirkin wrote:
-> On Mon, Nov 09, 2026 at 08:21:28PM +0100, Vladimir Petrzhikovskii wrote:
->> create_user_mr() builds one indirect MKey that covers the whole vhost
->> IOTLB. It fills each gap between two mappings with null KLMs, one per
->> GiB, and never checks the total number of KLMs against the device
->> limit, MLX5_CAP_GEN(log_max_klm_list_size).
->>
->> With a virtio-IOMMU the guest chooses the IOVAs: the VMM (QEMU)
->> forwards each map the guest makes to the vhost-vDPA device. If the
->> guest maps one page at IOVA 0 and one at IOVA 2^58, the driver needs
->> more than 2^28 KLMs. create_indirect_key() computes the buffer size in
->> an int, which overflows: the driver allocates 336 bytes, and
->> fill_indir() then writes 16 bytes per KLM, 4 GiB in total, far past
->> the end of the buffer.
->>
->> nnuls is an int, so a gap of 2^61 bytes or more is miscounted on every
->> architecture, and on 32-bit the unsigned long num_klms wraps. The gap
->> is rounded up to whole GiB as (size + 2^30 - 1) >> 30. For a gap
->> larger than 2^64 - 2^30, for example below a page mapped in the top
->> GiB, that addition wraps and the driver counts no null KLMs for the
->> gap, while fill_indir() still writes one for every GiB of it.
->>
-Please make this paragraph more human friendly. Enough to say that
-the type doesn't fit the value or something like that.
-
->> Count KLMs in u64 and round the gap up without the overflowing
->> addition. Before creating any direct key, return -E2BIG with a
->> rate-limited warning if the MR needs more KLMs than the device limit,
->> or more than fit in a CREATE_MKEY command whose length is an int.
->> Allocate the command with kvzalloc(), because a list within the device
->> limit can be too large for kzalloc(). A normal guest is unaffected:
->> memory at 0-3 GiB and 4-68 GiB needs 68 KLMs.
->>
-No need to say what the code does. Focus on the why.
-
->> Found by an LLM code review agent auditing vhost-vDPA backends. We have
->> no mlx5 hardware, so the fix is untested on it; it builds with W=1 on
->> x86_64 and i386.
->>
->> Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
->> Cc: stable@vger.kernel.org
->> Co-developed-by: Nikolai Kalinin <nikolai@kalinidze.me>
->> Signed-off-by: Nikolai Kalinin <nikolai@kalinidze.me>
->> Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
->> ---
->> Dragos, one question on the limit: the patch takes
->> MLX5_CAP_GEN(log_max_klm_list_size) as the largest KLM list an indirect
->> CREATE_MKEY accepts, as mlx5_ib does for fast-reg lists. If firmware
->> applies a different limit to CREATE_MKEY, please say so and I will
->> change the bound.
->>
->> The guest kernel change used for the reachability check is available
->> on request.
-> 
-Yes The limit is right.
-
-> 
-> Dragos, care to answer?
-> 
-Yes. Done.
-
->> ---
->>  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  2 +-
->>  drivers/vdpa/mlx5/core/mr.c        | 30 +++++++++++++++++++++++++-----
->>  2 files changed, 26 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
->> index 42f2f44b383c..1d84824ca429 100644
->> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
->> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
->> @@ -32,7 +32,7 @@ struct mlx5_vdpa_mr {
->>  	/* list of direct MRs descendants of this indirect mr */
->>  	struct list_head head;
->>  	unsigned long num_directs;
->> -	unsigned long num_klms;
->> +	u64 num_klms;
->>  
->>  	struct vhost_iotlb *iotlb;
->>  
->> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
->> index b0c5ff23d022..03db8345c1bb 100644
->> --- a/drivers/vdpa/mlx5/core/mr.c
->> +++ b/drivers/vdpa/mlx5/core/mr.c
->> @@ -206,6 +206,16 @@ static int klm_byte_size(int nklms)
->>  	return 16 * ALIGN(nklms, 4);
->>  }
->>  
->> +/* Largest KLM count whose CREATE_MKEY input length still fits in an int. */
-Comment not needed.
-
->> +#define MLX5_VDPA_MAX_KLMS_INLEN \
->> +	ALIGN_DOWN((INT_MAX - MLX5_ST_SZ_BYTES(create_mkey_in)) / 16, 4)
->> +
->> +static u64 max_klms(struct mlx5_vdpa_dev *mvdev)
->> +{
->> +	return min_t(u64, BIT_ULL(MLX5_CAP_GEN(mvdev->mdev, log_max_klm_list_size)),
->> +		     MLX5_VDPA_MAX_KLMS_INLEN);
->> +}
->> +
->>  #define MLX5_VDPA_MTT_ALIGN 16
->>  
->>  static int create_direct_keys(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr *mr)
->> @@ -338,7 +348,7 @@ static int create_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr
->>  		return -EINVAL;
->>  
->>  	inlen = MLX5_ST_SZ_BYTES(create_mkey_in) + klm_byte_size(mr->num_klms);
->> -	in = kzalloc(inlen, GFP_KERNEL);
->> +	in = kvzalloc(inlen, GFP_KERNEL);
-Unrelated change for fix. Drop please.
-
->>  	if (!in)
->>  		return -ENOMEM;
->>  
->> @@ -355,7 +365,7 @@ static int create_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr
->>  	MLX5_SET(create_mkey_in, in, translations_octword_actual_size, mr->num_klms);
->>  	fill_indir(mvdev, mr, in);
->>  	err = mlx5_vdpa_create_mkey(mvdev, &mr->mkey, in, inlen);
->> -	kfree(in);
->> +	kvfree(in);
->>  	return err;
->>  }
->>  
->> @@ -501,6 +511,7 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
->>  {
->>  	struct mlx5_vdpa_direct_mr *dmr;
->>  	struct mlx5_vdpa_direct_mr *n;
->> +	u64 klm_limit = max_klms(mvdev);
->>  	struct vhost_iotlb_map *map;
->>  	u32 pperm = U16_MAX;
->>  	u64 last = U64_MAX;
->> @@ -508,7 +519,7 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
->>  	u64 pe = U64_MAX;
->>  	u64 start = 0;
->>  	int err = 0;
->> -	int nnuls;
->> +	u64 nnuls;
->>  
->>  	INIT_LIST_HEAD(&mr->head);
->>  	for (map = vhost_iotlb_itree_first(iotlb, start, last); map;
->> @@ -521,9 +532,10 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
->>  				if (pe < map->start) {
->>  					/* We have a hole in the map. Check how
->>  					 * many null keys are required to fill it.
->> +					 * The hole can be nearly 2^64 bytes, so
->> +					 * round up without adding to its size.
->>  					 */
->> -					nnuls = MLX5_DIV_ROUND_UP_POW2(map->start - pe,
->> -								       LOG_MAX_KLM_SIZE);
->> +					nnuls = ((map->start - pe - 1) >> LOG_MAX_KLM_SIZE) + 1;
-Why not DIV_ROUND_UP_POW2(map->start - pe, MAX_KLM_SIZE)?
-
->>  					mr->num_klms += nnuls;
->>  				}
->>  				err = add_direct_chain(mvdev, mr, ps, pe - ps, pperm, iotlb);
->> @@ -539,6 +551,14 @@ static int create_user_mr(struct mlx5_vdpa_dev *mvdev,
->>  	if (err)
->>  		goto err_chain;
->>  
->> +	if (mr->num_klms > klm_limit) {
->> +		dev_warn_ratelimited(mvdev->mdev->device,
->> +				     "map needs %llu KLMs, limit is %llu\n",
->> +				     mr->num_klms, klm_limit);
-Use mlx5_vdpa_warn(). Rate limiting here won't help: the other prints
-will trigger.
-
-Thanks,
-Dragos
+Reviewed-by: Ankit Agrawal <ankita@nvidia.com>=0A=
+=0A=
+Thanks!=
