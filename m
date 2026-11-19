@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795089768;
-	b=VPWz8kKEnsANBIpwlgpKD8yStxMEr3Ye+5oXL9QUqD5196hlPch1eJrz3vDGs8AJvrPE
-	 sgd2euIWyw4om2s/Y0vbWgTPbRD0dPx2J4D74CFjzwWg0ucS5nELqSCIOVj0LDRYU7cCn
-	 Bd2GhMP1PmhfyGPrZZzjekYR2QmFlSBSD3nmrxf1CNcyIlVauZa5B++tJVTJSEYpwS3Dg
-	 vDT6bVxQMArsOZCb8osMxifBSl1C2dCWt002hu88kvIUHHZzSdw7ndhHyhuGnwtduGA5W
-	 +mXXgBq2aR4+bw/hS2jhjbVcfjD+2lpesBrKKDWSJj8f/gokWNEhv8yj00rRjqR79mA==
+	t=1795089771;
+	b=3AHOtN9k6kCTY7Hxgvt31MWlS4x/Az9XZv8x8yaqo6/pK1EYGpM3kKYO11kHLc0SdgaG
+	 Elo3hORe7IMcVzk1R2YtoFdQrWWv8Nrywh3qPIclrGNKg1Cpgz1Zs2qh6VtuY52+Fnf5U
+	 SFNN1JSLcKSLEp15bXwlVLei6KTiVaTadbbRohmfdNCimQtVoEW6ThGkyrIy5ZG22hzRf
+	 QwZZxyuQDakykiFcW8h1+vJZwHLju7rUcgF0JJ+Zv8OyAUzoNVN1h4d1ir+dW9nbaYmLS
+	 qGprYv/opD50naRZC+lYK2C4jSwSyczYthb8nr9UlHv65dWtZSmCngS3OD5xKB2tepQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795089768;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795089771;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
@@ -15,77 +15,77 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 MIME-Version:In-Reply-To:X-Mailer:X-Mutt-Fcc:X-Mimecast-Spam-Score:
 	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
 	 Content-Disposition;
-	bh=A4AW+1r5ioYbTqiBhF66CNLfZpJFNCdMJyMeafN4jyY=;
-	b=o+EKhRw0XdnsuZjUZ9vaAz4V7/suXWEajBuDFipDXv5Uq6sO/wMfegMtK4xObCDMmr8x
-	 GGJQLZ9oQdk7itimlBhhhLCHe2gG9QeUgtNqbKS1/F4+3OKUFMYmSG/DDl8DHaWBHv9qG
-	 T1zYS919kqEuS+FoA7Dl4Z2zQ7Brz1RHtHjUjrN8cRPnoIfnRv5YqM4omCq5WKWWapt3m
-	 u7/zTEk1DV/yvB8EhYcTC7vthnEnwkDF8Neb2JVDX6rFFHYHVImYACZrZHJt0fojRWjxZ
-	 LQkwTCSQJwrxQ/7PrZcjYhhvFN20Zmo5OpX4pk80bINc0tDafImC4xg+uLxQbKjCw4w==
+	bh=7t7J49HOFuAWT+vhD+UjJuGaxZiXmraSo4eTZkGtO3s=;
+	b=xr5r/32GLeN+PN7odI+ieqXbfZ8c8/lkr8zfK4IahYHclQS0XKToEV+QLIYp974otCfB
+	 j2I4gTt/5caUAUHiOpCNXJ+0jbXtKa7472/xZkXtHu0jTRsaDr5NW0I6GXzylm+r2yUIZ
+	 4bz3SJ5rBrnPlhXwGNrFX9dH4SfaWFA+EG7mHS++R0gXT66ZTBpXPhMI4esY4xKfd5FnJ
+	 RHRJX+L4a9cic+s/N68UcvNWv0j7gfmTSrs4bFTZtlSebKYepV/gIE6At8q41aZTnbA4I
+	 x/xCJORefqyTnK8qwIVeo8Xq5vw5vYgqf9BR8hbZIGXKCgRJ48pFkuiRUQQbeJC8Lfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VmqqJkRu;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Sa92fmUb;
 	arc=none smtp.remote-ip=170.10.133.124
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69F61606A32A
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 12:02:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 69F61606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5C9606A331
+	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 12:02:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9F5C9606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VmqqJkRu
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Sa92fmUb
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795089766;
+	s=mimecast20190719; t=1795089769;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=A4AW+1r5ioYbTqiBhF66CNLfZpJFNCdMJyMeafN4jyY=;
-	b=VmqqJkRuxTHqire2Ob9n7Lu5JpU4t1+U809jf6AHulANQmi33wWvL5KVeddpZsNg0IO5wD
-	3BAzO/F+0ZbNvQgBm8y0e4TqYdt7hW6AsqfusHAUolE8P2+PlePSkCo1LNcXHmVlUCj0uw
-	cL5Mk/OHjK/7CxGt3y+uXaYpH5oimmw=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7t7J49HOFuAWT+vhD+UjJuGaxZiXmraSo4eTZkGtO3s=;
+	b=Sa92fmUbD9Bj7fPe9n8vQkEaO9h4t4J9ZKMdIDcQd8za8ExNs/orEnlKnGDbVGc7rHcn1W
+	Jn9FgxqIfPqAx0dCJXYREhjOzHYhsRFfQGdLP7MdoyDvZx8B5lsMmH7Qrzw3yVpESmjfSi
+	tBkCKKh3JVfcULWVXBYRB3vGx2OuwdM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-450-Bk8vgeLiMJGprRssyK8AlA-1; Thu, 19 Nov 2026 07:02:42 -0500
-X-MC-Unique: Bk8vgeLiMJGprRssyK8AlA-1
-X-Mimecast-MFC-AGG-ID: Bk8vgeLiMJGprRssyK8AlA_1795089762
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-c50549f6cf1so145272866b.3
-        for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 04:02:42 -0800 (PST)
+ us-mta-42-IEH83xXoOz-FIpvRLxCk9g-1; Thu, 19 Nov 2026 12:02:48 +0000
+X-MC-Unique: IEH83xXoOz-FIpvRLxCk9g-1
+X-Mimecast-MFC-AGG-ID: IEH83xXoOz-FIpvRLxCk9g_1795089767
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4915ba023d4so1476361f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 04:02:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795089762; x=1795694562;
+        d=1e100.net; s=20260707; t=1795089767; x=1795694567;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=A4AW+1r5ioYbTqiBhF66CNLfZpJFNCdMJyMeafN4jyY=;
-        b=TfhxTIb4CjpcyYon9URtaU99GvR0UwQVJP9G6PaPiCLwaoTM6KpK+KWiaxtPCJb5LJ
-         hhuZlp40Sxk8tRIp0rxQ6GiVOoTuKt6cTB5ClrWoa9dvqBQ4VbHiextiYNURr4xC77v/
-         3CmTSi/nvfUhj1K1yp6kjB2WTk5gD9K6C9oxDJjI7pSAsZojz3xWWYFYGSyYi/O0rc1X
-         NRs2F9GOzgsvVehwN6m/jWnzBdcb/sc1ep9UZT97uz9V/9W4XGKEOcIaJhrAQr2F9pRn
-         ZoidbjeMCLWUP5RvStDVy5lElyU04lIKTBJYk6STWtQJOb1DpvKt5JM/bAC87HekwIlY
-         suWg==
-X-Forwarded-Encrypted: i=1; AL+hErG6afduaT0QvwpbAkaxzmK2RB/6vcYsrq43NjSiKWh0u2LfZ7v7cZsm736fpfVN9SZpgusUloliox2ADoOW+A==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9GmoMCH/jYSqL2OWBGTFE1Fz9ZsLOoLzXfwocRdkJ9sOknsj7A
-	hsHXEbLHIhsBtjNSl8zVqPOvLDconCr1yrsnutxNpHTDt2ly5lCaTLtavsuM8KJKhbEbuZH1Ekd
-	igWQA94erLl4hCHSm9xfTcphojMeCclkycUAeksrY1wI/EGPJihSalkWpnzmukyM1uIoa
-X-Gm-Gg: AYBFou1+Bz2hhnehiVLOEdciXaX9CkA41Bv9epe6N0yDgtw90GOpdRnZqYIl8SVJYAM
-	0OfbEH9hmetidGWccN1gNiFwQ++dZgbSEPOIhxTee1YxlcGSDhlTxqLHDuVV/ArmaREm6HazwZ2
-	7odB+ljdjN2C6Zk9N6Uk+ANk1Z1jhQiTfdiUQwKr05y1rWV8+KMG+k8iyHJ5lLW6Ld/4/tEb6sb
-	A6tBOwJEu9MeVQSCHeyM4SqMKeUCNG+6d1BjkKK4pl17h0q8uO55jRJauzLJUslk5HhQRqiZUmQ
-	F+Xv5IR/m0f/3KgpNvh0t4/0Evhg0ARrB9XT4kISef4V2/4/U+AC/Oi8vIjZrnTlwoWNiuKyjMJ
-	CqgQVzJ58c7FCPhncfHWBl89nkUo8PwgltuYw2P9BxA8=
-X-Received: by 2002:a17:907:6d1f:b0:c46:8b87:c1f4 with SMTP id a640c23a62f3a-c510e2d4ee1mr524867666b.20.1795089761431;
-        Thu, 19 Nov 2026 04:02:41 -0800 (PST)
-X-Received: by 2002:a17:907:6d1f:b0:c46:8b87:c1f4 with SMTP id a640c23a62f3a-c510e2d4ee1mr524859666b.20.1795089760723;
-        Thu, 19 Nov 2026 04:02:40 -0800 (PST)
+        bh=7t7J49HOFuAWT+vhD+UjJuGaxZiXmraSo4eTZkGtO3s=;
+        b=IBC9R5zaFYbQWRCkWi3qzCfON4xrrzwdLYMot03uw6Tv41dGVr+v8DdVm8pc94EY3M
+         IF0LtQDtOy9MknTJGqJGYalIDix7mJP8Ce29NkV62PNOeP/1DGnIunICX464KtM8ur9G
+         tfkExnQeTvjMJz/PJGjw96qPrAbwOCpmU0FWPlG2MOoqJ5F720ZBMU4HMUNEq81g8OF5
+         JpKxI9bGAhBhHy/6EMN/h1n6y5GopFSz6lVdtoiRWX8E64c9VeYprK/ontEaTJLsa3wj
+         Bg2aswO15POTNjd6o19g6aev2xtDhvKA3BjdUz5wFMJ8viPwBTc83SlSy7CfImN9u8HK
+         9hiQ==
+X-Forwarded-Encrypted: i=1; AL+hErEka5vrsQAfwfLq4yKbkMnw8N/vvBkIQSgDekfYyOWwsTjBz5auXgJ+gmqlO5KKQXTjpHSJRzgm8E06oWtg9Q==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/6olhpyQMtNmBcqlamr8xXDRNdAsVLGJXUkaRkeDlBIZCZtPdu
+	u0nFOtW8clZnCXvtjx8+OTxBkzkdCzOoZHsSWoYyfFlBMMqJO2ByhOeZgbsb23gnJ7AUe+L4xU7
+	sdk1CIsFUcmz+NvUz3L5tr/lGwiuaSBaet7hKxIBD/3HNS5IBNMKIBv+2Tq+FgMm6vNvw
+X-Gm-Gg: AYBFou3M6SH+eXqggU1wublqsAlOc5z/zC3S31I6blpgouElFTfIM73WueS+X4251jO
+	snCQ1MnzlggCzDzZmApA9u+C6aQImrkUaumWFiMiS+Opo3tNw/dsZZPaP30/C2NDY7rH7o+OoAc
+	KOA+snaguYSw2ikpuR2AlcY+5xQZ0MXmLwsB9zBKGRx1oXevGgXylZXUJcy+3O4mzJvWUWTbbOp
+	4j6IDGe8PphLLuB6j/4pHsjJAgLJ3Grv1cxayuoI6CXZYnHpz2lA2qsZ1cIXWRmmYAOOyL3rxbH
+	ekwc0ChfRQtTRYgJqbCo+P4Q+3H7pV+UUO0wPez6tR33hyGf7BXhhkP52WeAVQ5+AhOV74lsXSL
+	9XHDSI3n1UoNT/OZ58ALyytCN3j4Y7e2IT2HE1nkvbsg=
+X-Received: by 2002:a05:600d:4:b0:4bb:818d:8d8f with SMTP id 5b1f17b1804b1-4bb818d8df2mr59688125e9.23.1795089766808;
+        Thu, 19 Nov 2026 04:02:46 -0800 (PST)
+X-Received: by 2002:a05:600d:4:b0:4bb:818d:8d8f with SMTP id 5b1f17b1804b1-4bb818d8df2mr59687405e9.23.1795089766192;
+        Thu, 19 Nov 2026 04:02:46 -0800 (PST)
 Received: from redhat.com ([2a0d:6fc0:1520:4400:d78d:7b2d:2f5d:e08f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4a655f9f4a7sm10439162f8f.34.2026.11.19.04.02.36
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb8535741esm50675225e9.11.2026.11.19.04.02.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 04:02:39 -0800 (PST)
-Date: Thu, 19 Nov 2026 07:02:36 -0500
+        Thu, 19 Nov 2026 04:02:44 -0800 (PST)
+Date: Thu, 19 Nov 2026 07:02:40 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -105,13 +105,14 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Matthew Wilcox <willy@infradead.org>,
 	Miaohe Lin <linmiaohe@huawei.com>, Zi Yan <ziy@nvidia.com>,
 	linux-mm@kvack.org, virtualization@lists.linux.dev,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
 	"Liam R. Howlett" <liam@infradead.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Brendan Jackman <brendan.jackman@linux.dev>
-Subject: [PATCH v11 2/7] mm: page_reporting: support host-zeroed reported
- pages
-Message-ID: <2ec112cbdde76a60ab235a0df7734a23387f1c86.1795089715.git.mst@redhat.com>
+	Nico Pache <nico.pache@linux.dev>,
+	Ryan Roberts <ryan.roberts@arm.com>, Barry Song <baohua@kernel.org>,
+	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>
+Subject: [PATCH v11 3/7] mm: skip zeroing in vma_alloc_anon_folio_pmd for
+ pre-zeroed pages
+Message-ID: <37575b5efa8e04527f390eafada7fda928744130.1795089715.git.mst@redhat.com>
 References: <cover.1795089715.git.mst@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -126,73 +127,44 @@ In-Reply-To: <cover.1795089715.git.mst@redhat.com>
 X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: lkN88m8QKskIQXlc0XQtBiLgykkjFy563tz_WGatk_Q_1795089762
+X-Mimecast-MFC-PROC-ID: 5du8KU4BH7LIGhtLhaDcuP0WHDqjIl13llVsXvrn85k_1795089767
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add a host_zeroes_pages flag to page_reporting_dev_info, allowing
-page reporting devices to declare that their host zeros reported pages
-on reclaim.
-
-On successful reporting by such a device that guarantees zero contents, set
-PG_zeroed.
-
-Note, that hosts zero the pages for guests, safely, even on
-architectures with aliasing data caches, and even without knowing the
-guest user virtual addresses.
-
-Specifically, ARM64 data caches behave as PIPT; KVM handles cache maintenance
-around stage-2 mappings and invalidates the whole I-cache when it aliases.
-On aliasing MIPS, host unmapping flushes the whole D-cache, and slow GUP
-flushes the host aliases of replacement backing pages before KVM maps
-them.
-
-Any host that can't handle this, will simply not set the flag in its
-page reporting device.
-
-No driver sets host_zeroes_pages yet.
+Initialize newly allocated anonymous PMD folios through folio_init_user(),
+to skip initialization of PG_zeroed pages.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: LLM
 ---
- include/linux/page_reporting.h | 8 ++++++++
- mm/page_reporting.c            | 3 +++
- 2 files changed, 11 insertions(+)
+ mm/huge_memory.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
-index 272b1274efdc1..49adfc5d45804 100644
---- a/include/linux/page_reporting.h
-+++ b/include/linux/page_reporting.h
-@@ -13,6 +13,14 @@ struct page_reporting_dev_info {
- 	int (*report)(struct page_reporting_dev_info *prdev,
- 		      struct scatterlist *sg, unsigned int nents);
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index eb913acb03b74..80bd9b54eff2a 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1375,17 +1375,10 @@ static struct folio *vma_alloc_anon_folio_pmd(struct vm_area_struct *vma,
  
-+	/*
-+	 * If true, the host zeros reported pages on reclaim.
-+	 * This includes any architecture-required cache flushing or
-+	 * invalidation, especially on architectures with aliasing data
-+	 * caches, so guest accesses observe the zeroed contents.
-+	 */
-+	bool host_zeroes_pages;
-+
- 	/* work struct for processing reports */
- 	struct delayed_work work;
+ 	folio_throttle_swaprate(folio, gfp);
  
-diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-index de587be178010..841dcd64777d1 100644
---- a/mm/page_reporting.c
-+++ b/mm/page_reporting.c
-@@ -127,6 +127,9 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
- 		int mt = get_pageblock_migratetype(page);
- 		unsigned int order = get_order(sg->length);
- 
-+		if (reported && prdev->host_zeroes_pages)
-+			__SetPageZeroed(page);
-+
- 		__putback_isolated_page(page, order, mt);
- 
- 		/* If the pages were not reported due to error skip flagging */
+-       /*
+-	* When a folio is not zeroed during allocation (__GFP_ZERO not used)
+-	* or user folios require special handling, folio_zero_user() is used to
+-	* make sure that the page corresponding to the faulting address will be
+-	* hot in the cache after zeroing.
+-	*/
+-	if (user_alloc_needs_zeroing())
+-		folio_zero_user(folio, addr);
++	folio_init_user(folio, addr);
+ 	/*
+ 	 * The memory barrier inside __folio_mark_uptodate makes sure that
+-	 * folio_zero_user writes become visible before the set_pmd_at()
++	 * folio initialization becomes visible before the set_pmd_at()
+ 	 * write.
+ 	 */
+ 	__folio_mark_uptodate(folio);
 -- 
 MST
 
