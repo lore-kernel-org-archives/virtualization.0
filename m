@@ -1,143 +1,138 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795066550;
-	b=cn0W1Vgx1WEDC/P/3JiXGdsBrWz16qRJe/BuzanUn+IrQJM7965ceDTxvWS2ytRJjkdd
-	 cJincr9Nkh+uFG6yM7ZXusrKeCBHd6EmooDZIliOjHMPCQ/rtRKYIiuSem06Qqfc+oY8L
-	 SZVR95liUwjSwPZmpazuK7GrDUifovujNvi+4u6+ulpwQMFB90M3TbX1bgnqOnh4p9Nz9
-	 vtbOqib3F4yWdxdV62Gx90rauv7I2QFEkr3+2gLIyaf2xlJNuSC/pTOL1c2zyCPWldkVc
-	 hg2bg/MzwJrh6dVbalaoTfQA125aMNMBfrtMHct9HNInJnoGub46WRU7KMx9lJW4A4w==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795066550;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=iUfRRM/uSWL5Pu2WYkuG9ZMjaMjQfW5Ts9TmnI1Vtsg=;
-	b=KnqcR6+2WKEpOABO2y5Ha9ImyUGpDPbdoNJdIRH+3BaoCQUx4c+tpAL/AHtkTWOD061H
-	 6emTTcvdgaeEkg7Ilp7Qx52P5SflEDVnHoQ8lAb7Db+Eo0YxSIhcuD4J8u26uUkzkVnGh
-	 CcbBWw4g2G6BlOABRP+ZkbmWhkR62GWS3Y3xuJxRgTFDbelpid1CTjDR4FqF9LSBbQjXq
-	 rKBDTaNs/4q/toiRhhiWYUNKgW7yXUCfqkTQ6I7xOgid7L6neunlmVhIQepieVXDaHozT
-	 l0g3d8s+QlEWvE/bRfN+2mRALXSYVTg7o/ZBG1cxTNE4PLZnIXq+5Ht7Ys5fFmAA4zw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=DGrnyfoW;
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795073186;
+	b=fylsOS1zNTDHgS0XT5GDx/wVGEo4W18hCUoKwNTuhUAP3woFj9m5OxEISV0p40tFyoCU
+	 DN36njHlukHNRF5+sck05nBiE5JrlvZERIOJnr35mVxqGNqJkUlnFF3+TtN0Rvl9qlxHX
+	 Su0ulmlipoNwijql2ULhF/LNV539Y358LTZhLcbLLtA3u9fCZGVhD9mJcv3PHkT+Kz7hf
+	 6z3ANE/lJf9H22ImL//Qig5sDz46jGdnhaGv64GYXKLTuKU+mVsMkDLPMx/hgNuZvU6iO
+	 4UiAy1nRm8XgYtwzTDdJgu4LKEKInsW1GjXLN4Ex6Vle2qZ4jRAYFarSn+rkSxSl5Zg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795073186;
+	h=Received:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Spam-Status:Received:ARC-Filter:Received-SPF:Received:
+	 DKIM-Signature:Received:X-MC-Unique:X-Mimecast-MFC-AGG-ID:Received:
+	 X-Google-DKIM-Signature:X-Forwarded-Encrypted:X-Gm-Message-State:
+	 X-Gm-Gg:X-Received:X-Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:MIME-Version:X-Mutt-Fcc:X-Mimecast-Spam-Score:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
+	 Content-Disposition;
+	bh=3j6KmbtXLvsmTJiTThzFS5hiEYdNxo/Fgv8rfbB+Ypg=;
+	b=PuI/lRoIC13oPkDiqUYJe6XLDADAWfoDOunp9aHCSqDOuT/6Gm/BgJKwCy2Sb3FcS6uF
+	 ZMuij+/tdO93bX22qELeEECJnpHWZQG3w53ldd/GtYdpW54B+mJcCwGQrtUbB248FEodn
+	 dNwPOurNiFpyFq+4ZbTWgceIfFMlsFI7kXPUnS3npiqCwF3bJUwHhAJ9X1SIPTVcrgfco
+	 toaUVm06uqXbYxWM82wEPduVDevuDAyN9J8WDqck+aVEB8QJSUnIsY5t+HfmyloOvZ+uF
+	 NWAAGopxkpO82mXPQOJFA3N1LW1nboFqexuacsNeLQl8AgcVM/CpTzvimsPMabOmfPQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q70o1SNh;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7AC5606A326;
-	Thu, 19 Nov 2026 05:35:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B7AC5606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93EC5606A333
+	for <virtualization@lists.linux-foundation.org>; Thu, 19 Nov 2026 07:26:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=DGrnyfoW
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=iUfRRM/uSWL5Pu2WYkuG9ZMjaMjQfW5Ts9TmnI1Vtsg=; b=DGrnyfoWAgDY4gTArjK85mpfLP
-	YUa39SWVXYFn/eK72WXlCXA9uuRyagIyIF1woWS4EdttvevIcGfjAAhDfNPyAIOfoJJ+XfJxm4mGT
-	bVkFVA7u20Klegz+Ue9YMX8fmqu38qLzw2l6Mvo1BQyhyJJNtM+c9MxognTzcG7V8vEGldl3RnhKr
-	KabGWOjeEC+yc7jJcccxprvCsyDQXoRtyIJIBftIP+C4EOe7n7gE7b/kw0/j0BAuO6DMIZSJhfRCO
-	H9dGPqwbToDijcg/PKpXyVcYExVa/obX176QmbjEtCpmdJ0iCHZ5xvENNH0DXE2DbvWCAV55csStZ
-	hDSDSL3g==;
-Received: from [50.53.43.113] (helo=bombadil.infradead.org)
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xTuoG-0000000Aufu-2x6D;
-	Thu, 19 Nov 2026 05:35:48 +0000
-From: Randy Dunlap <rdunlap@infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	linux-doc@vger.kernel.org,
-	David Hildenbrand <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Leon Romanovsky <leonro@nvidia.com>,
-	linux-mm@kvack.org,
-	Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>,
-	linux-sound@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	linux-block@vger.kernel.org,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	linux-bluetooth@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	David Heidelberg <david@ixit.cz>,
-	oe-linux-nfc@lists.linux.dev,
-	Chas Williams <3chas3@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org,
-	Helge Deller <deller@gmx.de>,
-	linux-fbdev@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	MPT-FusionLinux.pdl@broadcom.com,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <mkp@kernel.org>,
-	linux-scsi@vger.kernel.org,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Zhihao Cheng <chengzhihao1@huawei.com>,
-	linux-mtd@lists.infradead.org,
-	Neill Kapron <nkapron@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-usb@vger.kernel.org,
-	Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	xen-devel@lists.xenproject.org,
-	Hans de Goede <hansg@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Jan Kara <jack@suse.cz>,
-	linux-fsdevel@vger.kernel.org,
-	"Theodore Ts'o" <tytso@mit.edu>,
-	linux-ext4@vger.kernel.org,
-	Mike Marshall <hubcap@omnibond.com>,
-	devel@lists.orangefs.org,
-	Paulo Alcantara <pc@manguebit.org>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	linux-cifs@vger.kernel.org,
-	Jaegeuk Kim <jaegeuk@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	linux-f2fs-devel@lists.sourceforge.net,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Benson Leung <bleung@chromium.org>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-	amd-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	intel-gfx@lists.freedesktop.org,
-	Matthew Brost <matthew.brost@intel.com>,
-	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	intel-xe@lists.freedesktop.org
-Subject: [PATCH v2 11/12] docs: ioctl-number: update platform entries
-Date: Wed, 18 Nov 2026 21:35:12 -0800
-Message-ID: <20261119053514.255348-12-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.56.1
-In-Reply-To: <20261119053514.255348-1-rdunlap@infradead.org>
-References: <20261119053514.255348-1-rdunlap@infradead.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q70o1SNh
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 37D6D8127F
+	for <virtualization@lists.linux-foundation.org>; Thu, 19 Nov 2026 07:26:26 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.073
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9FJwkaBp9rsG for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Nov 2026 07:26:25 +0000 (UTC)
+ARC-Filter: OpenARC Filter v1.3.2 smtp1.osuosl.org 90D8C81135
+Authentication-Results: smtp1.osuosl.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1795073185;
+	b=IjwI0h6g7ssHiREKJDz1ZPT4ehtM9o6DnBReNL/+LnnI6PYsugypv+p5p2dAlQS2GaAB
+	 HVUYDZmv7m8iScVCWuZTB6uGDgveq7qoSWTKBjbegaitqfwIr9kUr33xfKQ+o5lkk3XzT
+	 vIWX9yurIj5ZZunSohzJhUbTmdqxYnFk1j1nTtRs4HYf8nbmQ9qwZSD5L+I8h2kGLyIBw
+	 C59tgg0es5mJmaMdFPrQJMgA8Vr7SkDZefobxeY7wbv/zMHdTgBa3BNRvIKGdE6W1Rbbj
+	 /+t4X3k4jI3jRJsxAE+S3vuPf51m2UKgyn0JzrnNVWlkGuTQioz74bgCVl8Lt4Za24w==
+ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795073185;
+	h=Received-SPF:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:MIME-Version:
+	 X-Mutt-Fcc:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=3j6KmbtXLvsmTJiTThzFS5hiEYdNxo/Fgv8rfbB+Ypg=;
+	b=Ny5RcuZy1m4AFTDH4ez3nYf4E0X40CGZtbV6VZKb+QLmuNwri9nvhpMf/5PLV5yFLpn8
+	 NaScSqIcdhgDdHp+SK1EXDgJ+zgXdOtw+xKAniyJVmE8NfqejVfqugXmsah8ldwPiCoYz
+	 homn88PLFQQD05Pl/Iehf0GXhi67lEj8goX6RJODyHhOW+DFZJFDJqVZH5ql0EjcG+qdu
+	 O8nkouHWCpt7Z+hCGlEscZjlCwU+JLnBdFLMwas4sfczPU9yTZYUxDzn2IhtRPJG/idHw
+	 09C2aFCrTI2Fmm3+cywjAJYQfiLAp9G8wBg217fGy1k2cZldG1FEmE7HI7Zf0R4cQZw==
+ARC-Authentication-Results: i=1; smtp1.osuosl.org; 
+	dmarc=pass header.from=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q70o1SNh;
+	arc=none smtp.remote-ip=170.10.133.124
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q70o1SNh
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 90D8C81135
+	for <virtualization@lists.linux-foundation.org>; Thu, 19 Nov 2026 07:26:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795073182;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=3j6KmbtXLvsmTJiTThzFS5hiEYdNxo/Fgv8rfbB+Ypg=;
+	b=Q70o1SNhD2p8uF2UCIZNBOFQb12txfw8rdKg3WuIAoAnyxYWyv7MnqVN/Dr//vnYDMuDkc
+	ZFbBkTHpZaUtlF0ghiBiiAPMbL2UYlHM06SzNBga9+kThkmYvTYp85aeXuCSSwn/O5D31J
+	lRPqinRGBfixQ+nxyVLWM2pQ36tmhjQ=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-148-am6syo6QPYaqjG3ENrRuGg-1; Thu, 19 Nov 2026 02:26:20 -0500
+X-MC-Unique: am6syo6QPYaqjG3ENrRuGg-1
+X-Mimecast-MFC-AGG-ID: am6syo6QPYaqjG3ENrRuGg_1795073179
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4903fc8537aso1416724f8f.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 18 Nov 2026 23:26:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795073179; x=1795677979;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3j6KmbtXLvsmTJiTThzFS5hiEYdNxo/Fgv8rfbB+Ypg=;
+        b=KeDeUr6IYuElWM1tXP+1l9lZW2bZWpwd7OBITeqd8pRrb23V+5WNH3wALi925K7gyz
+         kgKOWnppiUfWcYdz7/kF9D0FzEEddy4vV8IPQzJStb/fozK+DA+Q/P8xz3jMS58YGjuX
+         UbfQxdlMX30JeDVubLPY5B/7uZVUxlUrnKaALf7rIEwFvzn/qObMgWJnlB5uXEwl9NDl
+         kEy0smOm9Xrkf2ddmPCazve9OqyTAKlBIQdsUTam1aupO3fp8qnC9qHx3vwqupSjh3oS
+         QJqldeM+z0kTG2YbsnXL8/YhkAoEmNzTDEJD0cLBbF8KQhLYWAWlyw8pOHyH95NOrJrh
+         YI8w==
+X-Forwarded-Encrypted: i=1; AL+hErHQ/H+C3N1oEoi42O8h58scONiXq1lqQ/yazF4KR0rRDBMY5Q9i20B2S7xT2ABLitK7cYHwzuiye48Zm/UElA==@lists.linux-foundation.org
+X-Gm-Message-State: APuU4Z9JY+UFlt3eMmIQBl4qxVBdM0w9tyZqXiP/HFETfWuyl+7f0O0b
+	5HoPoKBZSUQq05PMm9SWIZxa70FhgA1tAQY52Cw3JsB6naC8Nx3co4pdknB01/GLpjQ3yYImrna
+	lI0T4diDLbFsPdR21Esj/CxmzzcmPzwpjeO8mS3WVLPEdS5OGvtNulvd80BX2s9eYvfGOZzkxfe
+	Ay6sfCsxI=
+X-Gm-Gg: AZFdTZd//dMAkVxB8iSfWBdh+W+JqIX6DbMoku4faAYixPUTEjFgQRDze3GZnO8yuIA
+	2YfSNnjrw3H1USEp4/pmHI+QoO+q7SvGWjlfF0HHxoYrU22V7oVZeU6rM0Px+MrhtO2qV9JxJOm
+	w5IAIRb34FV1XBkivC+s9o0o4V8L2mb7P7zcj+3uB+nTwe8jVhunMVojobUHFEkKnzJFItBkIcY
+	jrEDx1CF+MQhgmvQ+7OktcE9vqDpeH0ATl9i4f0xiHsxghytZfDva8P2R+KDEDNVDA148KaFvoU
+	y9XxtcizvVNpy91spsQCZvZtil3o/eWVoiI4WAzQWMuPJSQomiOIFWzDOwYyfiu/cZvq2OWFkV4
+	vXlJ/Ip0s01P39kbP4cnwOKtqBP06NgzVFngu5o/1mMQ=
+X-Received: by 2002:a05:6000:4703:b0:4a6:4f35:336b with SMTP id ffacd0b85a97d-4a64f353379mr8871397f8f.5.1795073178846;
+        Wed, 18 Nov 2026 23:26:18 -0800 (PST)
+X-Received: by 2002:a05:6000:4703:b0:4a6:4f35:336b with SMTP id ffacd0b85a97d-4a64f353379mr8871351f8f.5.1795073178254;
+        Wed, 18 Nov 2026 23:26:18 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1520:4400:d78d:7b2d:2f5d:e08f])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4a65541f3f7sm9540259f8f.24.2026.11.18.23.26.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Nov 2026 23:26:17 -0800 (PST)
+Date: Thu, 19 Nov 2026 02:26:15 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	bioloidgp@gmail.com, jasowangio@gmail.com, minki@morningstarsec.dev,
+	mst@redhat.com, stable@vger.kernel.org
+Subject: [GIT PULL] vhost: bugfix
+Message-ID: <20261119022615-mutt-send-email-mst@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -147,46 +142,36 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: o8zj_VH0hhn06_Ew6IMsf7x9FK8KQ7n4-0i8Z3Oo0Wk_1795073179
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Update the list of platform/ files where ioctls are defined and update
-the ranges of function numbers that are used.
+The following changes since commit 1a577f9402c1780cc1e663f48d5dd54c02051b09:
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
----
-v2: no change
+  virtio_pci: don't take the MSI mutex under cpu_hotplug_lock (2026-11-03 07:32:14 -0500)
 
-[Since having multiple maintainers trying to merge these would
-cause some conflicts, it would be more manageable for Jon to
-take all of these through the docs-next tree.]
+are available in the Git repository at:
 
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: linux-doc@vger.kernel.org
-Cc: Florian Fainelli <florian.fainelli@broadcom.com>
-Cc: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: Tzung-Bi Shih <tzungbi@kernel.org>
-Cc: Benson Leung <bleung@chromium.org>
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
- Documentation/userspace-api/ioctl/ioctl-number.rst |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+for you to fetch changes up to 5570a998b884c988dbe105430d7e2d8e9411e37e:
 
---- linux-next-20261116.orig/Documentation/userspace-api/ioctl/ioctl-number.rst
-+++ linux-next-20261116/Documentation/userspace-api/ioctl/ioctl-number.rst
-@@ -434,6 +434,7 @@ Code  Seq#    Include File
- 0xBA  00-0F  uapi/linux/liveupdate.h                                   Pasha Tatashin
-                                                                        <mailto:pasha.tatashin@soleen.com>
- 0xC0  00-0F  linux/usb/iowarrior.h
-+0xC4  00-1F  platform/raspberrypi/vchiq-interface/vchiq_ioctl.h
- 0xCA  00-0F  uapi/misc/cxl.h                                           Dead since 6.15
- 0xCA  10-2F  uapi/misc/ocxl.h
- 0xCA  80-BF  uapi/scsi/cxlflash_ioctl.h                                Dead since 6.15
-@@ -446,7 +447,7 @@ Code  Seq#    Include File
- 0xDD  00-3F                                                            ZFCP device driver see drivers/s390/scsi/
-                                                                        <mailto:aherrman@de.ibm.com>
- 0xE5  00-3F  linux/fuse.h
--0xEC  00-01  linux/platform_data/cros_ec_chardev.h                     ChromeOS EC driver
-+0xEC  00-02  linux/platform_data/cros_ec_chardev.h                     ChromeOS EC driver
- 0xEE  00-09  uapi/linux/pfrut.h                                        Platform Firmware Runtime Update and Telemetry
- 0xEF  00-0F  uapi/linux/ntfs.h                                         NTFS
- 0xF3  00-3F  drivers/usb/misc/sisusbvga/sisusb.h                       sisfb
+  vhost: split out-of-order used ring batches at every wrap (2026-11-12 07:44:36 -0500)
+
+----------------------------------------------------------------
+vhost: bugfix
+
+One bugfix here. I am testing a couple more
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (1):
+      vhost: split out-of-order used ring batches at every wrap
+
+ drivers/vhost/vhost.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
