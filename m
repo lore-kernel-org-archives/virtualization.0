@@ -1,111 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.137
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795104771;
-	b=HdTWwA2pDwB0qxIhjpl2c9QaonHMXUKqJky+gBMfMUozU4I88TTBNOUfjuaxK7h1RkYB
-	 Gf/ksKrjCGSclb/NQosF8ku6aShYnv1HcZFAs2C43FJBCfNa1ZYrSBubq6FVQX9XW8VCc
-	 EkAWOFpfBd2KW62y51YSKwb10OlqYTKrlh38Fwq6yNHSCdn3Ebgw9UrHCZNEAkh3hoo4X
-	 fsk4qW3Lq40hUtThb9AkKD6sB+yVYOkKPKidiWOtLbbpnDNVnSILHHrXGpwX7H0/2kIzU
-	 gRKOJZPUPkab3QgIs/rT6rL5QTnQz1XxJgL9JhU6vQGzoO1AbAfwHfp7xmLcjMEk4Jw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795104771;
-	h=Received:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Spam-Status:Received:ARC-Filter:Received-SPF:Received:Received:
-	 Received:DKIM-Signature:Received:Subject:From:In-Reply-To:References:
-	 X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:X-PR-Tracked-Remote:
-	 X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:X-PR-Merge-Refname:
-	 X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
-	bh=wD6BFJ6JrYkMRhR+rPzMaMCFtMlLO4L8u3ZtLB0XJ/0=;
-	b=n16V+FhXGmY53785D/T6GQlTeRvCh+MITY8k4Yz7C/oPzAEwFIg97C+KoG9JFSeq91/0
-	 DHIgqGcnccePtdrmnR2dQ/tPMvrIOGZREt1ZUajHZiv0rQ3bWu1mNJ17J8EOVJxRibas6
-	 ENQDdZ6Hw+YelFewOPecNRPY8AT5VWDLV1PNYE1tkb8gc9ZI6B0sbYMzyRojSGSAYTlMk
-	 ce+Shn+sNjCuvhI0QoGp7FmP61hQEKMCY+ys2NhiJuRFMDxP3C5pBPff4hXWzcJqQ3umz
-	 nD6z0TzP3MWephiDlNrNyNkcg9oWm1kNp/YQHkKjfrLBhytZuBgSaqp0jhvQIq5DTHg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QNk3+buX;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.137
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.205.221.231
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795105976;
+	b=0eLn69xDqJa+Z5kWpIhwzD8bQWEwrihQEmRbD10UyUmrHuf3YbakM2RiTIvkn0d3CEN5
+	 eX+H7rf67GPmNroTzSI777XGNiSUOnkEbxbDtEFvqrTTEmmqbISbWkOj8QC2XeQuQ+2S8
+	 8GWFaIuaRAHnDJhayMZBrLcguFWfAy9Pxo3lJ+IKPY+rjW+YXg0Tu2cShqxuwr4oUUCTf
+	 CMnYy4yzaQatJN083dyrnOF9ep6mKmso9m1Td9AWsxRNhTScBlWUR/UMAFlndfi3QfxhR
+	 V7IgLfyb1Hyf1ej/mvg9ewQR8ZFGnRtB9Gl/Jd8zP7r9WwuzX2rB3PwM3C6OwF/cOAw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795105976;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-XMRINFO:X-QQ-XMAILINFO:From:To:Cc:
+	 Subject:Mime-Version:Content-Type:Content-Transfer-Encoding:Date:
+	 X-Priority:Message-ID:X-QQ-MIME:X-Mailer:X-QQ-Mailer:References:
+	 In-Reply-To:X-QQ-mid;
+	bh=hmvVD4jshjGTJPKVKH0iUEryYLKyYDibytdthlFHw3A=;
+	b=siUICsFGeXwMKs2lWLBHRFyg1c969itfMVQl0sPwPlrsTTEnJHwURGDZZpokk30PMdQR
+	 hIqGpZCbFNMPcrHAXJZEni7c/s7+fJMXXC/lmh9+YbUAtY1RDLyG5V+sAP15lQaclFe2B
+	 N7ACeryWjwGAAjF6aGqkOrFSjLyaUilf3z3olkywO+qyqjDpQGq1JWUwgbemlxiuqRDG3
+	 wUWYMXiYc2JsZteXTxNlSg6QFC9ArQNOUJ/6zGnxjMYuIWIS/OLbaPbYa5fJNZIHJ6PEj
+	 XUkiBlw4hzxuusRZ7UqH0zYy3lSDMLdCl3vZARc7868+AEptiKcsdqK+d+5NzYRLOwA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b="ydNW5j/o";
+	arc=none smtp.remote-ip=203.205.221.231
+Received: from out203-205-221-231.mail.qq.com (out203-205-221-231.mail.qq.com [203.205.221.231])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C333606A332
-	for <virtualization@lists.linux-foundation.org>; Thu, 19 Nov 2026 16:12:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D86EE60A2602
+	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 16:32:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D86EE60A2602
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QNk3+buX
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B438F40C66
-	for <virtualization@lists.linux-foundation.org>; Thu, 19 Nov 2026 16:12:50 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.651
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id j-phJUmkMtbq for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Nov 2026 16:12:50 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.2 smtp4.osuosl.org EFF6140AE2
-Authentication-Results: smtp4.osuosl.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1795104770;
-	b=f05DhV0JFH3nsWvnXlHTeN1IZkQgpedTyrJcHtnk+mH53uWLz1lKEFyo6ZlcDQPVBPT5
-	 /oQGkAXdIwxRHdqHdBBo0Yhq3UOSfUirxC7vV9kkcJhbVpzA0GlI7cJj290R+D9lkgvxI
-	 P8b7mWkJmoyDuhHCugD2MKR8eBV5WQ9SmbDmJsVwDAojFf83I1LrbyzXFHxRDEZuIffes
-	 ofV7d8V3N3EH53h+7BPGYzKqSBkPVux3/+/i9KA5H6qMFM69bQVvTFoP2RvGHHAT5ZlID
-	 Mv5AgaEdfQ1zrtZ/PSr7PFfeuTRnwM2lu5200en6YwqTMyJ0eTDWoj/kMjw8NDfeT+A==
-ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795104770;
-	h=Received-SPF:Received:Received:DKIM-Signature:Received:Subject:From:
-	 In-Reply-To:References:X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:
-	 X-PR-Tracked-Remote:X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:
-	 X-PR-Merge-Refname:X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
-	bh=wD6BFJ6JrYkMRhR+rPzMaMCFtMlLO4L8u3ZtLB0XJ/0=;
-	b=oyUg+4fKy2uV2lDvGF6Pjjci3/8VSbFi1rph4QI/debKlEPVthlgarGLEuCnX7O4/MlS
-	 a1FrjBcEff2eKn65btqJ7gUIG2UkR1AB4blT/l6+dJLIECmdW99fEK6lblmg+7FQj6aGc
-	 C6N8JoZwDi3pZMSAKKx9GxYZZVdbjB4LP8ftoGClnBpQQysuKMIy4467WQbGDKkAI4sK6
-	 6IKpNSfBnpy6FRYHYOIbOwY+NwY7H43uwCbM32wAbjlpy78/3TpGdIDRCZxiS/Vt2zDFo
-	 iSFMOKmKFUn31F3eUXf3fZc2jIYtsJseAOfTYiD4sVy2Gtwd7jw1suaIQafQsgsg5+w==
-ARC-Authentication-Results: i=1; smtp4.osuosl.org; 
-	dmarc=pass header.from=kernel.org;
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QNk3+buX;
-	arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QNk3+buX
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id EFF6140AE2
-	for <virtualization@lists.linux-foundation.org>; Thu, 19 Nov 2026 16:12:49 +0000 (UTC)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id DB4A347058;
-	Thu, 19 Nov 2026 16:12:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDFBD1F000C6;
-	Thu, 19 Nov 2026 16:12:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795104768;
-	bh=wD6BFJ6JrYkMRhR+rPzMaMCFtMlLO4L8u3ZtLB0XJ/0=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=QNk3+buXrSibxNQDgUJXaT3j9GxjhJpmtSYGUgcrEET8ySMhSpsQG939EwGOwf0CY
-	 8cSA0qlKIPq/QPyT5IYRGBTs4veseVn6PtosddlXXlYEtTefr2dOAqUpkSBfxzrMLN
-	 0mIj1EV0GgHSekEccIh7Zkfk2N3UNT6k6RaRPzDjZa06mFMv23ryqCpRQdw+izPYY/
-	 HjbZNQuvbtG+deKTXCg3nxyRyWbLrCHQZdW+sbn+9rwbCmIKxYakVsTDXrB6NWDMmK
-	 zJ6DshMrlXnh8hHOKk4EBYYXSgTjzob7lpd+FxlpLo2anIMpbnyhoxouuQCboLzK1e
-	 9zNsBueYXIbMQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B47603808210;
-	Thu, 19 Nov 2026 16:12:48 +0000 (UTC)
-Subject: Re: [GIT PULL] vhost: bugfix
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20261119022615-mutt-send-email-mst@kernel.org>
-References: <20261119022615-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <stable.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20261119022615-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 5570a998b884c988dbe105430d7e2d8e9411e37e
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: f1715c0c04606ebbe832cc760abf49dfd6f2ae1f
-Message-Id: <179510476718.3187685.502114948524303216.pr-tracker-bot@kernel.org>
-Date: Thu, 19 Nov 2026 16:12:47 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bioloidgp@gmail.com, jasowangio@gmail.com, minki@morningstarsec.dev, mst@redhat.com, stable@vger.kernel.org
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=ydNW5j/o
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1795105966; bh=hmvVD4jshjGTJPKVKH0iUEryYLKyYDibytdthlFHw3A=;
+	h=From:To:Cc:Subject:Date:References:In-Reply-To;
+	b=ydNW5j/oJaVyJyCJNBsr04hhxUrWBZlgBEKN0kUs16FtF9Ej6hQayEJKdUeein9Mg
+	 wQbjScaHeJUhayHNcDXXFs+4sCKI9Ms8M21pmqAaSuUyYkaX99z/Jtc4sC9LC9gYGm
+	 xIbQzvUurFdinaZmUP9oZ+RWEp8BnNTw+V95NF+U=
+X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
+X-QQ-XMAILINFO: McF9JvsryK5JISAGsN0AA0TDtB0RYm29ij4SbvfKO878us4ycgKj+fWwpsOvaB
+	 ok7gmYQPlUi0/0V9zKwEgZeAYUF2aFw7Eg1SRCxPmH5LnNH6QrcISQ/FYhSWPWY7vJXarjmMyzWl5
+	 SphIIB+2kNlbqWXT6rQ8SeBZe4JkuJ2unpFgMls6fJ92QMh5e+2DzvuBqXC6TL3qTFEgRLKXZCGo8
+	 dvhuL7bXQ351YtU9n3bP4dsc9EVg1R6xK51/xhxJ0XaVJnL17oGZ4QoGPykjGvyEMUrx9OJsLLHRW
+	 e36kVLOaDVJYRszWlq6eXlFKc2zASmlKQYUGZEKf7o+FeQGtIA0a4m0kAdT4g8+40CMaFavHE9WIC
+	 ShGvEVDM2QvQOFPfogalHWsGBFifYMp6ZbTj/ee9YlRhB6UPg07dHZcSaEf8Qiw17w8xtq85Z99zo
+	 95NUMFFGBP1lQ1BKe9WBvQcnKuVod5IAjbd6VvUBhanyoonG6HxPwIZpelErOwkUs8YB+xD+C+FFy
+	 ivrnpf5TLBhPPaU16MZOkzC6lAgAZ47ShJ/wkNfzSys2uUUdUsHAfP7PAPptKeflISENMrREJnsrz
+	 ZdmGY2Ul9Xp0OqMhywEBbwNWc2+TfpMQOHreKAFkq+sj7bnF6kh6zqQK7sWkDH9qUxb/V4BRbQ6w3
+	 cXTXbdT8qxElezLBLZ4ftOEKaU8SVrumuwNrtRTKPM2jfDnrZUEzVHcqwIcsCrjFGCvvw4hix9xkt
+	 /KtTp1i4kz7EFAZVhipTdrHBGtJbyTlIzK9QffzNGC24SJSCisxkSkmUZVK9etKtG6CK5pOv0T//y
+	 TQaVdnhRKrtpdidoLo76rSA6XV51cJCLo/6Gr9zfptBTsfzC8z5gohyE3JnNpYZRBZNT9DT+nDWHL
+	 yk4rPEDFUryH7VDdq2POSnYcve0pxOTBQW5kLuodsqqoTUT3j4/tpzARhrZRZK54NTMhQzpXXTEMa
+	 ZVdUlwwX5Ecsb6fVMoQvCzxgWiyZnj0LLWQtyNzKSwyzk+bksEusO30WddveOlcz3s307XF7GAEUH
+	 3QeQ/sZ6O6yo43MdcQ8dw+SFTUgzYInXFpOAqOQAxPeOOjtNHDsKFAmNWveP7DRu1ltjDl9Y/NaWp
+	 SPmbPyVBwR1ucEW710u2nYjI
+From: "=?utf-8?B?Q29uZ2ppZSBaaG91?=" <zcjie0802@qq.com>
+To: "=?utf-8?B?TWljaGFlbCBTLiBUc2lya2lu?=" <mst@redhat.com>
+Cc: "=?utf-8?B?bmV0ZGV2?=" <netdev@vger.kernel.org>, "=?utf-8?B?amFzb3dhbmdpbw==?=" <jasowangio@gmail.com>, "=?utf-8?B?ZXBlcmV6bWE=?=" <eperezma@redhat.com>, "=?utf-8?B?eHVhbnpodW8=?=" <xuanzhuo@linux.alibaba.com>, "=?utf-8?B?YW5kcmV3K25ldGRldg==?=" <andrew+netdev@lunn.ch>, "=?utf-8?B?ZGF2ZW0=?=" <davem@davemloft.net>, "=?utf-8?B?ZWR1bWF6ZXQ=?=" <edumazet@kernel.org>, "=?utf-8?B?a3ViYQ==?=" <kuba@kernel.org>, "=?utf-8?B?cGFiZW5p?=" <pabeni@redhat.com>, "=?utf-8?B?aG9ybXM=?=" <horms@kernel.org>, "=?utf-8?B?dmlydHVhbGl6YXRpb24=?=" <virtualization@lists.linux.dev>, "=?utf-8?B?bGludXgta2VybmVs?=" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] virtio_net: RX stall caused by masking callbacks after NAPI ownership release
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -114,16 +68,53 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Date: Fri, 20 Nov 2026 00:32:44 +0800
+X-Priority: 3
+Message-ID: <tencent_3F7F39BC8117D4E15C286B951C22BDF71907@qq.com>
+X-QQ-MIME: TCMime 1.0 by Tencent
+X-Mailer: QQMail 2.x
+X-QQ-Mailer: QQMail 2.x
+References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
+ <20261115175445-mutt-send-email-mst@kernel.org>
+ <tencent_94953697D2BA27275BEF7A26404E69800605@qq.com>
+ <20261116044750-mutt-send-email-mst@kernel.org>
+ <tencent_D0650F8CA2AAE4C258BFE5BCE805CDB4CA0A@qq.com>
+	<20261119064843-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261119064843-mutt-send-email-mst@kernel.org>
+X-QQ-mid: xmsezc52-0t1795105964tq0ulqo3y
 
-The pull request you sent on Thu, 19 Nov 2026 02:26:15 -0500:
+PiBSaWdodC4gU28gSSBjYW1lIHVwIHdpdGggdGhpcyB0aGVuLiBQbHMgbm90ZSBpIGNvdWxk
+IG5vdCByZXBybyB0aGUKPiBwcm9ibGVtIHNvIEkgYW0gbWVyZWx5IHJlYXNvbmluZyBiYXNl
+ZCBvbiB0aGVvcmV0aWNhbCB1bmRlcnN0YW5kaW5nCj4gb2YgaXQuCj4gCj4gLS0tPgo+IAo+
+IHZpcnRpb19uZXQ6IG1hc2sgY2FsbGJhY2tzIGJlZm9yZSBoYW5kaW5nIG9mZiBOQVBJIG93
+bmVyc2hpcAo+IAo+IFZpcnRpbyBpcyBzcGVjaWFsIGluIHRoYXQgZW5hYmxpbmcgb3IgZGlz
+YWJsaW5nIGNhbGxiYWNrcyAoaW50ZXJydXB0cykKPiBhY2Nlc3NlcyBzaGFyZWQgdmlydHF1
+ZXVlIHN0YXRlIGFuZCBtdXN0IGJlIHNlcmlhbGl6ZWQgd2l0aCBwb2xsaW5nLiBJdAo+IHRo
+ZXJlZm9yZSBlbmFibGVzIGNhbGxiYWNrcyBiZWZvcmUgY29tcGxldGluZyBOQVBJLCBhbmQg
+ZGlzYWJsZXMgdGhlbQo+IGFnYWluIGlmIGNvbXBsZXRpb24gcmV0dXJucyBmYWxzZS4KPiAK
+PiBXaXRoIG5hcGlfY29tcGxldGVfZG9uZSgpLCB0aGF0IGZhbHNlIHJldHVybiBjYW4gY29t
+ZSBhZnRlciBvd25lcnNoaXAgaGFzCj4gcGFzc2VkIHRvIGFub3RoZXIgcG9sbC4gVGhlIGZp
+cnN0IHBvbGwgY2FuIHRoZW4gZGlzYWJsZSBjYWxsYmFja3MgYWZ0ZXIKPiBpdHMgc3VjY2Vz
+c29yIGhhcyBlbmFibGVkIHRoZW0sIGxlYXZpbmcgUlggc3RhbGxlZC4gVmlydGlvIHRoZXJl
+Zm9yZQo+IG5lZWRzIHRvIGRpc2FibGUgY2FsbGJhY2tzIGJlZm9yZSBoYW5kaW5nIG9mZiBO
+QVBJIG93bmVyc2hpcC4KPiAKPiBBZGQgYSBwcmVwYXJlL2ZpbmlzaCBOQVBJIGNvbXBsZXRp
+b24gQVBJIHNvIHZpcnRpby1uZXQgY2FuIG1hc2sgaW50ZXJydXB0cwo+IGJlZm9yZSBoYW5k
+aW5nIG93bmVyc2hpcCBvZmYuCj4gCj4gVGhpcyBwcmVzZXJ2ZXMgaW50ZXJydXB0IHN1cHBy
+ZXNzaW9uIHdpdGhvdXQgYSBjYWxsYmFjayBvciBhbiBhZGRpdGlvbmFsCj4gZGF0YS1wYXRo
+IGJhcnJpZXIuIE9yZGluYXJ5IG5hcGlfY29tcGxldGVfZG9uZSgpIGNvbXBpbGVzIGlkZW50
+aWNhbGx5IGluCj4gdGhlIHRlc3RlZCBjb25maWd1cmF0aW9uLgo+IAo+IFRlc3RlZCBvbiB4
+ODYtNjQgS1ZNIHdpdGggbG9jayBkZWJ1Z2dpbmcsIGluY2x1ZGluZyBJUlEgZGVmZXJyYWws
+IGNvbmN1cnJlbnQKPiBzY2hlZHVsaW5nLCBidXN5IHBvbGxpbmcsIG5ldHBvbGwsIGFuZCB0
+aHJlYWRlZCBOQVBJLiBTcGxpdCBhbmQgcGFja2VkCj4gdmlydHF1ZXVlIFRDUCBSWCB0ZXN0
+cyB3aXRoIElSUSBkZWZlcnJhbCBhbmQgYnVzeSBwb2xsaW5nIGFsc28gcGFzc2VkLgo+IAo+
+IFJlcG9ydGVkLWJ5OiBDb25namllIFpob3UgPHpjamllMDgwMkBxcS5jb20+Cj4gQ2xvc2Vz
+OiBodHRwczovL2xvcmUua2VybmVsLm9yZy9uZXRkZXYvdGVuY2VudF9EMDY1MEY4Q0EyQUFF
+NEMyNThCRkU1QkNFODA1Q0RCNENBMEFAcXEuY29tLwo+IEZpeGVzOiA2ZjhiMTJkNjYxZDAg
+KCJuZXQ6IG5hcGk6IGFkZCBoYXJkIGlycXMgZGVmZXJyYWwgZmVhdHVyZSIpCj4gQXNzaXN0
+ZWQtYnk6IExMTQoKSSd2ZSB0ZXN0ZWQgdGhpcyBwYXRjaCBsb2NhbGx5ICwgYW5kIGV2ZXJ5
+dGhpbmcgbG9va3MgZ29vZCBub3csIHRoZSBpc3N1ZSBpcyBnb25lLgo=
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/f1715c0c04606ebbe832cc760abf49dfd6f2ae1f
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
