@@ -1,89 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795083624;
-	b=SPLMvtoTIXSH2Hn9o7HAiLK5lEfoxX+vih4oIIwA+IPKfyYeSjAsebFCmwoFbp/vCgBt
-	 Bd6N0FSAA89xQ62M8cWu2itd1uSONJCJDsBJ2bxG55NxNpIlPUm33PtkqzK9CO6qctFsZ
-	 TZq9cKjKWHBk2AmxkmevWUIRwAX/fOj8xXWO+pERN9i4tK2GvOTC08MwQmiUguz4QbY3u
-	 RnfGVeiqzShfnO12U2HjCNv0MV2sU6cBrLIsbHxv00MDEX0wpP4OoQTinK+D4BoPkldy4
-	 A9kAwRPwy6rabE0Bzx/bCUWHkc6kgtbwjBqqNGXKPzrvrq1o7HzaQBNe+FaWoLtWxaw==
+	t=1795086463;
+	b=HcqPzhApb1YO4IILmW2rvn2BUW1deUm6xrvnZCmJXmTH1ZmvCeQnoK33t30/h0a3cF1l
+	 7THeSR93ZVV4v5VxL61a3QqtBnIsZ8Sa6G0XOpIKobGCSzDASkfjmKrGy6+vcuDElfpIX
+	 wQGKe90BZ7bLpNFGgw9b9bxHVqEWxk45WGCl7MZjf3jJvSxQ6rlrYBaTW59kdc8dZk0nm
+	 pcj18G9JSv3QcJXtYF5J524fb/p5r0feP7vN3SYPNXK6Qj01aIdudSgFNIf2C5R7RDBtn
+	 +92sCW+HM0CjfsD92HNBWLloFuHykLxVxjGq2Ry6tQEqo6ZZZSlF5tIJ8YjwZ7ngLdw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795083624;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Subject:From:
-	 Reply-To:To:Cc:Date:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:User-Agent:MIME-Version:X-MBO-RS-ID:
-	 X-MBO-RS-META;
-	bh=kMLYuvKF8dKdiwmDA59a1qSto363i7DFLCqovWncpVM=;
-	b=J/5pX02MeohmRfYMTuiBXEZxzoz250SBhF0uDOnIS7Q1mZ8HQT3THjuaiR/OW7GTEIGt
-	 ApNRzDNmswTyTivffsMahGNX6Rkz8r/+whVqMEJSa4IwKKmCeUBsChjcLuQ1D96X3JO9P
-	 zcIMi2E5ploDpf7C6Le34dWggXjThGp2r4lF7aDz01zERDgaLW1s/xVBwDiLeQNT5ffHJ
-	 wegt2fS+bE3n/NxD4ZvcoD6sA9Y53ogUQ/586JIQEpNPFaFDDvPBPR+45hIJmZjGY/UZJ
-	 fBkvnonqq/mhC6qfsbYZi5NsRwfaZWWvY5V81MVnC4/ZVth8neySBp7iD76onCBCR/g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795086463;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
+	 Date:Message-ID:User-Agent:MIME-Version:Content-Type;
+	bh=Ji/rZwxiSW0gG4Mvn53YHSbXtC5FbPqPXsT1gfczIuE=;
+	b=fdDwONaXz0EBm869ACMPd7gjBT01rqtSA/IUHvtz+JoUD6rSxPViefZMm5XtvaPuUI/U
+	 5q+OZOdNoXA5mFWZThhYP+y7CYbWi+4a/W43QytkbKAJKO3PTr2lD2AYbA6++95J3cgL6
+	 CeZt3A11NecMSWOQsgQI/fqVZ34GzYVMZA0rTj56ENkjeH8wkspH9PsU3gf/dabChCQwG
+	 DH6gfrv9Ze0R4Zv7fOIUDAe7rFI9UkmEWQ/9rCkldAlQcr0t0tpCx7WLAr1UXxHIeI9jE
+	 hDShqwAeoyL22H7TVu48IveMtW3o/PqZt5YLhu9n420e5kpbVVCskG97bcXNsYnscUw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mailbox.org;
-	spf=pass smtp.mailfrom=mailbox.org;
-	dkim=pass header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=wrFrTipr;
-	arc=none smtp.remote-ip=80.241.56.172
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=heaEZpr7;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28917606A332
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 10:20:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28917606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2A8606A325;
+	Thu, 19 Nov 2026 11:07:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=wrFrTipr
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4jVZGq6rjlzMm1S;
-	Thu, 19 Nov 2026 11:20:19 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1795083620; h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kMLYuvKF8dKdiwmDA59a1qSto363i7DFLCqovWncpVM=;
-	b=wrFrTiprp0Ygwj7fisQqKLfMWazzJwQS8HPNFqbCcn3xMC23c+XlYnmWGpPY6OwTsCFYcG
-	pjdBV2XlPMgXizD5IHA860ywzUkD+zPnBEGC3P1iYty0h7dFnuiza4M6w6o0En4MdrFa29
-	+z8/8pstoFJyzCxAaLcosYSfYnFvqRobT36nmnUt0/xlqfaGVRZ2fcD0Ifm0zgDEtu/5+n
-	P8Q5PrjWKULrK0PMh7Putf64gTqx4d0cgQar9yKkwd/OUN6051FoFULV5Tr2btX33lJYti
-	3up4UWipIuXn1wiDtyGvTg7fYqQDSjJUVFutoAn1IjQz0zTDogOUfQ0NPiL7ZQ==
-Message-ID: <11c1451c97fa27ec3379965d13a6eea64e386cc3.camel@mailbox.org>
-Subject: Re: [PATCH v2 0/3] dma-buf: dma-fence: Remove dma_fence_init64()
-From: Philipp Stanner <phasta@mailbox.org>
-Reply-To: phasta@kernel.org
-To: Philipp Stanner <phasta@kernel.org>, Sumit Semwal
- <sumit.semwal@linaro.org>,  Christian =?ISO-8859-1?Q?K=F6nig?=	
- <christian.koenig@amd.com>, Alex Deucher <alexander.deucher@amd.com>, David
- Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Sunil Khatri
- <sunil.khatri@amd.com>,  Vitaly Prosyak <vitaly.prosyak@amd.com>, Prike
- Liang <Prike.Liang@amd.com>, Thomas =?ISO-8859-1?Q?Hellstr=F6m?=	
- <thomas.hellstrom@linux.intel.com>, Tvrtko Ursulin
- <tvrtko.ursulin@igalia.com>,  David Rosca <david.rosca@amd.com>, Timur
- =?ISO-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>, Maxime Ripard
- <mripard@kernel.org>, Dave Stevenson <dave.stevenson@raspberrypi.com>, 
- =?ISO-8859-1?Q?Ma=EDra?= Canal	 <mcanal@igalia.com>, Raspberry Pi Kernel
- Maintenance	 <kernel-list@raspberrypi.com>, Maarten Lankhorst	
- <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
-	etnaviv@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	imagination@lists.freedesktop.org, lima@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
-	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-tegra@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-usb@vger.kernel.org, rust-for-linux@vger.kernel.org
-Date: Thu, 19 Nov 2026 11:20:14 +0100
-In-Reply-To: <20261118134522.1646892-2-phasta@kernel.org>
-References: <20261118134522.1646892-2-phasta@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=heaEZpr7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46E331F000C9;
+	Thu, 19 Nov 2026 11:07:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795086463;
+	bh=Ji/rZwxiSW0gG4Mvn53YHSbXtC5FbPqPXsT1gfczIuE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=heaEZpr7V3NBLDI0usDA+AdsJvsPsidYzAf0n5/3kPoFzBY2XFgjITLpjvkEwUx6v
+	 R2y9WCZu5EX4VQXsjAZsMWfy/h2dyTMc2mZPxeV9xxNNmtXMIC5Zp/y28BETLSWHdx
+	 C3BdhTrYju2+scSHodr1VBT/fVjji6V5quDrsSBiGtCNBDaTmd8d8KwjRQPYzTgEkG
+	 SmAx/pPPxOeMaYhed/yV7ynQZ0+ohwDrN+X5Id55qQBAYHuS0sNbfxXQW9ON38p26o
+	 mLDttVexQMYCjqjDtfcDoMVTDf3XaCWL+oYUUdXdheTBUeGHCN9JVDjR6tzzWJxTf9
+	 trhKJ33C85/oA==
+From: Pratyush Yadav <pratyush@kernel.org>
+To: Baoquan He <baoquan.he@linux.dev>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+  sashiko-reviews@lists.linux.dev,  Zack Rusin <zack.rusin@broadcom.com>,
+  Petr Mladek <pmladek@suse.com>,  Mike Rapoport <rppt@kernel.org>,  Pasha
+ Tatashin <pasha.tatashin@soleen.com>,  Pratyush Yadav
+ <pratyush@kernel.org>,  Dave Young <ruirui.yang@linux.dev>,  Borislav
+ Petkov <bp@alien8.de>,  Ajay Kaher <ajay.kaher@broadcom.com>,  Alexey
+ Makhalov <alexey.makhalov@broadcom.com>,  x86@kernel.org,  Joel Granados
+ <joel.granados@kernel.org>,  Thomas Gleixner <tglx@kernel.org>,  Ingo
+ Molnar <mingo@redhat.com>,  Dave Hansen <dave.hansen@linux.intel.com>,
+  "H. Peter Anvin" <hpa@zytor.com>,  virtualization@lists.linux.dev,
+  bcm-kernel-feedback-list@broadcom.com,  John Ogness
+ <john.ogness@linutronix.de>,  Steven Rostedt <rostedt@goodmis.org>,
+  Sergey Senozhatsky <senozhatsky@chromium.org>,  Kees Cook
+ <kees@kernel.org>,  Jonathan Corbet <corbet@lwn.net>,  Bo Gan
+ <bo.gan@broadcom.com>,  Brennan Lamoreaux
+ <brennan.lamoreaux@broadcom.com>,  kexec@lists.infradead.org,  "Guilherme
+ G. Piccoli" <gpiccoli@igalia.com>,  Maaz Mombasawala
+ <maaz.mombasawala@broadcom.com>,  Shuah Khan <skhan@linuxfoundation.org>,
+  Randy Dunlap <rdunlap@infradead.org>,  Stephen Brennan
+ <stephen.s.brennan@oracle.com>,  Michael Kelley <mhklinux@outlook.com>,
+  Ian Forbes <ian.forbes@broadcom.com>,  Bradley Morgan
+ <brads@mainlining.org>,  "Michael S. Tsirkin" <mst@redhat.com>,  Eugenio
+ Perez <eperezma@redhat.com>,  sashiko@lists.linux.dev
+Subject: Re: [PATCH v4 3/4] x86/vmware: Add the vmware_record_panic_msg sysctl
+In-Reply-To: <av1ZB3ia13M420_I@MiWiFi-R3L-srv> (Baoquan He's message of "Wed,
+	18 Nov 2026 15:51:35 +0800")
+References: <cover.1794980455.git.zack.rusin@broadcom.com>
+	<4c5de34b10f579368b890eaa9333a2755886bad3.1794980455.git.zack.rusin@broadcom.com>
+	<sashiko-outbox-220212@kernel.org> <av1IuMZ2W0SXWcNn@MiWiFi-R3L-srv>
+	<20261117230201.921ec5bddf49cd459ddb8428@linux-foundation.org>
+	<av1ZB3ia13M420_I@MiWiFi-R3L-srv>
+Date: Thu, 19 Nov 2026 11:07:34 +0000
+Message-ID: <2vxzzev52i6h.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -93,17 +84,51 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MBO-RS-ID: e0df46cc69f1b87359b
-X-MBO-RS-META: 4qqptwxqro4tns8nyafutn165yabqokk
+Content-Type: text/plain
 
-On Wed, 2026-11-18 at 14:45 +0100, Philipp Stanner wrote:
-> Philipp Stanner (3):
-> =C2=A0 dma-buf: dma-fence: Add flags parameter to dma_fence_init()
-> =C2=A0 dma-buf: Port users of dma_fence_init64()
-> =C2=A0 dma-buf: dma-fence: Remove dma_fence_init64()
+On Wed, Nov 18 2026, Baoquan He wrote:
 
-Applied to drm-misc-next with the Rbs.
+> On 11/17/26 at 11:02pm, Andrew Morton wrote:
+>> On Wed, 18 Nov 2026 14:42:00 +0800 Baoquan He <baoquan.he@linux.dev> wrote:
+>> 
+>> > On 11/18/26 at 06:14am, sashiko-bot@kernel.org wrote:
+>> > > > Allow administrators to disable host log transfer on ordinary guests or
+>> > > > opt in on encrypted guests. Expose the boolean recording policy through
+>> > > > kernel.vmware_record_panic_msg using proc_dobool(), as Joel suggested.
+>> > > > Zero disables recording, nonzero integers enable it, and reads return
+>> > > > 0 or 1.
+>> > > > 
+>> > > > Register the sysctl only after the logger is ready. A registration failure
+>> > > > leaves the internal default in force. Document that the log is sent
+>> > > > before kdump, and that disable_panic_notifiers_platform_list also skips
+>> > > > it.
+>> > > > 
+>> > > > Link: https://lore.kernel.org/r/4e73yd2ofpdzl6rptzvd74no3hnyfblknoq7wzxlw7f3zjbz7c@srfabx6lsusj
+>> > > > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+>> > > 
+>> > > Sashiko has reviewed this patch and found no issues.
+>> > 
+>> > It might be better to turn off this message if not issues found, just
+>> > like what LKP bot has been doing.
+>> 
+>> (+sashiko@lists.linux.dev)
+>> 
+>> Yes please.
+>> 
+>> These emails do have a little bit of value: they tell you that Sashiko
+>> was able to apply the patch and to review it.  I guess.  Or something.
+>
+> In that case a message saying Sashiko can't apply the entire patchset
+> is better.
 
-Thx guys.
+Yeah, sounds better.
 
-P.
+Or, perhaps Sashiko can reply to the cover with a list of patches it
+found no issues with. That should reduce the spam on big series at
+least, while still keeping the signal of "Sashiko looked at this".
+
+[...]
+
+-- 
+Regards,
+Pratyush Yadav
