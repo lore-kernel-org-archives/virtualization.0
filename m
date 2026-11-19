@@ -1,57 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=80.241.56.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795083031;
-	b=aq4HVl5vgMMITmoL5RLRgRZv4bbYbW27MqzAG3UkhvvvevvTp4ODQGBN6sp8t4Pvr0ik
-	 IpCVxZe8jCdJpSKawnYJLP4FScIJjhOKsIaU3w725Q8MNyreoJw7VCk3st5Q2guSt1F4T
-	 K8Kk+7JgCu4UG3lpUHMZOfJrk+SMhRnD6AeaFdKbngEQi3v/Wghd7SFq1oo9d6RygZFQd
-	 sqo+4SLK3Lp+2xBFgnW1pWts2EGDdRnn4Nm98OYPYaO0EzLVY9HqId8Gx+OKFrBHlX9Mx
-	 CtbgNlJwgfZ2V6CEsr38jhaQCxDCrEImUBgYAoLKoxYwbWT1vi3wuILU/0nXRZkXrRg==
+	t=1795083624;
+	b=SPLMvtoTIXSH2Hn9o7HAiLK5lEfoxX+vih4oIIwA+IPKfyYeSjAsebFCmwoFbp/vCgBt
+	 Bd6N0FSAA89xQ62M8cWu2itd1uSONJCJDsBJ2bxG55NxNpIlPUm33PtkqzK9CO6qctFsZ
+	 TZq9cKjKWHBk2AmxkmevWUIRwAX/fOj8xXWO+pERN9i4tK2GvOTC08MwQmiUguz4QbY3u
+	 RnfGVeiqzShfnO12U2HjCNv0MV2sU6cBrLIsbHxv00MDEX0wpP4OoQTinK+D4BoPkldy4
+	 A9kAwRPwy6rabE0Bzx/bCUWHkc6kgtbwjBqqNGXKPzrvrq1o7HzaQBNe+FaWoLtWxaw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795083031;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=y6eN5tn5JH5p5uSHgWpIoxKZXcxYNMxgyb317FtCUuY=;
-	b=RBbd2e9O7JPk+SU9S5QJNces25jyyTJwdAuyFt7zfIGEy4cBv7WS2Z912RkF7YyeWdbD
-	 svmgujdZE0BrIlg5f6OT79XiydTXIN+ZXgglj1ItNyUbcc2ewEhGYm5Yh0qMGORdNswcP
-	 MRmZc6R10cEJjCi3kezD14j9osh871mkMXEeO6/jEbiGOP93k1dJeTQSEVCJpaVHIdmF6
-	 bTNSbkqi7K7vkyIuVEXAPsc9jNmg6GxyyV14Tpd+mKFwMbW4r7A+M94U2GMoyby7F/Ufa
-	 olqUmmKvZasZylXQNa75tr/IPC/yy4ntVRa6ZAvFJ44rDBUxjskRjJd6yFC13jw+GHg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795083624;
+	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Subject:From:
+	 Reply-To:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version:X-MBO-RS-ID:
+	 X-MBO-RS-META;
+	bh=kMLYuvKF8dKdiwmDA59a1qSto363i7DFLCqovWncpVM=;
+	b=J/5pX02MeohmRfYMTuiBXEZxzoz250SBhF0uDOnIS7Q1mZ8HQT3THjuaiR/OW7GTEIGt
+	 ApNRzDNmswTyTivffsMahGNX6Rkz8r/+whVqMEJSa4IwKKmCeUBsChjcLuQ1D96X3JO9P
+	 zcIMi2E5ploDpf7C6Le34dWggXjThGp2r4lF7aDz01zERDgaLW1s/xVBwDiLeQNT5ffHJ
+	 wegt2fS+bE3n/NxD4ZvcoD6sA9Y53ogUQ/586JIQEpNPFaFDDvPBPR+45hIJmZjGY/UZJ
+	 fBkvnonqq/mhC6qfsbYZi5NsRwfaZWWvY5V81MVnC4/ZVth8neySBp7iD76onCBCR/g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=haRnm9zd;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=mailbox.org;
+	spf=pass smtp.mailfrom=mailbox.org;
+	dkim=pass header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=wrFrTipr;
+	arc=none smtp.remote-ip=80.241.56.172
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9C9606A320
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 10:10:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28917606A332
+	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 10:20:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28917606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=haRnm9zd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1129F1F000C4;
-	Thu, 19 Nov 2026 10:10:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795083031;
-	bh=y6eN5tn5JH5p5uSHgWpIoxKZXcxYNMxgyb317FtCUuY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=haRnm9zdCgBvMn2rtcBR+VamINOfF/1qoIDXhxFgbsXYIVRT0MNufeupqXsdiaSA0
-	 PuAAznNT/TPWMWsERDtr2e/FflQxKOF63PmbFiKGm/hq0BfftFdukjk0w0VVBsaHF6
-	 XKv8penXY1qgM/X7jdotieQuanOP/ivs7dOz722Fui/KbDD9+UI5PnD4T4eus7/sCz
-	 j/jL2ZmOuOqvxnn+1AaA2y+YBdJ3pvuZMDTjo0pBuP2oksOsTZOh/v6+g49p+YIKPa
-	 zxCqU4c9+tCtW6YE5JWjg/eSVYLJ5N88ydhzT24jLvocZEzKnLz6ROIkCersE1YUbE
-	 v+YHDvShw0pZA==
-Message-ID: <sashiko-outbox-222919@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] virtio: Release the OF node when unregistering the
- device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yige Jiang" <yigejiang86@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261119085343.virtio-of-node-a02bd3cf522b@gmail.com>
-References: <20261119085343.virtio-of-node-a02bd3cf522b@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=wrFrTipr
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4jVZGq6rjlzMm1S;
+	Thu, 19 Nov 2026 11:20:19 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1795083620; h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kMLYuvKF8dKdiwmDA59a1qSto363i7DFLCqovWncpVM=;
+	b=wrFrTiprp0Ygwj7fisQqKLfMWazzJwQS8HPNFqbCcn3xMC23c+XlYnmWGpPY6OwTsCFYcG
+	pjdBV2XlPMgXizD5IHA860ywzUkD+zPnBEGC3P1iYty0h7dFnuiza4M6w6o0En4MdrFa29
+	+z8/8pstoFJyzCxAaLcosYSfYnFvqRobT36nmnUt0/xlqfaGVRZ2fcD0Ifm0zgDEtu/5+n
+	P8Q5PrjWKULrK0PMh7Putf64gTqx4d0cgQar9yKkwd/OUN6051FoFULV5Tr2btX33lJYti
+	3up4UWipIuXn1wiDtyGvTg7fYqQDSjJUVFutoAn1IjQz0zTDogOUfQ0NPiL7ZQ==
+Message-ID: <11c1451c97fa27ec3379965d13a6eea64e386cc3.camel@mailbox.org>
+Subject: Re: [PATCH v2 0/3] dma-buf: dma-fence: Remove dma_fence_init64()
+From: Philipp Stanner <phasta@mailbox.org>
+Reply-To: phasta@kernel.org
+To: Philipp Stanner <phasta@kernel.org>, Sumit Semwal
+ <sumit.semwal@linaro.org>,  Christian =?ISO-8859-1?Q?K=F6nig?=	
+ <christian.koenig@amd.com>, Alex Deucher <alexander.deucher@amd.com>, David
+ Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Sunil Khatri
+ <sunil.khatri@amd.com>,  Vitaly Prosyak <vitaly.prosyak@amd.com>, Prike
+ Liang <Prike.Liang@amd.com>, Thomas =?ISO-8859-1?Q?Hellstr=F6m?=	
+ <thomas.hellstrom@linux.intel.com>, Tvrtko Ursulin
+ <tvrtko.ursulin@igalia.com>,  David Rosca <david.rosca@amd.com>, Timur
+ =?ISO-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>, Maxime Ripard
+ <mripard@kernel.org>, Dave Stevenson <dave.stevenson@raspberrypi.com>, 
+ =?ISO-8859-1?Q?Ma=EDra?= Canal	 <mcanal@igalia.com>, Raspberry Pi Kernel
+ Maintenance	 <kernel-list@raspberrypi.com>, Maarten Lankhorst	
+ <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
+	etnaviv@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
+	imagination@lists.freedesktop.org, lima@lists.freedesktop.org, 
+	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
+	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+	linux-tegra@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-usb@vger.kernel.org, rust-for-linux@vger.kernel.org
+Date: Thu, 19 Nov 2026 11:20:14 +0100
+In-Reply-To: <20261118134522.1646892-2-phasta@kernel.org>
+References: <20261118134522.1646892-2-phasta@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 10:10:30 +0000
+User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,28 +92,18 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+X-MBO-RS-ID: e0df46cc69f1b87359b
+X-MBO-RS-META: 4qqptwxqro4tns8nyafutn165yabqokk
 
-> virtio_device_of_init() acquires the OF node reference once during device
-> registration. virtio_dev_remove() currently puts it on each driver unbind,
-> although rebinding the driver does not acquire a new reference. Repeated
-> unbinds can therefore consume references not owned by the virtio device.
-> Conversely, unregistering a device that never bound to a driver leaves
-> the reference held.
->=20
-> Move the put to unregister_virtio_device() so it is paired with device
-> registration. Save the node pointer before device_unregister(), which
-> can free the virtio device, and put it after unregister has completed the
-> driver removal.
->=20
-> Fixes: 694a1116b405 ("virtio: Bind virtio device to device-tree node")
-> Reported-by: sashiko-bot <sashiko-bot@kernel.org>
-> Link: https://lore.kernel.org/all/sashiko-outbox-203883@kernel.org/
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yige Jiang <yigejiang86@gmail.com>
+On Wed, 2026-11-18 at 14:45 +0100, Philipp Stanner wrote:
+> Philipp Stanner (3):
+> =C2=A0 dma-buf: dma-fence: Add flags parameter to dma_fence_init()
+> =C2=A0 dma-buf: Port users of dma_fence_init64()
+> =C2=A0 dma-buf: dma-fence: Remove dma_fence_init64()
 
-Sashiko has reviewed this patch and found no issues.
+Applied to drm-misc-next with the Rbs.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119085343.virt=
-io-of-node-a02bd3cf522b@gmail.com?part=3D1
+Thx guys.
 
+P.
