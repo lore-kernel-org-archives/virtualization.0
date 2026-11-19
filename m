@@ -1,102 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795125100;
-	b=IcAj55cZ8EGyNgQaWZpwiTfqetbfBfWGgaiQO7lpUiqJTeSmTUkUy2FaLAYK78mEV6R7
-	 AlBfTpSWK8VLH3v3o3Bss/CSDbrFLD6f1aNQSB4qHz2Nmu3LqO9e0bry/s/jkM8FrdAfI
-	 fOINVKCUtKtmU+n3EjvlU9U4/Ey0vvTcHVO2rilKVfYmBPubn06W95x0r52PnW+aHKFYL
-	 45U49Ey9imuHxVcDtLZF2VxMJTMOUXjPOj3oQwIW2tIJ+rXhMd8fBnHPFgNDlBF/7Zazk
-	 wWtLoGckoz0MEXHQ+W+B8+H/950ojee3rAumM8amOWv3Cv4PMoz/noAo5UQKmcQALTA==
+	t=1795125185;
+	b=uGbLCNDpZF4ZVlYMeTDp8CwqwmfLW2oQMXx/xNRds6vw7NIb6U6uY1/Pf3/kU72jJ7d0
+	 78VByzPGj8n5/e8NfHXuceXy5xUQFcZ6ScgjWMsGyJjP3r/Whknxa8aiwHHiN7nJYmX6v
+	 nvzI2T6v/Gz6WgM4tn4qmokD2oGgCW+Gn5Hgtg69MNFvXyLFG0Y7C7AkdZyYfCqGshJR5
+	 eIbLthcyFXIkpVt0NvVCzUepaY2ay0NyXpk4I6t6liTyTsMy4nroRM7UDZHz5TQeOCvWl
+	 KGIy7glBnPnHF9zJXrGZFa5Biti7EO8xCm/t/Fn2sJ2Z9/dJ/x8ETwuX0fDBckMuyBw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795125100;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
-	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Originating-IP:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Virus-Version;
-	bh=Ri8CK3ItJsJssm9R2a+AMX7zfGjjWTKSLJi5tTs2ofs=;
-	b=ySjA4tKIDq7zxP+5Y6FnqB+E4HAqKmH6pxHr1PxrAtlfxblAZ58n8fgalT7jzQbQFX/1
-	 MdkeBKq0GiYgl1BjKAC3erzV0BVzw5GakGWMdQ5fjJzYuKxoCx9SR7IC80KQSQFNgqFSd
-	 MmzPwhoik+LHyoLSuOo7ZB/PYwEQrJlDthkLG68YRnSHoZO+8xs/WVHQ+5Yep3UUb81Mi
-	 qx8crqP7EeJR6UBMO+Dy8iu1bLQBeHIx+HC1VOE+XzDabTfclAfQ1ofOBSWMw+8l+9hq5
-	 LiiM8qhKtkREfzlV0smayiLotx5fjTRv/IQO7/ZNVdRAzwSwue7AH2AhZwXMhEH6acw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795125185;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=VIREaCQxVgG4GuY2CXZNqhO/7+HPS6cWwo1MkeUdS9w=;
+	b=gbW6O2X0XLZDxCSqqplCpfdBFm8kddvH4txrnthkbzInFS1vs+hHvb9D9GkfyXE+tJcb
+	 FnP/FzIauDUGpoVObM4YG5e86VoyEYbfCMsttI8cyUYrh++G1cPZYrG+vlP0lIP/YJX0a
+	 au8uxhLAE7nCtoMGscKJtAltDroHbFxie9X7PFuGvQGzoVFSw9vq900YhkFDj9e3ePSlv
+	 3zGqfiDhaykMI6yhHP1yU+ci3EG7Fij13GgvC9FswGJfUOczbBmdy5pINhNNrHpAEJL/L
+	 O/0wv53wbivluYG7SdqQM3tbbPBy6s3McOPTOU5vcWNdIcZTfjgerX7nvcu0MNUGSsQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=DHGBUcJM;
-	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IRNSujFB;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CF8F60A2600
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 21:51:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4CF8F60A2600
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27966606A332;
+	Thu, 19 Nov 2026 21:53:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=DHGBUcJM
-Received: from pps.filterd (m0528005.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AJJ1LkI2754408;
-	Thu, 19 Nov 2026 13:51:24 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps82601-s2048-2026-q3; bh=Ri8CK3ItJsJ
-	ssm9R2a+AMX7zfGjjWTKSLJi5tTs2ofs=; b=DHGBUcJMMYXzIekxH9QyMTq7eci
-	SVZVf1xD6/O7voHLqsj3TWCiHW0pTsTwkmp/Sp9PwtUka34/b6VZNoQ3XhAegWHp
-	XpONuZUN0BT5PbMkq0U9Jw5rxaNbEH6ZM45118sUHONBJw1PZ/EDqM1N8pENELLL
-	6rSXBjtU4zfkfEQuuysIkDiL3qzIAJ1VUpSH/voGd5OhHjcVxH6uqOIL4qV94Mts
-	8l4+IRAgaR0HPmmg+KnSAl3PoeGsapIjh+W+qZj8eqd7rRovRjydI6BAwRArFP5o
-	k1nsJTlzvDeQ2/EH+QAf3DQtrrgl4w5/oY/3h1+h7MQ3JGWzNvfsRrvodKA==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j228kvma1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Thu, 19 Nov 2026 13:51:23 -0800 (PST)
-Received: from localhost (2620:10d:c0a8:1b::8e35) by mail.thefacebook.com
- (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Thu, 19 Nov
- 2026 21:51:22 +0000
-Date: Thu, 19 Nov 2026 13:51:21 -0800
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-To: Sergio Lopez Pascual <slp@redhat.com>
-CC: Stefano Garzarella <sgarzare@redhat.com>,
-        Alexei Starovoitov
-	<ast@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet
-	<edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        Bryan Tan
-	<bryan-bt.tan@broadcom.com>,
-        Vishnu Dasa <vishnu.dasa@broadcom.com>,
-        Broadcom
- internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        Stefan
- Hajnoczi <stefanha@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason
- Wang <jasowangio@gmail.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?=
-	<eperezma@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Haiyang Zhang
-	<haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Dexuan Cui
-	<decui@microsoft.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Randy Dunlap
-	<rdunlap@infradead.org>,
-        <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>,
-        <bpf@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>, <linux-doc@vger.kernel.org>
-Subject: Re: [PATCH RFC v3 0/8] vsock: add datagram support to virtio and
- vhost
-Message-ID: <av9vWRXli+JmYO8A@devvm29614.prn0.facebook.com>
-References: <20261113-vsock-dgram-support-v3-0-1523c8e9b27e@redhat.com>
- <aveMxDqYQobWwXd/@devvm29614.prn0.facebook.com>
- <CAAiTLFUQMyQXHAw1DbDKfJYus-Se+QA_SSHWQymQ9dK6-UmRTQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IRNSujFB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E56A1F000C4;
+	Thu, 19 Nov 2026 21:53:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795125185;
+	bh=VIREaCQxVgG4GuY2CXZNqhO/7+HPS6cWwo1MkeUdS9w=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=IRNSujFB/mk85hBO7/lbFdgtYK/se4Ugsoz1/kDhG6kSFHuZ7TC6chdH4bPmpWY0G
+	 fsIjNqLXhKp/8eZu+P1akmDb+zC1rsAleXa6KB0r/pUDRMJmAYTWQW2SfuwUVKknch
+	 S/tctxGRTgHWrRIMqFIDJAgjS5kr0QCFUZSmRZWf5LDA+n/sAO0XNB4d6wHrWsdPL3
+	 umGVc7kvvn8fTVU8sRfyoXct/ghxMpz45hf7ZtPafYqqpZGt9sfWYtj10SauACOc2o
+	 F/SUQQO21US8Jfzv6E650kk0KVRKxQgx/rPzHg3W2ZQdxyEQqkMhqRD8V/VgkKdLc+
+	 8P9xmGwe8dlxA==
+Date: Thu, 19 Nov 2026 13:53:03 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Bobby Eshleman <bobbyeshleman@meta.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, "David S. Miller"
+ <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
+ <skhan@linuxfoundation.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Donald Hunter <donald.hunter@gmail.com>, "Eric
+ Dumazet" <edumazet@kernel.org>, George Zhang <georgezhang@vmware.com>,
+ "Andy King" <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>,
+ <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+ <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+ <sargun@sargun.me>, <jlinbox@meta.com>
+Subject: Re: [PATCH net-next v7 0/7] vsock: assign the guest vsock device to
+ a network namespace
+Message-ID: <20261119135303.54642e8e@kernel.org>
+In-Reply-To: <av807G4qhzToOIMT@devvm29614.prn0.facebook.com>
+References: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
+	<20261118182846.4ab756d1@kernel.org>
+	<av807G4qhzToOIMT@devvm29614.prn0.facebook.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,202 +73,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <CAAiTLFUQMyQXHAw1DbDKfJYus-Se+QA_SSHWQymQ9dK6-UmRTQ@mail.gmail.com>
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE5MDA4NyBTYWx0ZWRfXwzIa7BHDzrhI
- V9NPLugZeX0Dem605ATYIgoQU8DX72WI9bBs9VHmBqBAZcwlUI4+xKCLGec3yqad6e9XNHuQUKf
- wh8/Z1Mk/yEYchU1ELul3oyezvQPlMuTsK6aw11IrS/iZG2ky0YHPQ5x2fDjJxe01HuGKZlID1n
- bHRiO20kWrSLZK4gz9ob3EKfJCQ+sOo9P4S7G27w3umfmXytFXum9tJ/HanNivge0nqvRbrcLuJ
- gA5mT4Wg7ZPOq05ccIQNX2ksv3x0dRPyiOMSJ0rrulluGOEJigLTb8HpiGCpoUiziVUM9XNcjy3
- 1eWA60wrpqu5Qfr1NHxKeA8KK0UhAQZs2ign8WT+c4ph6c6rH1+NFA6L/zLq1aLANdVep2Lm5XV
- HjICGVvLKwUIxJ3LSS5blwdHhxNf41mYiTRHaqmzf4ysQYa+mVHLxeWUEJRY/H+HxjOmG7yAUPQ
- pBlTEVLGOEG9QGMJvTA==
-X-Proofpoint-GUID: EKMxB3j1syV6aAXBL7ADcf_4KtTeg0Sh
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE5MDA4NyBTYWx0ZWRfXwKAReosY9zZa
- bBwoIH2U7bvtKc0Z4koR1XE6E6nLpYuJxcDsR5HFruBknRfag+QQB5Dtcl9NFmzvJqBczeAlmXp
- QcRk/8QcO5bLyBaKyd3NyJUPaB/1FsQ=
-X-Authority-Analysis: v=2.4 cv=cYxHPXDM c=1 sm=1 tr=0 ts=6aff6f5b cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=jCddH8ec0KUNCymVuxII:22 a=VwQbUJbxAAAA:8
- a=20KFwNOVAAAA:8 a=968KyxNXAAAA:8 a=NEAV23lmAAAA:8 a=mDV3o1hIAAAA:8
- a=KMMIYZg5AAAA:8 a=VabnemYjAAAA:8 a=lvHqt9aMAKSFOjNFyPAA:9 a=CjuIK1q_8ugA:10
- a=dU3it2pj8zK4A0baVwjB:22 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: EKMxB3j1syV6aAXBL7ADcf_4KtTeg0Sh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-19_05,2026-11-19_01,2025-10-01_01
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Nov 19, 2026 at 08:06:44AM -0800, Sergio Lopez Pascual wrote:
-> Bobby Eshleman <bobbyeshleman@meta.com> writes:
+On Thu, 19 Nov 2026 09:42:04 -0800 Bobby Eshleman wrote:
+> On Wed, Nov 18, 2026 at 06:28:46PM -0800, Jakub Kicinski wrote:
+> > On Tue, 17 Nov 2026 17:54:43 -0800 Bobby Eshleman wrote:  
+> > > vsock network namespaces let a host put each VM in a namespace of its
+> > > own. A guest has no equivalent yet. It has a single G2H device that
+> > > cannot be assigned to a network namespace.  
+> > 
+> > PW says this did not apply at the time of posting, pls respin  
 > 
-> > On Fri, Nov 13, 2026 at 06:15:40PM +0100, Sergio Lopez wrote:
-> >> This RFC adds SOCK_DGRAM support to virtio-vsock and vhost-vsock through
-> >> the existing AF_VSOCK API. It is intended for guest and host services
-> >> that exchange independent requests, responses, or events and need message
-> >> boundaries and sender addresses without a stream connection or application
-> >> framing.
-> >>
-> >> VIRTIO_VSOCK_F_DGRAM gates virtio traffic in both directions. Each virtio
-> >> send carries zero to 64 KiB of payload in one VIRTIO_VSOCK_TYPE_DGRAM
-> >> packet. On the RX virtqueue, the device may split a datagram across
-> >> page-sized guest buffers.
-> >> START and EOM delimit the message; the guest reassembles at most 64
-> >> fragments and 64 KiB before delivering it to a socket. Invalid or
-> >> incomplete messages are discarded. Datagram delivery is best effort:
-> >> there are no peer credits, acknowledgements, or retransmissions. Send
-> >> admission uses the socket send-memory limit, and SIOCOUTQ reports charged
-> >> send memory.
-> >>
-> >> Datagram sockets have a separate port space from stream and seqpacket
-> >> sockets. The latter two continue to share their port space. Datagram
-> >> routes are chosen per destination among guest-to-host, host-to-guest, and
-> >> loopback transports, with VMCI as a fallback. VMCI still owns its socket
-> >> handle when it is present; loopback works without a directional transport.
-> >> Hyper-V continues to reject datagram sockets.
-> >>
-> >> The Sashiko review of v2 also reported that a VMCI datagram bind in a
-> >> local-mode network namespace creates a receive handle in VMCI's global
-> >> port space, so a sender outside the namespace can deliver datagrams
-> >> across the namespace isolation boundary. The issue predates this series
-> >> and it's getting addressed in a separate patch:
-> >>
-> >> https://lore.kernel.org/all/20261113-vsock-vmci-netns-isolation-v1-1-ced02054ea61@redhat.com
-> >>
-> >> Within this series, local-mode namespaces bind datagrams only in the
-> >> core table and never create a VMCI handle.
-> >>
-> >> Bobby Eshleman and Amery Hung explored this feature in their v6 series
-> >> and v7 work-in-progress branch. This series is a fresh implementation
-> >> against the current vsock code. It follows the separate datagram port
-> >> space, per-destination routing, and VMCI fallback requirements discussed
-> >> there. For guest receive buffers, it uses bounded fragmentation and
-> >> reassembly rather than full-message buffers or the earlier drop/error
-> >> queue approach:
-> >>
-> >> https://lore.kernel.org/r/20240710212555.1617795-1-amery.hung@bytedance.com
-> >> https://github.com/ameryhung/linux/tree/vsock-dgram-v7
-> >>
-> >> A corresponding virtio specification update has been drafted separately.
-> >> The wire format and feature negotiation still need specification review
-> >> before this series can be considered for merging.
-> >>
-> >> The first patches expose the core port allocator and add datagram queue
-> >> reporting, then implement the common data path, guest and host feature
-> >> negotiation, routing, and RX fragmentation. The last patch extends
-> >> vsock_test with local and peer tests for message boundaries, routing,
-> >> connected peers, port sharing, queue accounting, and delayed reads.
-> >>
-> >> Testing used QEMU with the F_DGRAM property patch below, an x86-64
-> >> KASAN/lockdep kernel, paired guest tests, and a nested Linux vhost-vsock
-> >> backend. The tested paths include 64 KiB messages, delayed-read bursts,
-> >> feature-disabled ingress, stream and seqpacket controls, and header-only
-> >> guest RX buffers. A temporary userspace backend still fails stream test
-> >> 21 on both the series base and tip; that case passes with Linux vhost.
-> >> VMCI's host personality was exercised in a QEMU guest, including
-> >> coexistence with virtio and self-send without loopback. A VMware VMCI guest
-> >> device and Hyper-V hardware were not exercised.
-> >>
-> >> https://lists.gnu.org/archive/html/qemu-devel/2026-10/msg08074.html
-> >>
-> >> Code was written and reviewed both manually and assisted by Codex
-> >> (GPT-6.1-Sol) and Claude (Opus 4.6).
-> >>
-> >> Signed-off-by: Sergio Lopez <slp@redhat.com>
-> >> ---
-> >> Changes in v3:
-> >> - Preserve Hyper-V stream routing and prefer virtio for guest CID_HOST
-> >>   datagrams (thanks to Sashiko AI bot).
-> >> - Bind explicit non-VMCI CIDs and local-mode sockets without a VMCI
-> >>   handle, resolve wildcard destinations, and retain VMCI self routes
-> >>   (thanks to Sashiko AI bot).
-> >> - Recheck bound addresses after receive takes the socket lock and set
-> >>   TO_HOST only for forwarded guest sources (thanks to Sashiko AI bot).
-> >> - Probe negotiated virtio datagrams and numeric local CIDs before running
-> >>   dependent tests; cover wildcard and VMCI coexistence (thanks to Sashiko
-> >>   AI bot).
-> >> - Link to v2: https://lore.kernel.org/r/20261113-vsock-dgram-support-v2-0-bacfc85b71ce@redhat.com
-> >>
-> >> Changes in v2:
-> >> - Keep guest RX buffers page-sized; add START/EOM framing and bounded
-> >>   datagram reassembly (thanks to Alexei Starovoitov and Bobby Eshleman).
-> >> - Preserve stream and seqpacket data when an RX buffer has no payload
-> >>   room.
-> >> - Separate datagram and connection-oriented port spaces, and share
-> >>   receive metadata and queueing (thanks to Alexei Starovoitov).
-> >> - Check negotiated support and destination CID on ingress, and require
-> >>   an exact connected peer CID and port (thanks to Sashiko AI bot).
-> >> - Select a capable route for each destination, retain VMCI as fallback,
-> >>   and support loopback-only sockets (thanks to Alexei Starovoitov).
-> >> - Preserve the connected peer address across temporary parent fallback
-> >>   (thanks to Sashiko AI bot).
-> >> - Use socket write-memory accounting for datagram SIOCOUTQ instead of
-> >>   separate transport counters (thanks to Alexei Starovoitov).
-> >> - Extend selftests for fragmentation, delayed reads, port sharing,
-> >>   connected peers, and capability-based skips; fix the test build and
-> >>   README entries (thanks to Alexei Starovoitov, Bobby Eshleman,
-> >>   and Sashiko AI bot).
-> >> - Link to v1: https://lore.kernel.org/r/20261028-vsock-dgram-support-v1-0-e457cf7cee78@sinrega.org
-> >>
-> >> ---
-> >> Sergio Lopez (8):
-> >>       vsock: expose the core port allocator to transports
-> >>       vsock: report datagram receive and send queue state
-> >>       vsock/virtio: implement the datagram data path
-> >>       vsock/virtio: negotiate datagram support on the guest
-> >>       vhost/vsock: negotiate datagram support with guests
-> >>       vsock: allow datagrams to use directional transports
-> >>       vsock: fragment datagrams across receive buffers
-> >>       vsock: add datagram tests to vsock_test
-> >>
-> >>  Documentation/admin-guide/sysctl/net.rst |    8 +-
-> >>  drivers/vhost/vsock.c                    |   51 +-
-> >>  include/linux/virtio_vsock.h             |    8 +-
-> >>  include/net/af_vsock.h                   |   31 +-
-> >>  include/uapi/linux/virtio_vsock.h        |   10 +
-> >>  net/vmw_vsock/af_vsock.c                 |  526 +++++++++++----
-> >>  net/vmw_vsock/hyperv_transport.c         |   11 +-
-> >>  net/vmw_vsock/virtio_transport.c         |  167 ++++-
-> >>  net/vmw_vsock/virtio_transport_common.c  |  172 ++++-
-> >>  net/vmw_vsock/vmci_transport.c           |  124 ++--
-> >>  net/vmw_vsock/vsock_bpf.c                |    3 +-
-> >>  net/vmw_vsock/vsock_loopback.c           |    2 +-
-> >>  tools/testing/vsock/Makefile             |    3 +-
-> >>  tools/testing/vsock/README               |   33 +-
-> >>  tools/testing/vsock/util.c               |   62 +-
-> >>  tools/testing/vsock/util.h               |   10 +
-> >>  tools/testing/vsock/vsock_test.c         |  175 ++++-
-> >>  tools/testing/vsock/vsock_test_dgram.c   | 1061 ++++++++++++++++++++++++++++++
-> >>  tools/testing/vsock/vsock_test_dgram.h   |   30 +
-> >>  19 files changed, 2195 insertions(+), 292 deletions(-)
-> >> ---
-> >> base-commit: 65ba8f34ec886ec72b2c07ddc8cf3d815c32869d
-> >> change-id: 20261027-vsock-dgram-support-683a4e0aebe7
-> >>
-> >> Best regards,
-> >> --
-> >> Sergio Lopez <slp@redhat.com>
-> >>
-> >
-> > Hey Sergio,
-> >
-> > Just a gentle heads up that net-next asks for 24hrs before reposting.
+> Ah I forgot to call out in the cover that this now depends on this fix in
+> net:
 > 
-> Whoops, sorry!
-> 
-> > I'll start working my way through the series, sorry if my reviews come
-> > back spread out across a few days, not sure I'll have enough time in a
-> > single sitting.
-> 
-> I was planning on sending a v4 fixing Sashiko's issues. Should I wait
-> for your review first?
-> 
-> Thanks!
-> Sergio.
-> 
+> https://lore.kernel.org/all/20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com/
 
-Feel free to send without my review, I'm lagging behind!
+If there's a dependency the posting has to be an RFC
 
-Best,
-Bobby
+> In that thread Paolo is also wondering if it is really an improvement
+> rather than a fix, which is a fair take, so unless there are objections
+> I'll just pull that patch into this series.
+
+No need to repost that patch, we can apply it to net-next as is.
+The blocker is lack of an ACK from the vsock maintainers from my PoV.
+Please just wait for the net[-next] patch to settle, don't repost this.
+Enough noise on the list.
