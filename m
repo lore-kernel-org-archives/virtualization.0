@@ -1,55 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795170999;
-	b=u/Rg6Gh4nzirK9KQ/pcG8PE0M1h0HaZ2uCNhZePL6QOjYexP3+p5d8QUr6EySuwz85FB
-	 GsdFnVpJILG6Q/0E1TadIwcWsbwWxbRcIa2s+B+v09GNowzhydLIgiqEX5h6+9fD832oF
-	 I2ihnqQ/SUb5Urr7bPyIcjQBv1f/1O0BfUAFngPh84HSEZiJWorfgnp7uN4Z/wNrFr38F
-	 JWHdSfkZZmQq2oYMQIabRj2sNRuk2B3oY/zVG4NBeP39lknZFdPdIjhMELUSI+DHXS6Bj
-	 ipeN0K+4enCuHSZKUWQfTR/+qtvgZL2EkyT5jwh5mCNTy7bv1X2ePbtorhy9AcG0mxw==
+	t=1795171122;
+	b=NAQLuzGXNmfYfJfn91xBFr3Q+PK3oG1GJE0FFnJQMbcAAy/AsQyiH45ibiaU+PQrCfdU
+	 1kGu2C3im9bNwmCbX2I8ehmfsuh/clkKCruPW+fxj3NVT5TC20VJY1BhYpfMuBw3KHGMb
+	 TdWjuqVEHYbxZ5bs886p9GpUBghEI45O7YQvygsJajzTau9ppThRmMStRWGkZ5mpFJ5EA
+	 1HtfCFo16OymcgFeHZ4UIVabq0V1y7v/PmeahKVE/MbLZr+XBHfHQDIu/YgcLmHWfpg1x
+	 lgNO4oaM9d+FYdzaQ8HCUd2Ri6emyLKjHTm6mIpEY9zph9KVFsXGFLSgNlj9/UHWvdA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795170999;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=OBbEyP/H6djxrJo03P55CCCJILRL7MXtwftvePmw9sQ=;
-	b=nv5RdHqdyuplb+cSZOjcKcS6yQd67hAliY11Cf0C8oIl8CgdCpiGlpIiWgNjiPt42kxY
-	 rHQauFHvWN5uugveXkJGTxx/nPRX4BLV7ygqGAA2G7OZBDnaFxY4zPZWdK6B4BJ4u1p8a
-	 QsiXd3SBC24bCw1S2Wcz9TtCn70WBOqYQR62ul/tNCPqr/t3p6HOFv2esRi3APJX/Nz62
-	 +3Ku8JwvgHgeVl2UIcNCjotSpoiVzem+t1lMXVodVVjE1KQkCkjV7OcYAjek9C0slYak8
-	 VpC/TYbROehUyoeuB575rUun7JdZp5WBuIyJDoYfqzRRve+ofMeWmNY+PSLB3OU2PSg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795171122;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=uvBo8whQM69hOZsneEjVjjkZl1J0uxOhdaznYOQ5Gog=;
+	b=5lZ6h/urchy1IxxTehl1OcAzjFccnbmzhhPYiujV2x/lyzt8yVb27JemEtPad/TYzjM7
+	 bdxNlHTK2W7V/hw2LbkmPJ4dZtYVSGFt+VE//Nqsv7otK9nGDK522oDonnj8yKxFu2yJr
+	 oR+DW4Ja5/R4n9fw4XfNjWhuQGpsiQsEA0XHh+1OJgXhw+8BGIWPtewx/Fh9vA5FN5Bvx
+	 Q167qWbwj/7G/aiXDSiK7z1u5wVUVY8g0ZJzWCy0E4FYzpA7+L2XLKAlDTUq6GBfzPMUI
+	 4CC2ptFc1YNMeT+9yZGxI3Gd05bZNH8aq7+DvH3AZ084+Uo31BhWDtqzo023kbE+XCg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NqYTjW+h;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XKNaKXEf;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF25606A325;
-	Fri, 20 Nov 2026 10:36:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E99606A320
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 10:38:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NqYTjW+h
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C85D1F000C6;
-	Fri, 20 Nov 2026 10:36:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XKNaKXEf
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 110C71F000C6;
+	Fri, 20 Nov 2026 10:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795170998;
-	bh=OBbEyP/H6djxrJo03P55CCCJILRL7MXtwftvePmw9sQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=NqYTjW+hRZedNoLan48YbMHilMOqdxA6SvuPNs27BdYAJtMieE3b+p88qlC0nltBB
-	 dKXeSnrN0Ai0EUxJOQPnJ08kxNl9XL5rXMHb6+ul/GWzw/SWMIHxWj2ENcIOAH+hw0
-	 VG0b6+k1zpQx25ACmN44hZt0lyQABY4JM+N+BzaVBEA3dfT6Lc9rBBGWjDO5J6ZMst
-	 hHsY6Be0hY2pKTeiR75KILAhbrgWhWpjDEnKrsUmyeq4DxKZQWegGyYXhtBJOLkwjQ
-	 vPrNR05u216qwRlxj5CK8Ti3YFnayv1KeFvoQxn0SgTKyPVu/3xmbO8jPRbaV1gML1
-	 lWT3/zctQXpVA==
-Date: Fri, 20 Nov 2026 10:36:35 +0000
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: shao.mingyin@zte.com.cn, akpm@linux-foundation.org, linux-mm@kvack.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/balloon: fix NR_BALLOON_PAGES accounting on migration
- failure
-Message-ID: <awAijOul2KPFT1CQ@lucifer>
-References: <20261115004708909xx05JgB9nXnOCG0zL7h_K@zte.com.cn>
- <avia_XgVOuN_pZ72@gremlin>
- <96462da9-9437-4774-a5c7-f99858481ece@kernel.org>
+	s=k20260515; t=1795171122;
+	bh=uvBo8whQM69hOZsneEjVjjkZl1J0uxOhdaznYOQ5Gog=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XKNaKXEfnsnxjM426bpMgtnC9z7laMsSVUJFVOVkShlXyalwHG0WKDXKB/bph4git
+	 nO0J8uqt6BERqbNlUiXdMnyqz1aghuo+Z528RZAkDZNXs1dxJABLnz4RZwPklFqI2P
+	 UTm9yvsdYK31tMi4dTjgHZy8dxM983igc+FZ7Fuv+40WZ28lhKNgJ9BDuQS+cyIDSG
+	 /akCnVHjsyNVKJVktEN2hKjfa0L1hOidaQxdTqzn4GYcii1YdLeP6CoCb+HEXe3e1m
+	 hhH/wFi8bpIG9l+qNLvMpcJk4L57/Fr0xrJpM6IA+n9/tE1nUCThrTojhQ0lX0SoMo
+	 JppPbTj1tjoYQ==
+Message-ID: <sashiko-outbox-224949@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] mm/balloon: fix NR_BALLOON_PAGES accounting during
+ page migration
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261120-b4-balloon_nr_pages-v1-1-d8944b587819@kernel.org>
+References: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org>
+ <20261120-b4-balloon_nr_pages-v1-1-d8944b587819@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 10:38:41 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -58,38 +61,33 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <96462da9-9437-4774-a5c7-f99858481ece@kernel.org>
 
-On Fri, Nov 20, 2026 at 10:59:47AM +0100, David Hildenbrand (Arm) wrote:
-> On 11/14/26 18:31, Lorenzo Stoakes (ARM) wrote:
-> > NAK.
-> >
-> > this is generated by some AI slopper's script, spamming the kernel. The
-> > patches I looked at were wrong/broken, so no to anything from this person.
-> >
-> > They've sent 300 mails in under four weeks spanniing: ata, scsi, target,
-> > ufs, nvme/nvmet, ubifs, ublk, zloop, dm, md, mmc, virtio-blk, mfd, gpio,
-> > pwm, spi, PCI, ASoC, ACPI, net, vfs mount, block partitions, and now mm.
-> >
-> > and 17 series across 7 subsystems over the past 23 hours.
-> >
-> > We need a way to ban emails from people like this...
->
-> Yeah, that's absolutely annoying. In particular as we REQUIRE people to
-> understand the changes they submit, and own the code.
->
-> That clearly won't happen in this case.
->
-> There is a real (low prio) bug hiding in there, so something to be fixed. I'll
-> take care of it.
->
-> I'll take care of it.
+> balloon_page_migrate() doesn't update NR_BALLOON_PAGES in two scenarios:
+>=20
+>  (1) If the new page is on a different node than the old page.
+>=20
+>  (2) If the old page was deflated but the new page could not be
+>      inflated, effectively deflating the balloon.
+>=20
+> Consequently the "Balloon" values in /proc/meminfo, the per-node meminfo
+> etc. will be wrong.
+>=20
+> Fix it by adjusting the "Balloon" counters accordingly just after
+> conditionally adjusting the manage page counts.
+>=20
+> This has low urgency.
+>=20
+> Fixes: 4d689474e1b2 ("balloon_compaction: update the NR_BALLOON_PAGES sta=
+te")
+> Cc: stable@vger.kernel.org
+> Reported-by: Shao Mingyin <shao.mingyin@zte.com.cn>
+> Closes: https://lore.kernel.org/r/20261115004708909xx05JgB9nXnOCG0zL7h_K@=
+zte.com.cn
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Ack, yeah, I think the best approach is to treat these as reports, and if
-there's anything valid pull that out for a member of the core team :)
+Sashiko has reviewed this patch and found no issues.
 
---
-Cheers, Lorenzo
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-b4-balloon=
+_nr_pages-v1-0-d8944b587819@kernel.org?part=3D1
+
