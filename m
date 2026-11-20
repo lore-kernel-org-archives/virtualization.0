@@ -1,79 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795157868;
-	b=3tA1Dl5CcdyIwPa2SMz3umIRPcTRQeXBWNBQDG85H34nYTLB+airreED0lO9M8k59gZQ
-	 4R6LIxiYD8dA+zekO/QPFQwlW3AelWJaEzQjMp7KiuGZtnEBD5GYae0zJnJAtaADhedjg
-	 bSv7FN5x5urbEW2kHSNpSHC2xM3qAWvGoGQ3guPwPShz94HoBu/ykJBNzISWbe7Czi3ft
-	 nVOa3U97cDkMnrjkhwNjpVv0PRhev4QbOsmFmCZuCsPaqnPqJYQ5AXCY1JppHcwp472vv
-	 OPZYzciqyg8poUVeTTORERpakDhfRSexokPn0vvw1RFxB3ho6a3QDWU/0BB93BWqkIQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795157868;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=NBl7BUSOYnRPC87LqfX8iZJG5fzomYTTiTT3HwOLflE=;
-	b=H1SiiZSws40z17JgnZAqNwLb2KlXpCdi7VksfRmr1MyjNKNXMXBm23xKKWQTOw1uCbKC
-	 MKTOB97q0FvBP1Y2ezGWxInVHEYZhj2NvpkFuMX5ZnyQQPWbMDTSIGGeUPqlZpuaeFLeM
-	 hq1VG/pG6AX+A7wXy60GUnbkJJHL3ha9GgahQV38aFTu+XQ1wgAIWvggJl8k3ykIt2Jmj
-	 6VYGbREps/tBHOXLqvhTTBB3dyt9H4S8b6NUHswK4dFYdZ0x8fQTAIHhyLEP4wSRL5WeL
-	 Fps5hHpgoQZUPJrHtUS5fjWJZaud+iM/UHfghB/RgwzqLBtAijb5d7IgOqjXebMj5JQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ktdrCHft;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795158198;
+	b=40Te0AJ4r442D7JeESMMjKns8qBnWUEzRVpza6/A2uubTadn+RgeFJNyCek8ssWHRMYt
+	 OxvJlb5t5o1X0Q6Grx+1a6pCtJ9dw8I6ej2ZKOMcvWT7TblgpYmYHIvGrueb0uFsHhm7w
+	 XCU4WL/x3JN5uGG/PUGMqDa5+DbX2VFT8/i41yf5XZPAXxResXm635q5dcaK7Bg8T69xb
+	 OaeKXLdxMWFd0eKpMUycHXLt0Kb2zcYznS6yktsVh2OXKFMHgu60WDhW0o5LkagxXHC7a
+	 13GevSrR+6FAHZ/l6FpLw1A/hT/HS0TKzSKkTv5uM4nITAzEcmAXw4ArsbEJl6Qnq1w==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795158198;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=tIL4naEsOGDc+r3vxnhbbcCwtNqnBTd10WvCPnsPbaQ=;
+	b=llxuLvVXBqDoYMo6ZfdRRILIFDHWlK/6F5X6qESmhzRSy2x5qdtLDjGlPJnMpflsr7CY
+	 I2qEAoyb4K1X+RYLCarK0QfLnVtY8vbdtDeAY+KnATQvoa4I8rBcKHnXtr3IDHSCj3Nn0
+	 ROK/rnsNv229IGWEj2S1knQ6pWp8jkISjd7nh9bQ4o/XOJCgLQTPZDvcMRP05pBXEYc82
+	 L19mbRn9Q/sx+bTXiH4BH0G996FZRznPsUAu4gQVXyfrxdgzqInnIJmEF3boV1Xu03Q9h
+	 SSBUnXZXPFU+qXbFlJo5pODWGp8lm+cGxcZZOGn+DJTUO/HMllOtvqGC+9K8CeJcD8g==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j2+4OVz8;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D539A606A325;
-	Fri, 20 Nov 2026 06:57:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9782606A32A
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 07:03:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ktdrCHft
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795157868;
-	b=JirsaWeYoTIusIUdVaE0znMpL0D2RJFMetf0wlD9FczTdjjjjdSvKuNf3nXHDPsgtWQL
-	 Rc9Oj7P+ZSVruLAITLkRvv7qo0waJyOOCwVHn1Cl74L1aa8cR1QUB+D2UaBrvIfNaj0RU
-	 52FnnS1k0WQomq3GxEBv+MfwghjZAr5oUIrum5CU0kYylAAMcwBXQngSXQEQmGRtx5EyD
-	 xICYKNgKo9MUc0Kdy98glNaMlzUmXI/MnQJK0jz4m1e9vZJs9XWTnvX22aUsUaZSXs6Fw
-	 UwwnMF9E2HbTy1qfcaA3oE3z6C6nWPtb3FSMohJkSjX+3XyeBIFIHJOV0UIeVrhIDkA==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795157868;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=NBl7BUSOYnRPC87LqfX8iZJG5fzomYTTiTT3HwOLflE=;
-	b=t5lkyjF6rMgUQPD3EKacEhB1ENLR6ds9K9XbTC35xp9OvXrqH3wyWUiUImgTEQcgVTPu
-	 mLyv/DxmIUoKJMMbu6qHIjAdav3UG9l1Rr34sYzTpxqE8pHnS4laKpvmkWLFIyta443gJ
-	 9PN+E0AwvZhA7Hh2yGxfgujTfAQkTa/9NEJM0qQ7dqextrfzqAUKuLZoKs3fUrOGiWLEq
-	 Ul4dGXeWkgwxO63ZhHSD1x6j06geInSxr5qqwb+ox6afmGUwnM6mJd/7CSvNAe0Sg8+IW
-	 d1CBaD3vALYsRL/yxWFnSJgzZN3fOBcnOqAZlSW9y3hJ8wIukuoxTIJsWYOh166Dgfg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id D37751F000CA;
-	Fri, 20 Nov 2026 06:57:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j2+4OVz8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A941F000C6;
+	Fri, 20 Nov 2026 07:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795157868;
-	bh=NBl7BUSOYnRPC87LqfX8iZJG5fzomYTTiTT3HwOLflE=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=ktdrCHftSLvmqgkA9Zb26vTCrt/Qk67Af2PyThCqafJJlsVxGjSzER6KngrK5S0Ai
-	 7lAZX+yh8YMVOruvGkAHnGgO9Musj2fAO46ih7ezE3gxpErOqHqUhV3lx6KSqUG061
-	 iBpULp9IW5unnHoAqijVUgi9WbLjXLs9C0ViEp5Vlyttx0ytahJMmKwpdMTIOI+Oeg
-	 hAjQC9S04Xz+G4iNX4PuyWz3wV00HekSfNqMhefV72HvGoUBqhIZPui2cPJajvwyT1
-	 J8c4PHFLrmFbPyiEn07HkuGP/Ubktn5RNl/C1JU7l60ZR0kUqbAMKB7VPiD6u8hOdl
-	 MDZZPZ7guhy1w==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 61AA349731;
-	Fri, 20 Nov 2026 06:57:47 +0000 (UTC)
-From: Seonghyeon Lim via B4 Relay <devnull+forfortuna.naver.com@kernel.org>
-Date: Fri, 20 Nov 2026 15:56:03 +0900
-Subject: [PATCH v2 1/2] can: virtio: fix RX/TX stall on interrupt before
- NAPI is enabled
+	s=k20260515; t=1795158197;
+	bh=tIL4naEsOGDc+r3vxnhbbcCwtNqnBTd10WvCPnsPbaQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=j2+4OVz8jiVZPsuwMWClCwZaTCEMCvyqCLJKlSfwYGDtoqfxqfknezvgY73bLWjQQ
+	 KylN8WZKhHpF/zELtYVflV9T/HRyGRAt5Sp4yY7tNG6TeQvnNoC5tJT9pKyKCZMvjE
+	 2Y5uqwNHEk/wJIaC+hHdDS0Qx7op5pQG4dvPhpNFcpdNzLRpDqocogCddYKMVrBaqc
+	 BnAKhOW8zlTmjIixEpfLkwvBEMqWg9B1W1frogvXTAeCZEYmzBo5PxUseXzj+Ak5sU
+	 B3YAMkX4gBURyrZw4WjhYp2wS8Zrotuapr65pTsesxWxOQmMwpIwxcaYfFmQTu6hPm
+	 T3mNgsHkbwFfA==
+Message-ID: <sashiko-outbox-224592@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/2] can: virtio: fix virtqueue use before DRIVER_OK
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Seonghyeon Lim" <forfortuna@naver.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261120-virtio-can-ready-v2-2-0defda2af8cb@naver.com>
+References: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
+ <20261120-virtio-can-ready-v2-2-0defda2af8cb@naver.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 07:03:16 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -82,81 +60,32 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261120-virtio-can-ready-v2-1-0defda2af8cb@naver.com>
-References: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
-In-Reply-To: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
-To: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
- Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, 
- Marc Kleine-Budde <mkl@pengutronix.de>, 
- Vincent Mailhol <mailhol@kernel.org>, 
- Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
- Francesco Valla <francesco@valla.it>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-can@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>, 
- stable@vger.kernel.org, Seonghyeon Lim <forfortuna@naver.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795157866; l=1758;
- i=forfortuna@naver.com; s=20261110; h=from:subject:message-id;
- bh=VdaeA38HLLllzuwXwpZQnruRF3RFDA8ms3izgQtOuCM=;
- b=0NmnWet0mChPlkOlfm8eK8hgyrc7mZxkjGIeDIrlHa4xCAz9bNBH/Qbmyj2K/OdCJ+iIhw1WE
- RlNf/UDdoTsDhKerVayRxLL8NuUz+OiZLIXuoBDNE2YfrOZlNIdckPT
-X-Developer-Key: i=forfortuna@naver.com; a=ed25519;
- pk=NSzj4ReyzmE01C4q/f+7jqXzWqsN5NwQK5UsSI6ufiE=
-X-Endpoint-Received: by B4 Relay for forfortuna@naver.com/20261110 with
- auth_id=1481
-X-Original-From: Seonghyeon Lim <forfortuna@naver.com>
-Reply-To: forfortuna@naver.com
-Content-Transfer-Encoding: 7bit
 
-From: Seonghyeon Lim <forfortuna@naver.com>
+> From: Seonghyeon Lim <forfortuna@naver.com>
+>=20
+> virtio_can_probe() and virtio_can_restore() fill the RX virtqueue and
+> kick it before the device is set DRIVER_OK. The virtio specification
+> does not allow the driver to notify the device before DRIVER_OK.
+>=20
+> In restore, if the interface was up, virtio_can_open() then sends a
+> START control message and waits for the reply. DRIVER_OK is only set
+> by the virtio core after restore returns, so the device may never
+> handle the request and the wait never completes, which hangs system
+> resume:
+>=20
+>   task:kworker/u4:5 state:D
+>   Workqueue: async async_run_entry_fn
+>   Call Trace:
+> [ ... ]
+> virtio_can_napi_enable().
+>=20
+> Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
 
-virtio_can_open() sends the START command before it enables NAPI. Once
-the device has started, an RX or TX interrupt can arrive in between.
-The interrupt handler then disables the virtqueue callback and calls
-napi_schedule(), which does nothing because NAPI is still disabled.
-napi_enable() does not schedule a poll either, and only the poll
-function re-enables the callback, so the queue can stall until the
-device happens to send another interrupt.
+Sashiko has reviewed this patch and found no issues.
 
-Schedule NAPI once after napi_enable(), as virtio-net does in
-virtnet_napi_do_enable(). This processes buffers that are already used
-and re-enables the callback.
-
-Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
----
- drivers/net/can/virtio_can.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
-index f67d0bf09681..9055d7e43235 100644
---- a/drivers/net/can/virtio_can.c
-+++ b/drivers/net/can/virtio_can.c
-@@ -116,6 +116,19 @@ static void virtio_can_napi_enable(struct virtio_can_priv *priv)
- 	if (!priv->napi_active) {
- 		napi_enable(&priv->napi);
- 		napi_enable(&priv->napi_tx);
-+
-+		/* An interrupt that arrived while NAPI was disabled has
-+		 * disabled the virtqueue callback but could not schedule
-+		 * NAPI, so no further interrupt may come. Schedule NAPI once
-+		 * to process pending buffers and re-enable the callback.
-+		 */
-+		local_bh_disable();
-+		virtqueue_napi_schedule(&priv->napi,
-+					priv->vqs[VIRTIO_CAN_QUEUE_RX]);
-+		virtqueue_napi_schedule(&priv->napi_tx,
-+					priv->vqs[VIRTIO_CAN_QUEUE_TX]);
-+		local_bh_enable();
-+
- 		priv->napi_active = true;
- 	}
- }
-
--- 
-2.43.0
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-virtio-can=
+-ready-v2-0-0defda2af8cb@naver.com?part=3D2
 
