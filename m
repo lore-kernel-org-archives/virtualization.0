@@ -1,61 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.37.83.207
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795180857;
-	b=2Y4nNjOMpb8ZIREuoYp48BMUJ22IcIdMCKlI62F08uF7kM5inJiYHgxS1+aotSgMunQi
-	 etZcZUXnjKDsw01EAOD2OcekUqAhNG4R1HQCbXIG7tvMbhudIILgcGob6ujkdHmgig9Ur
-	 Mv+ONEmyiHBojN9DeBrX65EwTLVunhjdqO0fEgYOK5AVGqVMOqHLgYZexZ/rtJtyP/flp
-	 260dJSsozQAEtQo2FWu/+V1rSQ5ZsBEN7v7Dc/W0tZVLZ5AwffA6TyEhCTJkCi1t5t9ya
-	 I7F8xVfDs2yXDoPHVuulglnKAawdXsN7F+xRsSRB9Qh0hKT70ThLJHST2hWjGW2GGuw==
+	t=1795180947;
+	b=mcTbgafcnpG4ZqKsB4IbFN64xSwg+0Zz5MzMlR+IVgpILkvw9bNYZmHV4qnMrsfZrT2Q
+	 vgx/qkEv3aaxl+794mPLdCIulj6guZZu+hBq7F2x2wJPFoXpD9AEzN4854tBevg36zwEq
+	 8yuC2ty2Me6P+WNzRgPjGXwHmCrMCy6XegGY3aylHI2+twjA0t8dgGOfdEPCt44lcf4eH
+	 bU9IO+NNMNtvezsD9EUghL6w4QwyI1U2CDamwkjraKz0uB+lRtd+WKRZBFMCamdP3XCgu
+	 nBKiTjRpwBOr5XYUDHgO7NRVPwSwzCc4hMnDxluwigx/2/FgDnPXbpabCyiHEo9NCMg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795180857;
-	h=DMARC-Filter:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=Gkaq7y0t6W9u9ga0uuU7sK+gI9R+BYJHhIlyp2e/T7E=;
-	b=KIyUu/UC844gvUE44PWJITPuvBw1QwPtAbLopXQRShgoysPKM3Aewq3TSCXrZLfk2EDo
-	 fCe0ey4FAPuvsze4WjszeyGqskDyK5hD+9dGTTWfURfc8wSTrVOQffyPOaogwYFkLQPjP
-	 1zE4s/03o1ZWkWbXKHBEi7UWW38n0vCd9t0JmjT1ZO7Jx/4bnN+F+6nf15nqJNIzZcvAh
-	 0nopXHEYCPuD67uR91do6Q839KGF8du1c7SCPXVBA5UMYJ99dxgKwbkPdqa8/EcrAtltD
-	 QDcwFNzHwfK5DTKMwCgPOympI2nEkMRglf/4O0XNn5SnJATY1p/LuNP1Dl4ootKzsaQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795180947;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=CYKzK+afm1UAXOdWN88x2NYVRVihApLSg0ZCPnBXpAE=;
+	b=CkqWD0IfpUdGdT5iCnAdhuWTcZF+kZtKr9SCYO0/B2hQE1htm384V/LrXc1tLFkofwuu
+	 hM2BYYnp7rngjJ+HzNRoJskZGcXDcoPMmxoEtmPYqhY/SNOPvLOu6FvnXXpv7yOGiN3PZ
+	 J2R6fN7wpWjx9xxDvCET9WDU6hMSGvmafHwKToA9xE/5XDPM1NDUrjH5juOA7R9je8xUH
+	 3Pgnv3ro8SBnjJwF4gKAlJY/KGXukT8wzxwr1F48Re3ev9HAyYOXe9maP1uPJt2T7voxZ
+	 2SboWAGpwkdMW6xTPKxJ4xkALiwKW3nBqquuEyGbngfG2Bld3w2LfXCP0ntBitSEQ7w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=dfb.sh;
-	spf=pass smtp.mailfrom=dfb.sh;
-	dkim=pass header.d=dfb.sh header.i=@dfb.sh header.a=rsa-sha256 header.s=frkn header.b=B+dnc40H;
-	arc=none smtp.remote-ip=54.37.83.207
-Received: from frkn.dfb.sh (frkn.dfb.sh [54.37.83.207])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=daY6EDy4;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2935F606A334
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 13:20:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2935F606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dfb.sh
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dfb.sh
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B8A606A326;
+	Fri, 20 Nov 2026 13:22:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dfb.sh header.i=@dfb.sh header.a=rsa-sha256 header.s=frkn header.b=B+dnc40H
-DKIM-Signature: v=1; a=rsa-sha256; s=frkn; d=dfb.sh; c=relaxed/relaxed; r=y;
-	h=Message-ID:Date:Subject:To:From; t=1795180837; bh=Gkaq7y0t6W9u9ga0uuU7sK+
-	gI9R+BYJHhIlyp2e/T7E=; b=B+dnc40HTqT0Asf/fygoTtwvxSKN81ITvZTE+gl2xUSDC7Ha4Z
-	TfagQ3bq2yD7fILjtHAW55d3JOX3GT8jzmFtqmBr5MIp3I970aobEKP6BP3/I9dPMXnCDcIYvpC
-	xFBATnKzBNZJL3GYk5yMviN4GQSypYgC56e2u10zNa6x/xQMbbwP8o3wYMrg1IsaszlMeX586A7
-	kni0jAb9OHEpqlxL2Q6PbPcjS3nzSoZvj4BARldMoSYxb98pRqd8KMjC7V00JSu6SUVGzbykNb0
-	uzTn7FXKRzVXKX3P+ZXcGhoKMNKINgbNwowYPnfkH1pqaLnIilISPlBBEzW8KbOl2uw==;
-From: Vladimir Petrzhikovskii <vladimir@dfb.sh>
-To: dtatulea@nvidia.com
-Cc: mst@redhat.com,
-	jasowangio@gmail.com,
-	eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	nikolai@kalinidze.me
-Subject: Re: [PATCH] vdpa/mlx5: Bound the KLM count of the user MR
-Date: Fri, 20 Nov 2026 14:20:34 +0100
-Message-ID: <20261120132034.1337770-1-vladimir@dfb.sh>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <d4f67696-5095-4948-9029-f657058431b0@nvidia.com>
-References: <20261109-b4-mlx5-klm-v1-1-787b45145719@dfb.sh> <20261119101523-mutt-send-email-mst@kernel.org> <d4f67696-5095-4948-9029-f657058431b0@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=daY6EDy4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417B01F000CA;
+	Fri, 20 Nov 2026 13:22:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795180946;
+	bh=CYKzK+afm1UAXOdWN88x2NYVRVihApLSg0ZCPnBXpAE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=daY6EDy4/MYgaj691rc13nwsS7BVt58ckPRvsKOl2i2Hnu4t/DTGBXgBKLWv75LqQ
+	 LyocvI3dr8BHsyaTYk6KWZ+lo8NPMzYhMO4mK05rpvqFVb4ZMKY+Yv+imvPzytoM0p
+	 mJ3OD0foxm16lLw/nD3rzKJr58Gc27/GczEOn2lEEdMQAFagiy38PrrIRl0M0tg7MN
+	 w/UcBT8RLduLhw9YlLeSyxtcYKLXnxIwGf2Yff9jH+iQ6mbq1d5YJxhKbbXDdOJQCB
+	 LqLGvy+B/ya4W91XSznxOTE8c3OZX6TDJD1v01gXWyjzrsGITdeX8h9VoN7bY1RDqk
+	 D51Qrr7L8WkIA==
+Date: Fri, 20 Nov 2026 13:22:21 +0000
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Nico Pache <nico.pache@linux.dev>, Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-mm@kvack.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] vmw_balloon: account 2 MiB pages in NR_BALLOON_PAGES
+Message-ID: <awBJbbFwE7hlEs03@gremlin>
+References: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org>
+ <20261120-b4-balloon_nr_pages-v1-2-d8944b587819@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -65,42 +60,59 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261120-b4-balloon_nr_pages-v1-2-d8944b587819@kernel.org>
 
-Thank you for the comments!
+On Fri, Nov 20, 2026 at 11:34:43AM +0100, David Hildenbrand (Arm) wrote:
+> vmw_balloon keeps 2 MiB balloon-inflated pages on its own list, not
+> using balloon core that takes otherwise care of updating NR_BALLOON_PAGES
+> for base pages.
+>
+> So far we didn't account 2 MiB pages under the "Balloon" counters, so
+> /proc/meminfo etc. would not reflect them.
+>
+> Fix it by updating NR_BALLOON_PAGES when enqueuing and dequeuing for
+> these pages manually.
+>
+> This has low urgency.
+>
+> Fixes: 4d689474e1b2 ("balloon_compaction: update the NR_BALLOON_PAGES state")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-On 19.11.26 19:12, Dragos Tatulea wrote:
-> Please make this paragraph more human friendly. Enough to say that
-> the type doesn't fit the value or something like that.
+Acked-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-> No need to say what the code does. Focus on the why.
+> ---
+>  drivers/misc/vmw_balloon.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+> index 3edb934dd7fd5..47dbcb3be6ed6 100644
+> --- a/drivers/misc/vmw_balloon.c
+> +++ b/drivers/misc/vmw_balloon.c
+> @@ -1005,6 +1005,8 @@ static void vmballoon_enqueue_page_list(struct vmballoon *b,
+>
+>  		list_for_each_entry(page, pages, lru) {
+>  			vmballoon_mark_page_offline(page, VMW_BALLOON_2M_PAGE);
+> +			mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
+> +					    1 << VMW_BALLOON_2M_ORDER);
+>  		}
+>
+>  		list_splice_init(pages, &b->huge_pages);
+> @@ -1049,6 +1051,8 @@ static void vmballoon_dequeue_page_list(struct vmballoon *b,
+>  	spin_lock(&b->huge_pages_lock);
+>  	list_for_each_entry_safe(page, tmp, &b->huge_pages, lru) {
+>  		vmballoon_mark_page_online(page, VMW_BALLOON_2M_PAGE);
+> +		mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
+> +				    -(1 << VMW_BALLOON_2M_ORDER));
+>
+>  		list_move(&page->lru, pages);
+>  		if (++i == n_req_pages)
+>
+> --
+> 2.56.1
+>
 
-Shortened both in v2.
-
-> Yes The limit is right.
-
-Thanks.
-
-> Comment not needed.
-
-Dropped.
-
-> Unrelated change for fix. Drop please.
-
-Dropped. The command then keeps today's limit: kzalloc() caps it at
-KMALLOC_MAX_SIZE, 4 MiB with 4K pages, which holds fewer than 2^18
-KLMs. On a device with log_max_klm_list_size above 18, a guest map
-that needs more KLMs than that fails with -ENOMEM and a one-time
-warning from the page allocator. Do devices report more than 18? If
-so, I will send kvzalloc() as a separate patch.
-
-> Why not DIV_ROUND_UP_POW2(map->start - pe, MAX_KLM_SIZE)?
-
-I missed that it exists. v2 uses it.
-
-> Use mlx5_vdpa_warn(). Rate limiting here won't help: the other prints
-> will trigger.
-
-Done.
-
-Vladimir
+--
+Cheers, Lorenzo
