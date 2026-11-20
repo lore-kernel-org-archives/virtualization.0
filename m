@@ -1,100 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795196735;
-	b=0Z6YOUH/yUVkEYpLxa0uHKMgfB0wqBnsdZPGYsw168S68B29QcgLTK0BVyQ8zXfwLfaH
-	 7nRQqKgqvkCqag2r2BCghs459fdrcPBvtS+DDchRO8rtWANEsBJw9XDPL5bmE7BSQ7QfJ
-	 BKABpkD80E77JahLm+hu04wE3e53mIcTKqISjqKJN4k/vd8c4kD3RhLCpTzspGCait8Ch
-	 evatq05GAA67ZSgjXIi08dRWno6UlFd89Q5t/y7SrMSNzuLv4/QVYOHICImx46qWKT39C
-	 re4fFe1GLEyTqNhGpzlII1C3kUm3X7i4cI/VguRWg/aAH+B7IACfmEb5sIXCnADe5cw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795196735;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=uq/o5iwtxXSQxTRJv8L5q8Xn0KTb+mT3qs/Sf++WNxM=;
-	b=QE85r9RtWOmmAv7R3MX9LmZIsTZ+rrfuC0WP8MCWQjIE1LNWhvThlkEF4FDkfd0lXZq4
-	 yAb21dLxP1+e7XQhGKTES5YyBk0Zsz6q0abDIFdhiL1/i/KoPFm+8clrZ5BiPOMRQ3ydO
-	 eNdzKK+d6LlNmPqDLLL9C3QcMnzGvPFSJTSaImSYF7P9/DDtCdpwWvDfb1tyEwsBPbq1h
-	 0Ig08MTCQna9p31zUjs+BxdZ7Ziu0iUwtb01EzywZJB1SVfgb/tZ+yVrd6AVGykbyoOSN
-	 9MzZBZbGLjoCgNsEvtQ3JE3n+OUeE5QHCJEQD4PXZogWlm9Pm0BDCPOgO8pAZTGQbZQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ICgsiF3B;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.52.58
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795198056;
+	b=kuigO7BsQr8Jd8YjsX7vOKXSWjwgC1wkiazHi7rZ012eolC4BQu4Lr6Digio/6IAiTH2
+	 qUlRv6XdHsPHd2FCR6mVRpe7/+Cy8Y0uQ+Y0xLRu+4GeCKfvfWRevLBSkHNhKAlzC59Y7
+	 XaNCxF2Rel7BpwT5vJn+Gs5y5wVGbFw97y669OxBTamNdb7xvRbl/EWn5qb8oShUBcKct
+	 s+ROqHT+I4JszAO5DP+qJ9G7XX0mfLGcXGbFAm8E9JLo1BqLcEFTLMiNDXDMuTFHIG6Lh
+	 MM0re3wxtvF6xAYTrKz11nKlSHDiPQ1XVT8qPMPKEN41Gty47sQwLsyVM1Qy9042ozg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795198056;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
+	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
+	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
+	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=9+tE0IVOBH1jxcRtn2gvtL38QyMCJLC5uuX9AYcEIrQ=;
+	b=qva9NhrbJHLkv1I3Jb/7Tz5AyxyZ/6uJRYpzRb86b5gFw5cmzkSpHbIU2fmE9uHfdlAZ
+	 M5FwpdhLiOAar2nWV8SBVUmZ9sKnoF+uvFFFz1itNx8gD/NeuxHK1bnfOa5/2yatmzUOL
+	 /HkHmZM+peK43NmlHoLovYFWCurwCfWZm/3In67aLwQZNdod2b/J80W7zmLuVxL73q6E2
+	 /TGlJ5dUjfmL85QoYfjx+ia5D/RGHfW0JPC39czw0fM9LCFAwvtOtoD6BYk4Q5GmANrT7
+	 ATV8BhB2d7PedMR/fMCWbzTEwHo1Hg5QT1wf5+BCXySaI9jvmzysAl20tyeeLy0FXNw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=nvidia.com;
+	spf=fail smtp.mailfrom=nvidia.com;
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b="tHQoILc/";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.52.58
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011058.outbound.protection.outlook.com [52.101.52.58])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4024560A2629
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 17:45:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4024560A2629
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DDDA606A881
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 18:07:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1DDDA606A881
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ICgsiF3B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795196730;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uq/o5iwtxXSQxTRJv8L5q8Xn0KTb+mT3qs/Sf++WNxM=;
-	b=ICgsiF3BabQ7rZXv1dkZIqA5KJk+t294fUSswbkN2ARpa7K3/AQ1EDVKYWY7XLxn0+lc5y
-	CWJbni5h8Uqt4weSC7Esxi2Q+lM3hCmVE4q3DzTD3eJUYP3bbCXHaSFYse7Dwpq6RWUT1d
-	6SssDcJtDxJCTXoLeuRIIRgjJ9+Dbfw=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-272-SJ_dpnZlNdyUoXJLq7Dl9Q-1; Fri, 20 Nov 2026 17:45:28 +0000
-X-MC-Unique: SJ_dpnZlNdyUoXJLq7Dl9Q-1
-X-Mimecast-MFC-AGG-ID: SJ_dpnZlNdyUoXJLq7Dl9Q_1795196727
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4b764ffc014so8882225e9.0
-        for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 09:45:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795196727; x=1795801527;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=uq/o5iwtxXSQxTRJv8L5q8Xn0KTb+mT3qs/Sf++WNxM=;
-        b=tlNFT8yqHUI8ggRIHxt6NUoOd0sfAzhdMnRbj7PRHjwBNfHnNon2khSY55CTCisMh4
-         W2clPybWkGS6v459Fay0piuSroYqjMxxMSwG0VK0tzRRPvD50uLAMsFFENV9iWUtcQON
-         y8Td1afInG6nmogzpGMpqfErbz68AvCAYD9om/q+YdNsZAPCe6cOsxpYMjAOt6BCOG0q
-         DB/Jmnl9i+MBUZYKIISkj6yfz3hE+BYoBVPT6fTx/DQ48mYqFk1OyukrlINlMldD6FPH
-         95qgxUwvfn7mpE2sg1UxgkywIvE2AZxzFg9yjDP0Zi3tqni4qSPQxI4+em9C83wp9Us2
-         2OXQ==
-X-Forwarded-Encrypted: i=1; AL+hErG0cvo+aG/lfPXCZ0E0KbrWUCRgJOz5XOBnnArI/tTCPXL7k3xAolERzQmT8rDGmS8aW3yukRzQ0lKgyHXwTQ==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/jC2IbcpmNkbwMgPgwjJe62GsbZYfDoKeoOwcjk6qVUWge5l5c
-	T/GErGsGzMweCsKkIPvjg2gKzMV9ZvVE35ucNOCbce0DkqhbJSSGt73iyNJYG/uNmrz2jval3EN
-	V0r5jfAHHc3o/YhMbWwOI/4595n6NCRTjWbWvjxiRt8JhAtxBX0Iy80zhhuASlchaygyib1ZPQF
-	4S
-X-Gm-Gg: AYBFou3TA8g/TYMJf9Hn5GIVbu1FGiLAMcoUdF9rdoh6nALZ48dRiYsdtAYeVigvGQU
-	ShiARHQmRCOkuqEvKsJKFLQRqfCWSXucmWxtDqiIJyEOy9CDUqw6EGscfxFLHJM/EA0gZu78pLY
-	awd4D3vISq4SUVx63mtJMMgiL39MjQqKjvajz9SUqvcDX4Tm/bpv4Cu/F9HJH85eUPTFMZGC8Yt
-	Ig3slDgn0PgqOETHsex3X1tdCnUXsMenPGtzJDupWqxTgzNeoQL1hB3wVlXfBee0bZFNSU+bG7h
-	hWqyDVv/x3HX24yg4XUjm0CIKrCPfXRoL2Ajg6AB3on26KjmxTz9YLVZS8jhr8qjS8eytKrkryL
-	3FvahDS+4b4FC1UR916dvGAzLh33RKh2ccYkAaQQnlL/0
-X-Received: by 2002:a05:600c:a15:b0:4b6:267a:dd6e with SMTP id 5b1f17b1804b1-4bb88938a62mr88569335e9.28.1795196726642;
-        Fri, 20 Nov 2026 09:45:26 -0800 (PST)
-X-Received: by 2002:a05:600c:a15:b0:4b6:267a:dd6e with SMTP id 5b1f17b1804b1-4bb88938a62mr88568535e9.28.1795196725990;
-        Fri, 20 Nov 2026 09:45:25 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73c1:fd00:6c8e:5a61:f533:519d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884b7515sm142927935e9.13.2026.11.20.09.45.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 09:45:25 -0800 (PST)
-Date: Fri, 20 Nov 2026 12:45:22 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Longjun Tang <lange_tang@163.com>
-Cc: kuba@kernel.org, eperezma@redhat.com, jasowangio@gmail.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, tanglongjun@kylinos.cn
-Subject: Re: [PATCH v2 0/3] virtio_net: introduce an RX queue watchdog for
- stuck detection
-Message-ID: <20261120124403-mutt-send-email-mst@kernel.org>
-References: <20261120071826.198604-1-lange_tang@163.com>
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=tHQoILc/
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=jNuB3wQhQ2b/zDcT8eoeP60A2k9GjOFa3nYlzrcZXUile/qu7XGxLRMUBdsG5S96Pd6acghE6SkiMq3eLzslJ0RH/KZPTK7UI8nE23tckdcmfwpSiVyMGj+mE+4MoPXfTTzsmMwiK5UdMRRSzD39DfLO1F8A7YndBwQ3qQltOc9VwC3Z25eMVmHkKU7b89IjaWDbu/HV90Fsj/AdcLTQePpu1aCb3qvOFIoqCn1YrUYYk3MrjUtaTFPUz6IsMps97ZTD+AyXA5gE91ZwW6E2gjDuj+KKGutUCXbG+c8PNLDieXhmEBLgscjGZmyhxbaACncUoo0eC+bVI3lOJ1/ioA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9+tE0IVOBH1jxcRtn2gvtL38QyMCJLC5uuX9AYcEIrQ=;
+ b=JII6/h7/Mkeq7H/WIi/ginsD8H+QA89j8NoGCY9xpT67TzzVo6ilUqG1GyoH05WnOGFVuvz1yytcnAI5NBtUb7Vd71cDlvrHjyxZ0+6ig86Luueg04OAac/yvyYR6MgfEIV1j6o+9jRH586puDJf33WUp4rTfleQJ+imIeXA2sy4zc3kH7jupyNq7q76lStcUb05CXhNBa6b28QQ+Y5r+RxrzsWVB0Zh10YXAuxeIF2jCW1wRUfYRedRZ7BljkzkXeBtRRvxcq1f2XrWIBcss+LbAcSrNPd3wCPDf1VjQ11njyjj+nuwStujtqpBjfSc/sbt9i5QphlNoBw8ZvEdgQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9+tE0IVOBH1jxcRtn2gvtL38QyMCJLC5uuX9AYcEIrQ=;
+ b=tHQoILc/MjlzoN5NFw6LIIRUfqwOC6BvyxVnTfzYmOTBT0tQprJj6h/chCIgVre7Rxw9y0BtvmGGkP4im/d2ng4kpJMdmaleqeHH8E9nCwr70qkUex84w4shTkIVAF9rwl6iB/bxdUZnxtMTQY5Wm0lPwXL/eHoUx4JCeAYl7twtGHgAgLrtbCfiI3fVw2n2lIKoc6F29qxNHnqjjFzD3STLZ5KZVsH67xOCHbuMioVnZHMIHC5iAm39t2x1OesQhgbV7oJ0Vi1pjctlLljbHYnT7yN5575jgSoqZqZ47O65vomTAMKGXZ06b+Hll0OeVj+xhHX2qc+/G18JzCVqiA==
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CHAPR12MB999248.namprd12.prod.outlook.com
+ (2603:10b6:610:2ff::22) by SJ5PPF665EE4E73.namprd12.prod.outlook.com
+ (2603:10b6:a0f:fc02::996) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Fri, 20 Nov
+ 2026 18:07:21 +0000
+Received: from CHAPR12MB999248.namprd12.prod.outlook.com
+ ([fe80::4972:8062:d74e:b205]) by CHAPR12MB999248.namprd12.prod.outlook.com
+ ([fe80::4972:8062:d74e:b205%6]) with mapi id 15.21.0639.010; Fri, 20 Nov 2026
+ 18:07:21 +0000
+Message-ID: <eea1d302-91f6-4578-8718-fc466972e0d9@nvidia.com>
+Date: Fri, 20 Nov 2026 19:07:16 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] vdpa/mlx5: Bound the KLM count of the user MR
+To: Vladimir Petrzhikovskii <vladimir@dfb.sh>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ Nikolai Kalinin <nikolai@kalinidze.me>
+References: <20261120-b4-mlx5-klm-v2-1-5b37ace483ff@dfb.sh>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <20261120-b4-mlx5-klm-v2-1-5b37ace483ff@dfb.sh>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FR0P281CA0122.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:97::12) To CHAPR12MB999248.namprd12.prod.outlook.com
+ (2603:10b6:610:2ff::22)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -104,91 +100,107 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261120071826.198604-1-lange_tang@163.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RAXBxhYzfOcaIWG-_WM-f4hyZ79PytwuNL2SQUkVhe4_1795196727
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CHAPR12MB999248:EE_|SJ5PPF665EE4E73:EE_
+X-MS-Office365-Filtering-Correlation-Id: b65a4a81-2d58-4c8a-4023-08df47311f51
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|23010399003|376014|1800799024|10067099003|56012099006|261102123227099003|261026121527099003|11063799006|261022105027099003|261021121427099003|261026140227099003|261028144727099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	a3UxG4CJsF1fctT9x/qh3/ayCdLAV+qI8n5RIZV05BFfYR+AhypZbaM0GNQRfm9k432MWlHY3DaWwWIDFr9XSaJm+ZhUgAzfivXzjorHUwBGK66MDtk5oy/WL1KXuVGY3dzc8E+NzoN7nUb829qhBTZ+golN9+MKspm9eZr+YQizfpHe+Ij7RRy0J5ca1yke8C5Zt0/WNFEDqW1en+kU+9EUnjJjd8Tok3qkso1Kfi7mrkNaUkvDHP6SuiZp/cvos65pf1ZpCd+e/aSLcqxpEcYkL1v+9qMCfELOsMrQj6CsaP4Jr9nSkV8bNh+tkZm2AELcEtc56Ytt6hQx1cx5dWP6utJ06hDBdjGjxs1lwK6rj3ncL2Vxp0D2wJI2qp25KKwpWDxtVKzLyoM6M1UL0R76uBG4aMu8iWjxb2ENL0sfmQ7CwBYT3CTwp+ru/yL7oDQDzY2zapAAPzGlTzx8kJUESavTwhiYc164qyHfGLyIejRJvgsk34T/cIfyZvZNE8AN+8CrYU9jtHmZdv34n057/medjP3JTPDs1bGIXATFmCD3FO81kW+Bp13Qa0x1L1CYMTts3X23Kl3EOg5Zb4l6OZ81fBE24xrBGVwyGfYcCDHkMhyf3mLRMWlYHuhoyLmQv+eg4hLZBOw/KWk4JsPfJ8ZQ/jMF+sEsA00u8E0=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CHAPR12MB999248.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(376014)(1800799024)(10067099003)(56012099006)(261102123227099003)(261026121527099003)(11063799006)(261022105027099003)(261021121427099003)(261026140227099003)(261028144727099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?UVdQWGhkY1I0N0d2MzlkY3VZZFVtaEdEWUU1T0M5QjRyWGY3cmVGMmc5cXVJ?=
+ =?utf-8?B?Z3J6bUU3allOQVE5VEpnTWZBV3c0YW9SbWgveUVNd242Z2FCSmw0RjZQblB1?=
+ =?utf-8?B?YWtrZUl2ZDlHOEpQWkFPRzRhVDNiNUJvMXhCVlBjLzJkZU5jVkwxMmRhdEVK?=
+ =?utf-8?B?d3NPY0c3TG9La09EZ1RXY2l4UDYyWWFXWktmQmlMRFZPcFhORllaSmxuNzB3?=
+ =?utf-8?B?RFQvN3RVeGdxQnBpTFV1UDFyQklZYlV6bGYxMldTb0VMMWdmVlNRejdtbWNx?=
+ =?utf-8?B?aEErMXlhRjFDb3BMRlNRS2h1ZFkwQzZic2hENTd4bktXOXdGT2VhblVyWUVW?=
+ =?utf-8?B?QnQxVnltZ2Yyc0ZybVFZcFUvRTZjR1luTVc2VXc2ait2VXhxbHFlOUJLbncr?=
+ =?utf-8?B?MkNOL0tkaktYQ0wzZ2F5MG1PbVJVSy80OWtHNkdZVk1sV29kcUxKZ2N2NTZC?=
+ =?utf-8?B?cEhqa1FUQXhGRzJXdUNSQ2drcTZvbklvSXdjU1ptR0MyRnZzNHB0UEtGSE5j?=
+ =?utf-8?B?TzlUYWRUQnN3RzRnRXBpTkMwWjViVHQ1QW9UUWdZU0pQc3NZZ3dxZEJjY1Rx?=
+ =?utf-8?B?cFYzbUs1MHV5b2dtNmF5cmFOVE51b2JxS2oxeUdiTldOaTRrQzJUN1VuRHZz?=
+ =?utf-8?B?YzFPS1Vveld3eEZkVmpROFp0M2UrY1hkV090aG1sVy9BT2RvMnBWZmxvRExD?=
+ =?utf-8?B?cHEzbThDdC9vNDVMRlVVbElpSDdyNVVVMEhlN2dpVTc0THpoTkZVdXhDTGhk?=
+ =?utf-8?B?ZHo1MXhWenlvd1NDc3o1K3NnWEVJNHVmQXp4bmp4bElvakNhN0QyNFFXZnpx?=
+ =?utf-8?B?MEFzRTdJNUUwZk15d0JHTlc1M25rZzB6VUZyTlMxM2tMVjQ3RTM5T01yY0Qv?=
+ =?utf-8?B?UlB4WE0vcDNYK1hNbjJHQUdtWDNtT1Q5SFlXM3IzSHRtSFQwbTJPNDlUUHdV?=
+ =?utf-8?B?UGlkT25nK3BCNU0xdmZwdWF0UnpSeWxmMStBMWNMRFg0a0VyWllmVUsvTEMy?=
+ =?utf-8?B?OFRGTUU0YlNkRG5xRU5IUUdNVkV3ak43S0RCUk9qS1hzVzcwUUlPcS9HaEp2?=
+ =?utf-8?B?c28ybitVM010Vld2THZReTR5cmhDdmwvUDU3Vyszc0JEQmJNdEhaczd6N0Nk?=
+ =?utf-8?B?T2VHMjdCeGVEQnhqRG95dWR2aWdEQUhjazRxWGE0WFJpT2VRUkNLMVllU2FO?=
+ =?utf-8?B?b1VmbGIvaEtrNkwvM1lzcWY4NDFRUHdCVFBSeEk3YStXVmhIeDhVMlE2Szhw?=
+ =?utf-8?B?Z1dtejFLQy83ZVJFMVFxL1J4Q1lUQjBtRDBiZ2ZUaEIyRUpiWUNjMFlUeTVw?=
+ =?utf-8?B?eDFma29QZFg5bCs1L0VVbGs3RDN5b0puTFJRYWwzSGNFQmNQZEJsQUR6Vk43?=
+ =?utf-8?B?dzVkdlhuUWViVmF6WCtJcjBsSWt4RlBWUlFVUkNzSnFuZXZ6VzlRMlhNUnhT?=
+ =?utf-8?B?cURFRVF0NktHZmdFeEdkTTdKYlRabmMvNk5rQzh1MG1uTVg2S1dkbERQNExW?=
+ =?utf-8?B?WWlEaTVLMGVrY2NsR2xnTVBaU2JzYU41ajRkSnBmZlluODlDbXVtdjZWbDQw?=
+ =?utf-8?B?dXVaVXVQUm1oN002Ui9GZFBjSnQ0bG5aRXkxVld2SkVUaU85SnlxelZpUzBO?=
+ =?utf-8?B?dFQzZ3dTendvMzNhMTUvTStJS1U2bXZmcXZGclRCTFB2ZTYyNDdRUmVHYWla?=
+ =?utf-8?B?ZXFVWENSaVJSekNzU25xOHR5c2xub21tQjFMamcrUlcyYUhPY1RiT3BlYkIx?=
+ =?utf-8?B?cUdhMThYSS9UVGtkK0QyUXNHRS9GdnVydC81YlM3QklQc2JlY0IrSlVuU1l1?=
+ =?utf-8?B?MGZ2T0FhZnJreEJ6ZlBqTXpWMmZ3b1JmKy9ybUVoTFJ3MVZ6d203eU9USlgy?=
+ =?utf-8?B?UlZwTnRVaFpBbGZWOG5SNHBqVzhOV3RMZGNZY0xoU2I4L3UrVWpPSzN0YTdE?=
+ =?utf-8?B?eHV2S3Y0czhJTXJRdkVtYUlqbVE0bTFzb0txVWk2VVpvQzB0eVRyanJTNE5w?=
+ =?utf-8?B?bEc3S1ZXS2U2TUVJbE14WlVpWjIvM0ZxNkhiNSsrR3laY3VINkRpZ2pabnhV?=
+ =?utf-8?B?QmduK3h2S3NISXVTUG1MbENOck9DVkl0T2dBcUtGN1dubCtETGtiWGJPZlFy?=
+ =?utf-8?B?b0dQVlAvQU9HbzdNT3lHOEYxQXArSGdLSGtRR25DYURrSFZYc1RQbENLTGU4?=
+ =?utf-8?B?ejJXdDN5RFdRWkRnSVozVmVDMGsvSHlqNTBvbGFjQ3B2WHkzVlNEOGlvTWFj?=
+ =?utf-8?B?dnBIK3Vib1diZWRFQXJDTC9HeEZEMUx2NU9sKzdBNnlCSzZhSC9JR1lMMTJI?=
+ =?utf-8?B?MWlUeEprZVdEdXBNcG93WkZxa2dTSm5ZMEFQWmxXdW5JNWlUcjRHQT09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b65a4a81-2d58-4c8a-4023-08df47311f51
+X-MS-Exchange-CrossTenant-AuthSource: CHAPR12MB999248.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2026 18:07:21.6195
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: WQXfY3zKLio3zrPQ2pjYA2lsMkGbdAuHn7sJVIp27wuRWvJDD+/4CtLbkCgoYCsE5DLBpTVKWO+QItfixndzBw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ5PPF665EE4E73
 
-On Fri, Nov 20, 2026 at 03:18:23PM +0800, Longjun Tang wrote:
-> Hi Michael, Kuba,
+On 20.11.26 14:23, Vladimir Petrzhikovskii wrote:
+> create_user_mr() builds one indirect MKey that covers the whole vhost
+> IOTLB. It fills each gap between two mappings with null KLMs, one per
+> GiB, and never checks the total number of KLMs against the device
+> limit, MLX5_CAP_GEN(log_max_klm_list_size).
 > 
-> I once ran into a problem where the virtio_net receive queue became
-> permanently stuck.
+> With a virtio-IOMMU the guest chooses the IOVAs: the VMM (QEMU)
+> forwards each map the guest makes to the vhost-vDPA device. If the
+> guest maps one page at IOVA 0 and one at IOVA 2^58, the driver needs
+> more than 2^28 KLMs. create_indirect_key() computes the buffer size in
+> an int, which overflows: the driver allocates 336 bytes, and
+> fill_indir() then writes 16 bytes per KLM, 4 GiB in total, far past
+> the end of the buffer.
 > 
-> The virtio_net RX path relies on backend interrupt notifications.
-> The backend(vhost_net/vhost-user) appends buffers to the used ring
-> and then notifies the guest, relying on the hypervisor(KVM) to inject
-> the interrupt. On receiving it, virtio_net schedules NAPI, drains the
-> used ring and refills descriptors.
+> For a huge gap the count is also wrong: the number of null KLMs of one
+> gap does not fit in the int that holds it, and rounding the gap up to
+> whole GiB wraps.
 > 
-> If the hypervisor fails to inject the interrupt(e.g. a transient KVM
-> failure), the guest never schedules NAPI, so it neither consumes buffers
-> nor returns descriptors. The backend keeps appending until the ring is full,
-> then stops and, with no free descriptors left, also stops sending
-> notifications. Both sides now wait for the other, and the RX queue is
-> permanently stuck.
-> 
-> The root cause is the lost interrupt in the hypervisor, and the proper
-> fix belongs there. Nevertheless, I believe virtio_net needs a way to
-> observe and diagnose it. Today, once a queue hangs, there is no signal
-> to the operator that anything is wrong: the RX path has no equivalent of
-> the TX watchdog (ndo_tx_timeout). This series lets virtio_net detect and
-> recover a stuck RX queue.
-> 
+> Refuse a map that needs more KLMs than the device supports, or more
+> than fit in a CREATE_MKEY command, before any key is created. A normal
+> guest is unaffected: memory at 0-3 GiB and 4-68 GiB needs 68 KLMs.
+>
+What do you mean by normal here? This sentence is not needed. Not
+sure if it is worth a respin though.
 
-Why virtio net specifically?
-
-
-> Implementation
-> --------------
+> Found by an LLM code review agent auditing vhost-vDPA backends. We have
+> no mlx5 hardware, so the fix is untested on it.
 > 
-> Patch 1 exposes last_used_idx through a new helper, which is used by both
-> the split and the packed ring and denotes the position the driver has
-> last consumed. Together with the existing virtqueue_poll(), it lets a
-> driver ask whether the device has produced buffers that the driver has
-> not consumed yet ("backlog").
-> 
-> Patch 2 adds a per-device RX watchdog that scans all RX queues once per
-> second. A queue is considered stuck when, for 5 seconds, all of the
-> following hold simultaneously:
->   - the queue has a non-zero backlog (unconsumed buffers);
+> Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Nikolai Kalinin <nikolai@kalinidze.me>
+> Signed-off-by: Nikolai Kalinin <nikolai@kalinidze.me>
+> Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
 
+Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+Thanks for your patch.
 
-what does unconsumed mean?
-
->   - the driver makes no consumption progress (last_used unchanged);
->   - no new interrupt arrives (rq->calls unchanged).
-> On detection it logs a warning, rate-limited to once per timeout, and
-> reschedules NAPI, which drains the ring and refills the descriptors,
-> so the queue recovers.
-> 
-> Patch 3 adds a per-queue stalls statistic, exposed via ethtool -S, so
-> the number of stuck events can be observed per queue.
-
-
-
-> questions and comments are welcome.
-> 
-> Thanks!
-> Lange
-> 
-> Changes in v2:
-> - 1/3: fix the kdoc.
-> - 2/3: drop the module parameter, use a fixed 5s timeout.
-> - 3/3: rename rx_timeouts to stalls.
-> 
-> Longjun Tang (3):
->   virtio: add virtqueue_get_last_used_idx() helper
->   virtio_net: introduce an RX queue watchdog for stuck detection
->   virtio_net: add stalls per-queue statistic
-> 
->  drivers/net/virtio_net.c     | 105 +++++++++++++++++++++++++++++++++++
->  drivers/virtio/virtio_ring.c |  18 +++++-
->  include/linux/virtio.h       |   2 +
->  3 files changed, 123 insertions(+), 2 deletions(-)
-> 
-> -- 
-> 2.25.1
+Thanks,
+Dragos
 
