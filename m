@@ -1,98 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795198107;
-	b=Sv/EMJ/lkYoyHdnBAjerj/pc8ErRlNdGUQyq9WD6DjZ13BBgL46iU3sEmNv1kf/jtJDo
-	 sZ1U0xXZ3GswY0jsg34DH8t5W57oBN5hNG8D5s0It70op/8+e91PW2b1llQY1TNbrnvg6
-	 PTzbhxNqzzWSBNET9LsN1yqtYTs95Kvi3y+z4zv0fHBhfdsMTJOFW775n7ZslbjAdtj/D
-	 2Qqlk2qFGQmQ59hhEUj/2+cXKThRVKrD/ip/PhMag95vu7B+GhJcQM1Q2XwoKorbixz8W
-	 a3ZlQhReNMmJnVWWtDXPKgRQIT+DOowfyM/PbN8Mqotwmaa+DbQ4IlTy+cyzZpuGksQ==
+	t=1795200859;
+	b=E0PiSMoIyrPl/1Ls64PSgMxAJtqkdzf+UhzdcDqkiCkP2hPTCs6ammjp+0aPC6l0XLPD
+	 Hi6AlEQ3/l+rhnEdlPN5qk8fIwCsG9EvrQS6q1EFVEQCi+Xqel7WPIqXaqSf17LGzKmOw
+	 hvPtuHVmGfQXEhzSUVQMRFi66HkbzSkyAYHcantNW+wrnXJS3DPDeDYcTHQVnJBixMiqe
+	 OLy1NPYYY0pfQ5GJbiPC4K3uoGS+2sjF/sBREEKxaRJhz91l5mMkAlCufPYnFHU/6g8UY
+	 akkHTlDzpRkKVn+K9Or9G1IHj7H1VBmfcwYYsHUEitk3w1aimdK+YV9DUxFeu/hYdig==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795198107;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
-	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Originating-IP:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Proofpoint-Virus-Version;
-	bh=0lbcaJ8L0yzVbe6zUbN1cAVyzh8iJfnZ5U61Z9GQ5bo=;
-	b=IU4c4gt3oOWnFBzI/v8CvQ3wmSWVSc2OHttJr/wM42RMlah7k5spsH3VtqBTeyg06vq3
-	 zCPyz6MN2kJc2iYxs+mR+08FhS+g2zPosp8KZfh55wdCwWiAgesd+A3QZI6Iu0mJYHW0t
-	 890qHpDbE/CbJoFhJE/LojzpytZkzuXKFVr/AEWAMaMbLB3v+dfsFZFTusuJuGkyiU6NR
-	 JBpCXg6MCHDIh5xVH73Ctsl95nVdZInKk//BNvBT/ygPcaq8RmGNJ2MTGsOPG6BZv9YZS
-	 SQnwqBHgq8b9S1+Emrx0uC8I0rsEfooOIU3/nDySW5iXZ3631O4SjTta6typLDaqcBw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795200859;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=2cDvgzaEPEJPCI6Ok0IK34cIag8JscyuYpBaCTCvSvo=;
+	b=EA3MMpTgYe7x6gLb9AAJEKwPS7sytZZnMnO9+RcpWy1dOwJ6H/r9NuHuQ3kTFnOsPFkK
+	 piWpNNH7MSxD64TMfr0gkHpPLwBSqTCRM0L2S+1+595RIru6/Cj3DzDjJ8D4loaskvlFU
+	 y3Vu1tx9HGmMmuHNbt0oBeuh2WrRd9xTJ4WeCv1xehu1rNw+Vrdpw57sHKUd2GBOCPa3H
+	 Qzuj02ph3BIqj/LF9SNbSiGigp+SslZjSZ97t+26LkGnSboRvTfEAiaqRlVyfnlvGTytd
+	 CEBbn/zmIew8wSDBG4uhbGBbhK7cChcme2hrCEBX3947xlPPlrNJGpdiOmmcePNP+gw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=OnnzqY9b;
-	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=none header.from=ziepe.ca;
+	spf=pass smtp.mailfrom=ziepe.ca;
+	dkim=pass header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=F1+J1JuK;
+	arc=none smtp.remote-ip=209.85.222.170
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B7C606A89F
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 18:08:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 51B7C606A89F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D6CF60A2623
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 18:54:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8D6CF60A2623
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=OnnzqY9b
-Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKH3c402027770;
-	Fri, 20 Nov 2026 10:08:05 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps82601-s2048-2026-q3; bh=0lbcaJ8L0yz
-	Vbe6zUbN1cAVyzh8iJfnZ5U61Z9GQ5bo=; b=OnnzqY9btO1a9LoHSl5f9i07I2t
-	3DSWQV5THMV//yn5ZW1IT8Jd9wUYh+nd8u+gE855io3Xb0jr0EXjdj9U9xgsnIVv
-	wwM4HEXWhi3jA8GaUkqYyW2JWjo2nG/XPYEPpcxVcvH3q5BH7gY7BBT7cmaC8pZI
-	+8gOkP5TdeNwK7gMBIkzJDVv3gPGjODbl+fNM4k4qBv55nenlV9RCie02O4LPdRR
-	Sj4/EQb+48DAm8erItCCl48BeebChJICwA+S2hqGcWPb3dk+zoE1u9ChORcsTe6T
-	qUTnjiEAZpi5rfNx86cTDPglLAD4hWssvOf4BDXBrE49s3H+M31uXzv6ZGg==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j2t99rm3a-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Fri, 20 Nov 2026 10:08:05 -0800 (PST)
-Received: from localhost (2620:10d:c0a8:1c::1b) by mail.thefacebook.com
- (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Fri, 20 Nov
- 2026 18:08:04 +0000
-Date: Fri, 20 Nov 2026 10:08:02 -0800
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-To: Jakub Kicinski <kuba@kernel.org>
-CC: Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller"
-	<davem@davemloft.net>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Shuah Khan
-	<skhan@linuxfoundation.org>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        "Michael
- S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowangio@gmail.com>,
-        Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?=
-	<eperezma@redhat.com>,
-        Shuah Khan <shuah@kernel.org>, Randy Dunlap
-	<rdunlap@infradead.org>,
-        Donald Hunter <donald.hunter@gmail.com>,
-        "Eric
- Dumazet" <edumazet@kernel.org>,
-        George Zhang <georgezhang@vmware.com>,
-        "Andy
- King" <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>,
-        <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-        <sargun@sargun.me>, <jlinbox@meta.com>
-Subject: Re: [PATCH net-next v7 0/7] vsock: assign the guest vsock device to
- a network namespace
-Message-ID: <awCMglMftdwqzDu1@devvm29614.prn0.facebook.com>
-References: <20261117-vsock-guest-ns-v7-0-7e522ea9dd9b@meta.com>
- <20261118182846.4ab756d1@kernel.org>
- <av807G4qhzToOIMT@devvm29614.prn0.facebook.com>
- <20261119135303.54642e8e@kernel.org>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=F1+J1JuK
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-949680e6d82so163312685a.2
+        for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 10:54:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1795200857; x=1795805657; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=2cDvgzaEPEJPCI6Ok0IK34cIag8JscyuYpBaCTCvSvo=;
+        b=F1+J1JuKXdu2Jsy1pAm0fxinsib3xUDh9dx8GIT2z19q7/wfHrZXrPaPXENO8OWi5F
+         jQPmk1JVU4c2HeqKBzK30WBJlFo7jArzYb9lnXc0vJul2z9eIjqmUEkk3KU/wpZzj6kh
+         Sgm48acdUMwDCXDpShGBcptS1oVF/NhfdswX7p5NUcvIIPQSOya8NaqMVxO+EwVfsAkK
+         4IiZU4b8tGS3fjF1FBvQcQQNzUYk/mslI4xpHemNan1BqmPUijye4XW1OIo/Sqw/73h9
+         rMvnMcyrf2rAESYGVUv1mP81stWksl6IL3ndDvG6wWXwKqOHQVpuXFLfpD0k/KQaFluz
+         wDSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795200857; x=1795805657;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=2cDvgzaEPEJPCI6Ok0IK34cIag8JscyuYpBaCTCvSvo=;
+        b=BTBBtrAABDZ7a5SKjtr6XSEyzrtVU/Nf5AQjJE3TJ/QzB3uOatWNI8xCdQ3yFhTiX4
+         4QiKncEEG5sTcneUiPjNchoEApIXuVik3ooj/4CTGVcNUIVYRROFMuRSKPhXNsBpRPD2
+         3h+ni0XGUzXbPGWFNxbxPTyr5G49e6cDx3E0gvKqnBuEID2fwFlqTEVx4O7KvZw9HBpi
+         UXbCjonXa5aO2OdBTeiD+mACIlon7WNQJSpxv0O4XmG++fHb9Io+3qqkKpXk0UdPA6f9
+         E6rhvPAVMKOQ/zmN2+r2rPglFDPTI65h3G8sbdz3b+W/qbXK09YxVTJN3Prlo7alq5q+
+         9upA==
+X-Forwarded-Encrypted: i=1; AL+hErGMv5IsLwuBntvVY9nyciOD+2HzR1AZ41G9dgCUIcvlOJ9OVZekPkaRRBaLzYwNtcy9fxT5I/6JW/62bHAt4A==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+X6r3HVJNMgWP42NU5s7X91Oez+S+WLHDr+4OiUjEU6hpPZIgm
+	0h41FLjvSAHV1bebY3WfnynnW4Q1uhpxFb3k2FxqtQIAnE5bughfOzAjRPyQiKnR/7Y=
+X-Gm-Gg: AYBFou2jN20PQ1cUxQcjRhGkeOx5a6Lp+lNZH+Mkn9woXtpCbjL4r2uZwzD30Y5Gk34
+	t5acAL0iqhHFD6rc5C32fqIPP5i7poiFfDp4+nQoBzEupOHJ8Eg8Fg7fiqLTUqY9wwoArXrdKdA
+	S73DwNkhvELBGfHynojqjkjUC80w4l8C0dtbegymdBddKA+gH+OrKv6/mv+TdTozA52MhTRMxBD
+	2chA5gEYXjAt14RZLtRaKXSClnfKKaYz6Yp95y2EytvwLuop4Q6Zp1kLOx5gb+OWHUfSG6vf+qo
+	UaNYh9UkMA9KFwQuljQOjLlLsYbUjpp/230a6F68wJc/LKezvo/cl1/1kQgewiTtwH/olXReY/l
+	/JmB7SX7As5C5HAaSsrLTzMs9p7WF2Ar9ImuU8aDuYlBrOcAtsfcd4dojWsSB6Lx3CDJZyXkOv4
+	Zt1Kt0gY6/TR3hkVc11WzpjShvREtgym3ox+2P0LxB8qpW9Hj+1fbqKoo9ITAnS2WsySWJdfVfB
+	kE+q4gbiypHUfaqtDru2mag5+AVZXBeG+R7KhyOeAMBq58cFATI5LsrBditiu8plDZa3hL2Zbrj
+	QIeDlA==
+X-Received: by 2002:a05:620a:7008:b0:949:5fee:afc6 with SMTP id af79cd13be357-949baa07369mr665380885a.63.1795200857416;
+        Fri, 20 Nov 2026 10:54:17 -0800 (PST)
+Received: from ziepe.ca ([142.166.156.71])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-949bb38322csm256798785a.17.2026.11.20.10.54.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2026 10:54:16 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1xUTkV-00000004ls7-3duu;
+	Fri, 20 Nov 2026 14:54:15 -0400
+Date: Fri, 20 Nov 2026 14:54:15 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, alex@shazbot.org, den@openvz.org,
+	khorenko@virtuozzo.com
+Subject: Re: [PATCH 0/1] vfio: fix KVM reference leak on QEMU CPR
+Message-ID: <20261120185415.GA1133597@ziepe.ca>
+References: <20261120154730.882393-1-andrey.drobyshev@virtuozzo.com>
+ <1075a283-b745-418b-b49a-2dfd41faba3b@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -102,64 +103,39 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261119135303.54642e8e@kernel.org>
-X-Authority-Analysis: v=2.4 cv=LvQHWXdc c=1 sm=1 tr=0 ts=6b008c85 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=xtH7KyWI9dI7BmFOsl-x:22 a=VwQbUJbxAAAA:8
- a=VabnemYjAAAA:8 a=oC9WaInZJ1af5pm4xKkA:9 a=CjuIK1q_8ugA:10
- a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: e_pV_QEf9KJrrYzdE5m5xEFAncVLEaKF
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIwMDA3MSBTYWx0ZWRfX1Sc4JYQvrjPd
- uM07N837UQp0cqrLl62gDESgLL4sknWLgK/6A6ZG/QQwoRK54pAgk+qJLgoRXbxud+sxyO6pwIR
- +zwh3rsC9HWMNTAowk/o+0w0QAYEaEZBaaFXBCnPyU6vaeOoMnv0rZzTy1Ht6eADYSlviSHyYgR
- UFWL69qGbI/qaFx+tImhd7u2rF5w8u8r/FEbXQHoTCwUlgY4kbDLrHFun5Nv85Ljj9xb5oEdOUf
- a5ZpHSy+b7pJQGX1zJ5pNkQNjj1ZZSHUuKzL2STpBHgkn0zzrJf1PZwl3q2zozhxCtE6nPuqMzX
- il70beOuSUz3bthbq/lhQnUgQK+F/ZQ/SvBCfG8Bo9mviiBViSE6cn1cYvt1IdAzmGgwkWxvQw1
- atyTgr2PyeXH1CZ8RW9ZLTVlRQi784tl7X/b6ZPxuwEQ6kdtQdGv++CxeSvNM9CCzigHPy5X0i6
- 6ruMSdLg8RLAYt/VgRQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIwMDA3MSBTYWx0ZWRfX9HizSq1mZ519
- RZHw+lNUbZSx9VF6cG8jmYvt8YDCHlbgcDrKoeIcwwe8Ic6c/MgXSblrkOb5wMxHaqf9F4nvbol
- 8mWWGK2fqageO7BIl0moSZ9dxhaJpZk=
-X-Proofpoint-GUID: e_pV_QEf9KJrrYzdE5m5xEFAncVLEaKF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-20_05,2026-11-19_01,2025-10-01_01
+In-Reply-To: <1075a283-b745-418b-b49a-2dfd41faba3b@redhat.com>
 
-On Thu, Nov 19, 2026 at 01:53:03PM -0800, Jakub Kicinski wrote:
-> On Thu, 19 Nov 2026 09:42:04 -0800 Bobby Eshleman wrote:
-> > On Wed, Nov 18, 2026 at 06:28:46PM -0800, Jakub Kicinski wrote:
-> > > On Tue, 17 Nov 2026 17:54:43 -0800 Bobby Eshleman wrote:  
-> > > > vsock network namespaces let a host put each VM in a namespace of its
-> > > > own. A guest has no equivalent yet. It has a single G2H device that
-> > > > cannot be assigned to a network namespace.  
-> > > 
-> > > PW says this did not apply at the time of posting, pls respin  
+On Fri, Nov 20, 2026 at 05:52:09PM +0100, Paolo Bonzini wrote:
+> On 11/20/26 16:47, Andrey Drobyshev wrote:
+> > When a VM has a VFIO device and QEMU does a CPR (CheckPoint and Restart)
+> > live update, QEMU creates a new VM and keeps the device open.  The
+> > device holds a reference to the VM it was opened with, so the old VM is
+> > not destroyed.  It stays until the device is closed, which usually means
+> > for as long as the guest runs.
 > > 
-> > Ah I forgot to call out in the cover that this now depends on this fix in
-> > net:
+> > It is one stale VM, not one per update.  It is also visible: after
+> > cpr-exec the kernel logs "kvm: debugfs: duplicate directory <pid>-<fd>",
+> > and the new VM gets no debugfs directory.
 > > 
-> > https://lore.kernel.org/all/20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com/
+> > This patch makes the device take that reference only if its driver uses
+> > it.
 > 
-> If there's a dependency the posting has to be an RFC
+> There are two problems with this patch:
 > 
-> > In that thread Paolo is also wondering if it is really an improvement
-> > rather than a fix, which is a fair take, so unless there are objections
-> > I'll just pull that patch into this series.
-> 
-> No need to repost that patch, we can apply it to net-next as is.
-> The blocker is lack of an ACK from the vsock maintainers from my PoV.
-> Please just wait for the net[-next] patch to settle, don't repost this.
-> Enough noise on the list.
+> 1) It sweeps the bug under the carpet and only solves the case that *you*
+> care about.  If the device keeps a reference to the VM it was first bound
+> to, the problem is that there's no handoff from the old file descriptor to
+> the new one.
 
-Sounds good, I'll wait for that patch before the respin of this one.
+Yeah, reflowing the kvm fd is not something vfio broadly supports at
+all, there a several issues with even trying to do this this I think.
 
-@Stefano, IIRC you may be on PTO right now, but if not do you mind
-giving a look at
-https://lore.kernel.org/all/20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com/
-?
+If qemu is doing a live update it probably has to keep the kvm fd
+alive across the update too..
 
-Best,
-Bobby
+Ie when we get to things like confidential VMs there is state inside
+that the kvm FD that cannot be checkpointed.
+
+Jason
