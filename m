@@ -1,87 +1,158 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795172332;
-	b=wEa7SvibRduSnyKZ3ZkBAmhWGtXo+tgFDKneGr9a6vPkIa9bRyscOoRSSR/uHDsdx9hI
-	 TmxSEn2EdX1EvY1CxxVbijYZMZqEHFkVmb3jPKY/CQNXgvGkbeZsHyERD/orCjUjSaUlO
-	 y9VPVy0YFyK9jWm3oKUyOHvo1ml8PAjJZxGZVvei0aqlTKt9QtNGHSySW5ma9l/zVHzxd
-	 gRUykuch9UgyKjGPFsRj/Km7AnFHt0RnsxCY4OCgZkM3YPVaVGO/neL5eronu8twIj2WW
-	 3aRCrcJkob30CLi/0uqjO67pY/AXUPObavbHN3RKLwOO5dSFFgOQ0vINh6Eiow45TVw==
+	t=1795173095;
+	b=UIC20fV9NRKHhBzVOS1eh11dpklQt3sc+yHbQHWQrkwPxJ/InvnvPAdeVboFZ8z5ixZD
+	 t7/sCZISAVDHWVCQN7TpDdezlmTMnmhuquMsFxgNCPaACx3saO3ngTuq184Wblm9ajrCP
+	 /eIPUlOBQ4qdomnSVBxy9BmOJcngLrxx33Ey6EgVhZFKlowOSfelEzAVpUIQqUTU9UVtT
+	 oBmnKqNy1Ojv5BUPXPc4UcUW9jYXKXUFDPYbcgkoKgi+9KvQm5C11Ud6LtJA5svLVjDvS
+	 MwhmaIUzYluvhG7czaoDt6C44K8oeCQfblgc75uSP+knMjhmoMTLzYbiKRR5mBCFapw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795172332;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=zPMRJyajft4jjbY41Nxe/rP6bNlBhq8ckrsRNJI0j7w=;
-	b=eM+qOHBF/XQTyXbMczDA+CMHLiC0n/AMKcs8lagYJHgzq4uNiVvWQbywcZiokRs6LZXx
-	 CO4DV++B2ge/OPtV5ILobvWFXUXTTk+KxTOJXxO4Lg9qatNxAEiv4Nrhv6Oug1orlC1Mw
-	 HjSR7NakCmIgPbNkIjcOxSD+pPiSzrTCXRxTrpez/uumlM53BTzkOKHuZee2UUwXjWR7x
-	 H8uVCEY/m+fEC54RqHmudX5blxyAxerC7BgPO6hGjZ7YkPq6j+h8+I1Uulzbt93D8u+HB
-	 N/0b7lF63Rt9k83tnOM+OaWZNQlvN9nTWkLy8Eb3NSY4rjifc+Nn827h0naQUdcd6kQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795173095;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
+	bh=6iowvnjr0RIgWlIDQQOFrlHY5uCtXtYYlYEEp/cOH20=;
+	b=NGxwA98OYOtra9ejJew6p9kgJa/rJDs2Er6i3zgOURnQ7rUF4yS0hUZCk6Rh1qbZS3/k
+	 tZuuxPNOJPOhHNXgm1v4OyF+TXTZqFaHhW06m78pUrjBcm2wXE3xyAVJJD5bZql1JtsHH
+	 UX/vbXDDKC/0DSZnvUt35tHhn+lZ9EknqaIWS68KWAHDkm798xZo5ovEF/zbbsHUt0tiM
+	 W3Tz84aYJ0tI3ygz4Y5ggKd9Os47XoFL3meq4fiWMf7Zqa23RN6jONUgivEGfsTr7qUzl
+	 zXvjf3pdJlhLHbpjrquWvFFHUoFSB6c7CqD1FaSCWbhH+GyXXkYX0ktvHwRzkUjuOIw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E6EdroYo;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=baylibre.com;
+	spf=pass smtp.mailfrom=baylibre.com;
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=AJMPI8Ee;
+	arc=none smtp.remote-ip=209.85.221.43
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 015C8606A32A
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 10:58:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 015C8606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FADB60A2603
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 11:11:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5FADB60A2603
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E6EdroYo
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795172331;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zPMRJyajft4jjbY41Nxe/rP6bNlBhq8ckrsRNJI0j7w=;
-	b=E6EdroYopbIeVH7Cz/tU9NcAGcAVArb4AvfDTgsrVgzVSNNRaQX1GarzvmwrzKDC/1fAfK
-	Bh2be21xVS+kEats97PG4FPYxfzSBTJhYV35xMuyPsuzbrAaMEYO+vlvN5fFQkG+f/PV6d
-	NIEMtHQn1jTyJCEjRwdcHoC3ah6TKOs=
-Received: from mail-yx1-f71.google.com (mail-yx1-f71.google.com
- [74.125.224.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-627-pdEA3A8vOeecfVQfbpTK4A-1; Fri, 20 Nov 2026 10:58:48 +0000
-X-MC-Unique: pdEA3A8vOeecfVQfbpTK4A-1
-X-Mimecast-MFC-AGG-ID: pdEA3A8vOeecfVQfbpTK4A_1795172328
-Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-67935d0ddcdso1470379d50.3
-        for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 02:58:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795172328; x=1795777128;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=AJMPI8Ee
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-4a2f4ca0dcfso382160f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 03:11:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1795173093; x=1795777893; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=zPMRJyajft4jjbY41Nxe/rP6bNlBhq8ckrsRNJI0j7w=;
-        b=uWDXEzOSTjqgXZ4f3jRHHmAd6nmqIUXPPv7YA7r1QOgpetl91ir8rX/hdKY3wqUZxk
-         EJ0euw2cLUGO7t4mMtA/GpmV5+t/krmCVJrmIfKIMvfMNWwLD8TpT8ndOaD9aGSd6Oyi
-         ECzbZUZhQdJ84Iz4qe5G8EIUyE0cIhbXlMRpHqyjAI3pBmEffkBA9RoRWhXMMvxV+6KF
-         zs4/m+EvB7QgzyEBMti45tPM2EN6AwbHdh1g/yC6IPDIx5qsrc5OTpN8mbdJUphChWKA
-         wl7AaSSLVilRj4RodUaosP9WUaeKlLSVwoYPDBgpq9j+uN1sPbk+SmRYYyy+Y8tDgBdU
-         Xdhg==
-X-Forwarded-Encrypted: i=1; AL+hErHD842MetyedF+irhVHWbb+H+mseO3HAcqfVIifStB8A6qqTSPfgS+1pPpAri8kt4Euysxhz2+wxistTTxHzA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9P953PCUJX0i3zdfWcPYfHQKHgih5BlE1vgjMmI7fz5W8Cuu3r
-	UASh3gAScOuHrz2rbw9jvor6i0VyVcI8NBVOOlrrZbgF690/97oCCVt1rs2OCW4dSai3L7G1ZDQ
-	HgWhehXXZqe6E+R3hHKs4yhicI6cvt+PXIbMuUCvH2n2S/DdoLWR43QjdocycBU8ftOGh2OESig
-	4id5CUdKWuT/YzrqLw73cmELpG+M2L2W6q46nhCcaIkfM=
-X-Gm-Gg: AZFdTZcoNmjBZgxJcxN8UCa1j8kHXZ3vzOZ2bbl+RuW0BbGTDol3s5N4GG6c3o4BYn0
-	RMFUH5xxRdwgBoHH4B3AkdO5KvJvdzdGpki40boWocfcJSVwMaZTDSTIu+g96NBO/K4KvCykGcY
-	nYB89D5H9JQnBH9OgShrVsr8q9+d84BDV2oWEz45OZWnaMg9vA/C20GtKeJoOg9toCH3/Xg+S9R
-	HV4acHkFdCBEAFn8vE92xD1ohZEJKQFBxvUIT4vfrnIC7O2S5SYDS/x0uw=
-X-Received: by 2002:a05:690e:169e:b0:676:eb57:bba6 with SMTP id 956f58d0204a3-67df4413e34mr1509287d50.58.1795172327541;
-        Fri, 20 Nov 2026 02:58:47 -0800 (PST)
-X-Received: by 2002:a05:690e:169e:b0:676:eb57:bba6 with SMTP id
- 956f58d0204a3-67df4413e34mr1509268d50.58.1795172327021; Fri, 20 Nov 2026
- 02:58:47 -0800 (PST)
+        bh=6iowvnjr0RIgWlIDQQOFrlHY5uCtXtYYlYEEp/cOH20=;
+        b=AJMPI8EeeqeABQJ2uQG8PtsPSO2bt5dJiVsNqGwha2cfhdU1Bmc6b7KCd6vNMLt8lb
+         3lns13r1oapKvMCZo1azbP3dScmgBZ0VoOlXbp6QDCywK/hL7VHWGzWdCt7mu9CyBn96
+         DtbdlwWm6fzZI8G/I62tm5Htua+wz1jszf5ZSTrnshgbmkevZkEHuMa10kbqq+bNtMgP
+         4QZDrVoCPlQE8NugYmOpjej6DodeF4NhVRHy3D8sF2WLz3ln/04lxXGRQztEPuWTdQix
+         zQ2v1GeoX7vwRSMsVk4U0K+8EX7V1u3rnYGw4daTJquNM4i+6d2meDlhshLwiJbi9KAc
+         tYDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795173093; x=1795777893;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=6iowvnjr0RIgWlIDQQOFrlHY5uCtXtYYlYEEp/cOH20=;
+        b=SlHX3sNL1JCq/DEY5ry4ewgasmGx071WlvdOnyRkksv0zH9afGpN2WNpFdE/sQ/+ZQ
+         kI7DnNL6c9FyBEisY8m/fldA+9VYBjkjGFirqFDOaKoryXuvzrwaop7+86bY0GniezuD
+         muOQIdM80n0Cy9wtNJzqk76QCP5bhfaommzQcooRt/PoZb5w9+KxZ8cHiB8nvsJbv7vG
+         CxRgWONQ1+Q8wyUaclAn3baPu4PIXcvxMcRJtHDQCs5BdNa9kssc1dZ/QlaPIqmVRJ9Z
+         gryJbjmc4BGgGQP5XAMlT09aMnTwmL1fnLzzrpxYrAXhdQW6sAiffHc+X05ADar6PPmm
+         HrXg==
+X-Forwarded-Encrypted: i=1; AL+hErGxm9vrHEq+HzlLNDKHKWyNMznhRGSbO85vKeY9xRw+jzyy4irEx3VhM+BWuCefc1mlj7pTEGqNcLoaMe6vuQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9/mS2s3Azv3RPcek0w2JkVO5uUrv9z37ZLvsiZzgdfOWx5g+Bp
+	oxIAoBvZ890FTAvdc9FjmknEpg9Q3FUE0dUCt237uk8xGplOAsQ4/O8OSnQ4tawMEhY=
+X-Gm-Gg: AYBFou2LlhnmfG4w0jooYYSN5Ac15MqMMIHUVzGu7ZsCFGqzG/FQLbaYuvwBaqg/HVI
+	gCPLfWtPyJc7yCk5dcziIZrxlOsWM3iuna0nAt8xIceoNAhkW0hqzIS5vzDeWlRkOJuOml3iaAF
+	odFRxNqQxvCa5wlfYKhkwFVj3csZObRYlBOWfmnlV/8dkNvdpUsg1/ZjziKQsv8iZKH0+re5xST
+	4W0dsovOPCdR76+wb6T2My1/HgG+BlYGRSOLQB/5jpPuX8L6/kXhw5YSSDvxmaw1ScqlAHCtY+N
+	qTUT74strJtoSrbxZey+Ezj3GcnYgYFPpEqqyB6nJBEYymUArsUjeBRqoGx9OUm0IODkkdNxsDi
+	aEsP5m+z6HdZ9uK19DP5RVDlRYVCNq0Sy+NKZmC+TMoA1wrCCHEruiwTpdSB/v5kZlUx0GvO6Pf
+	GTNAggrq54szEXyW422ndWeEAJ84zBPDQsT7W9yx+SNl0O2lDNj8oFDh6DGPn47d425M5SLA1lj
+	9m0jB/XDBUQSgxwLXeTdGxYMAmL+FLs3Zakss0N2fTNNh2p3tFwMkNVLlxx7CJwP6M9AEosehMj
+	wzPjsP6j53tPtxQY3axMg+l7PKAHo4jfSi56jZnze5dpfqFkCztT3x/Q7stXvlLRpQofGFURw0P
+	H6S2wWl5qw5vW1nZN
+X-Received: by 2002:a05:600c:3b0e:b0:4a1:efba:511 with SMTP id 5b1f17b1804b1-4bb8882508emr60110635e9.35.1795173092340;
+        Fri, 20 Nov 2026 03:11:32 -0800 (PST)
+Received: from localhost (p200300f65f19a904be03815e1634e776.dip0.t-ipconnect.de. [2003:f6:5f19:a904:be03:815e:1634:e776])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884a15absm67887745e9.9.2026.11.20.03.11.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2026 03:11:31 -0800 (PST)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Johan Hovold <johan@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Ioana Ciornei <ioana.ciornei@nxp.com>,
+	Longfang Liu <liulongfang@huawei.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	=?utf-8?q?Micha=C5=82_Winiarski?= <michal.winiarski@intel.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Tony Krowiak <akrowiak@linux.ibm.com>,
+	Jason Herne <jjherne@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Mark Brown <broonie@kernel.org>,
+	Abel Vesa <abelvesa@kernel.org>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney+clk@redhat.com>,
+	Jerome Brunet <jbrunet+clk@baylibre.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Sylwester Nawrocki <s.nawrocki@samsung.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Jaroslav Kysela <perex@perex.cz>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Bradley Morgan <bradley.morgan@linux.dev>,
+	Armin Wolf <W_Armin@gmx.de>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	linux-doc@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	Alex Williamson <alex@shazbot.org>,
+	Mostafa Saleh <smostafa@google.com>,
+	kvm@vger.kernel.org,
+	qat-linux@intel.com,
+	virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	linux-hyperv@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	linux-clk@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	Takashi Iwai <tiwai@suse.com>
+Subject: [PATCH v2 00/10] driver core: Disable driver overriding by default
+Date: Fri, 20 Nov 2026 12:11:01 +0100
+Message-ID: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,293 +162,110 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20251022073231-mutt-send-email-mst@kernel.org>
- <CAJaqyWeDcyKKOvVdqUkpTuH3d-Tb9rBHG3ym+LC0fcmhrN_FJA@mail.gmail.com>
- <20251028100923-mutt-send-email-mst@kernel.org> <CAJaqyWePMtM8vtgm8UnGAv+_XNTnVNFSNuoqzt_Cn-CpZg46mA@mail.gmail.com>
- <20251028104154-mutt-send-email-mst@kernel.org> <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
- <CAJaqyWf1Sn7CE+VOptZprDgniRNo=8-ZzmcS5YMOeW=tP4nfBQ@mail.gmail.com>
- <20251109164528-mutt-send-email-mst@kernel.org> <CAJaqyWdwF5UM+rS7EB9gG5VJMPW0MvwtkNWXdDAkdurFO3zHRg@mail.gmail.com>
- <CAJaqyWcCF0bzwMhQk6L=LPvc=S7yHoWB7xZ+MmPWwhi4kqGEfA@mail.gmail.com>
- <20260313080611-mutt-send-email-mst@kernel.org> <CAJaqyWdaMb0EABOL4WB8+PVKPeU4vzD3V22z63N10jzNESO1sQ@mail.gmail.com>
-In-Reply-To: <CAJaqyWdaMb0EABOL4WB8+PVKPeU4vzD3V22z63N10jzNESO1sQ@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 20 Nov 2026 11:58:08 +0100
-X-Gm-Features: AclHuK-NDIHtS9B0yASNCqkQIbmx2erYDBBaY0IjV6H0kij0EOQA_NnpGaS3fg4
-Message-ID: <CAJaqyWe=ye4mytvkxqA1CSA_M9qKJv1Cy14aBoZTm27Dq1KRUA@mail.gmail.com>
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Dragos Tatulea DE <dtatulea@nvidia.com>, 
-	Jason Wang <jasowangio@gmail.com>, netdev <netdev@vger.kernel.org>, sdf.kernel@gmail.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: b3kxGG8b4pR740KovJIFi9vLj4BsFN-AaZbfrs4obek_1795172328
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4896; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=zb+igsuXLt8tOTuUjhzAr7HaxCaZLq4II70BN40Br9Y=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrACrJx1qga/LvoqPeQ2w7AGsIzkvZ0u8Ei7ilD OnkWyRDOleJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawAqyQAKCRCPgPtYfRL+ TrT2B/4h+7Q3cE0LlxcXdMzSjo72DibWSV5sOQkmoVdvDT2jirOpWioUU86bki4NAIk6Z4fKuAQ Tq67UAFcdu/x0sb+TsWnSkdYqWbFXP1E9qqHzS6LbgG2Wo9AfXLnJRQPoIkCW5R3i/w6jmyDLiI LkWjw6qUO85o5cf3veZf7uvTVs/F1HlPcGi5H2XR8SEvtsTQoNcOqyDD/XO+JfY5VRim2QTygzC /LqpSYXX2fMI/PZcft+vtXeHkKEsua161Yxgcwt3mnXV1cWuUQhOgqkI5MNgrbn/8PHF60B4GWC cbYFOHiY7+15odYG/kF7YqO0HOLOodN9ndNTOKA9GdiXGD/D
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-On Mon, Mar 16, 2026 at 10:26=E2=80=AFAM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Fri, Mar 13, 2026 at 1:06=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
-m> wrote:
-> >
-> > On Fri, Mar 13, 2026 at 12:32:18PM +0100, Eugenio Perez Martin wrote:
-> > > On Fri, Mar 13, 2026 at 12:31=E2=80=AFPM Eugenio Perez Martin
-> > > <eperezma@redhat.com> wrote:
-> > > >
-> > > > On Sun, Nov 9, 2025 at 10:47=E2=80=AFPM Michael S. Tsirkin <mst@red=
-hat.com> wrote:
-> > > > >
-> > > > > On Wed, Nov 05, 2025 at 10:02:48AM +0100, Eugenio Perez Martin wr=
-ote:
-> > > > > > On Tue, Oct 28, 2025 at 3:57=E2=80=AFPM Eugenio Perez Martin
-> > > > > > <eperezma@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Oct 28, 2025 at 3:42=E2=80=AFPM Michael S. Tsirkin <m=
-st@redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Tue, Oct 28, 2025 at 03:37:09PM +0100, Eugenio Perez Mar=
-tin wrote:
-> > > > > > > > > On Tue, Oct 28, 2025 at 3:10=E2=80=AFPM Michael S. Tsirki=
-n <mst@redhat.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > On Wed, Oct 22, 2025 at 02:55:18PM +0200, Eugenio Perez=
- Martin wrote:
-> > > > > > > > > > > On Wed, Oct 22, 2025 at 1:43=E2=80=AFPM Michael S. Ts=
-irkin <mst@redhat.com> wrote:
-> > > > > > > > > > > >
-> > > > > > > > > > > > On Wed, Oct 22, 2025 at 12:50:53PM +0200, Eugenio P=
-erez Martin wrote:
-> > > > > > > > > > > > > Let me switch to MQ as I think it illustrates the=
- point better.
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > IIUC the workflow:
-> > > > > > > > > > > > > a) virtio-net sends MQ_VQ_PAIRS_SET 2 to the devi=
-ce
-> > > > > > > > > > > > > b) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > > > > > > > > c) VDUSE CVQ sends the command to the VDUSE devic=
-e
-> > > > > > > > > > > > > d) Now the virtio-net driver sends virtio-net sen=
-ds MQ_VQ_PAIRS_SET 1
-> > > > > > > > > > > > > e) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > The device didn't process the MQ_VQ_PAIRS_SET 1 c=
-ommand at this point,
-> > > > > > > > > > > > > so it potentially uses the second rx queue. But, =
-by the standard:
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > The device MUST NOT queue packets on receive queu=
-es greater than
-> > > > > > > > > > > > > virtqueue_pairs once it has placed the VIRTIO_NET=
-_CTRL_MQ_VQ_PAIRS_SET
-> > > > > > > > > > > > > command in a used buffer.
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > So the driver does not expect rx buffers on that =
-queue at all. From
-> > > > > > > > > > > > > the driver's POV, the device is invalid, and it c=
-ould mark it as
-> > > > > > > > > > > > > broken.
-> > > > > > > > > > > >
-> > > > > > > > > > > > ok intresting. Note that if userspace processes vqs=
- it should process
-> > > > > > > > > > > > cvq too. I don't know what to do in this case yet, =
-I'm going on
-> > > > > > > > > > > > vacation, let me ponder this a bit.
-> > > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > Sure.
-> > > > > > > > > >
-> > > > > > > > > > So let me ask you this, how are you going to handle dev=
-ice reset?
-> > > > > > > > > > Same issue, it seems to me.
-> > > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Well my proposal is to mark it as broken so it needs to b=
-e reset
-> > > > > > > > > manually.
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > Heh but guest assumes after reset device does not poke at g=
-uest
-> > > > > > > > memory, and will free up and reuse that memory.
-> > > > > > > > If userspace still pokes at it -> plus plus ungood.
-> > > > > > > >
-> > > > > > >
-> > > > > > > I don't get this part. Once the device is reset, the device s=
-hould not
-> > > > > > > poke at guest memory (unless it is malicious or similar). Why=
- would it
-> > > > > > > do it?
-> > > > > >
-> > > > > > Friendly ping.
-> > > > >
-> > > > >
-> > > > >
-> > > > > OK I thought about it a bunch. A lot of net drivers actually
-> > > > > just queue ethtool commands and finish them asynchronously.
-> > > > > Thinkably virtio could expose an API on whether it is safe to
-> > > > > wait for buffers to be used. virtio-net would then either
-> > > > > send commands directly or do the asynchronous thing.
-> > > > > Hmm?
-> > > > >
-> > > >
-> > > > I think it's the best solution too, yes. The series [1] implements =
-for
-> > > > set_rx_mode. We can do it for all the CVQ commands and then whiteli=
-st
-> > > > them in VDUSE code. Am I missing something? Does anyone foresee any
-> > > > command that will not be possible to convert?
-> > > >
-> > >
-> > > Adding the [1] link...
-> > >
-> > > [1] https://lore.kernel.org/netdev/20260112181626.20117-1-viswanathiy=
-yappan@gmail.com/
-> >
-> > what's the status of that one?
-> >
->
-> Still under review.
->
-> Aleksandr Loktionov <aleksandr.loktionov@intel.com> added the
-> Reviewed-by tag to most of patches but he spotted a sync issue in the
-> realtek 8139cp driver.
->
-> https://lore.kernel.org/lkml/IA3PR11MB8986856F0C1BC5A02F29B32EE540A@IA3PR=
-11MB8986.namprd11.prod.outlook.com/
+Hello,
 
-Ok,  that one is merged now but it still does not solve the rtnl issue
-:(. It just moves the driver call to set rx mode to a place where it
-can sleep while holding the rtnl.
+here comes v2 which addresses the review feedback I got for (implicit)
+v1. See https://lore.kernel.org/linux-kernel/20261116110853.3418077-2-u.kleine-koenig@baylibre.com
+for the discussion about that previous submission.
+ 
+The objective is to deny force binding a device to a driver that isn't
+prepared for that. There are many drivers that run in a null pointer
+exception when this happens and only very few drivers are supposed to be
+used like that. So the first patch implements an explicit opt-in for
+drivers and denies other matches; the remaining patches implement the
+opt-in for drivers that rely on it. This makes it unnecessary to fix
+individual drivers to explicitly refuse such bindings. See commit
+1e50a0349012 ("iio: adc: mcp3564: reject devices without match data")
+for an example of such a driver-specific fix.
 
-In the case of the mac address change it actually takes the lock way
-earlier, as soon as rtnl_newlink. I'm trying to remove the rtnl when
-the CVQ command is issued, but that complicates the scenario quickly.
-The plan is to get the callers of
-net/core/dev.c:netif_set_mac_address() not have the rtnl taken, only
-the device one. And then some polished version of this:
+Changes since (implicit) v1:
+ 
+ - Rework parameter parsing to just use `allow_driver_override` on the
+   kernel commandline
+ - Add review tags
+ - Add patches by Alex Williamson setting .support_driver_override in
+   pci and vfio drivers
+ - Add patches for uio, spidev and a few more drivers setting
+   .support_driver_override
+ - align wording in Documentation/admin-guide/tainted-kernels.rst with 
+   tools/debugging/kernel-chktaint
 
-@@ -10223,16 +10223,21 @@ int netif_set_mac_address(struct net_device
-*dev, struct sockaddr_storage *ss,
-                return -EINVAL;
-        if (!netif_device_present(dev))
-                return -ENODEV;
-+       rtnl_lock();
-        err =3D netif_pre_changeaddr_notify(dev, ss->__data, extack);
-        if (err)
-                return err;
-        if (memcmp(dev->dev_addr, ss->__data, dev->addr_len)) {
-+               rtnl_unlock();
-                err =3D ops->ndo_set_mac_address(dev, ss);
-                if (err)
-                        return err;
-+               rtnl_lock();
-        }
-        dev->addr_assign_type =3D NET_ADDR_SET;
-        call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
-+       rtnl_unlock();
-        add_device_randomness(dev->dev_addr, dev->addr_len);
-        return 0;
- }
+It is sensible to merge the driver core change (patch #1) together with
+the individual driver patches setting .support_driver_override because
+with the driver core change the driver override doesn't work any more
+for the unmodified drivers (unless the new kernel parameter is provided
+and a taint is accepted). So I suggest (once there is agreement that the
+patches are fine) to merge them all in one go and provide a stable
+branch in case a driver was missed to be adapted. I can create such a
+branch and ask Greg or Linus to pull it, or Greg can do that.
 
-However syncrhronizing the NETDEV_PRE_CHANGEADDR notifications to the
-actual CVQ command seems hard, as new notifiers can be added in the
-middle. It checks if any listener objects to the MAC address change.
-As far as I can see, only Nvidia's spectrum driver can deny that MAC
-address change if there are too many MAC addresses, so maybe we can
-just adapt it, but I might be missing something [1].
+So if you're the maintainer of one of the drivers touched by patches #2
+and later and assuming your ok with that patch, please provide your Ack
+(plus the required coordination if applicable) for not merging via your
+usual tree.
 
-If my guess is right, setting the MAc address out of rtnl and run the
-PRE_CHANGEADDR notifiers again with rtnl taken could be a step
-forward. If the notifiers fail (the Nvidia device denies the address
-change), we can trigger a rollback of the MAC address outside the
-rtnl.
+Best regards
+Uwe
 
-Ccing netdev and Stanislav who added the set_rx_mode_async to check if
-this is the right direction or if there are efforts / attempt to make
-this happen.
+Alex Williamson (3):
+  PCI: Allow untainted driver_override for PCI stub drivers
+  vfio: Allow untainted use of driver_override
+  s390/vfio: Allow untainted use of driver_override
 
-Rx mode, the number of enabled virtqueues, etc., have similar
-problems, but maybe we can start with the MAC address.
+Uwe Kleine-König (7):
+  driver core: Disable driver overriding by default
+  uio: Allow untainted use of driver_override
+  spi: spidev: Allow untainted use of driver_override
+  clk: imx: scu: Allow untainted use of driver_override
+  remoteproc: Allow untainted use of driver_override
+  slimbus: qcom-ngd-ctrl: Allow untainted use of driver_override
+  ASoC: samsung: i2s: Allow untainted use of driver_override
 
-[1]
-$ git grep -n  'NETDEV_PRE_CHANGEADDR'
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9921:
-case NETDEV_PRE_CHANGEADDR:
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9949:
-case NETDEV_PRE_CHANGEADDR:
-drivers/net/ipvlan/ipvlan_main.c:867:        case NETDEV_PRE_CHANGEADDR:
-include/linux/netdevice.h:3255:        NETDEV_PRE_CHANGEADDR,
-/* notify before the address change */
-net/bridge/br.c:76:         case NETDEV_PRE_CHANGEADDR:
-net/core/dev.c:10192: * netif_pre_changeaddr_notify() - Call
-NETDEV_PRE_CHANGEADDR.
-net/core/dev.c:10209:        rc =3D
-call_netdevice_notifiers_info(NETDEV_PRE_CHANGEADDR, &info.info);
-net/core/lock_debug.c:35:         case NETDEV_PRE_CHANGEADDR:
+ .../admin-guide/kernel-parameters.txt         |  6 +++
+ Documentation/admin-guide/tainted-kernels.rst | 54 ++++++++++---------
+ drivers/base/bus.c                            | 51 ++++++++++++++++++
+ drivers/clk/imx/clk-scu.c                     |  1 +
+ drivers/pci/pci-pf-stub.c                     |  1 +
+ drivers/pci/pci-stub.c                        |  1 +
+ drivers/rpmsg/rpmsg_ctrl.c                    |  1 +
+ drivers/rpmsg/rpmsg_ns.c                      |  5 +-
+ drivers/s390/cio/vfio_ccw_drv.c               |  1 +
+ drivers/s390/crypto/vfio_ap_drv.c             |  1 +
+ drivers/slimbus/qcom-ngd-ctrl.c               |  1 +
+ drivers/spi/spidev.c                          |  1 +
+ drivers/uio/uio_dmem_genirq.c                 |  1 +
+ drivers/uio/uio_hv_generic.c                  |  1 +
+ drivers/uio/uio_pci_generic.c                 |  1 +
+ drivers/uio/uio_pdrv_genirq.c                 |  1 +
+ drivers/vfio/cdx/main.c                       |  1 +
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c             |  1 +
+ .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  3 +-
+ drivers/vfio/pci/ism/main.c                   |  3 +-
+ drivers/vfio/pci/mlx5/main.c                  |  3 +-
+ drivers/vfio/pci/nvgrace-gpu/main.c           |  3 +-
+ drivers/vfio/pci/pds/pci_drv.c                |  3 +-
+ drivers/vfio/pci/qat/main.c                   |  3 +-
+ drivers/vfio/pci/vfio_pci.c                   |  3 +-
+ drivers/vfio/pci/virtio/main.c                |  3 +-
+ drivers/vfio/pci/xe/main.c                    |  3 +-
+ drivers/vfio/platform/vfio_amba.c             |  1 +
+ drivers/vfio/platform/vfio_platform.c         |  1 +
+ include/linux/device.h                        | 19 +------
+ include/linux/device/driver.h                 |  2 +
+ include/linux/panic.h                         |  3 +-
+ include/trace/events/module.h                 |  3 +-
+ kernel/panic.c                                |  3 +-
+ sound/soc/samsung/i2s.c                       |  1 +
+ tools/debugging/kernel-chktaint               |  9 ++++
+ 36 files changed, 144 insertions(+), 55 deletions(-)
 
-$ git grep -n -A9 'case NETDEV_PRE_CHANGEADDR' net/bridge/br.c
-net/bridge/br.c:76:         case NETDEV_PRE_CHANGEADDR:
-net/bridge/br.c:77:                 if (br->dev->addr_assign_type =3D=3D
-NET_ADDR_SET)
-net/bridge/br.c:78:                         break;
-net/bridge/br.c:79:                 prechaddr_info =3D ptr;
-net/bridge/br.c:80:                 err =3D netif_pre_changeaddr_notify(br-=
->dev,
-net/bridge/br.c:81:
-prechaddr_info->dev_addr,
-net/bridge/br.c:82:                                                   extac=
-k);
-net/bridge/br.c:83:                 if (err)
-net/bridge/br.c:84:                         return notifier_from_errno(err)=
-;
-net/bridge/br.c:85:                 break;
 
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9736:static int
-mlxsw_sp_router_port_pre_changeaddr_event(struct mlxsw_sp_rif *rif,
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9737:
-                struct netdev_notifier_pre_changeaddr_info *info)
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9738:{
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9739:
-struct mlxsw_sp *mlxsw_sp =3D rif->mlxsw_sp;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9740:
-struct mlxsw_sp_rif_mac_profile *profile;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9741:
-struct netlink_ext_ack *extack;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9742:        u8
-max_rif_mac_profiles;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9743:        u64 occ;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9744:
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9745:
-extack =3D netdev_notifier_info_to_extack(&info->info);
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9746:
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9747:
-profile =3D mlxsw_sp_rif_mac_profile_find(mlxsw_sp, info->dev_addr);
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9748:        if (prof=
-ile)
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9749:
-    return 0;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9750:
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9751:
-max_rif_mac_profiles =3D mlxsw_sp->router->max_rif_mac_profile;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9752:        occ
-=3D mlxsw_sp_rif_mac_profiles_occ_get(mlxsw_sp);
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9753:        if
-(occ < max_rif_mac_profiles)
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9754:
-    return 0;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9755:
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9756:        if
-(!mlxsw_sp_rif_mac_profile_is_shared(rif))
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9757:
-    return 0;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9758:
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9759:
-NL_SET_ERR_MSG_MOD(extack, "Exceeded number of supported router
-interface MA
-C profiles");
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9760:
-return -ENOBUFS;
-drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c:9761:}
+base-commit: 7cfbf79c66c63e807ea452abf0546e6f6d6833a6
+-- 
+2.56.0.rc1
 
