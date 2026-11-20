@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795176204;
-	b=MrxAqUcW9enKaz/iJ1b//3rWxMBTdhO5jJ4ubawPWCZtxp5gOqp0ID9Aln6/WbxToONg
-	 +NUQDyNn/junhd4djOdMREb9IAevt/QQ68BYHIevT1mcaj2ZDZQ5c7eUBSF/1Ug/whHt1
-	 9QffY3hVmbKeQzmuDCAY3nQ4KWbjPe+PR4b5k5Hb7fVElUGL0MtRsV8PfrXHJxzHGfdEc
-	 7q0Wf4ozaeGGpsmoZ9XJAzN0ZOU5xEahTkvyFp57ZNhK1pKj/ySJ6lhcdUoAO+bclP55A
-	 /S5nzmDF5vjowige4e00bN5SppQog+yD7ZF2sNgBQ6YvcWQAFzNotjEN7ecAlVaoWww==
+	t=1795176205;
+	b=TZyzZBiWCXyXPzWj27ypFmhRkCW9mwbi3yw6lC6+dj/5WfoajWNHZsygbMp67LtuCW9B
+	 Wga4qepCIG8Wror9Tczrip1BE+qHjh0cw9PpWWYSm1x7kn2fTPpxbSdnw46aeGz6IAej/
+	 gV4Z3IenFJnXwZrAACVJcX30u1C5GdFTtOmq/WMfLgYEkTwHqjncVnIopItrPjL59Fy2t
+	 HbFoNp2UIk3siLG74x/8PeA0mnOeWq9K8gK9MdsKNRn+Vu6IIoToRurIYQzY2loy4d2Oi
+	 br4tRkDyKIcNu9KpKhwDzrdPN0v1x367mWeOnWu5WYKyx390MosX480uCC00YhlCzwA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795176204;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795176205;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3X40snasVM6VQVCdbO4AvU+vGSIOUOjIMB4jpHqgVA0=;
-	b=LM1HFc+jDZSXjSgkrq2PySqcP9g/EzVlCoPufHclc0aDIh1dT4Kc0MnXlCDGMvk0+tNa
-	 6d/4atbRuvpcOO4gmmqqnsmewbw8OEIOKS/xpTqqOfy5eS1Ywnn+Komnod6qbylH5n+pK
-	 KweXyIbVenA0ewkGTjBLAmQu7HBiqfbT4AWs00cZOa0WwrB20nBek4T1yHkT0wrrKylJ2
-	 Qz3MHG61ocV4i9BJXsaFO2tXRCpbcINDOSi8frhTr2mQBdh4kpJ52v4+LvFmqWSyGepV8
-	 0YWq3d2k0uMD2aD17lQS1M/eMWzwxnMboWc6JJgNZbXI4fwmbyEsZQoM4nCmPL5nmcQ==
+	bh=HnR3u3Wi29OzUMxe0Bk8y2yIn7/VHOzruPgbUNrwlm4=;
+	b=ln1/ai2sDeClfcGk1gQUNoAYteZJLd+mx/IUFwT55Y9inv70wfVQeZUaWnJhqlhhdbwg
+	 50xOsOIF9dVuIwiHKW14tSzNoUqTXSQ4Y+GUSD4Zi12IkFUdEbgaz+ZjbF+ga2KUBwWiZ
+	 MbjD5PZOKXkAy5swEfHYLKSQ6U3i8dX5tZeSsMXgCcPgc8ftN3KGCyeersJHTZVYVghyx
+	 dyoRHS0KpjlkGS9dZGlErCv2yIOF1PNCHJ7NrKHGkLD+eI6c7rRv9rsu+jh2mlUMzMbQh
+	 JKECJr0BZ7g3Y2l1pZTAC/HDQ22+J/P2nK1timD9/+xbOcZFy9yj210COnnuL28XZ/A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y4Tewtli;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="oY72tg4/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CD84606A32A
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 12:03:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 590D0606A332
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 12:03:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y4Tewtli
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3BF31F000C6;
-	Fri, 20 Nov 2026 12:03:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oY72tg4/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD42B1F000C6;
+	Fri, 20 Nov 2026 12:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1795176204;
-	bh=3X40snasVM6VQVCdbO4AvU+vGSIOUOjIMB4jpHqgVA0=;
+	bh=HnR3u3Wi29OzUMxe0Bk8y2yIn7/VHOzruPgbUNrwlm4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Y4Tewtli9uQ2V7s0qTKo4xCROEZd9JUleRLpxlR4e8l+6aFu+Y6yQkcZc4+wsX7sX
-	 P0HIfoT2GN8RT9dn9V34uJxNbzayy/vMhy/7FVHzyTrTVPsvq4qPURqJidMsLsO/a1
-	 Um7+CulzL4vQU7H7NQ7Of1e6QIZRc7ZFTIqhqZzRsUH7ljRq/2GEzJozOvbJBAQmIO
-	 SQ+q4sYRZCl7snC92VIGbIL+w5Z1UJnhUtip5V+sCeVIGYvVS3B4g+i8ct9Wrbs++8
-	 hbSW37vL2ltsDP/g8+vU64pzR6+ZzytGh5LV1ukMzTAzPwTam6w79ItXtlBaKymtC+
-	 jeC7RerXLuOSg==
-Message-ID: <sashiko-outbox-225110@kernel.org>
+	b=oY72tg4/nCtE7BXtmT0fW/xNgTxeaBSmzb0ZGR1oNG6wI+E1I4Oo93PnSIWiWQmfY
+	 E9QXJMt19BJvOiKIYiz6gWMKSfp/7xshOVLVpL8kPbP09atWsvAVdNB+RVEJVcjkIu
+	 imXq99UEhpvqYm8hvIP0Ky4AM+w4O/hu0b+YaZDAAbAjoYou7HumEqqt2AbXlCVAxs
+	 D9ZRKsSnY5uGq8+frF13rhiWe1HxBLU5DYBuBcW6xR6egWJb4Vt7i+TQiyEMQetlZr
+	 QTNmUOdvPPC1q7J68QTN/PFFPGpARocYtDRbWrF1nUnGbynJtR9eMSNOBHtHVWu//Q
+	 nhoDMpi0zYgAg==
+Message-ID: <sashiko-outbox-225111@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 1/7] mm: add PG_zeroed page flag and buddy merge
- tracking
+Subject: Re: [PATCH v11 2/7] mm: page_reporting: support host-zeroed
+ reported pages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <a98c8a49744d30a5e603228d9cb17509261add90.1795089715.git.mst@redhat.com>
+In-Reply-To: <2ec112cbdde76a60ab235a0df7734a23387f1c86.1795089715.git.mst@redhat.com>
 References: <cover.1795089715.git.mst@redhat.com>
- <a98c8a49744d30a5e603228d9cb17509261add90.1795089715.git.mst@redhat.com>
+ <2ec112cbdde76a60ab235a0df7734a23387f1c86.1795089715.git.mst@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 12:03:21 +0000
+Date: Fri, 20 Nov 2026 12:03:24 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,17 +61,29 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Add PG_zeroed (aliased to PG_private_2) to track pages whose contents
-> are known to be zero.  Propagate it through buddy merges and splits.
-> Upon folio allocation, PG_zeroed is cleared and its value is transferred
-> to BIT(2) in lru.next.
+> Add a host_zeroes_pages flag to page_reporting_dev_info, allowing
+> page reporting devices to declare that their host zeros reported pages
+> on reclaim.
 >=20
-> This bit, in turn, is tested by the new folio_init_user(). If clear, the
-> helper zero-initializes the folio. If set, it skips clearing the
-> contents.
+> On successful reporting by such a device that guarantees zero contents, s=
+et
+> PG_zeroed.
 >=20
-> Clear the aliased flag on free so filesystem state cannot be mistaken
-> for zeroed contents.
+> Note, that hosts zero the pages for guests, safely, even on
+> architectures with aliasing data caches, and even without knowing the
+> guest user virtual addresses.
+>=20
+> Specifically, ARM64 data caches behave as PIPT; KVM handles cache mainten=
+ance
+> around stage-2 mappings and invalidates the whole I-cache when it aliases.
+> On aliasing MIPS, host unmapping flushes the whole D-cache, and slow GUP
+> flushes the host aliases of replacement backing pages before KVM maps
+> them.
+>=20
+> Any host that can't handle this, will simply not set the flag in its
+> page reporting device.
+>=20
+> No driver sets host_zeroes_pages yet.
 >=20
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
@@ -79,5 +91,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1795089715.gi=
-t.mst@redhat.com?part=3D1
+t.mst@redhat.com?part=3D2
 
