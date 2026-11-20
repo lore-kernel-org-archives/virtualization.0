@@ -1,54 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.213
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795132457;
-	b=S/WbdyfffHPKRYNs8L7B+KX3+5eafeYIhuDjd3VyeF7hFmK7IRggzkbkHDe3jp0ux3Am
-	 N9EVoZ/wj/Q2wn5sA07PPIv3192XPwLqwbmWSHUtJMRZdlkmTvYtXiBxhq2vmzrMyxCFU
-	 Nd5eq2KrNLUcGZZUEzS+g7s7JW6MRyzMfJuJlciJP2U5TKs23KwVL9GpYdl5aoVwxdd94
-	 70lErx8Z3FXL9YNSpc/OdGBIsI+Vqu+Z5P3cp4aIPab2nyKmlzij1abPFd7lRl1l8ns+w
-	 5o8DP1ySl2/rbuYlDZjjTgOdKEb0caRLVIbxOaH/3R2lVSAPqx+mUs53KrBIfAuNBRg==
+	t=1795139408;
+	b=tL4W6rfbLoKKm5q59vrto3T3VHFhJXYQ1NaiFu3NKfMpjAn0cOk2HA2+atmDGqIBO5Zp
+	 nsvLYwKCWmQ54R4HXWVPUzi1LoXVoYnzOoFq6k5TN4fQv6OHi0EUrc9a+ophJvADB2QzJ
+	 kemx0Eb6UdM7NyYSK6ANGVhF/LvRpvmH/8RGmPFWTkl9N+L+b0LKUtAjucAoBlDHuBLb9
+	 MAOSInikCFuHkLjnxGpedpCzLokWkSMMdi5Cv4HWrodCTVPhzXYuHpMXnV6UYhyjLh/nP
+	 ZKsFRDlXXo4au4adoKb18u7GIrxGNI/wNjasKf/gJIns1vPiTnANhnVAC8NhktvlF6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795132457;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Cc:Subject:To:References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=o8Jkl3D6PyKBQ9flRwdsQA2PhUfjW1xzSb0OsieXFqU=;
-	b=PUmmnB+qwtXkmPXLIrTjRWq31eYTnQI1WkhL3G69kO3SCL3TIXaYmCmwVY8AqQ7OWi98
-	 3WKKgcKO/qrvq2g/vt+WrKjNOqGhJpVqFO0RACNfVdF86qL8SOZJRAupAb4Hj//wlStYJ
-	 8dtIhZmzBO1wXel10HOfKS582q6TW0cfP8lbziGdqwFZHyhpJS2xA+KWHKxPeXHB3Gd1p
-	 dPqlTgyczNZMvBaTqW175RVY2kTe64XgVSqoYvdlQ5awyna4OKGTp3MXCV2t0HCNiUQn7
-	 ZR13rpRBeglfjJi+TzeylWDqMFkXcMeGhL86/NOhq6h/YBjHyvclCL3pPtzcXWL5bPA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795139408;
+	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
+	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc;
+	bh=xkeQUkQ9MaTrapcq04cr0AuQZjWL0stDXUyA4Hvb8Wc=;
+	b=ulrINpncWxlJu0QLu3NngG/dOgWenCxg3PkJJ8RChFBe9Ufqp1f3Ksz6t0KffYwlDS9+
+	 BROt7lIFDbDEVus6FTJ9JrJu0XVXq3iQlQKPN9/V/+BVaLBVK4o98JCcmoFBAHj38U0Rn
+	 VeFPQQFZCaswL0F4UqTj7accgdeV+iwWh2/H0qfA24FdqJEBy8iCfNRwCb3dhV3ZIpgIF
+	 Z5LrdKJd7JZrwXG7wcMZs8lPh0G/eG6gvO9uTDoTO9QDTOONTyXQwepE1V4WM6iBN9T0b
+	 F/E5yiMPwRihsBZdC2Q3TOie/qFGyD107vs7ci8jk2j58kNXuj+dHo1MEd6DbWSvf7w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=q70IX0lu;
-	arc=none smtp.remote-ip=91.218.175.213
-Received: from mta0.migadu.com (out-213.mta0.migadu.com [91.218.175.213])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HiTsf+1O;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DABE6606A333
-	for <virtualization@lists.linux.dev>; Thu, 19 Nov 2026 23:54:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DABE6606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DAF4606A320;
+	Fri, 20 Nov 2026 01:50:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=q70IX0lu
-X-Envelope-To: virtualization@lists.linux.dev
-DKIM-Signature: a=rsa-sha256; bh=SVZrlJks8sXPVt3xrpYdTAoVZmdk9CSrl7P148bcFmU=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1795132454; v=1; x=1795737254;
- b=q70IX0luUcbU6FCiJYBpmUfdNrXaCDzDyverVa5nohERhVo++3RcTQWOyKaGqDjVgz3oc5Fx
- VBY96WxGxsdaNk3gHTfIfp6AF/YK/SO2tPRF0sI/OQFkm0I4B33qwJ5F3URCKw0ij+tnYR3yJa0
- Gw0mzX4e9eiXeXHZeFdigyFI=
-X-Envelope-To: virtualization@lists.linux.dev
-Received: by smtp.migadu.com with ESMTPS id eca0a2cac3c52e86;
-	Thu, 19 Nov 2026 23:54:14 +0000
-X-Mizu-Trace-ID: eca0a2cac3c52e86
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <1ea66d73-4d40-4d95-855f-4235cbd1d809@linux.dev>
-Date: Fri, 20 Nov 2026 07:53:53 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HiTsf+1O
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076FE1F000C4;
+	Fri, 20 Nov 2026 01:50:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795139408;
+	bh=xkeQUkQ9MaTrapcq04cr0AuQZjWL0stDXUyA4Hvb8Wc=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=HiTsf+1O4NSnNqpeZcGKpQLdOE8YUP9pEoJyyXRbh2s3l6ihClIb345qrp/14SVI5
+	 zWZEprNn6J7VlQVeVMKZH1xeyUVlEEYmubYMeSfLNkGvfEeUSt6iPR0dYRqgKjdfZE
+	 o+QRlRU1IS2xfa8ES7VRMAavD977tlKUovvZaS+kVCJft2yTGAferomrObpkBlYCIE
+	 oqX66AE4Do3q5L8rF5bgcIxLaRfXMVFcYwDetqq1uINBG/EXcKBHiM2pRwEsBSMzIN
+	 4OZb1SYxSPj/wCYpONsTLqI/me3gVIp/3lKDEZnWr15KtvrQt+8nWp9nOCAhcD5i8c
+	 yXx94t7xmU4qA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id F15773808209;
+	Fri, 20 Nov 2026 01:50:07 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -58,187 +53,52 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: cui.tao@linux.dev, akpm@linux-foundation.org, dgilbert@interlog.com,
- mkp@kernel.org, loberman@redhat.com, jmeneghi@redhat.com, kraxel@redhat.com,
- vivek.kasireddy@intel.com, jasowangio@gmail.com, eperezma@redhat.com,
- stefanha@redhat.com, sgarzare@redhat.com, rostedt@goodmis.org,
- vdonnefort@google.com, mhiramat@kernel.org, jgg@ziepe.ca,
- kevin.tian@intel.com, axboe@kernel.dk, linux-mm@kvack.org,
- James.Bottomley@hansenpartnership.com, sumit.semwal@linaro.org,
- christian.koenig@amd.com, phasta@kernel.org, joro@8bytes.org,
- will@kernel.org, linux-scsi@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, linux-trace-kernel@vger.kernel.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- linux-kernel@vger.kernel.org, bobbyeshleman@meta.com,
- mathieu.desnoyers@efficios.com, robin.murphy@arm.com, mason@kernel.org,
- aesteve@redhat.com, tjmercier@google.com, harry@kernel.org, vbabka@suse.cz,
- cuitao@kylinos.cn
-Subject: Re: [PATCH 3/7] vhost: account the per-device kernel allocations to
- memcg
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20261106131829.3228926-1-cui.tao@linux.dev>
- <20261106131829.3228926-4-cui.tao@linux.dev>
- <20261119101239-mutt-send-email-mst@kernel.org>
-From: Tao Cui <cui.tao@linux.dev>
-In-Reply-To: <20261119101239-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v3 0/4] virtio_net: fix out-of-bounds accesses and a
+ heap
+ info leak via the device stats reply
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <179513940678.3975042.856875230562263797.git-patchwork-notify@kernel.org>
+Date: Fri, 20 Nov 2026 01:50:06 +0000
+References: <20261116092445.3391334-1-lian@is.s.u-tokyo.ac.jp>
+In-Reply-To: <20261116092445.3391334-1-lian@is.s.u-tokyo.ac.jp>
+To: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>
+Cc: mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@kernel.org,
+ kuba@kernel.org, pabeni@redhat.com, xuanzhuo@linux.alibaba.com,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, michael.bommarito@gmail.com,
+ shina@is.s.u-tokyo.ac.jp
 
-Hello, Michael,
+Hello:
 
-在 2026/11/19 23:12, Michael S. Tsirkin 写道:
-> On Fri, Nov 06, 2026 at 09:18:25PM +0800, Tao Cui wrote:
->> From: Tao Cui <cuitao@kylinos.cn>
->>
->> Everything except the worker struct is allocated with plain GFP_KERNEL:
->> the per-vq iovec and log arrays at VHOST_SET_OWNER, the memory table at
->> VHOST_SET_MEM_TABLE whose size follows the user supplied region count,
->> the pending message nodes, and the vhost_net/vhost_vsock device structs
->> with their fallback to vmalloc.  The worker has been accounted since the
->> vhost_task conversion.
->>
->> A container that can open /dev/vhost-net or /dev/vhost-vsock, which
->> device plugins hand out with passthrough, holds roughly 150KB of
->> resident kernel memory per device after SET_OWNER.  Charge the rest the
->> same way the worker already is.
->>
->> Signed-off-by: Tao Cui <cuitao@kylinos.cn>
-> 
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> should each patch be merged individually?
-> 
-Yes, I think merging them individually is the cleaner path here: the series spans six subsystems, and each maintainer taking their own piece keeps things simple. Jason has already taken patch 5 into iommufd.  Please feel free to take patch 3 through your tree.
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Thanks,
-Tao
+On Mon, 16 Nov 2026 18:24:41 +0900 you wrote:
+> With the statistics reply, a device can make the driver write past the
+> ethtool -S output array (patch 1), leak stale heap or loop forever
+> (patch 2), and read past the reply buffer (patch 3). Patch 4 returns an
+> error when the statistics command fails.
 > 
->> ---
->>  drivers/vhost/net.c   | 14 ++++++++------
->>  drivers/vhost/vhost.c | 16 ++++++++++------
->>  drivers/vhost/vsock.c |  5 +++--
->>  3 files changed, 21 insertions(+), 14 deletions(-)
->>
->> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->> index 4570a4ffbab2..bab6597c696d 100644
->> --- a/drivers/vhost/net.c
->> +++ b/drivers/vhost/net.c
->> @@ -249,7 +249,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
->>  	/* No zero copy backend? Nothing to count. */
->>  	if (!zcopy)
->>  		return NULL;
->> -	ubufs = kmalloc_obj(*ubufs);
->> +	ubufs = kmalloc_obj(*ubufs, GFP_KERNEL_ACCOUNT);
->>  	if (!ubufs)
->>  		return ERR_PTR(-ENOMEM);
->>  	atomic_set(&ubufs->refcount, 1);
->> @@ -302,7 +302,8 @@ static int vhost_net_set_ubuf_info(struct vhost_net *n)
->>  		if (!zcopy)
->>  			continue;
->>  		n->vqs[i].ubuf_info =
->> -			kmalloc_objs(*n->vqs[i].ubuf_info, UIO_MAXIOV);
->> +			kmalloc_objs(*n->vqs[i].ubuf_info, UIO_MAXIOV,
->> +				     GFP_KERNEL_ACCOUNT);
->>  		if  (!n->vqs[i].ubuf_info)
->>  			goto err;
->>  	}
->> @@ -1344,17 +1345,18 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->>  	struct xdp_buff *xdp;
->>  	int i;
->>  
->> -	n = kvmalloc_obj(*n, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
->> +	n = kvmalloc_obj(*n, GFP_KERNEL | __GFP_RETRY_MAYFAIL |
->> +			 __GFP_ACCOUNT);
->>  	if (!n)
->>  		return -ENOMEM;
->> -	vqs = kmalloc_objs(*vqs, VHOST_NET_VQ_MAX);
->> +	vqs = kmalloc_objs(*vqs, VHOST_NET_VQ_MAX, GFP_KERNEL_ACCOUNT);
->>  	if (!vqs) {
->>  		kvfree(n);
->>  		return -ENOMEM;
->>  	}
->>  
->>  	queue = kmalloc_array(VHOST_NET_BATCH, sizeof(void *),
->> -			      GFP_KERNEL);
->> +			      GFP_KERNEL_ACCOUNT);
->>  	if (!queue) {
->>  		kfree(vqs);
->>  		kvfree(n);
->> @@ -1362,7 +1364,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->>  	}
->>  	n->vqs[VHOST_NET_VQ_RX].rxq.queue = queue;
->>  
->> -	xdp = kmalloc_objs(*xdp, VHOST_NET_BATCH);
->> +	xdp = kmalloc_objs(*xdp, VHOST_NET_BATCH, GFP_KERNEL_ACCOUNT);
->>  	if (!xdp) {
->>  		kfree(vqs);
->>  		kvfree(n);
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index ea127af58ada..d1274106ad5d 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -526,11 +526,14 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
->>  
->>  	for (i = 0; i < dev->nvqs; ++i) {
->>  		vq = dev->vqs[i];
->> -		vq->indirect = kmalloc_objs(*vq->indirect, UIO_MAXIOV);
->> -		vq->log = kmalloc_objs(*vq->log, dev->iov_limit);
->> -		vq->heads = kmalloc_objs(*vq->heads, dev->iov_limit);
->> +		vq->indirect = kmalloc_objs(*vq->indirect, UIO_MAXIOV,
->> +					    GFP_KERNEL_ACCOUNT);
->> +		vq->log = kmalloc_objs(*vq->log, dev->iov_limit,
->> +				       GFP_KERNEL_ACCOUNT);
->> +		vq->heads = kmalloc_objs(*vq->heads, dev->iov_limit,
->> +					 GFP_KERNEL_ACCOUNT);
->>  		vq->nheads = kmalloc_array(dev->iov_limit, sizeof(*vq->nheads),
->> -					   GFP_KERNEL);
->> +					   GFP_KERNEL_ACCOUNT);
->>  		if (!vq->indirect || !vq->log || !vq->heads || !vq->nheads)
->>  			goto err_nomem;
->>  	}
->> @@ -2053,7 +2056,8 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
->>  		return -E2BIG;
->>  	if (max_iotlb_entries <= 0)
->>  		return -EINVAL;
->> -	newmem = kvzalloc_flex(*newmem, regions, mem.nregions);
->> +	newmem = kvzalloc_flex(*newmem, regions, mem.nregions,
->> +			       GFP_KERNEL_ACCOUNT);
->>  	if (!newmem)
->>  		return -ENOMEM;
->>  
->> @@ -3405,7 +3409,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
->>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
->>  {
->>  	/* Make sure all padding within the structure is initialized. */
->> -	struct vhost_msg_node *node = kzalloc_obj(*node);
->> +	struct vhost_msg_node *node = kzalloc_obj(*node, GFP_KERNEL_ACCOUNT);
->>  	if (!node)
->>  		return NULL;
->>  
->> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->> index 0cb87971d749..600daeb05e7b 100644
->> --- a/drivers/vhost/vsock.c
->> +++ b/drivers/vhost/vsock.c
->> @@ -721,11 +721,12 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
->>  	/* This struct is large and allocation could fail, fall back to vmalloc
->>  	 * if there is no other way.
->>  	 */
->> -	vsock = kvmalloc_obj(*vsock, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
->> +	vsock = kvmalloc_obj(*vsock, GFP_KERNEL | __GFP_RETRY_MAYFAIL |
->> +			     __GFP_ACCOUNT);
->>  	if (!vsock)
->>  		return -ENOMEM;
->>  
->> -	vqs = kmalloc_objs(*vqs, ARRAY_SIZE(vsock->vqs));
->> +	vqs = kmalloc_objs(*vqs, ARRAY_SIZE(vsock->vqs), GFP_KERNEL_ACCOUNT);
->>  	if (!vqs) {
->>  		ret = -ENOMEM;
->>  		goto out;
->> -- 
->> 2.43.0
+> Claude Opus 5.5 was used to audit the driver and draft the patches.
 > 
+> [...]
+
+Here is the summary with links:
+  - [net,v3,1/4] virtio_net: reject stats replies for queues outside the request
+    https://git.kernel.org/netdev/net-next/c/8c99fb84b512
+  - [net,v3,2/4] virtio_net: zero the stats reply buffer
+    https://git.kernel.org/netdev/net-next/c/48147635243a
+  - [net,v3,3/4] virtio_net: keep reads of stats records within the reply buffer
+    https://git.kernel.org/netdev/net-next/c/96b229723bb5
+  - [net,v3,4/4] virtio_net: report a failed stats command as an error
+    https://git.kernel.org/netdev/net-next/c/942d862f65b9
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
