@@ -1,57 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795158198;
-	b=40Te0AJ4r442D7JeESMMjKns8qBnWUEzRVpza6/A2uubTadn+RgeFJNyCek8ssWHRMYt
-	 OxvJlb5t5o1X0Q6Grx+1a6pCtJ9dw8I6ej2ZKOMcvWT7TblgpYmYHIvGrueb0uFsHhm7w
-	 XCU4WL/x3JN5uGG/PUGMqDa5+DbX2VFT8/i41yf5XZPAXxResXm635q5dcaK7Bg8T69xb
-	 OaeKXLdxMWFd0eKpMUycHXLt0Kb2zcYznS6yktsVh2OXKFMHgu60WDhW0o5LkagxXHC7a
-	 13GevSrR+6FAHZ/l6FpLw1A/hT/HS0TKzSKkTv5uM4nITAzEcmAXw4ArsbEJl6Qnq1w==
+	t=1795158664;
+	b=y1Fhg4Vxkb51OLv0XPtR6aAL7YgKk6xq52ONp7hTmwG7zU3gdqvHaVNEeYnAkmE90bo5
+	 34Ac/8PSNeA7EQFjIEMpVdCie4WjPAFgNcCJ0Wkai+AEPzuJa66KxZZiqhNJh90+JbuV+
+	 cxnxSgFtXIPmQDIRJFgc3aM+K7J40gWeXrrlhf1pT5GekRWXs5CdOkz4P1U6NbJva50Jt
+	 RpQ9ZJ43aHKvIFAXxNqejx3C/n55GteSlF0osLjGqWt0nxtHNh495BN20OE2rfqWrOD5M
+	 8FWYC8x5Am/xw8FjZx+7bR7626wExAQ56TfB/7jSBS/LbcU4xur6yeh+glmSeo2MgnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795158198;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=tIL4naEsOGDc+r3vxnhbbcCwtNqnBTd10WvCPnsPbaQ=;
-	b=llxuLvVXBqDoYMo6ZfdRRILIFDHWlK/6F5X6qESmhzRSy2x5qdtLDjGlPJnMpflsr7CY
-	 I2qEAoyb4K1X+RYLCarK0QfLnVtY8vbdtDeAY+KnATQvoa4I8rBcKHnXtr3IDHSCj3Nn0
-	 ROK/rnsNv229IGWEj2S1knQ6pWp8jkISjd7nh9bQ4o/XOJCgLQTPZDvcMRP05pBXEYc82
-	 L19mbRn9Q/sx+bTXiH4BH0G996FZRznPsUAu4gQVXyfrxdgzqInnIJmEF3boV1Xu03Q9h
-	 SSBUnXZXPFU+qXbFlJo5pODWGp8lm+cGxcZZOGn+DJTUO/HMllOtvqGC+9K8CeJcD8g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795158664;
+	h=DMARC-Filter:DKIM-Signature:Date:From:To:Cc:Subject:X-Priority:
+	 X-Mailer:In-Reply-To:References:X-NTES-SC:Content-Transfer-Encoding:
+	 Content-Type:MIME-Version:Message-ID:X-Coremail-Locale:X-CM-TRANSID:
+	 X-CM-SenderInfo:X-Coremail-Antispam;
+	bh=+DqeLXTbuKh5VVoCRVxV9j5x7CUCICaFzKJDzMFjyF4=;
+	b=iTChx3Vaj8od5IZK100w18VJLbYDPBSJNdytEeKNCWuXtNRm7EcouqUUjbug+qOLIuzG
+	 pn5Kj0MfplyHTf6tA1NmDm2N7ZPGESQteY+1AR2aRQpfHmPsJvJrgLBqpygRghonMobxA
+	 58XKRKhuHm6fMS/zGzgjqbP0KeiYY7fl8k12Qmdl6DI6VQ7e6m2Xx1pQFn8TLXN1RmvMD
+	 HPvB2ZLQ4bQM6m0v/a8WNV9lXJovaQ9jWu1mq6yS0nA1z1U1dYdO4hqBSiNgPFPI4vI/I
+	 o6EVXV6kroEIcmC+milFx25YaWSDANVwffyfMH0Y4ZuSFM6W0CLRB4e/0Q7lrLoAiEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j2+4OVz8;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=163.com;
+	spf=pass smtp.mailfrom=163.com;
+	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=MTRNBpkR;
+	arc=none smtp.remote-ip=220.197.31.4
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9782606A32A
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 07:03:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F26F1606A320
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 07:11:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F26F1606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j2+4OVz8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A941F000C6;
-	Fri, 20 Nov 2026 07:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795158197;
-	bh=tIL4naEsOGDc+r3vxnhbbcCwtNqnBTd10WvCPnsPbaQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=j2+4OVz8jiVZPsuwMWClCwZaTCEMCvyqCLJKlSfwYGDtoqfxqfknezvgY73bLWjQQ
-	 KylN8WZKhHpF/zELtYVflV9T/HRyGRAt5Sp4yY7tNG6TeQvnNoC5tJT9pKyKCZMvjE
-	 2Y5uqwNHEk/wJIaC+hHdDS0Qx7op5pQG4dvPhpNFcpdNzLRpDqocogCddYKMVrBaqc
-	 BnAKhOW8zlTmjIixEpfLkwvBEMqWg9B1W1frogvXTAeCZEYmzBo5PxUseXzj+Ak5sU
-	 B3YAMkX4gBURyrZw4WjhYp2wS8Zrotuapr65pTsesxWxOQmMwpIwxcaYfFmQTu6hPm
-	 T3mNgsHkbwFfA==
-Message-ID: <sashiko-outbox-224592@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] can: virtio: fix virtqueue use before DRIVER_OK
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Seonghyeon Lim" <forfortuna@naver.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261120-virtio-can-ready-v2-2-0defda2af8cb@naver.com>
-References: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
- <20261120-virtio-can-ready-v2-2-0defda2af8cb@naver.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 07:03:16 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=MTRNBpkR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=+DqeLXTbuKh5VVoCRVxV9j5x7CUCICaFzKJDzMFjyF4=; b=M
+	TRNBpkRnxeVAws52leRBrCd6ElyxuJcGQsuRYRG6jpVfXq0G5Hpjw5E8f32+Okno
+	qvgpqvBQWD9P9hPqQ4uwAinKXYnR9MgRP3hbMbFw/bMCqquIGGz2V3VgVv1szoDi
+	ZsV22eqCGYUMuqW/BXUfftrekELGkUjZMHIIqWDrdk=
+Date: Fri, 20 Nov 2026 15:10:45 +0800 (CST)
+From: "Lange Tang" <lange_tang@163.com>
+To: "Jakub Kicinski" <kuba@kernel.org>
+Cc: "mst@redhat.com" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>,
+	"jasowangio@gmail.com" <jasowangio@gmail.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"Tang Longjun" <tanglongjun@kylinos.cn>
+Subject: Re:Re: [PATCH 1/3] virtio: add virtqueue_get_last_used_idx() helper
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
+In-Reply-To: <20261112085123.276997b4@kernel.org>
+References: <20261109094310.103979-1-lange_tang@163.com>
+ <20261109094310.103979-2-lange_tang@163.com>
+ <20261112085123.276997b4@kernel.org>
+X-NTES-SC: AL_Qu2SB/2et04v4yCRbekfmUgRg+c/XsK4svUj24VVOJF8jCDp+SEJYHZTFGvuwfi3ASqsmSO8ahFRxdZ2Wohybrgl6SutMcW08aThePl8uLus7w==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,32 +68,17 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Message-ID: <1067ca32.5945.1a1f7cb1971.Coremail.lange_tang@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:aigvCgDnz8V28v9qdXxyAA--.306W
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-RZ0omr-8nZkMAAA34
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-> From: Seonghyeon Lim <forfortuna@naver.com>
->=20
-> virtio_can_probe() and virtio_can_restore() fill the RX virtqueue and
-> kick it before the device is set DRIVER_OK. The virtio specification
-> does not allow the driver to notify the device before DRIVER_OK.
->=20
-> In restore, if the interface was up, virtio_can_open() then sends a
-> START control message and waits for the reply. DRIVER_OK is only set
-> by the virtio core after restore returns, so the device may never
-> handle the request and the wait never completes, which hangs system
-> resume:
->=20
->   task:kworker/u4:5 state:D
->   Workqueue: async async_run_entry_fn
->   Call Trace:
-> [ ... ]
-> virtio_can_napi_enable().
->=20
-> Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
-
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-virtio-can=
--ready-v2-0-0defda2af8cb@naver.com?part=3D2
-
+QXQgMjAyNi0xMS0xMyAwMDo1MToyMywgIkpha3ViIEtpY2luc2tpIiA8a3ViYUBrZXJuZWwub3Jn
+PiB3cm90ZToKPk9uIE1vbiwgIDkgTm92IDIwMjYgMTc6NDM6MDggKzA4MDAgTG9uZ2p1biBUYW5n
+IHdyb3RlOgo+PiArLyoqCj4+ICsgKiB2aXJ0cXVldWVfZ2V0X2xhc3RfdXNlZF9pZHggLSBnZXQg
+dGhlIGxhc3QgY29uc3VtZWQgdXNlZCByaW5nIGluZGV4Cj4+ICsgKiBAX3ZxOiB0aGUgc3RydWN0
+IHZpcnRxdWV1ZSB3ZSdyZSB0YWxraW5nIGFib3V0Lgo+PiArICoKPj4gKyAqIFJldHVybnMgdGhl
+IGluZGV4IG9mIHRoZSBtb3N0IHJlY2VudGx5IGNvbnN1bWVkIHVzZWQgYnVmZmVyLgo+Cj5rZG9j
+IG5lZWRzIFJldHVybnM6IChtaXNzaW5nIDopCgpGaXhlZCBpbiB2MiwgdGhhbmtzLgo=
