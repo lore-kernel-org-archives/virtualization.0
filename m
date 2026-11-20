@@ -1,77 +1,192 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795207655;
-	b=Or4Hj5Lh9VIlCzCAuo/YY2AxA8OCJSnBdAG6IWrLmJpxbgCxkrf58ORZbLhvA7r+WOVl
-	 GH0idO6eT+bytmrhwYCT3A/jfPjefmpO2ht47e+gcuPHuYpOMSDwFbqsvjjpx4mi/8KUT
-	 gsPLPo1pDuInkvKFBbLd8EaV2MOs16yBERSbYuuCiY3NKYmC6rauRMRh3W8hGaicSaPKa
-	 AlJsZEY6kJ7+QGypjGPOAglRE7nxopQ2YhXStqGL/MS46Y5qWWVMSp+JVXkc+Je01aTEj
-	 4krZfZbtOBHkTx3IFogYuVEGvLm2W8Mmtn1AQzTZI6atGez1pez7M1r5HECayVUISvA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795207655;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
-	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Originating-IP:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version;
-	bh=yVEZdfrqnWoREnyQLPgTpyCdDOhNLBO5hd1CUBjj4Qg=;
-	b=HFk/Bp4FNdWucTMj7Yi4BYMCOwaB3n9RC17GDY52CAmPXclva6X3eiVqOzqcxBcm+1L5
-	 BZR1U4UVBTvZ89dP4x5gdh9JgJLIXGSGHpjbq6n34Y77mC4dFeQ5chnP5seJyaL/qD6EK
-	 QcIxXTezPfcvWP3cDto686StIqvaFW305T3anx0uxtZAtJ5OOFPELUKK7H/JnTLjjQZLS
-	 FLiPnCVKLN7lRxWpbMgnTIkCpPs+YkMF/BatqwvkzBwVt7p4ctwbY6j+Kele+nApU6WUc
-	 uLUhlJtpoYWSzSYa8vsrq2S5TlUp4NDTaaKLhhXo+9dtGsSbSvqz8rbC7BZKeEQcFVQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=AIlfUdj1;
-	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795211066;
+	b=YBGZy9kzD2uzZAyZl1B5Ij5vZ/BcoRwfKiXzVN/IkC1Tn7DyiQ5pwiAZYlMazulyfYjf
+	 mNXBUWvIGlkK5c6bVT/iudlTOiiWe1HEnPKVWHnUczm7etSbjy7jF3+6xvxDMDYsLng6v
+	 2gje9TFTGfbLebLzCae3N76IZa+9wiK9iDdcP4p60g2ORjb1pAqU/vHnFaCxhFJr3Dn16
+	 48IDmRvNtGHBTDutv2Q4MQRfbsgc1DQC560hB4GP3yASkjG9EKLGxpJ4VI60/gXwA2ETi
+	 qL91H8AQ8kcA0L6FfZkcpEynOJJ/uop4g7YoOuw7QIJWoy78ssTu5YYbH2irRI1WBBQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795211066;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
+	 Received:DKIM-Signature:Received:Received:From:To:CC:Subject:
+	 Thread-Topic:Thread-Index:Date:Message-ID:References:In-Reply-To:
+	 Accept-Language:Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
+	 x-ms-publictraffictype:x-ms-traffictypediagnostic:
+	 x-ms-office365-filtering-correlation-id:x-ms-exchange-senderadcheck:
+	 x-ms-exchange-antispam-relay:x-microsoft-antispam:
+	 x-microsoft-antispam-message-info:x-forefront-antispam-report:
+	 x-ms-exchange-antispam-messagedata-chunkcount:
+	 x-ms-exchange-antispam-messagedata-0:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:
+	 X-Exchange-RoutingPolicyChecked:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-AuthSource:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-originalarrivaltime:
+	 X-MS-Exchange-CrossTenant-fromentityheader:
+	 X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+	 X-MS-Exchange-CrossTenant-userprincipalname:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+	bh=fF9B1USe3xW8JGjS6vwUwtFiylROVUZk4lEwhRnfJhk=;
+	b=TiaQ+Oy3aliq1cFbno1UNeGf5xR3i5wpMpeWzOz26TepVwUYWUmlLVC64S1Ip5H56R0L
+	 OdhNdiMV2er2kaS9DafQ8ggetN6UTXGM3lzE/dP70J9NJssVYbbvwB+0RRIwx7aoBiKfr
+	 eGkoXlMh7zSwmxs3uYN5R055JPXgYvFN0uG1WFWU7lZHGdfOCvMDp+9/a7UqhjeqPsexA
+	 e3630mzLgcA+9p7/iX/uoyW8a4UgPQaA2q97rS1MKDWvOThaUGWtnN4fC+GCRWUED3Ysz
+	 eVoUtUgRrV8i+XgtiFESRI0sYLhskPLFowuyDIW1jwZzW+MvQ6NdyduVqvTdI0RvEHg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=mSTgXM7a;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=selector1 header.b=S4BPLBjw;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.18
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56BA0606A710
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 20:47:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56BA0606A710
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9FBE606A69B
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 21:44:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A9FBE606A69B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=AIlfUdj1
-Received: from pps.filterd (m0148460.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKHA4km1877707;
-	Fri, 20 Nov 2026 12:47:08 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps82601-s2048-2026-q3; bh=yVEZdfrqnWo
-	REnyQLPgTpyCdDOhNLBO5hd1CUBjj4Qg=; b=AIlfUdj1UWpwHAKlNe10VDFmUMi
-	rgn3PmdUOrYQqUaOe3M5TrEW5FxLSPZeIw7XHmGEZaKY4zS1m9UsBes6uxfpGhDK
-	Zy12zzS1umyDlAYRUseJSRtMNklW3Gob6oFwDSFckoqiS7wo1hBG5WnY1fTYcmxv
-	lIN2NIAAKqV5FFzu9LwXfx0L3kzvWjPKF9qU7NsTE79CzCkhpjOVOYqXvcuyQcm6
-	8goQ+fHF/F2k2gb7nAAki1tZowd4kGOqFAcQupo3nJngCuTo5tdAHrHIsfa5PKQ+
-	83nLgwPR8TsmkxRHbPkCtUrEFd8dOB43VpIO3IlbhHp6UBperhRO7KmksOw==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j2tc41pjv-18
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Fri, 20 Nov 2026 12:47:07 -0800 (PST)
-Received: from localhost (2620:10d:c085:108::4) by mail.thefacebook.com
- (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Fri, 20 Nov
- 2026 20:47:07 +0000
-Date: Fri, 20 Nov 2026 12:47:06 -0800
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-To: Tao Cui <cui.tao@linux.dev>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Stefan Hajnoczi
-	<stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Andrey
- Drobyshev <andrey.drobyshev@virtuozzo.com>,
-        <virtualization@lists.linux.dev>, <kvm@vger.kernel.org>,
-        <linux-mm@kvack.org>, <akpm@linux-foundation.org>, <cuitao@kylinos.cn>
-Subject: Re: [PATCH v2] vhost: account the per-device kernel allocations to
- memcg
-Message-ID: <awCxyqE/9iSYBjZF@devvm29614.prn0.facebook.com>
-References: <20261120054517.526275-1-cui.tao@linux.dev>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=mSTgXM7a;
+	dkim=pass (1024-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=selector1 header.b=S4BPLBjw
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795211065; x=1826747065;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=fF9B1USe3xW8JGjS6vwUwtFiylROVUZk4lEwhRnfJhk=;
+  b=mSTgXM7a6VjRRwJa8/Tj34tA4nBQLAzJ5xj5ZOCO9D5zVdkus3cI+8Q8
+   gn83awpJdC6l0uLVE8bRSzm4c2b5VQ78fJP4d4Nht/3fhj3m5EWY8LK51
+   kJLtubHULfu9BI45gqoBl72oh5za2+9Hv0Cvb+hWpz6xl7Fn1Y7psjRzP
+   1V9XbM/QJQ7ifijk+BPJjg1ghUhbvJ7aC/HhwA+TaTH1Yjshj9A22A0gF
+   uFroindnhl7UvD6QAFjeqCi0pCEniOjcZtWjlU4R1dWxwMr1bUZcA/mNt
+   dFS4HYRNsKs2z0E0fotwzowGDkcc6zJN/OqBIEZX+MIecCTpAPFuO0qpl
+   Q==;
+X-CSE-ConnectionGUID: OBRP/kf7SNWbVUKA9D1vmg==
+X-CSE-MsgGUID: KBruM+GUSbuEeIWq+/udBg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11972"; a="4111272"
+X-IronPort-AV: E=Sophos;i="6.27,223,1787036400"; 
+   d="scan'208";a="4111272"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2026 13:44:24 -0800
+X-CSE-ConnectionGUID: jQBCzPPFRXiDdNCb7OnfCA==
+X-CSE-MsgGUID: GkiA4KTRRvK3uvYEQhQgOg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,223,1787036400"; 
+   d="scan'208";a="10737252"
+Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
+  by orviesa007.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2026 13:44:24 -0800
+Received: from ORSMSX903.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56; Fri, 20 Nov 2026 13:44:23 -0800
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56 via Frontend Transport; Fri, 20 Nov 2026 13:44:23 -0800
+Received: from PH7PR06CU001.outbound.protection.outlook.com (52.101.201.65) by
+ edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56; Fri, 20 Nov 2026 13:44:23 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=dT6i2DUKC2BA6mMqeDRmRtqVcgrw0dIdJt9zckLwCCeoqnt8uyYviGzBno/3nHe7Fc0cydNn6R6vqmaN7o1jVaIJ79eBLa6g5+eLykleV8Im9/sMibx6WnpCRmUjaIVHFpMjt3Iw2j/BSQSmU4sOCo6Bf1PDFohw1n+oA+z+y6itWsM45vnDVuT+vnzVlOpvCPg/Ph8CoWWCp6Sxdu8Vsr8AvceD2ARX/OK2ajX+67++RpgELWX67NryZpCFfA+4+QX7Wj901KMyFQaqINcP2NPSdEJKRwPYKE3qX+5wi8bkDN273lRHISMIOE6UIu7IkRHLzFSmCpBhNLVQfmewAA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fF9B1USe3xW8JGjS6vwUwtFiylROVUZk4lEwhRnfJhk=;
+ b=xdUEc7nueyIjiiLBKY1bO3JDnU3RppLb+9S2ZONhbyHUNQ/MNlKGCBroEZVH47dkp/2P2fd6LZ9Nd1+UOXnS2vOu4CRKbViDia8ciP/pwaH6u7h2bSVLV7oBBi3M2ewFgkSUETebNCPzo5XEMVAqdxL8X4uR09oigZE+8MYvGROU3YUz4xWchu5I6oVMedbWqzgIKDdFohlGZamBqLqzaZ5C5wyKcj235KyQ7SY2JxSAFBLxfvZQ3pCjGqyMCVs5YQypcGx8nG3v/kePSUvF0NuX43CDbBEmVQa1boCZObOYm/VIs28GzzUAZIOjg+Gpho3rsCZH3Wy2n5IkepYOSg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fF9B1USe3xW8JGjS6vwUwtFiylROVUZk4lEwhRnfJhk=;
+ b=S4BPLBjwTmHxaPy2trTkuOa7RRjLzhQx2gUG5BnqVITUPYlpgsMgf7WVwFKKxHW7oZQSNqPVZ8pQJqyu2DwAmcMa+LJwB+2ptHutunQl6ardmSFv21Xm3o6nsCXzIAv/+mONuqJyF42lmuefazdGCxcLpJkSfyzAtiJ39sS4xMA=
+Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
+ by CH3PR11MB7940.namprd11.prod.outlook.com (2603:10b6:610:130::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.10; Fri, 20 Nov
+ 2026 21:44:20 +0000
+Received: from LV2PR11MB6070.namprd11.prod.outlook.com
+ ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
+ ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0639.011; Fri, 20 Nov 2026
+ 21:44:20 +0000
+From: "Popov, Pavel E" <pavel.e.popov@intel.com>
+To: Bjorn Helgaas <bhelgaas@google.com>, Logan Gunthorpe
+	<logang@deltatee.com>, Arnd Bergmann <arnd@arndb.de>
+CC: Leon Romanovsky <leon@kernel.org>, Lukas Wunner <lukas@wunner.de>, "Thomas
+ Gleixner" <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "x86@kernel.org"
+	<x86@kernel.org>, Jim Chow <jim.chow@broadcom.com>, Radu Rugina
+	<radu.rugina@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>, "Nathan
+ Ciobanu" <nathan.d.ciobanu@linux.intel.com>,
+	"bcm-kernel-feedback-list@broadcom.com"
+	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
+	<linux-hyperv@vger.kernel.org>, "linux-arch@vger.kernel.org"
+	<linux-arch@vger.kernel.org>, "linux-pci@vger.kernel.org"
+	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v5 0/3] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
+Thread-Topic: [PATCH v5 0/3] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server
+ CPUs
+Thread-Index: AQHdcjam2A3Q4odg002rEagcyXnfx7c3iKlw
+Date: Fri, 20 Nov 2026 21:44:20 +0000
+Message-ID: <LV2PR11MB60707F72BFE00F5FF18CAD5AB2782@LV2PR11MB6070.namprd11.prod.outlook.com>
+References: <20261111234439.4098-1-pavel.e.popov@intel.com>
+In-Reply-To: <20261111234439.4098-1-pavel.e.popov@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|CH3PR11MB7940:EE_
+x-ms-office365-filtering-correlation-id: 1b3037f4-7422-469e-11e5-08df474f6f30
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016|23010399003|38070700021|10067099003|56012099006|11063799006|18002099003|22082099003;
+x-microsoft-antispam-message-info: PGnN6SuFDv2HSzlnOayVGSJbcOKpVV61SyPTaZ2btV09G9HFJTzVhM/uJofIIjaV3tbvKsuTrOGR+UZc6whuxiDoi++hqdud0p+RKpdKAStqG5mFx1SZtAan7NwFoA8BLgD2+9H7ZJYmvb44ftyUQgE16EB6X5qp0G0EOQsHDHa+/lwtq9oA10QQvihj+c9As0zCa5gteJGm/Z2x6TNPlvQjPef3wCi5JX9VdtM3pQJh8BzleqKzXbXMGIKT2mHASkpckzgaiTnMcquv0y6FcEjnFRgRWefqlEiHdbXQivluY9eBKbpku+4MRZp4e2nEUm41/0QhTneVv1ijXyh3Xx5csumn91ypWFYe9MzOOF89lIN//Sr1k5M/X70UoSF06bvstaFxg4865TMIyNNgRvze96k7cm8u4KpE+T4RCuk784WFUln1IvYCX0gQI59uoAV2e7ajIdj4DnTjoy8i+XHDVYShvvKUjVTIqwHVYUdNbcQjfPpeJVys+WRrajhHCiYKB0V5LdGMX/4+g8RFRTafoQvNw8O2jKpjxmsRLe5SApqzTfirqDftQzfAqfy5s2r0Ym960tI07bQKxsRFbgbmoaOTLJ7vPqmMPzcJjlpwejETBSgRVrMEXMvTKnvcNMszQJU6RUp/KkbBTB+Mnu7hhhWq0r1bjtyDkcpKcXY/2yWtCJgd+d8i8WLHWVNg2WwM7EBdD9cRhMQNyonKyejJ16rv0pIp9sK6MXe/Wqo=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(23010399003)(38070700021)(10067099003)(56012099006)(11063799006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ivlybsIlDKZCJuqnOqLySu4+91MgInYJ+OG0GP/3a+t5FAETocdhi5I+vHE/?=
+ =?us-ascii?Q?JgTZFPEKU1cf6Nag7ZHe/L7CIYUBavILheo4cfOodAtPFyzGyRgf70coKiE5?=
+ =?us-ascii?Q?5otuTX2p4uMjtq23Hwn8/EQbs1wU4Z4RbHy+B0ZWrOn4zuoTTOgbN8p67ppy?=
+ =?us-ascii?Q?nqVI+8vnP5h+Bb8We8UnUbJ5gJcwmWysFEtbJbXjnj8vlOlQ0DQ4RZsTYZLz?=
+ =?us-ascii?Q?1HvUobPU4Jxbr9w57KJEa7+jMCUTvwflKgaIiFbgQLl1wZzNl9qx0hupL5h+?=
+ =?us-ascii?Q?RDKCmrWk8ebEK+FoolH3uAs/RWrmm3tat45zOHoinnQUu3pdWwZ/Q5ut5JG2?=
+ =?us-ascii?Q?6Y3JY3S4skhXXdHLPua4XrjLGaxbMW1D8e76bjFnGRN7xeUQOK2f2gKuS5cA?=
+ =?us-ascii?Q?kdrB3/gKy3sLdOIcI5FryzYzpKNkh+U5Qd89PDPftMWeF/1z7fIQT1LowmfY?=
+ =?us-ascii?Q?g5nDUDSgutIfO4pK/u9uttIMjaeoXdbgT8Uf5/tpy/7KZ6Bb52vz2D/YYXgO?=
+ =?us-ascii?Q?XWbszSzjmY/kqh039ZXnEJPuM50UGO3lsIQSgKyTxfFbwECOsOcukJG55Gvc?=
+ =?us-ascii?Q?7eepccTwiI1s3S6zGr42Uq21JHvwvCvq/cWu7xXmGgoBeeaQDq1PlkZmCCet?=
+ =?us-ascii?Q?aiKLqYcXwaX3lCdyCmst6asfrK+fxK/0bWSAFhyzuqEZOZBQcnljEBRoWyNn?=
+ =?us-ascii?Q?FbmWkHpO14AMgaARCq6Z1r4u59dApr6Quvt7MMu4cKjVs5AmVdbu0GvO5YrX?=
+ =?us-ascii?Q?TeeM2bwsvidxonzf+/++ft7Kf2P4+xo/xhoBKIXB404BJljFyEWSe+46Xm5g?=
+ =?us-ascii?Q?7f1kQ+Eheo9mJ1LQi55AB0BEsrmD2I10c4HNL+HXlbrlVWWjEsWN3r1359eM?=
+ =?us-ascii?Q?cvNf7W+bOimd1fVC7IcnSf6XzC0pvcMgbtWxdSrkCOUetfDgYtGEHbNVbR2i?=
+ =?us-ascii?Q?3airccIzyNvXHpKwz6vwuEBIKDf3zte/a4HDX4FLqLb5yDEKUUSwfzAbuKRk?=
+ =?us-ascii?Q?GTLPEhgMYr41YFmfxlo+8vOaAG+kF+K5D8rYOux5SPPM5u5uBlqUdnxaNbwf?=
+ =?us-ascii?Q?/2zF+MjUCO6CxYXF1H36QUkoBZwzzcTYGLVkl65eETp3cjvp+O3c+VmBXivK?=
+ =?us-ascii?Q?Y42lXdKfQNIraFXWDR7E3equNo0XHcioIUBAQymMFgkkwEwdKFM2gsHlCNDI?=
+ =?us-ascii?Q?droMajraV1UiitWZ7nnB9wVVUYuP3PSczg4aOTiDiBi5H0vbm6rD9vIidl5G?=
+ =?us-ascii?Q?PODuhrSuD4Jb4yh82Ex7OFhIgdU+E1iL+ZH0TS+DkdYvIMXpQp15eDezX5oC?=
+ =?us-ascii?Q?eTbNYGXfYc9VxJYuj02/ubLXN0lBpJ762KubaO0ZZT4UapcUfM7lmv+IAc1/?=
+ =?us-ascii?Q?iCLjwvLOIaoDo+11F2chyc9nS0txGaSm0W92x8fWQpTlVCPK1lrUbK5ZGT5x?=
+ =?us-ascii?Q?RYbCIs66L4wG+oUkzexce5c05GHBkKK1W6SLbFAbswGhQDJ1XUebGR94/URk?=
+ =?us-ascii?Q?hBxRfCvB8xSR/zzDy7LKSUAKZ2VSb35LLw4M1dI2r39hgXIpOAyy2NTyxr0F?=
+ =?us-ascii?Q?rTzZnbS5jtomg7x3T9rNjAETdQbxvpsaFlXUh81Yh2Ka4lkqALpdWg0RhN0u?=
+ =?us-ascii?Q?1k7YWdMniJ4fIA8kO40f0+q6PJvJQ+nRDIGJqo+8v8Ne6DKXHmNPkOGywEac?=
+ =?us-ascii?Q?GB6nYN97Y+fl6n/4IDnEt66pMLCXy+qTiyPl0sgkxL3phhSqNHTPdykgSsq5?=
+ =?us-ascii?Q?6e2cwvN1/w=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -81,180 +196,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20261120054517.526275-1-cui.tao@linux.dev>
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIwMDA4MiBTYWx0ZWRfX4xJSOFOxWakw
- f0+6TcEAk+PtYtOm+LJafn/EIiSWnGMpUHlq7Ynou6Qm90/9/nkMRLNtF1Zmgre7RHXF+3L//9N
- YhQnGqBqFtrXFo3jCpCd6EVEsGN1PQ4=
-X-Proofpoint-ORIG-GUID: sbvE7vr0sW5nObX-GRT6i78cDrRadJ8W
-X-Authority-Analysis: v=2.4 cv=PuMG/AM3 c=1 sm=1 tr=0 ts=6b00b1cb cx=c_pps
- a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=JnKecZnUtZousrUlYMGU:22 a=VwQbUJbxAAAA:8
- a=20KFwNOVAAAA:8 a=VabnemYjAAAA:8 a=je9U-9MI8qmF_auVsecA:9 a=CjuIK1q_8ugA:10
- a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-GUID: sbvE7vr0sW5nObX-GRT6i78cDrRadJ8W
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIwMDA4MiBTYWx0ZWRfX3tINTm8axShi
- +1eTy2E3e4veKEtl8JzihHLuiMVfs8cD04Qb/vCI2OV4fPa1paI1r6hBZXt0H6fzsTeA4wNZYXJ
- 0vnhQ4GlMyBFODqEUBLvkuXvi1EJRj5YRHhHhK+kIXNf4kz5D3TfslknX/USx/elFeQkijcNy4L
- 4OIyud5pc2ZAq+HUJMNCtkvgfsZQDlMYRfaKWwzQFjXKVys9VeXbjILL9zUpaslbCE74ZrSHaur
- ubsPYUTA/3O40T2Yk56omgcfBvVGD8iv1YuB52sctsySvWu4Y1I4Fhir7pyskat8pgamrYTPgHH
- CFUD+4zWTp3hRtNAvuIdeLEpBvL3HCoVwmRZDNdnsIZeY8364z81gBF8gDX5G0iSZENSgJrIVdp
- B7SqnYav3WXOJl43gTaDF2uqo7/if+3RKrgpqj5NYKc27JK+r+Qo0c0k1SKu/PpNicS2a4KGy7l
- R+Hq812rDBCQ3OU3m6Q==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-20_05,2026-11-19_01,2025-10-01_01
+X-Exchange-RoutingPolicyChecked: flJiGWZPGV4DQKza1Oty2c2Za9IyvM3PDl/CNE/zhyPBXE2G1GtEcXoZWATGpcUDqdgmRRZovsAZj2+opag8FQ8OiQpiRspaV9TKog+u1f5IcU/lpltW9Prm/YY5F+6AnYKiE5HbLYESfDUyw4U2NuOGIm4vSYX9GAajjMDmFZyJkd5BW/PVoLpcByTwegz1Wu+h/ScQlLB5LxkC2N27zs6h19mA9wEa0R++OeIALkgw56MF8oxIt7VB4G7agg1FAzPbByUNTcQQNUD68MxTj5Dyw6VY/1ORsEJ2Z+FryK4yIvbCgxTm3h+wQOaIzKs0zXIJQzmkXpSOuL9sUtK/9w==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b3037f4-7422-469e-11e5-08df474f6f30
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Nov 2026 21:44:20.2665
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: hMTCkMYEvMVM2C3+NKQbeqvrwIRn2k/oouQDJz6Jq0WD/DRyTCeea60fh/pMvT2h8JyHh4bRD+DMLgVIMKvduQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR11MB7940
+X-OriginatorOrg: intel.com
 
-On Fri, Nov 20, 2026 at 01:45:17PM +0800, Tao Cui wrote:
-> From: Tao Cui <cuitao@kylinos.cn>
-> 
-> Everything except the worker struct is allocated with plain GFP_KERNEL:
-> the per-vq iovec and log arrays at VHOST_SET_OWNER, the memory table at
-> VHOST_SET_MEM_TABLE whose size follows the user supplied region count,
-> the pending message nodes, and the vhost_net/vhost_vsock device structs
-> with their fallback to vmalloc.  The worker has been accounted since the
-> vhost_task conversion.
-> 
-> A container that can open /dev/vhost-net or /dev/vhost-vsock, which
-> device plugins hand out with passthrough, holds roughly 150KB of
-> resident kernel memory per device after SET_OWNER.  Charge the rest the
-> same way the worker already is.
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Tao Cui <cuitao@kylinos.cn>
-> ---
-> Changes in v2:
-> - rebased on next-20261118, where the vq->nheads allocation now uses
->   kmalloc_objs(); the flag addition follows the new form.  No
->   functional change.  Carries Michael's Acked-by from v1.
-> Link to v1: https://lore.kernel.org/r/20261106131829.3228926-4-cui.tao@linux.dev
-> 
->  drivers/vhost/net.c   | 14 ++++++++------
->  drivers/vhost/vhost.c | 17 +++++++++++------
->  drivers/vhost/vsock.c |  5 +++--
->  3 files changed, 22 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 435d8ed3851f..390858056d20 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -249,7 +249,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
->  	/* No zero copy backend? Nothing to count. */
->  	if (!zcopy)
->  		return NULL;
-> -	ubufs = kmalloc_obj(*ubufs);
-> +	ubufs = kmalloc_obj(*ubufs, GFP_KERNEL_ACCOUNT);
->  	if (!ubufs)
->  		return ERR_PTR(-ENOMEM);
->  	atomic_set(&ubufs->refcount, 1);
-> @@ -302,7 +302,8 @@ static int vhost_net_set_ubuf_info(struct vhost_net *n)
->  		if (!zcopy)
->  			continue;
->  		n->vqs[i].ubuf_info =
-> -			kmalloc_objs(*n->vqs[i].ubuf_info, UIO_MAXIOV);
-> +			kmalloc_objs(*n->vqs[i].ubuf_info, UIO_MAXIOV,
-> +				     GFP_KERNEL_ACCOUNT);
->  		if  (!n->vqs[i].ubuf_info)
->  			goto err;
->  	}
-> @@ -1340,17 +1341,18 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->  	struct xdp_buff *xdp;
->  	int i;
->  
-> -	n = kvmalloc_obj(*n, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> +	n = kvmalloc_obj(*n, GFP_KERNEL | __GFP_RETRY_MAYFAIL |
-> +			 __GFP_ACCOUNT);
->  	if (!n)
->  		return -ENOMEM;
-> -	vqs = kmalloc_objs(*vqs, VHOST_NET_VQ_MAX);
-> +	vqs = kmalloc_objs(*vqs, VHOST_NET_VQ_MAX, GFP_KERNEL_ACCOUNT);
->  	if (!vqs) {
->  		kvfree(n);
->  		return -ENOMEM;
->  	}
->  
->  	queue = kmalloc_array(VHOST_NET_BATCH, sizeof(void *),
-> -			      GFP_KERNEL);
-> +			      GFP_KERNEL_ACCOUNT);
->  	if (!queue) {
->  		kfree(vqs);
->  		kvfree(n);
-> @@ -1358,7 +1360,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->  	}
->  	n->vqs[VHOST_NET_VQ_RX].rxq.queue = queue;
->  
-> -	xdp = kmalloc_objs(*xdp, VHOST_NET_BATCH);
-> +	xdp = kmalloc_objs(*xdp, VHOST_NET_BATCH, GFP_KERNEL_ACCOUNT);
->  	if (!xdp) {
->  		kfree(vqs);
->  		kvfree(n);
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index dc973287567c..e8f9dce52aa7 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -526,10 +526,14 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
->  
->  	for (i = 0; i < dev->nvqs; ++i) {
->  		vq = dev->vqs[i];
-> -		vq->indirect = kmalloc_objs(*vq->indirect, UIO_MAXIOV);
-> -		vq->log = kmalloc_objs(*vq->log, dev->iov_limit);
-> -		vq->heads = kmalloc_objs(*vq->heads, dev->iov_limit);
-> -		vq->nheads = kmalloc_objs(*vq->nheads, dev->iov_limit);
-> +		vq->indirect = kmalloc_objs(*vq->indirect, UIO_MAXIOV,
-> +					    GFP_KERNEL_ACCOUNT);
-> +		vq->log = kmalloc_objs(*vq->log, dev->iov_limit,
-> +				       GFP_KERNEL_ACCOUNT);
-> +		vq->heads = kmalloc_objs(*vq->heads, dev->iov_limit,
-> +					 GFP_KERNEL_ACCOUNT);
-> +		vq->nheads = kmalloc_objs(*vq->nheads, dev->iov_limit,
-> +					  GFP_KERNEL_ACCOUNT);
->  		if (!vq->indirect || !vq->log || !vq->heads || !vq->nheads)
->  			goto err_nomem;
->  	}
-> @@ -2052,7 +2056,8 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
->  		return -E2BIG;
->  	if (max_iotlb_entries <= 0)
->  		return -EINVAL;
-> -	newmem = kvzalloc_flex(*newmem, regions, mem.nregions);
-> +	newmem = kvzalloc_flex(*newmem, regions, mem.nregions,
-> +			       GFP_KERNEL_ACCOUNT);
->  	if (!newmem)
->  		return -ENOMEM;
->  
-> @@ -3407,7 +3412,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
->  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
->  {
->  	/* Make sure all padding within the structure is initialized. */
-> -	struct vhost_msg_node *node = kzalloc_obj(*node);
-> +	struct vhost_msg_node *node = kzalloc_obj(*node, GFP_KERNEL_ACCOUNT);
->  	if (!node)
->  		return NULL;
->  
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 88a310390eb0..2fa205967f8a 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -719,11 +719,12 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
->  	/* This struct is large and allocation could fail, fall back to vmalloc
->  	 * if there is no other way.
->  	 */
-> -	vsock = kvmalloc_obj(*vsock, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> +	vsock = kvmalloc_obj(*vsock, GFP_KERNEL | __GFP_RETRY_MAYFAIL |
-> +			     __GFP_ACCOUNT);
->  	if (!vsock)
->  		return -ENOMEM;
->  
-> -	vqs = kmalloc_objs(*vqs, ARRAY_SIZE(vsock->vqs));
-> +	vqs = kmalloc_objs(*vqs, ARRAY_SIZE(vsock->vqs), GFP_KERNEL_ACCOUNT);
->  	if (!vqs) {
->  		ret = -ENOMEM;
->  		goto out;
-> -- 
-> 2.53.0
-> 
+Hi Bjorn,
 
-The vsock bits look good to me!
+A gentle reminder about this series. All three patches are reviewed by
+Logan, 1/3 and 2/3 also by Leon, and 1/3 has Arnd's ack and Sohil's
+review.
 
-Acked-by: Bobby Eshleman <bobbyeshleman@meta.com>
+It applies on pci/next as is. 2/3 and 3/3 have context conflicts with
+pci/p2pdma. I can send a rebased version if you want it on top of that
+branch.
+
+Is anything else needed to get it queued?
+
+Thanks,
+Pavel
