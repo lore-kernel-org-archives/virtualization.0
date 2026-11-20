@@ -1,119 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.37.83.207
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795183842;
-	b=3tVZZJ67BuaQ/ojxy3QrA8oPZsKKVrXWiedbu3Ooejqb2sNP0Wht3gaPz7nKfmEofJfl
-	 gA0wRmFukd+IXEpJSPIGHZMMgs3r4EuBalI1Kc6kUtlvXCKJ+YY5qTLsGpT7RdK9+C5Rc
-	 hbw63McgNhGBVDLr6QkLC2ZUO7dXdqUZ5J8IjqmQBpQQpBXkqvs/zzmijCvMlTW5Xk3bU
-	 /OHR+u6vSsben5UC+dWMdTtQ5gMZ7bRSooPderTJlN6P1c8GFxqD0lIuZS+I1zSyPubQW
-	 RLwnUNV8mrFjvCytCbmbkkNowEkTdENdGnItGTP4qqrZXijh6MxCfqg4TsYZ/RFE26A==
+	t=1795185616;
+	b=WU0P2wOQcxlEsE9nJ5gIO2Ka1hKjyh9eW89yy6dwyJC7do/0mM0ju1mKn/N6e0cnfM3r
+	 qx05gRxxQ9VOclzLy/u9mvej8JozMteLY97jsc50RnPRLIt9+6HNy/M70E05VRv8qlVSy
+	 5XfPbqPUMRgOStuxmc4LX+Qh4ZtFnYVCNRbkbwbyDZXt/wVvA5DON3rcOEcQXWs89yZqz
+	 UOCPf3XXZ3msfkQLO5K2zCvhZLligLwMFBcJIroeniCvY4dNu6Oe3i6HIh+cRalKciuWF
+	 LFmoXwrD4ZezCcj4cM3CtvxjgtlBt/nhPJ8qcVU4HqQYTgwK3qpdtKIP+lkUDER2h6g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795183842;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=5S4P9EVhrzfLBPEUlAs5RhZwbxTfoymelcBjiUJ2aGo=;
-	b=tAM1n3VP+rxWH4sDIcxRi+AmqyqrbasqgJHrvGtYjip3VlJgm4ltOSR96OwUBmqWARDD
-	 6z85YZANQDUBGgERBNHHxN0Frw7iX1ZpzkZhgeQBxpmRVMo5GRW8OCNuQvO5g0EEHsuL5
-	 eJzsz//JWICv27ishJrX2I7Abg6Ek7Kv14EgKbpsqFTq3EB8CgK+8+hb7hwXO6YqE1MFg
-	 R6e5NfiSVHiE+0vi4KGBBtaYiV2SVJbacXZkeFyOOiPb/S+A9H2rll3eR+A7ugslFuW1t
-	 VAc9MIS6KkCM9Uc/bE8EfLpLFYGCMeiNnmsfZcplhQZr30EkuqYBMMB6WJur8QjT/NQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795185616;
+	h=DMARC-Filter:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=EbsDw6Wx3Asyav1Uh2M9tDyeJeabx+PeT1nQw1bW/Ho=;
+	b=YUy/CIkDbb7jCJq+tR6OIKba1poGgiukLtqDvGzZU7D1kW/hsE2F0lprWQCxekAh8vWB
+	 83cb4LlXiw7Oh4P5aM3BpuI761EJjwMS9Sl2Y7gnraC2crx7fj48sCQ2zjYbMgFkeryzn
+	 4nALoSqRAQLAZN5CyKy1QO5QG0Ac//oDK8iVzl+oErXCTf5TeyLHdC4GdpLmmgEtwFMhy
+	 XTbao2pFWhO1PNvM6jSCMs2aMIMDCpCP5WQ9CFgl2DaSMpqFClX7sGqgkSFB+aagis0Us
+	 sOzoaUQpIDj7RH21oNdn26ZkVE4LkCIGSa0ORLLTovY//6VvSTpjhOJ4LSNkEP6SE1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=bYZsFo8Q;
-	arc=none smtp.remote-ip=209.85.128.46
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=dfb.sh;
+	spf=pass smtp.mailfrom=dfb.sh;
+	dkim=pass header.d=dfb.sh header.i=@dfb.sh header.a=rsa-sha256 header.s=frkn header.b=PHqYAYeb;
+	arc=none smtp.remote-ip=54.37.83.207
+Received: from frkn.dfb.sh (frkn.dfb.sh [54.37.83.207])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7089606A333
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 14:10:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E7089606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 092AB606A320
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 14:40:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 092AB606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dfb.sh
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dfb.sh
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=bYZsFo8Q
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4bb6adaf0f1so8050455e9.0
-        for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 06:10:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795183840; x=1795788640; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5S4P9EVhrzfLBPEUlAs5RhZwbxTfoymelcBjiUJ2aGo=;
-        b=bYZsFo8Qxn73GrJwPeBscB//SiOf5PXvozmhKZmGuyrptyCY3L6uhd5lhU7UAEoey0
-         pR1HL+0q9b+/CwTBf4eLtIKhBInkaDfj2GuGN3KvA6HE/g9nC5LL+d37i863s172nriF
-         DEzqenvju8xbUgy665oBpQAW0LpmkBjMXcntUf7TcPGNNBpyAMimZ8lKOzI/aQmtC0SY
-         u9XVdUk5JyP1tuFp8PteXfMn7nXHg5NNtjPfTOCwOu6KidDhwgG8OmeYqcuXI3L7XRMq
-         qO51/t5p+zJHvngP4Hn03m7GQGyXBit2F8SBYzslAMshwoFd32x/e+3ck9ZIVllKOu4q
-         SCUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795183840; x=1795788640;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5S4P9EVhrzfLBPEUlAs5RhZwbxTfoymelcBjiUJ2aGo=;
-        b=Kl58wRXLR84aKPN/JhSRmGj+9GjvhhCdMADBht7DEaWi0RFn5lAolVCeRUUTAyVlUF
-         MyQfyKhLchhplasmmIMLte8eMkbq9i5OCsWWlJ0HKmevsrq05121+reBpjav8zKu1I2m
-         Z/ke9TEOVTfIHKB4MA10QNZG9fHpQqVx9J0GhWOPTy5BmAm4t760ftyK+FLum/KcNJMe
-         1ZLeaxXom5FDGt58xXaZXUZiBI3oLRneIKo07J0lUwts7wR8Z3ODOr4okNk0p09bB60m
-         ntBdtlN5yiuj6eeHg1GhB3dqAbceEltGvSkdlpht6AlJ13/6qaKGxX2MLFtxzVfgrJ7m
-         ERvw==
-X-Forwarded-Encrypted: i=1; AL+hErGcgQ17mEnl9fFU/sCWxd6cl5yG0HQtn7nSvmGvDL/paD5iZKCn29JU4MtJ44iAGzL4faXZETR3n+UHZw60Mw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9B7EBjuADOQwCiCJe2qYnIyk0gnPZkyI/7oUg3aDHs9Qr/+gd7
-	ubaCtQSeKxKjM5IE2Otvw365LNUQVNl/7YiUoXxvkPFf5vSjUcuGo6158K4UUkRESjw=
-X-Gm-Gg: AYBFou07VOLuz09Cctrl4AFuEelg1O6utUolvw141BPRCVFZnyQKsKFov5nBvagl9uD
-	PZh0TohZGdLa8OS+YTdnYjOMrpc6sQjyMjENUcafJnqGca5fjYuzMwJEMLRvizaXmDQbbuu3WvT
-	do3xWn8s0ow2W2NPViwg4bxXolJ9IBq2+4qBvzdhZuCllGKo2MfEuOY2MyKVRxTqKXjYpsjmpfV
-	VkMR+xEZekf4ErDxKpBHZRbjXfO1H8bd1c9trrT3OJ3C6FBIMRSmT3xNMuE4Vnx7/SWtcNiHYRF
-	eYtBMWvgZY9WPiqBU+IuCLnmkbcvuzxDOcIeaLVNTgHlxxkTI0oBvDJjskO7KWNJa18ivwI9hhZ
-	wIGfN3eMGJ5iQDRGBjkKSqem+aIwUNcsq7cCdIHqfstNPlJh1cKlw2OpJJIxuspgpliKVzksSPM
-	206d5u0uJjDrN86ESOBCWYkGsiNTsvLnHJBYdBFzX1bvwbnmhKiZFdNG2y9ho+B04G37Ys+Vv6H
-	H6gTOfTlveVtVa4p2MHKaYyikUmT3C5hFXLkc4e0u27DkbCkopc2iCXZjvN7GNY004PcjbmXLo2
-	GBWFYoZzbaB1qA1DQnBTa6Sts5ZaDMvDu8cfoqgkAYravi2uXrW5+iuogN6x4MUXeeg5nxB3uSV
-	zihuSiwltJcPfIrBs
-X-Received: by 2002:a05:600c:3b1a:b0:4a7:8fe8:130c with SMTP id 5b1f17b1804b1-4bb8881d4damr71087005e9.28.1795183840190;
-        Fri, 20 Nov 2026 06:10:40 -0800 (PST)
-Received: from localhost (p200300f65f19a9041d3eb07d772156f3.dip0.t-ipconnect.de. [2003:f6:5f19:a904:1d3e:b07d:7721:56f3])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb895f66e1sm37012445e9.0.2026.11.20.06.10.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 06:10:39 -0800 (PST)
-Date: Fri, 20 Nov 2026 15:10:38 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Yao Yuan <yaoyuan@linux.alibaba.com>
-Cc: Alex Williamson <alex@shazbot.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, 
-	"Rafael J . Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, 
-	Johan Hovold <johan@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	David Lechner <dlechner@baylibre.com>, Armin Wolf <W_Armin@gmx.de>, 
-	Thierry Reding <thierry.reding@kernel.org>, Mike Rapoport <rppt@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Karl Mehltretter <kmehltretter@gmail.com>, "Paul E . McKenney" <paulmck@kernel.org>, 
-	Borislav Petkov <bp@alien8.de>, Dapeng Mi <dapeng1.mi@linux.intel.com>, 
-	Marco Elver <elver@google.com>, Ethan Nelson-Moore <enelsonmoore@gmail.com>, 
-	Jeff Layton <jlayton@kernel.org>, Bradley Morgan <brads@mainlining.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Petr Mladek <pmladek@suse.com>, 
-	Pnina Feder <pnina.feder@mobileye.com>, Mete Durlu <meted@linux.ibm.com>, 
-	Aaron Tomlin <atomlin@atomlin.com>, Rio <rioo.tsukatsukii@gmail.com>, 
-	Feng Tang <feng.tang@linux.alibaba.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	driver-core@lists.linux.dev, linux-trace-kernel@vger.kernel.org, 
-	Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, 
-	Yishai Hadas <yishaih@nvidia.com>, Longfang Liu <liulongfang@huawei.com>, 
-	Ankit Agrawal <ankita@nvidia.com>, Brett Creeley <brett.creeley@amd.com>, 
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>, =?utf-8?Q?Micha=C5=82?= Winiarski <michal.winiarski@intel.com>, 
-	Julian Ruess <julianr@linux.ibm.com>, Nipun Gupta <nipun.gupta@amd.com>, 
-	Nikhil Agarwal <nikhil.agarwal@amd.com>, Eric Auger <eric.auger@redhat.com>, 
-	Mostafa Saleh <smostafa@google.com>, Pranjal Shrivastava <praan@google.com>, 
-	Ioana Ciornei <ioana.ciornei@nxp.com>, qat-linux@intel.com, virtualization@lists.linux.dev, 
-	intel-xe@lists.freedesktop.org, kvm@vger.kernel.org
-Subject: Re: [PATCH] vfio: Allow untainted use of driver_override
-Message-ID: <awBUG7-QzXplEiUT@monoceros>
-References: <DMYH4ED3GWDO.29DGXPK4M82VR@kernel.org>
- <20261118235645.2907908-2-alex@shazbot.org>
- <xzp5gljhburzbpol5bgnyyzwdrgpw3fj6ff3j23ein27raiidw@kti7moeuwvb5>
+	dkim=pass (2048-bit key, unprotected) header.d=dfb.sh header.i=@dfb.sh header.a=rsa-sha256 header.s=frkn header.b=PHqYAYeb
+DKIM-Signature: v=1; a=rsa-sha256; s=frkn; d=dfb.sh; c=relaxed/relaxed; r=y;
+	h=Message-ID:Date:Subject:To:From; t=1795185595; bh=EbsDw6Wx3Asyav1Uh2M9tDy
+	eJeabx+PeT1nQw1bW/Ho=; b=PHqYAYebts/l42eOie+jvcTq99KtAVMm/P6ZEL4TXuIYLca0+3
+	C4n2j3D8IZXp1UVJkPB6IkK3ehfszHaMBMYmr49V8T9ieePvIIa2aWS5ghzrz9MfrsFmNeujNl1
+	p33xp1Wkp6kVgciznVMLIYj7imzuth+4F0zFkx50kMKi+0a2TMNfWRozSHwJpPFvRloOLQ0J/7j
+	l9Luo0TaRBD6yYUFiPLpzY+2I5lySOePqAO6ZfysxqOuJN00QVP75Vx7oJk/38Ciu8/nJQRmkr/
+	9KBpfCUlHFlzRf3h2lVWgXh/xMiDFRI+EzKsOgl4rnZ4nxk7EUVsoxWf5ev7P9O9IPA==;
+From: Vladimir Petrzhikovskii <vladimir@dfb.sh>
+To: stable@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Nikolai Kalinin <nikolai@kalinidze.me>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 6.18.y] virtio_net: check RX buffer length before DMA sync
+Date: Fri, 20 Nov 2026 15:39:53 +0100
+Message-ID: <20261120143953.1560229-1-vladimir@dfb.sh>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -123,62 +67,153 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="76ybofus6n5n73yb"
-Content-Disposition: inline
-In-Reply-To: <xzp5gljhburzbpol5bgnyyzwdrgpw3fj6ff3j23ein27raiidw@kti7moeuwvb5>
+Content-Transfer-Encoding: 8bit
 
+[ Upstream commit 29dfa436bc488056a84ee423ba82336db453e2a6 ]
 
---76ybofus6n5n73yb
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH] vfio: Allow untainted use of driver_override
-MIME-Version: 1.0
+An RX queue that uses the DMA API (rq->use_page_pool_dma, for example
+with VIRTIO_F_ACCESS_PLATFORM) syncs each received buffer with
+page_pool_dma_sync_for_cpu() using the length the device wrote to the
+used ring, and checks that length against the posted buffer only after
+the sync.
 
-On Fri, Nov 20, 2026 at 10:17:46AM +0800, Yao Yuan wrote:
-> On Wed, Nov 18, 2026 at 04:56:44PM +0800, Alex Williamson wrote:
-> > Driver overrides are the standard mechanism for binding vfio drivers
-> > to devices.  With the introduction of the support_driver_override flag
-> > in the core driver struct, it's now required for drivers to declare
-> > themselves as driver_override compatible, otherwise driver_override
-> > bindings will be denied or generate a kernel taint.
-> >
->=20
-> Hi Alex,
->=20
-> > Set the support_driver_override flag on the driver struct across all
-> > vfio drivers.
->=20
-> LGTM.
->=20
-> Reviewed-by: Yuan Yao <yaoyuan@linux.alibaba.com>
+With SWIOTLB bouncing (swiotlb=force, or a confidential-computing
+guest), the sync copies from the shared bounce buffer into the guest's
+private page, so an oversized length also copies the bytes the device
+wrote past the posted buffer over the neighbouring page pool fragments.
+The later check drops the packet, but the copy has already happened. A
+malicious device, such as a host the confidential guest does not
+trust, can overwrite guest kernel memory next to an RX buffer with
+bytes it chooses, which is enough to take an unprivileged guest
+process to root.
 
-I missed your reply when I sent the next revision of this patch. I had
-to trim the recipients of the v2 because gmail refused to send it with
-everyone on Cc: who was emitted by get_maintainer.pl. So please see
-https://lore.kernel.org/kvm/fb0df5c89336b77a373ae0f890f63427e4adbb28.179517=
-1088.git.u.kleine-koenig@baylibre.com
+Check the length before the sync in the per-fragment loops.
+receive_buf() has to sync the header before the length check, because
+the mergeable error path reads num_buffers from it, so limit that sync
+to the posted length. A device that reports correct lengths sees no
+change.
 
-But also note, that if v2 is picked up using `b4 am`, your Reviewed-by:
-is considered as the patch didn't change.
+The driver has synced with the device's length since
+commit 295525e29a5b ("virtio_net: merge dma operations when filling
+mergeable buffers"), at first in virtnet_rq_unmap(). Commit 24fbd3967f3f
+("virtio_net: add page_pool support for buffer allocation") moved the
+sync to the page_pool call sites that this patch changes, so the patch
+applies to v7.1 and later. Older kernels need a separate backport that
+limits the sync in virtnet_rq_unmap().
 
-Best regards
-Uwe
+Found by an LLM code review agent auditing users of the DMA API; the
+fix and this changelog were also written with an LLM coding assistant
+and reviewed by us. Reproduced in QEMU with swiotlb=force and
+iommu_platform=on, a test-only device change that reports a used length
+64 bytes past the posted buffer and writes a marker there, and a guest
+kprobe module that reads the buffer after the sync: without this patch
+the marker reaches the guest page for small and mergeable buffers; with
+it the packets are dropped and counted in rx_length_errors. The
+virtio_net selftest basic_features.sh passes with and without mergeable
+buffers.
 
---76ybofus6n5n73yb
-Content-Type: application/pgp-signature; name="signature.asc"
+Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
+Cc: stable@vger.kernel.org
+Co-developed-by: Nikolai Kalinin <nikolai@kalinidze.me>
+Signed-off-by: Nikolai Kalinin <nikolai@kalinidze.me>
+Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
+Link: https://patch.msgid.link/20261110-b4-virtionet-rxlen-v2-1-6ec5aa0edf9f@dfb.sh
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[ vladimir: 6.18.y has no page_pool RX buffers. The driver syncs small
+  and mergeable RX buffers in virtnet_rq_get_buf() with the length from
+  the used ring, before any length check. Limit that sync to the length
+  of the posted buffer; the existing checks then drop the packet. Tested
+  with the reproducer described above: without this patch the marker
+  reaches the guest page for small and mergeable buffers; with it the
+  sync stops at the posted length and the packets are counted in
+  rx_length_errors. ]
+Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
+---
+ drivers/net/virtio_net.c | 47 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 36 insertions(+), 11 deletions(-)
 
------BEGIN PGP SIGNATURE-----
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 34390befdf8a..287099885b50 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -805,19 +805,32 @@ static unsigned int mergeable_ctx_to_truesize(void *mrg_ctx)
+ 	return (unsigned long)mrg_ctx & ((1 << MRG_CTX_HEADER_SHIFT) - 1);
+ }
+ 
+-static int check_mergeable_len(struct net_device *dev, void *mrg_ctx,
+-			       unsigned int len)
++/* Length of the mergeable buffer that add_recvbuf_mergeable() posted. */
++static unsigned int mergeable_ctx_to_buflen(void *mrg_ctx)
+ {
+-	unsigned int headroom, tailroom, room, truesize;
++	unsigned int headroom, tailroom, room;
+ 
+-	truesize = mergeable_ctx_to_truesize(mrg_ctx);
+ 	headroom = mergeable_ctx_to_headroom(mrg_ctx);
+ 	tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
+ 	room = SKB_DATA_ALIGN(headroom + tailroom);
+ 
+-	if (len > truesize - room) {
+-		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+-			 dev->name, len, (unsigned long)(truesize - room));
++	return mergeable_ctx_to_truesize(mrg_ctx) - room;
++}
++
++/* Length of the small buffer that add_recvbuf_small() posts. */
++static unsigned int small_buflen(const struct virtnet_info *vi)
++{
++	return vi->hdr_len + GOOD_PACKET_LEN;
++}
++
++static int check_mergeable_len(struct net_device *dev, void *mrg_ctx,
++			       unsigned int len)
++{
++	unsigned int buflen = mergeable_ctx_to_buflen(mrg_ctx);
++
++	if (len > buflen) {
++		pr_debug("%s: rx error: len %u exceeds buffer length %u\n",
++			 dev->name, len, buflen);
+ 		DEV_STATS_INC(dev, rx_length_errors);
+ 		return -1;
+ 	}
+@@ -965,13 +978,25 @@ static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
+ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+ {
+ 	struct virtnet_info *vi = rq->vq->vdev->priv;
++	void *buf_ctx;
++	u32 buflen;
+ 	void *buf;
+ 
+ 	BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
+ 
+-	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+-	if (buf)
+-		virtnet_rq_unmap(rq, buf, *len);
++	buf = virtqueue_get_buf_ctx(rq->vq, len, &buf_ctx);
++	if (!buf)
++		return NULL;
++
++	/* The device chooses *len. Sync only the buffer that was posted, so
++	 * that a larger *len cannot copy over the buffers next to it.
++	 */
++	buflen = vi->mergeable_rx_bufs ? mergeable_ctx_to_buflen(buf_ctx) :
++					 small_buflen(vi);
++	virtnet_rq_unmap(rq, buf, min(*len, buflen));
++
++	if (ctx)
++		*ctx = buf_ctx;
+ 
+ 	return buf;
+ }
+@@ -2687,7 +2712,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+ 
+ 	buf += VIRTNET_RX_PAD + xdp_headroom;
+ 
+-	virtnet_rq_init_one_sg(rq, buf, vi->hdr_len + GOOD_PACKET_LEN);
++	virtnet_rq_init_one_sg(rq, buf, small_buflen(vi));
+ 
+ 	err = virtqueue_add_inbuf_premapped(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-- 
+2.54.0
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsAVNwACgkQj4D7WH0S
-/k5TyQf/eHBkTiGwub1DLzfSI9Ji/DkzXua0OriEhTmok4cd+2dbl8OfLn0CXg3e
-B7W5T3PuQPmIapUivPRGpIJ31hN6+UScHDdfNvj1Xbret/ZoqA+0l48dqU/ikpgB
-X4WK2ENvhE+glZpB32rPkpeMadqauuBUmh1TjWnpLKn4QmgLyf+pHIJSnUmH7XkQ
-BV2i7AIctyUc2PP/Y+URhj62+6B5pxn3+5BlligAvpjkpg98TxVTctcCEgP4apyk
-TI6uZtnd9maFMXHbUJHEArWhVKI8FLAzZySY9/E7u4+tsY0gz/JMib7RngFR2IY4
-MPZB/liFV473f+eDblZh9CKsu8DAJA==
-=wiOu
------END PGP SIGNATURE-----
-
---76ybofus6n5n73yb--
