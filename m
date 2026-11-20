@@ -1,56 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795157265;
-	b=r5nJI91HZVf9st0gYHXTq25JdpaakdQm6gHS1TNyTbljhS6MtmizNOUvvcKzprfNHCyF
-	 E7PKuF/KlMkTvpgztFl0qPSy8RFgCLF0ClwAAX7ED4bFD3oxUx1eBAyo7dnWkTE6JYyQl
-	 sU2s0VL83QO+uIKEAJB4L8Gdw6l3ln/fP8Iqyoi0PgzpCyHdkrVhvb1PkcTiOL8E84GGa
-	 lV9hZnNvezTyP3DEdf+jkUjXF/Vb9WBBTvgnhbmNyFuoHPeLL2xTAm8D8F53ZzVQhacV6
-	 Er1djFErCqPSWeJZkHU6WTrx6DuHhHxsFI7z5CHsNgFLJ0S6hjR42mk40TZNbCTWwwQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795157265;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=VB+j8v0JQ20N98gDavEgqfBPm+ZfHMa1TwICwadVbvY=;
-	b=EiSJ8rJUMkbNb+OrfOqG3dLa5jKmt3V9Xbrbudew3qjW64aal4xNt657AJ64Op+Lhr7P
-	 EvDzUx2Egq94NqVorPwqX4DjkndZWGK2J0FnUIiGIEcn5RdZx0I64xsoDRE027J7jAgFn
-	 3qlgp80tY5qJK9n1HmKXC+H4rDgYuJTpRriJbTYCaHiidPA2Ufum76FwdcFeVKT8vPEDt
-	 cO+uzVUSZfjQY/w8MCZrTNb7Xc1MBUD8PmCGgHtNvuRn5qzSdkSoHfQ86Mr9fK8AtPnF+
-	 hTdHfZ7GK9gGEpCqbMgi4LYjiht3+59Un1HkTixAdgI8H6AG5aVjR0BRPgwErTRUc3A==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GkU2hrzL;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795157869;
+	b=d3l576rJrLYuAycgu7/8hVA1YOf1+xzcsc6ZBYTR1o0YU1ie1eni9Vy6zlvK4pdKRdE/
+	 cC5E6r8mfbi1dTTe5Bm3nXcpQzngTkYRZQSaocX0DmqhvURg7Pw4EzWjqpG3IZQr4CrvD
+	 LYq9rI2HaiHU6CJioZGrg3AqGK8IYdqTVySs1LykfDULFY/R7Tw9sze7HhIskz0Cvh9iW
+	 4ePp1vhNZoYnQFWEYFWXg2TF77+gsliaQaZCWLRZTQWP0atSAfUGzKG9lV5FGXtDs1lND
+	 Tyhz2c4+/PQbyRgxASD+nrtKRR/mTSbilFoIvtNG9vEhTAip2lbJoYZgMNbT6H7sGNQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795157869;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=jW6OuUPNtnY3yT5tnkI1u/PZfc7TEnu9nSLgTSDG2JM=;
+	b=3mwQ7X8QU3Swdcm3pPDj2iGAuAgDPwzU9rzUqr6IEDFH4/YxrXEJEz6kkTDlxVMMorYa
+	 /T8EAU2z63G1s6Z6VSq286zuJ98JWdf8XFAlVKO74kPvVesPzob1xL4PlUMPxVurl/NM/
+	 SKBxZmGUj8I+PHIJCDf64qMUe6Y6uFCNvwRuu9Fpr66A3+zPYdzAL2sMYivHzzIifnkG3
+	 lXAhyyuSUc9NAGvcO4rsRh7rURhWp+WK7xIj90KFWg2pJHhn0hhwo6PxbyoQSsQks6K1F
+	 EeNKoGHzbWLUrX3Ji1o9G9+Rl2dOnFRs0AgI3LGvgq+02qTMgvrWSb20uz2PKxUX7qQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m2WtG9LR;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F59606A320
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 06:47:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC745606A326;
+	Fri, 20 Nov 2026 06:57:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GkU2hrzL
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF561F000C4;
-	Fri, 20 Nov 2026 06:47:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m2WtG9LR
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795157868;
+	b=z3H7jZkG6S0QmQmf3SRAB1N1FsxncCj988mrUsOVQmGlzQ8nkjX4BYdQ2+qVS/PJRjpB
+	 Gj2C5jq3pC9x2eLOH4MlHBo9Id/pzGAHFWX5SDYAeqiZxjaWYH8DfI0L7XrWe8L1GVO3p
+	 314I73SSNoIm7tDSzpVGjpcz19ZM8+QAdeO9NxbqEUtVlXehyBU9uHnpgpd3An63z1HTe
+	 BrzRNRUuHb7Dqm26MXFDkXUFZXY+QKq6B8irn0ygYqU4DBoVpyz3gUsJ3ns6MSOj/OWpL
+	 RQZZyBRQZJ4PoMA3i/4vWY8Fc/to1bnmwKvO4+CDN7L7CNXZij9zE2xPCYq39o7c3ZA==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795157868;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=jW6OuUPNtnY3yT5tnkI1u/PZfc7TEnu9nSLgTSDG2JM=;
+	b=ckAmzG7oIAAPvdxOdpHNZ90UhGdMpHdsXRyS7sOApfpQvOmCZWA8gVwXUQ3W6YxR64L7
+	 ByMiRRvgU5cIeP1ZwnUVq9jQdHQNQpihCZ6/FSr9aHMqR1LnPjYzLmSGeoXN40HkBgKZt
+	 M9cnJ8Z3dRT2TN/H19SuCD+5kNzGeHg3TU/+IJn0D4Djlj3xch6ZZoFfv9NSpQR/l1BEJ
+	 UHg7+oYsXwhuB5fCIDeAkv07ojESX077j+wn774hHjdF9G84NsAk26CX1UgYNiFqNoZdO
+	 RP+oi4IGp4qx/FOSkuCW0o3pwpbiDN1WVpFMiOSYv2f7XPx0Rix9bYoGiR8FnLwMIWg==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id EC9CD1F000D1;
+	Fri, 20 Nov 2026 06:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795157265;
-	bh=VB+j8v0JQ20N98gDavEgqfBPm+ZfHMa1TwICwadVbvY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GkU2hrzLvamgIsF6fZNOeQCQvaxm2LgEQJRjECj4ZiWWC6QNU0XFKkiwfcSFVpyu5
-	 qHmxMYduDEABNdTdVullHuPF+TVWeOvA8ZID7mCdmtvxceNBOMoUr7xMSXvVQLrabf
-	 5KbV0ndTjQa2cLIUWDXdbS20P7Apj0SEW90+YMjXwfpqsdXKqzwqMDAEAMHz0L3F7L
-	 tYdB4anWwvjUewfwX6BtaV6yo8kJLfMwDfpsUIhXVTL4UWjlw/nxJhF+tVKguY4YK6
-	 ISkRLdgHqekNKslJySJZHM32UMoNqp09sChWVUCv9jzSSqrWsZvO++5x2fJ1MTbvhi
-	 5tupaoQfBxzKw==
-Message-ID: <sashiko-outbox-224582@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] virtio_blk: validate zone append sector from device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Annie Kim" <pulpannie@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261120063039.4155597-1-pulpannie@gmail.com>
-References: <20261120063039.4155597-1-pulpannie@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 06:47:44 +0000
+	s=k20260515; t=1795157868;
+	bh=jW6OuUPNtnY3yT5tnkI1u/PZfc7TEnu9nSLgTSDG2JM=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=m2WtG9LRVESK2kylSTNxVa8zgRCwjtYlsXm78F7jJEOiTqliAN44ka5iR7+11uTbW
+	 ZBsySgEc1RAlBpXt9JiF2VnEEuuEW9AAhtYjpRGa3LKQW0OnvK+8RL5foGvdPcRYun
+	 G+XxXTUFlLozn0h3j1p+JnAr4VNZlU/WW54X3uwfWjQ1LOnC/7PddkUbzjfAQ5UwbY
+	 fJzyE6DRjVlBtek1DpYQFRiygkuIS/Qbx+N9WVvxd8wz0D8FGyHCva808qnRLsHHXP
+	 Uu/NNMJFR07ZGYV4Z/i7reAi3tQNixA/4Ar3hY4LNcjIM+MiJ8piFDU14k/jzu9KXe
+	 lGXpJRrLLckJg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 7AAE049732;
+	Fri, 20 Nov 2026 06:57:47 +0000 (UTC)
+From: Seonghyeon Lim via B4 Relay <devnull+forfortuna.naver.com@kernel.org>
+Date: Fri, 20 Nov 2026 15:56:04 +0900
+Subject: [PATCH v2 2/2] can: virtio: fix virtqueue use before DRIVER_OK
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,160 +81,99 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261120-virtio-can-ready-v2-2-0defda2af8cb@naver.com>
+References: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
+In-Reply-To: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
+To: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
+ Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, 
+ Marc Kleine-Budde <mkl@pengutronix.de>, 
+ Vincent Mailhol <mailhol@kernel.org>, 
+ Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
+ Francesco Valla <francesco@valla.it>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-can@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>, 
+ stable@vger.kernel.org, Seonghyeon Lim <forfortuna@naver.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795157866; l=2078;
+ i=forfortuna@naver.com; s=20261110; h=from:subject:message-id;
+ bh=wIY55Nih6Exr0WUhi1Tyc3EiQfNI6qtLKhOXoT4e7Vs=;
+ b=iNTmLb2IWMi8elzzOk5J87idYxXeiL/HJlLHubu6TkFR6PvPZZ2EtrbwqEf2/9Hg+tlrRCNfC
+ kqvNbXf4G3DCr+iziYwoMCePuJlXRkNMSecgnlwE05WyIN+Fch2rUMB
+X-Developer-Key: i=forfortuna@naver.com; a=ed25519;
+ pk=NSzj4ReyzmE01C4q/f+7jqXzWqsN5NwQK5UsSI6ufiE=
+X-Endpoint-Received: by B4 Relay for forfortuna@naver.com/20261110 with
+ auth_id=1481
+X-Original-From: Seonghyeon Lim <forfortuna@naver.com>
+Reply-To: forfortuna@naver.com
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] virtio_blk: double virtblk_update_zone_append_sector() call
-  in virtblk_poll()
-It also noticed 1 related pre-existing issue this patch does not
-introduce:
-- [Critical] virtio-blk: null pointer dereference in virtblk_poll() [1]
---
+From: Seonghyeon Lim <forfortuna@naver.com>
 
-commit 9e4aa32cc96237b908b67c8c0ca12ebb3020f3a1
-Author: Hyokyung Kim <pulpannie@gmail.com>
+virtio_can_probe() and virtio_can_restore() fill the RX virtqueue and
+kick it before the device is set DRIVER_OK. The virtio specification
+does not allow the driver to notify the device before DRIVER_OK.
 
-virtio_blk: validate zone append sector from device
+In restore, if the interface was up, virtio_can_open() then sends a
+START control message and waits for the reply. DRIVER_OK is only set
+by the virtio core after restore returns, so the device may never
+handle the request and the wait never completes, which hangs system
+resume:
 
-This commit validates the device-reported starting sector on
-REQ_OP_ZONE_APPEND completions in both the normal and polled completion
-paths before updating req->__sector, failing out-of-range completions with
-BLK_STS_IOERR.
+  task:kworker/u4:5 state:D
+  Workqueue: async async_run_entry_fn
+  Call Trace:
+   __wait_for_common
+   virtio_can_send_ctrl_msg
+   virtio_can_open
+   virtio_can_restore
+   virtio_device_restore_priv
+   dpm_run_callback
+   device_resume
 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 2b462005cdb68..8f88570b4f0e5 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -331,15 +331,45 @@ static inline u8 virtblk_vbr_status(struct virtblk_=
-req *vbr)
->  	return *((u8 *)&vbr->in_hdr + vbr->in_hdr_len - 1);
->  }
-> =20
-> -static inline void virtblk_update_zone_append_sector(struct request *req,
-> -						     struct virtblk_req *vbr)
-> +#ifdef CONFIG_BLK_DEV_ZONED
-> +static inline blk_status_t
-> +virtblk_update_zone_append_sector(struct request *req,
-> +				  struct virtblk_req *vbr,
-> +				  blk_status_t status)
->  {
->  	struct virtio_blk *vblk =3D req->mq_hctx->queue->queuedata;
-> +	sector_t req_start, sector, zone_end;
-> +	unsigned int nr_sectors;
-> +
-> +	if (req_op(req) !=3D REQ_OP_ZONE_APPEND || status !=3D BLK_STS_OK)
-> +		return status;
-> +
-> +	req_start =3D blk_rq_pos(req);
-> +	sector =3D virtio64_to_cpu(vblk->vdev, vbr->in_hdr.zone_append.sector);
-> +	nr_sectors =3D blk_rq_sectors(req);
-> +	zone_end =3D req_start + disk_zone_capacity(vblk->disk, req_start);
-> +
-> +	if (zone_end < req_start || sector < req_start || sector >=3D zone_end =
-||
-> +	    nr_sectors > zone_end - sector) {
-> +		dev_err_ratelimited(&vblk->vdev->dev,
-> +				    "zone append sector %llu + %u outside valid range [%llu, %llu)\n=
-",
-> +				    (u64)sector, nr_sectors,
-> +				    (u64)req_start, (u64)zone_end);
-> +		return BLK_STS_IOERR;
-> +	}
-> =20
-> -	if (req_op(req) =3D=3D REQ_OP_ZONE_APPEND)
-> -		req->__sector =3D virtio64_to_cpu(vblk->vdev,
-> -						vbr->in_hdr.zone_append.sector);
-> +	req->__sector =3D sector;
-> +	return status;
->  }
-> +#else
-> +static inline blk_status_t
-> +virtblk_update_zone_append_sector(struct request *req,
-> +				  struct virtblk_req *vbr,
-> +				  blk_status_t status)
-> +{
-> +	return status;
-> +}
-> +#endif
-> =20
->  static inline void virtblk_request_done(struct request *req)
->  {
-> @@ -349,7 +379,7 @@ static inline void virtblk_request_done(struct reques=
-t *req)
->  	virtblk_unmap_data(req, vbr);
->  	virtblk_cleanup_cmd(req);
-> =20
-> -	virtblk_update_zone_append_sector(req, vbr);
-> +	status =3D virtblk_update_zone_append_sector(req, vbr, status);
-> =20
->  	blk_mq_end_request(req, status);
->  }
+In probe, an ndo_open() right after register_candev() can likewise
+send the START message before DRIVER_OK.
 
-[ ... ]
+Call virtio_device_ready() before the first virtqueue use in both
+probe and restore, as virtio-net does. Config change callbacks are
+still deferred by the virtio core until probe or restore returns, and
+virtqueue callbacks that arrive before NAPI is enabled are handled in
+virtio_can_napi_enable().
 
-> @@ -1260,11 +1289,14 @@ static int virtblk_poll(struct blk_mq_hw_ctx *hct=
-x, struct io_comp_batch *iob)
-> =20
->  	while ((vbr =3D virtqueue_get_buf(vq->vq, &len)) !=3D NULL) {
->  		struct request *req =3D blk_mq_rq_from_pdu(vbr);
-> -		u8 status =3D virtblk_vbr_status(vbr);
-> +		blk_status_t status;
-> +
-> +		status =3D virtblk_result(virtblk_vbr_status(vbr));
-> +		status =3D virtblk_update_zone_append_sector(req, vbr, status);
-> =20
->  		found++;
->  		if (!blk_mq_complete_request_remote(req) &&
-> -		    !blk_mq_add_to_batch(req, iob, status !=3D VIRTIO_BLK_S_OK,
-> +		    !blk_mq_add_to_batch(req, iob, status !=3D BLK_STS_OK,
->  					 virtblk_complete_batch))
->  			virtblk_request_done(req);
->  	}
+Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
+---
+ drivers/net/can/virtio_can.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-[Severity: Medium]
-Does calling virtblk_update_zone_append_sector() in virtblk_poll() before
-falling back to virtblk_request_done() run the validation and update a
-second time after req->__sector has already been overwritten?
+diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
+index 9055d7e43235..549e8d789d74 100644
+--- a/drivers/net/can/virtio_can.c
++++ b/drivers/net/can/virtio_can.c
+@@ -925,6 +925,9 @@ static int virtio_can_probe(struct virtio_device *vdev)
+ 		err = -ENOMEM;
+ 		goto on_failure;
+ 	}
++
++	virtio_device_ready(vdev);
++
+ 	virtio_can_populate_rx_vq(vdev);
+ 
+ 	err = register_virtio_can_dev(dev);
+@@ -979,6 +982,9 @@ static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
+ 		virtio_can_del_vq(vdev);
+ 		return -ENOMEM;
+ 	}
++
++	virtio_device_ready(vdev);
++
+ 	virtio_can_populate_rx_vq(vdev);
+ 
+ 	if (netif_running(ndev)) {
 
-When a polled REQ_OP_ZONE_APPEND request is not batched (for example when
-an I/O scheduler is attached so RQF_SCHED_TAGS is set, when req->end_io is
-set, or when validation itself returns BLK_STS_IOERR), virtblk_poll()
-calls virtblk_request_done(), which recomputes status from vbr and calls
-virtblk_update_zone_append_sector() again with req_start =3D blk_rq_pos(req)
-now equal to the updated mid-zone sector rather than the zone start:
+-- 
+2.43.0
 
-include/linux/blkdev.h:disk_zone_capacity() {
-	sector_t zone_sectors =3D disk->queue->limits.chunk_sectors;
 
-	if (sector + zone_sectors >=3D get_capacity(disk))
-		return disk->last_zone_capacity;
-	return disk->zone_capacity;
-}
-
-For a valid append in the second-to-last zone landing past the start of
-that zone on a disk with a smaller last zone, sector + zone_sectors >=3D
-get_capacity(disk) is true on the second call, so disk_zone_capacity()
-returns last_zone_capacity and falsely fails the request with
-BLK_STS_IOERR when nr_sectors > last_zone_capacity.  Even when all zones
-have equal capacity, the second call shifts zone_end to sector +
-zone_capacity and re-reads vbr->in_hdr from device memory, and any invalid
-polled append logs dev_err_ratelimited() twice.
-
-[Severity: Critical]
-This problem wasn't introduced by this patch, but can virtblk_poll() hit a
-NULL pointer dereference [1] on vq->lock if polled I/O runs after
-init_vq() fails during device resume?
-
-When virtio_find_vqs() fails in init_vq() (for instance if the hypervisor
-reduces the ring size on resume), init_vq() frees vblk->vqs and sets it to
-NULL while leaving the request queue quiesced but not frozen.  Because
-blk_mq_poll() does not check whether the queue is quiesced, a userspace
-polled read (such as preadv2() with RWF_HIPRI) calls virtblk_poll(), where
-get_virtio_blk_vq() indexes the NULL vblk->vqs pointer and
-spin_lock_irqsave(&vq->lock, flags) dereferences it.
-
-[1] https://sashiko.dev/#/bug/linux-c7b06d8d-b2d5-4a94-acf6-9b1cf7480add
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120063039.4155=
-597-1-pulpannie@gmail.com?part=3D1
