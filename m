@@ -1,119 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795170453;
-	b=VaPO5kzOf/FibtcpC4hvmvIhETRWsx+40fOSFnwzTwRxZeedov87kNGMWEuO8OVrRtUL
-	 SfswvdqF++Y1gpx32vS51fNYB67qV9fLmYEXJjez9W7UqWv0IpuixIP/LxrwEPg+D8Web
-	 tUiIfMdGAaCyE9MrEBlf2H4NnubOWtvsY/mkwyP9SicEFYwuGSZvBRXUAEkAXx8rpxU3E
-	 V/pniBzqSdekMkMVZPYvTYqAeVMAg4lr6Eabz4EuTy5Q9RUg6KxDzf4ipXzkwxXzYtz4V
-	 11L+dDzVPAF6bgvI4YuBxrljSLLpZVsn5lQW4d09ARL9hEl9uWVrzkxrnZDx6ME2YSA==
+	t=1795170889;
+	b=umaMcAnJpdN28MkcYVf3wMOelY/KyFK6Mn65/gB8ex68gS+2eRQ8miTU2YDvO49MWcVE
+	 zu70SQu9qpFaWysYEoODP0S+8zMTS9BzJ/BlMzS8qYTCFGk6Og6eE/cVP8i0I9e6GqksH
+	 CTYD2kjzj0e0WwpdqiRM8215p4Gkc6JClbf72vqVcxWGZHfaRh7yTDCKvbM2rCX+0EHWh
+	 XZoqFiBvAkAIhLn8hhlt25zQSFK4hfj1XuNHvu0zf2FOBiQ+0C8svLtXdzibR58dA/5Km
+	 YsYnP1dq+dUxKrcsWIMfDfma5HXyDZ4b5e4FmcknorVUcCJ6Ox1+7aR/0BuWGNX9leg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795170453;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=J03hAPreVl/WdlY67XpnWOO6QMbJJDuPrc/TmqPAXow=;
-	b=rorV/7/iKsitQY9bUQ+ka+P6P3fz7Cmd9S6vCBIv9ooco9MCnWsNr/Gj9aukmTS/rP11
-	 DuaKkTItSCovinnz6K/dQQCoTkbbyvO0KxWJ5Xi00YPGpNZdy/SOgGGp8fWd2kFfeiPL1
-	 otvbohqlYsVUlObf3qZZZPyk8TF6AIDQUty2+6ss2bqvzAbZedZMW9k0O15AS4QWoVNSE
-	 TpVzT9HbLCauMkL72sBEoxIAB8ZvawCmhIyN1xiPkkf3hwh4v/ZG14DyQWra+vd0slVe/
-	 BmWIEigU5niLYeZ1jewHl8kTemg/Eztfrx+XHvJecrEkOMse0Xm9/b4A6rKd/nvKJZQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795170889;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=wQqfgunTLnRwvEQh/g3zIyzHHyLtB+m2tV6o9f2aJHQ=;
+	b=DmuhIj6r60MAmPPW2gJ71CfI8/K6j/FV29AGV7a2cbpR9eOleAoh6S1Le06O0BijB6kT
+	 lwSfwjLf86RNM/er2bnwtLMiyg8zMFDYPXmG2PCXEU+bDfAyV2XdJJm17fIb2LcLtk01L
+	 v625yqo5BLpAL6vVF1Nh6P1yLoTZmrukeFFOCdIfJhEEijwgtDVgbfoQOureVzniFjv+/
+	 QE8pzOJwpt5hfm1vKSkT5N8y5Lme0idNDOT6zHuf6aD5LR+K40yz5WKgzDIGXeHbTrigl
+	 EJx4GYtwZGY+80sQye8ZRfNmOdbQ9Q099T1c6q0NnnFqXt1wSfjaqEaJH3IzmFrxyww==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.com;
-	spf=pass smtp.mailfrom=suse.com;
-	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=OP6iqZm4;
-	arc=none smtp.remote-ip=209.85.128.54
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UVzFkiUi;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00C16606A325
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 10:27:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 00C16606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 897D4606A325;
+	Fri, 20 Nov 2026 10:34:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=OP6iqZm4
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4ac95761c85so5103785e9.2
-        for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 02:27:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1795170451; x=1795775251; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=J03hAPreVl/WdlY67XpnWOO6QMbJJDuPrc/TmqPAXow=;
-        b=OP6iqZm4puva8Zc1/9u/MtPvdUgjMG3J0WDej3Dh/s1bwvnLes1CRH+qNGlTKl79Da
-         lHROIPw9y/UvurTdFVYgeoK1xZQkcHxldmSxRQQoHylhpAneB2o+vnR6f/98aTAbr0IK
-         JMpMcBkSUfOP8FRmsk/xlvLrcvKo4s+61EZEcpTg0ixM96Lpt2azqxB/mrjYbvbr9iTn
-         uBxVnSqE1ihUZzPrfiVpzGC0Srd2IvCFMFOoEqdhib6TuOgcZccXu2oZjIQBsDf/G/Z/
-         qSq7lJvKdXF8h7l4PRc/8a8Wa5PT3rKdtjr7ZPTZA5BawqxFtgF8nQvw5iYsS9vUF9M3
-         kfhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795170451; x=1795775251;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=J03hAPreVl/WdlY67XpnWOO6QMbJJDuPrc/TmqPAXow=;
-        b=UUDcMrlKZq5wHlxofMvm5hTsaZkCkAfKt2BvZOv3BTu8NCb2WhA2I2X92HVeGiahqr
-         XESGF1/9y13I0C/FyJ7K0IHZbXybcsigCwDbblTzzFh1oCstv+fOc/DsqpyYV0ySJxQQ
-         CZEzaSaCUagXaB1CoXAATAZi9HPlVAKJPNK36Gbyjy4smm1SjWaA0oZUpyjApAgEhIhm
-         hkr5Go4yMN1X7xfd5WJteyM5pkUucQgDkUHkw5DYv/7nQHDrFeTn1q3G0X63PtgwHw9h
-         itBmB1HKLBqFe3fIxlwjQqRxXyo0yQQEosT4zzha9BPkk8ZFJsO+ntkF7W2yd9XRsjsf
-         kw/w==
-X-Forwarded-Encrypted: i=1; AL+hErEcSZjWaAGzpwbHpdJr6G3PfJzh/K4cdFq8leE/jiF/YMKQiuPJWnx6P+I3QwJoGeGkT7+o9Z1y5C+BQuBGTw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8IjYM2F2WCaBDgYiG1GZJypcSfcEVERm+38KyxyXuWb2Xs+seh
-	c0r7Ao+m/6Yzh3MC6f27NWPRDvzf75Ra5vkUEXbor6sMCiUsToEU0axaNjJCcta1mHU=
-X-Gm-Gg: AYBFou3I8n1egxy1VXOVmMXDVLHfAaMDu2thb5YSgu5KiBJQf+wK2UjEgXITG/IpKi5
-	4/MF0GiJ7kDLBByqvmZ+Ut8C2QJmW+FE4Sfo6WW+BWb+3maDtgpxuuRKMhsLLS7Nv3rwMfVCVHJ
-	FzEWQWDkH/t8DG+4EjW+CyvbPZoLtqVteMYeLLHlGDJZTfKeaVSW+/dzyw4GkxFb2p3krbSW1rG
-	iVJmkgpajWzmCVJfxtvLNFe9t44JxuBmGmgN83eDMb5tJ/aU5vaNF4YizQNkFjaHAh7Jzy3JXkc
-	iDqHmtxR8b/0SCjO8MvRMuUbzja2+2eKJ8ct70aTdpkZssatgGhYR/8xcrzgySAvPCVnkkqD4WI
-	tthAMZz+Pv+CQvmNE34Cynz/7T8NH+KW1WKMCM8OXNginhLCRK6VPS7j2fzcvaTVPaK6RVxPD9E
-	Zdrp8Kal2n+B4b6wsH2zp+M2TJHvHhN4MV+3kRqKFKzhrzgARBS9GGwxNAo9WNS4/9Aro7hozd9
-	4hlr+YPFjHRvPy44qyN0XghH+wwpCeKHpLCj8B+dIzcMIfnDj0Y3ipFuqoMNYONIS1Q796woY8y
-	RbG93lcYStchBmgfLhCl
-X-Received: by 2002:a05:600c:4ecd:b0:4a3:12fb:1ef1 with SMTP id 5b1f17b1804b1-4bb8881e81cmr57015215e9.29.1795170451305;
-        Fri, 20 Nov 2026 02:27:31 -0800 (PST)
-Received: from pathway ([176.114.240.130])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb853ca452sm108779875e9.15.2026.11.20.02.27.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 02:27:30 -0800 (PST)
-Date: Fri, 20 Nov 2026 11:27:28 +0100
-From: Petr Mladek <pmladek@suse.com>
-To: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Baoquan He <baoquan.he@linux.dev>, Mike Rapoport <rppt@kernel.org>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Pratyush Yadav <pratyush@kernel.org>,
-	Dave Young <ruirui.yang@linux.dev>, Borislav Petkov <bp@alien8.de>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
-	Joel Granados <joel.granados@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
-	John Ogness <john.ogness@linutronix.de>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Kees Cook <kees@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	Bo Gan <bo.gan@broadcom.com>,
-	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
-	kexec@lists.infradead.org, linux-doc@vger.kernel.org,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Maaz Mombasawala <maaz.mombasawala@broadcom.com>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Stephen Brennan <stephen.s.brennan@oracle.com>,
-	Michael Kelley <mhklinux@outlook.com>,
-	Ian Forbes <ian.forbes@broadcom.com>,
-	Bradley Morgan <brads@mainlining.org>
-Subject: Re: [PATCH v4 4/4] x86/vmware: Report guest crashes after kmsg
- dumpers
-Message-ID: <awAgkNoIKpFx764w@pathway>
-References: <cover.1794980455.git.zack.rusin@broadcom.com>
- <d0f9c1188b5f78bb20bb43737b3cf80c5c0f94f4.1794980455.git.zack.rusin@broadcom.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UVzFkiUi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8DAF1F000C0;
+	Fri, 20 Nov 2026 10:34:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795170889;
+	bh=wQqfgunTLnRwvEQh/g3zIyzHHyLtB+m2tV6o9f2aJHQ=;
+	h=From:Subject:Date:To:Cc;
+	b=UVzFkiUiMwNUbS/HWiQlCYAU6Kqri6wlrHFzHqicCWVoNn4OeFiMXdh2lSdq3M9Dr
+	 37Qoq+GgPti6suume4wRMhjy0rZ3b4tnuw8XXxovm+Q+vPB0kdW3XNC2jpkSN9V/UX
+	 3J85NLshKtgQLLH+eFsHJV4F9yQvNgHKLti05K3RmzTbUsEwasTSukpmTlJFxd3HhU
+	 fpeAyRcUolnaVn3/OtaovAZeWaf1hm3Pf0vRfUaubH8QmO7OcEmu+8IpQ3MW9K+uLA
+	 T/Yf6qIBXYDhcfOwx/pmRDbBy/00JAehm8V6GDNEolexVF8jvSK+7eMw1E3NqiTU5A
+	 CUCz/llR9Lx4Q==
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: [PATCH 0/2] mm: two NR_BALLOON_PAGES accounting fixes
+Date: Fri, 20 Nov 2026 11:34:41 +0100
+Message-Id: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -123,128 +53,53 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d0f9c1188b5f78bb20bb43737b3cf80c5c0f94f4.1794980455.git.zack.rusin@broadcom.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAA/yXMQQrCMBAF0KsMs26gSSViriJSkvqtIyUpmSqF0
+ rsXdfk2b2NFFSgH2rjiIyolcyDbEA/PmEcYuXMgdq3z1rrWpJNJcZpKyX2u/RxHqDkDF5+6hM6
+ DG+K54iHrb73e/tZ3emFYvhXv+wHMEPScdwAAAA==
+X-Change-ID: 20261120-b4-balloon_nr_pages-7ee96b3be36e
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ Nico Pache <nico.pache@linux.dev>, 
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: linux-mm@kvack.org, virtualization@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, "David Hildenbrand (Arm)" <david@kernel.org>, 
+ stable@vger.kernel.org, Shao Mingyin <shao.mingyin@zte.com.cn>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=688; i=david@kernel.org;
+ h=from:subject:message-id; bh=u8RpUaqYDleLKlHxY5TTxwcSUWPuzOrFCFR8UGPSP4I=;
+ b=kA0DAAgWx+nLGEVVu3kByyZiAGsAIkOi1KpWa7nTJYIQCaa+Cb0UW7jbV02GcVHHHGiKZwQwe
+ oh1BAAWCAAdFiEEUlPfMOnprn17Rg4Dx+nLGEVVu3kFAmsAIkMACgkQx+nLGEVVu3nEEAEAt5h8
+ G5dAvgmD7YbKaOmb6YJNykDvpfMLWWyg0r8D6ZAA/i9ruCfdvmaJuFw7O7MLlkLsBMm9G49oxuc
+ QvUnxsywA
+X-Developer-Key: i=david@kernel.org; a=openpgp;
+ fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
 Hi,
 
-this patch looks a bit messy, But maybe, I just do not know enough
-about VMvare.
+two simple fixes for NR_BALLOON_PAGES accounting. I can take both
+through the mm-core tree.
 
-On Wed 2026-11-18 01:01:51, Zack Rusin wrote:
-> VMware accepts a structured guest-crash event, but a host configured with
-> backdoor.coredumpOnCrash may terminate the VM before the hypercall
-> returns. Keep this event separate from the log sender, which runs
-> earlier in panic.
+I tested patch #1 briefly in a QEMU VM with two numa nodes.
 
-I am a bit lost here ;-)
+Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+---
+David Hildenbrand (Arm) (2):
+      mm/balloon: fix NR_BALLOON_PAGES accounting during page migration
+      vmw_balloon: account 2 MiB pages in NR_BALLOON_PAGES
 
-What exactly means the "structured guest-crash event"?
-Which hypercall are we talking about?
+ drivers/misc/vmw_balloon.c | 4 ++++
+ mm/balloon.c               | 5 +++++
+ 2 files changed, 9 insertions(+)
+---
+base-commit: f7d95bf74091373fad7273db4557df9b5a902335
+change-id: 20261120-b4-balloon_nr_pages-7ee96b3be36e
 
-Is this primary about synchronization of vmware_panic_log_notify()
-against termination of the crashing guest by the host?
-Or is this about something else?
+Best regards,
+--  
+David Hildenbrand (Arm) <david@kernel.org>
 
-What exactly does vmware_hypercall1(VMWARE_CMD_REPORTGUESTCRASH, 0)?
-Does it _block_ or _trigger_ backdoor.coredumpOnCrash?
-
-> Register a panic-only kmsg dumper with late_initcall_sync(), after built-in
-> dumpers registered by then.
-
-Is this ordering important?
-
-> Skip the event while a crash kernel is loaded
-> so the host cannot terminate the guest before kdump saves its vmcore.
-
-This suggests that vmware_hypercall1(VMWARE_CMD_REPORTGUESTCRASH, 0)
-actually triggers the external crash dump procedure made by the host.
-
-> Issue the event at most once. With CONFIG_PRINTK=n, use a late INT_MIN
-> panic notifier. An unexpected dumper registration failure with printk
-> enabled leaves reporting disabled rather than overtaking working dumpers.
-
-This is another mystery. What do you want to achieve when
-CONFIG_PRINTK is not defined, please?
-
-Note that printk() is a NOP when CONFIG_PRINTK is not defined.
-There is nothing to dump in this case.
-
-Honestly, I would not complicate the code by this.
-I doubt that anyone is using kernel without CONFIG_PRINTK.
-
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> +static int __init vmware_crash_report_init(void)
-> +{
-> +	int ret;
-> +
-> +	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-> +		return 0;
-> +
-> +	ret = kmsg_dump_register(&vmware_crash_report_dumper);
-> +	if (!ret)
-> +		return 0;
-> +	if (IS_ENABLED(CONFIG_PRINTK)) {
-> +		pr_err("failed to register crash report dumper: %d\n", ret);
-> +		return 0;
-
-This is weird. As I said, printk() is a NOP when CONFIG_PRINTK
-is not defined. So, you would achieve the same with:
-
-	ret = kmsg_dump_register(&vmware_crash_report_dumper);
-	if (ret)
-		pr_err("failed to register crash report dumper: %d\n", ret);
-	return 0;
-
-But wait, this means that the code below is never reached.
-
-Ah, I see, you wanted to run the code below when CONFIG_PRINTK
-was disabled. It was far from obvious. And I do not understand
-the motivation much.
-
-Anyway, it won't work because kmsg_dump_register() returns -EINVAL
-when CONFIG_PRINTK is not defined. err != 0 ...
-
-Let's take a step back.
-
-Why do you want to use kmsg_dump infrastructure for notifying
-host about the crash, please?
-
-The kmsg_dump API should be used to dump the printk messages.
-But this just notifies the host about the crash. It looks like
-an API misuse.
-
-> +	}
-> +
-> +	ret = atomic_notifier_chain_register(&panic_notifier_list,
-> +					     &vmware_crash_report_nb);
-> +	if (ret)
-> +		pr_err("failed to register crash report notifier: %d\n", ret);
-> +
-> +	return 0;
-
-IMHO, you either want to use the panic_notifier list.
-
-Or you might even use the new panic_notifiers_platform_list
-if you make sure that this is called as the last event
-and you really want to stop the guest at this point.
-
-My assumption is that the "host" will stop the "crashing guest"
-when it gets notified about the crash.
-
-> +}
-> +late_initcall_sync(vmware_crash_report_init);
-> +
->  #ifdef CONFIG_PARAVIRT
->  static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
->  static bool vmw_sched_clock __initdata = true;
-
-Best Regards,
-Petr
-
-PS: It looks to me like Sashiko AI completely failed here. It did not
-    mind if the commit message made sense. It did not see the big
-    picture. And it even missed that the code did not work with
-    CONFIG_PRINTK undefined.
