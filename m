@@ -1,63 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.37.83.207
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795185616;
-	b=WU0P2wOQcxlEsE9nJ5gIO2Ka1hKjyh9eW89yy6dwyJC7do/0mM0ju1mKn/N6e0cnfM3r
-	 qx05gRxxQ9VOclzLy/u9mvej8JozMteLY97jsc50RnPRLIt9+6HNy/M70E05VRv8qlVSy
-	 5XfPbqPUMRgOStuxmc4LX+Qh4ZtFnYVCNRbkbwbyDZXt/wVvA5DON3rcOEcQXWs89yZqz
-	 UOCPf3XXZ3msfkQLO5K2zCvhZLligLwMFBcJIroeniCvY4dNu6Oe3i6HIh+cRalKciuWF
-	 LFmoXwrD4ZezCcj4cM3CtvxjgtlBt/nhPJ8qcVU4HqQYTgwK3qpdtKIP+lkUDER2h6g==
+	t=1795185998;
+	b=BZRsPhOJs2keuNX5tHW6aAJJRcCQMsBFCu0ZFBsCyzEZID44DimkmJguO2ul7EwjQIpk
+	 w82PE5a5TEs7F0x03/OT6j+4KE29kwtbMnsFWdKHZdkDA2IKY16FNbC09sc0t+XQzNYrb
+	 xkGDoJP0+0q2kF3bZOw6jh+XV2q+t69F3MxQAjWfRSzd5d7ns22hNmxiqydZw7rLddeS2
+	 mc1NHu6lwUORDtVu8nWt88QtO0SNCYTQHRPfWbhhy8YYUado7rdxYqUroS6s3sUMJ64+B
+	 SZV3WREi8whbu2Jh20ZrsY58G9m9Y5pOaZKwa8+tEhTzl7K3f1JWBQfP4rr/bKJdvAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795185616;
-	h=DMARC-Filter:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=EbsDw6Wx3Asyav1Uh2M9tDyeJeabx+PeT1nQw1bW/Ho=;
-	b=YUy/CIkDbb7jCJq+tR6OIKba1poGgiukLtqDvGzZU7D1kW/hsE2F0lprWQCxekAh8vWB
-	 83cb4LlXiw7Oh4P5aM3BpuI761EJjwMS9Sl2Y7gnraC2crx7fj48sCQ2zjYbMgFkeryzn
-	 4nALoSqRAQLAZN5CyKy1QO5QG0Ac//oDK8iVzl+oErXCTf5TeyLHdC4GdpLmmgEtwFMhy
-	 XTbao2pFWhO1PNvM6jSCMs2aMIMDCpCP5WQ9CFgl2DaSMpqFClX7sGqgkSFB+aagis0Us
-	 sOzoaUQpIDj7RH21oNdn26ZkVE4LkCIGSa0ORLLTovY//6VvSTpjhOJ4LSNkEP6SE1Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795185998;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=+Dd9tsnDaKr+OfILD8hcNK0Px3VqNIAE/+46JY/6x8I=;
+	b=4Z67ScfL4CeicIqhYd9/QDuSslKZuxA5UZkYz+LZ/V5oRUJKPufdKtShM6vFJ8pk/ZYJ
+	 +MDOS5ZVRFaJ9M4QDj0f78HsWarjW+VL9HN1jZBLxWr3il9+JZXtLJm2RMc2B5S2arpBX
+	 2cIn7Pu3xEchaL6dcH2oc4EeP7S6j1gXjKEQdmyHWV+DYTvelAszWMyF7gaRlVJvveDFt
+	 cbiH/IRKEkRiqx6Lji0ScGOjsJu4+9Y5k8Pohd0tVYEQJyzqiZXA5wsPe8JUv6jwV4evl
+	 Xspkbodhh7Mg8mS9lBLNiXBrBUrbV5Dsv8FY0X4eDrwYXwe3m+ZhKz8X9DXCITeKe+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=dfb.sh;
-	spf=pass smtp.mailfrom=dfb.sh;
-	dkim=pass header.d=dfb.sh header.i=@dfb.sh header.a=rsa-sha256 header.s=frkn header.b=PHqYAYeb;
-	arc=none smtp.remote-ip=54.37.83.207
-Received: from frkn.dfb.sh (frkn.dfb.sh [54.37.83.207])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Q6sQGXJ/";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 092AB606A320
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 14:40:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 092AB606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dfb.sh
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dfb.sh
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 798B5606A325
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 14:46:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=dfb.sh header.i=@dfb.sh header.a=rsa-sha256 header.s=frkn header.b=PHqYAYeb
-DKIM-Signature: v=1; a=rsa-sha256; s=frkn; d=dfb.sh; c=relaxed/relaxed; r=y;
-	h=Message-ID:Date:Subject:To:From; t=1795185595; bh=EbsDw6Wx3Asyav1Uh2M9tDy
-	eJeabx+PeT1nQw1bW/Ho=; b=PHqYAYebts/l42eOie+jvcTq99KtAVMm/P6ZEL4TXuIYLca0+3
-	C4n2j3D8IZXp1UVJkPB6IkK3ehfszHaMBMYmr49V8T9ieePvIIa2aWS5ghzrz9MfrsFmNeujNl1
-	p33xp1Wkp6kVgciznVMLIYj7imzuth+4F0zFkx50kMKi+0a2TMNfWRozSHwJpPFvRloOLQ0J/7j
-	l9Luo0TaRBD6yYUFiPLpzY+2I5lySOePqAO6ZfysxqOuJN00QVP75Vx7oJk/38Ciu8/nJQRmkr/
-	9KBpfCUlHFlzRf3h2lVWgXh/xMiDFRI+EzKsOgl4rnZ4nxk7EUVsoxWf5ev7P9O9IPA==;
-From: Vladimir Petrzhikovskii <vladimir@dfb.sh>
-To: stable@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Nikolai Kalinin <nikolai@kalinidze.me>,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 6.18.y] virtio_net: check RX buffer length before DMA sync
-Date: Fri, 20 Nov 2026 15:39:53 +0100
-Message-ID: <20261120143953.1560229-1-vladimir@dfb.sh>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Q6sQGXJ/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78531F000C6;
+	Fri, 20 Nov 2026 14:46:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795185998;
+	bh=+Dd9tsnDaKr+OfILD8hcNK0Px3VqNIAE/+46JY/6x8I=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Q6sQGXJ/A0aiy9wDblTvysZpw1nuetQKQk80+gIv+K1pwIGpofePgZueymami58aX
+	 3fG4R4jtfwju34fl3F6eS79fdbQ9LpgMolL739vlNg/2G19/6UqfP2lNYjLGOSGKia
+	 ovoCL+f0ZSUTlVtJ2vFhztHcgXCTATJzE2lM7H+A9+3pcDEgtnl/0aQe2icCgcOat0
+	 TixqzBB6e+SfuOEi8jFX0woeGBTm/3a7iPFDdW58W38foIVyz97txr5+78jBeImHoy
+	 DJ1JQ/Np4YlJxAtjxu4JB0fS4Iyps1QyXVcyqe9G6JZyx55xz+onAMi60nyQGMTSqB
+	 3z6THUnBDUj9g==
+Message-ID: <sashiko-outbox-225408@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 6.18.y] virtio_net: check RX buffer length before DMA
+ sync
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vladimir Petrzhikovskii" <vladimir@dfb.sh>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261120143953.1560229-1-vladimir@dfb.sh>
+References: <20261120143953.1560229-1-vladimir@dfb.sh>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 14:46:37 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,154 +60,32 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-[ Upstream commit 29dfa436bc488056a84ee423ba82336db453e2a6 ]
+> [ Upstream commit 29dfa436bc488056a84ee423ba82336db453e2a6 ]
+>=20
+> An RX queue that uses the DMA API (rq->use_page_pool_dma, for example
+> with VIRTIO_F_ACCESS_PLATFORM) syncs each received buffer with
+> page_pool_dma_sync_for_cpu() using the length the device wrote to the
+> used ring, and checks that length against the posted buffer only after
+> the sync.
+>=20
+> With SWIOTLB bouncing (swiotlb=3Dforce, or a confidential-computing
+> guest), the sync copies from the shared bounce buffer into the guest's
+> private page, so an oversized length also copies the bytes the device
+> wrote past the posted buffer over the neighbouring page pool fragments.
+> The later check drops the packet, but the copy has already happened. A
+> malicious device, such as a host the confidential guest does not
+> trust, can overwrite guest kernel memory next to an RX buffer with
+> [ ... ]
+>   with the reproducer described above: without this patch the marker
+>   reaches the guest page for small and mergeable buffers; with it the
+>   sync stops at the posted length and the packets are counted in
+>   rx_length_errors. ]
+> Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
 
-An RX queue that uses the DMA API (rq->use_page_pool_dma, for example
-with VIRTIO_F_ACCESS_PLATFORM) syncs each received buffer with
-page_pool_dma_sync_for_cpu() using the length the device wrote to the
-used ring, and checks that length against the posted buffer only after
-the sync.
+Sashiko has reviewed this patch and found no issues.
 
-With SWIOTLB bouncing (swiotlb=force, or a confidential-computing
-guest), the sync copies from the shared bounce buffer into the guest's
-private page, so an oversized length also copies the bytes the device
-wrote past the posted buffer over the neighbouring page pool fragments.
-The later check drops the packet, but the copy has already happened. A
-malicious device, such as a host the confidential guest does not
-trust, can overwrite guest kernel memory next to an RX buffer with
-bytes it chooses, which is enough to take an unprivileged guest
-process to root.
-
-Check the length before the sync in the per-fragment loops.
-receive_buf() has to sync the header before the length check, because
-the mergeable error path reads num_buffers from it, so limit that sync
-to the posted length. A device that reports correct lengths sees no
-change.
-
-The driver has synced with the device's length since
-commit 295525e29a5b ("virtio_net: merge dma operations when filling
-mergeable buffers"), at first in virtnet_rq_unmap(). Commit 24fbd3967f3f
-("virtio_net: add page_pool support for buffer allocation") moved the
-sync to the page_pool call sites that this patch changes, so the patch
-applies to v7.1 and later. Older kernels need a separate backport that
-limits the sync in virtnet_rq_unmap().
-
-Found by an LLM code review agent auditing users of the DMA API; the
-fix and this changelog were also written with an LLM coding assistant
-and reviewed by us. Reproduced in QEMU with swiotlb=force and
-iommu_platform=on, a test-only device change that reports a used length
-64 bytes past the posted buffer and writes a marker there, and a guest
-kprobe module that reads the buffer after the sync: without this patch
-the marker reaches the guest page for small and mergeable buffers; with
-it the packets are dropped and counted in rx_length_errors. The
-virtio_net selftest basic_features.sh passes with and without mergeable
-buffers.
-
-Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
-Cc: stable@vger.kernel.org
-Co-developed-by: Nikolai Kalinin <nikolai@kalinidze.me>
-Signed-off-by: Nikolai Kalinin <nikolai@kalinidze.me>
-Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
-Link: https://patch.msgid.link/20261110-b4-virtionet-rxlen-v2-1-6ec5aa0edf9f@dfb.sh
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[ vladimir: 6.18.y has no page_pool RX buffers. The driver syncs small
-  and mergeable RX buffers in virtnet_rq_get_buf() with the length from
-  the used ring, before any length check. Limit that sync to the length
-  of the posted buffer; the existing checks then drop the packet. Tested
-  with the reproducer described above: without this patch the marker
-  reaches the guest page for small and mergeable buffers; with it the
-  sync stops at the posted length and the packets are counted in
-  rx_length_errors. ]
-Signed-off-by: Vladimir Petrzhikovskii <vladimir@dfb.sh>
----
- drivers/net/virtio_net.c | 47 ++++++++++++++++++++++++++++++----------
- 1 file changed, 36 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 34390befdf8a..287099885b50 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -805,19 +805,32 @@ static unsigned int mergeable_ctx_to_truesize(void *mrg_ctx)
- 	return (unsigned long)mrg_ctx & ((1 << MRG_CTX_HEADER_SHIFT) - 1);
- }
- 
--static int check_mergeable_len(struct net_device *dev, void *mrg_ctx,
--			       unsigned int len)
-+/* Length of the mergeable buffer that add_recvbuf_mergeable() posted. */
-+static unsigned int mergeable_ctx_to_buflen(void *mrg_ctx)
- {
--	unsigned int headroom, tailroom, room, truesize;
-+	unsigned int headroom, tailroom, room;
- 
--	truesize = mergeable_ctx_to_truesize(mrg_ctx);
- 	headroom = mergeable_ctx_to_headroom(mrg_ctx);
- 	tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
- 	room = SKB_DATA_ALIGN(headroom + tailroom);
- 
--	if (len > truesize - room) {
--		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
--			 dev->name, len, (unsigned long)(truesize - room));
-+	return mergeable_ctx_to_truesize(mrg_ctx) - room;
-+}
-+
-+/* Length of the small buffer that add_recvbuf_small() posts. */
-+static unsigned int small_buflen(const struct virtnet_info *vi)
-+{
-+	return vi->hdr_len + GOOD_PACKET_LEN;
-+}
-+
-+static int check_mergeable_len(struct net_device *dev, void *mrg_ctx,
-+			       unsigned int len)
-+{
-+	unsigned int buflen = mergeable_ctx_to_buflen(mrg_ctx);
-+
-+	if (len > buflen) {
-+		pr_debug("%s: rx error: len %u exceeds buffer length %u\n",
-+			 dev->name, len, buflen);
- 		DEV_STATS_INC(dev, rx_length_errors);
- 		return -1;
- 	}
-@@ -965,13 +978,25 @@ static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
- static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
- {
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
-+	void *buf_ctx;
-+	u32 buflen;
- 	void *buf;
- 
- 	BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
- 
--	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
--	if (buf)
--		virtnet_rq_unmap(rq, buf, *len);
-+	buf = virtqueue_get_buf_ctx(rq->vq, len, &buf_ctx);
-+	if (!buf)
-+		return NULL;
-+
-+	/* The device chooses *len. Sync only the buffer that was posted, so
-+	 * that a larger *len cannot copy over the buffers next to it.
-+	 */
-+	buflen = vi->mergeable_rx_bufs ? mergeable_ctx_to_buflen(buf_ctx) :
-+					 small_buflen(vi);
-+	virtnet_rq_unmap(rq, buf, min(*len, buflen));
-+
-+	if (ctx)
-+		*ctx = buf_ctx;
- 
- 	return buf;
- }
-@@ -2687,7 +2712,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 
- 	buf += VIRTNET_RX_PAD + xdp_headroom;
- 
--	virtnet_rq_init_one_sg(rq, buf, vi->hdr_len + GOOD_PACKET_LEN);
-+	virtnet_rq_init_one_sg(rq, buf, small_buflen(vi));
- 
- 	err = virtqueue_add_inbuf_premapped(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--- 
-2.54.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120143953.1560=
+229-1-vladimir@dfb.sh?part=3D1
 
