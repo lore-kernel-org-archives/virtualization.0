@@ -1,66 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795158728;
-	b=X9IVilZ0CknOgANTWuEcxHK+7S21n0e1D8A9nFUxQge9IghroKKOyU0Dcgoikb0Ex6qN
-	 a3ib7Wa5p9sATcnAAurNNQiauW5koDRtmR5VS27merEXBaZ+Fo4eZXnwreaYAfIG4kuz2
-	 nK7VELz4v+yYI/ff/JejcNDCJhcn2pfADNuJGbRUsK49cP+Y6gqGTJh5hkBi/LxGwhJYD
-	 pZ2eJP7dxv6JWS5b3a2HnPccwerIsetfdE8I7hphiP2jSKuwISetFhCz9l6j3dDWQcvSH
-	 EMrJfl5s4LfZo8jzjdWvMuK1fiKIE4/0rFF6SEniYm6OM+sh+HY3WyXId9nbqARqOnQ==
+	t=1795158741;
+	b=DISBDutGKmkuACWKlsepHxoYbZfZgoLMxOMCDNNOU4SX3nK0aKGH3VtmvnIOoyIM8ZZZ
+	 RaVvlnzRn5gnpTRU28K0VWtPr55LtUS8fiMB2Jqhn5dzJrE0aowRN64P5W21EYzxPbr2c
+	 QR2sXeEuX/FXGMobK9xq9yWYbsenUY4rcJvEcubyl00GgPQNrRB+o+u0Nhy8uLweDUfWz
+	 3gAnXPohxgvfaD2edMg8qYxckx6PbnyHlypxU5NJdq2GgEo4JqlSQ4xCJHDBNC2noaTYR
+	 8OmCzvasTVeGlAEHl7PKc3fETcTKLDytwLo5FyiuVJRbna5TegJki/zK7tIE/2WXO1w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795158728;
-	h=DMARC-Filter:DKIM-Signature:Date:From:To:Cc:Subject:X-Priority:
-	 X-Mailer:In-Reply-To:References:X-NTES-SC:Content-Transfer-Encoding:
-	 Content-Type:MIME-Version:Message-ID:X-Coremail-Locale:X-CM-TRANSID:
-	 X-CM-SenderInfo:X-Coremail-Antispam;
-	bh=qX8EF9UzcSHkK5jYG8/UCm+mUkzB2dXFDP3zCYxCO2I=;
-	b=B/6HHeOnR4uhKSVgu+brebMGTsvoY+upIe98Oy/oBQvjh2v1Sd3hvKfW+IScvPeptHDI
-	 TvQFJ9Y1z+lK68+/HZb14dXWTZoiVJs85pFiCg3n8UDVJfL0oUpqMPl7PN3nKorWb6zL3
-	 Hl7Rsm9bCo0ELAdn2Kk0f/cGRk093LuN2ljguv//gD8njKhcoQu0EkBIe25th13towy0p
-	 5W56SGOXJcdYUmbhWjvnmzSPHoNqCtM3bANWPw3RQa3YEN9yKggI5TmQPsMLqcf3pbPIq
-	 EaWbfzEKJ10227E8nRIAoXU3IFXhjvjYC735TysHnSVHA7I2P0dxgEpqQ8RtITvPRig==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795158741;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=p9gseYjW+nBLxluzpWcfiA3XKca79aCQREbkGRvW+HQ=;
+	b=23b46r6evpqjpbdgWT81Egmac4V7H1mJBunWvz/JIngwa4/Z3+nXWICsDLZu6/eb8XQG
+	 GO9vKr1fvxv2Sd6EaUzqFdL7qBamAq/vfgt0bA6urVlOgbsDbty1Dc6UOcEKDAInorSna
+	 jQ+AAXaByfKJ0pulBdNWVIVDCGYHbC1lA1iG227gJiADfRaznjfsZBJqLZtO4+huR3cId
+	 kUk2G9GONoir+ucBykHGjybQCKtr9Rnccrgba4C4s9GBv/nDc5ShLQGwbk6Awyy1I24eG
+	 eviOqICVsQiavgLvlrdv3VQ9TgxXZNScY5sKOBS6ehfnSJTIpRox+ltM1Ue/XFqGUrw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=163.com;
-	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=SQQ96djH;
-	arc=none smtp.remote-ip=220.197.31.4
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NkYu1vjQ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D513606A326
-	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 07:12:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4D513606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A911606A330
+	for <virtualization@lists.linux.dev>; Fri, 20 Nov 2026 07:12:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=SQQ96djH
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=qX8EF9UzcSHkK5jYG8/UCm+mUkzB2dXFDP3zCYxCO2I=; b=S
-	QQ96djHjzY99eSnVlIwkF4Qa4mx9Fg3ZnTsQPFW/9AaM+DFk9Yz3fJ2sum4ZZIH7
-	Q27CY0Ofo11iSCemxWXQpuLgjIy+ShvJ/CR+lIvd7ZTaPb7jJT96sKo5ZydTTMob
-	M78N62+acLzC8Dcr1AqGASkt4RDMkW67Sf9F+PUi/s=
-Date: Fri, 20 Nov 2026 15:11:53 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "Jakub Kicinski" <kuba@kernel.org>
-Cc: "mst@redhat.com" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>,
-	"jasowangio@gmail.com" <jasowangio@gmail.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>
-Subject: Re:Re: [PATCH 2/3] virtio_net: introduce an RX queue watchdog for
- stuck detection
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <20261112085333.77476864@kernel.org>
-References: <20261109094310.103979-1-lange_tang@163.com>
- <20261109094310.103979-3-lange_tang@163.com>
- <20261112085333.77476864@kernel.org>
-X-NTES-SC: AL_Qu2SB/2et08q5SmYbOkfmUgRg+c/XsK4svUj24VVOJF8jCDp+SEJYHZTFGvuwfi3ASqsmSO8ahFRxdZ2WohybrglIZCqJtKGFn1jtPc3pyMItQ==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NkYu1vjQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C291F000C4;
+	Fri, 20 Nov 2026 07:12:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795158741;
+	bh=p9gseYjW+nBLxluzpWcfiA3XKca79aCQREbkGRvW+HQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NkYu1vjQwHccc/MHkc2+56TOsS4j61eeKGKH37jX0x+8a9OMhUNE0iFyDUN5eibPk
+	 BENLCR2vR1ENpOtTuZCrD8gS5ykfVsAJlNr1ybTgqkz2VvVvjbocc6MXL7nHQet0UA
+	 u2Hrpz1bEYmQQe6TW2c64gZaaNW1odaS8izOzrmlgEpfwy8x8Rdp4ZJ07J/nj7ZZzY
+	 lInQz0T7SDC5vhHRGaql8gq6L+JLZzqQfElJ0WHKP4lIL7oIwElV7KJcLDimkTUVGa
+	 Y+0bRph3QbuOHdaX6MXm4YTcCQMK1A29+jL3ET3YfumsJio3JDwYa2RiUJV9dNRTN3
+	 jLNPbUt3x8tTw==
+Message-ID: <sashiko-outbox-224601@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/2] can: virtio: fix RX/TX stall on interrupt before
+ NAPI is enabled
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Seonghyeon Lim" <forfortuna@naver.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261120-virtio-can-ready-v2-1-0defda2af8cb@naver.com>
+References: <20261120-virtio-can-ready-v2-0-0defda2af8cb@naver.com>
+ <20261120-virtio-can-ready-v2-1-0defda2af8cb@naver.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 07:12:20 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -69,25 +61,28 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Message-ID: <2cca370d.59a4.1a1f7cc263c.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:aigvCgBnb8a68v9q8nxyAA--.370W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-RmFs2r-8rlpsgAA3X
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-QXQgMjAyNi0xMS0xMyAwMDo1MzozMywgIkpha3ViIEtpY2luc2tpIiA8a3ViYUBrZXJuZWwub3Jn
-PiB3cm90ZToKPk9uIE1vbiwgIDkgTm92IDIwMjYgMTc6NDM6MDkgKzA4MDAgTG9uZ2p1biBUYW5n
-IHdyb3RlOgo+PiBUaGUgYmFja2VuZCByYWlzZXMgYW4gaW50ZXJydXB0IGFmdGVyIGFkZGluZyBi
-dWZmZXJzIHRvIHRoZSB1c2VkIHJpbmcsCj4+IGFuZCB0aGUgaHlwZXJ2aXNvciBpbmplY3RzIGl0
-LiBJZiBvbmUgaXMgbG9zdCAoZS5nLiwgYSB0cmFuc2llbnQgS1ZNCj4+IGZhaWx1cmUpLCBOQVBJ
-IHdpbGwgbm90IGJlIHNjaGVkdWxlZCBhbmQgdGhlIGRyaXZlciBzdG9wcyBjb25zdW1pbmcKPj4g
-YnVmZmVycy4gVGhlIHJpbmcgZXZlbnR1YWxseSBmaWxscyB1cCwgdGhlIGJhY2tlbmQgc3RvcHMg
-bm90aWZ5aW5nLCBhbmQKPj4gdGhlIHF1ZXVlIGlzIGxlZnQgcGVybWFuZW50bHkgc3R1Y2suCj4K
-PkNhbiB5b3Ugc2F5IG1vcmUgYWJvdXQgd2hhdCBwbGF0Zm9ybSB5b3UncmUgaGl0dGluZyB0aGlz
-IHByb2JsZW0gb24/Cj5BbiB3aGF0J3MgdGhlIHZpcnRpbyBiYWNrZW5kPwoKYXJtNjQgZ3Vlc3Q7
-IHRoZSBiYWNrZW5kIGlzIE9WUy1EUERLICh2aG9zdC11c2VyKS4gVG8gYmUgaG9uZXN0LCBJIGlu
-ZmVycmVkIHRoZSBsb3N0CmludGVycnVwdCBmcm9tIHRoZSBndWVzdCBzaWRlICh2aXJ0aW9fbmV0
-IFJYIHF1ZXVlIHN0dWNrKSByYXRoZXIgdGhhbiB0cmFjaW5nIHRoZSBiYWNrZW5kLAphbmQgcmVw
-cm9kdWNlZCB0aGUgc3RhbGwgYnkgdGVtcG9yYXJpbHkgbWFza2luZyB0aGUgaW50ZXJydXB0IGlu
-amVjdGlvbi4=
+> From: Seonghyeon Lim <forfortuna@naver.com>
+>=20
+> virtio_can_open() sends the START command before it enables NAPI. Once
+> the device has started, an RX or TX interrupt can arrive in between.
+> The interrupt handler then disables the virtqueue callback and calls
+> napi_schedule(), which does nothing because NAPI is still disabled.
+> napi_enable() does not schedule a poll either, and only the poll
+> function re-enables the callback, so the queue can stall until the
+> device happens to send another interrupt.
+>=20
+> Schedule NAPI once after napi_enable(), as virtio-net does in
+> virtnet_napi_do_enable(). This processes buffers that are already used
+> and re-enables the callback.
+>=20
+> Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
+
+Sashiko has reviewed this patch and found no issues.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-virtio-can=
+-ready-v2-0-0defda2af8cb@naver.com?part=3D1
+
