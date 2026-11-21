@@ -1,62 +1,107 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795263983;
-	b=0+HV0ZtD8VqONnbrDXhumKkp2ClNTj6EQ9YzHuWzFjtAhfHNC9ACfiAWAUKg906fQg9S
-	 HhAI4BeldzSoxfuGucA6RJAqUhpwQp4BKOC+Y+YStcxPXi54tpWAhqzT5g6onaT5QBQCM
-	 RRBhgqBy095fifb0UQFefZbX/rSDKrsTLWdsJTQxlnF0UW1/PZfH6DIKvkT7w+IIzFZVo
-	 Izl8UWR4LWKzAikqWo9d0xbcxjdSQu2hvJ9a0j6p5WFv3yQF1aBHsdJNC0LyUlQhVa2hL
-	 lI8q0WgLkClfWehxzpVeRpsWdJZmi9gKFwdVVE04muKQ5X3mf/3zZU7YcVsTI6OUTsQ==
+	t=1795265252;
+	b=V2AV1Z0gSbMHLnaZ1zND5ZIxOLzeAI41dkDfkdqVzejOhEFsbiYe8+FexVUmyieZERyI
+	 GROAVCKF+2nWLYOE+lGnGX7Mel/wIepxHcQ0xS4Gq/Fqkk1lddiXmFAuJYbAZ7nLAMj9r
+	 RPGmkwY9yPF2mM1uHDSu7Yfi3HbmIz8pjIC+8Ym+VkfrlJbgzG3E5nEvx8y7oNxnHEEQ9
+	 z2mu+FJoSczlEWxdAQEu390/l9Msgh8pTjcTcix3mOZCwCibjdp00/Pqv4bJi3T5UhK02
+	 wxBjCKfUBUfbvdu4cCpYbklxC933pwZVhos6yMbrD1zMrk9eS+Ap77X357rAvK5mznA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795263983;
-	h=Received:DKIM-Signature:From:To:Cc:In-Reply-To:References:Subject:
-	 Message-Id:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer;
-	bh=C0neY9nO3KCbPA/3zfsAmJZKfNu+EcSR5phNhBE+ICg=;
-	b=DhIj0xdtfd/sGSHWvqrFVinQb5N0RPNMG9oSUWP9vk2lvK580mEMwIq3zI/DFxoO14TY
-	 m0BCOX8ewu5plIF2MF2cJjPe/P+ePnNA7ntIW0ni1I/WXWgyifnJKolaDqC9DhUoYaLcT
-	 pzY7J1wQDak3/KXxgtwdygz8ojfQQtNis1VSx9xRgBJ56+SgV/1/gAkh7OI9a3RTREkpA
-	 xvJejQ4pXYyIfT/bMQV7alFm1n22fWFmAWd7LuTkFpCbNTdxudDg/lacQQ4MRNENRPoei
-	 LfNnf/GwA3AgYU9qwsmYHtf+oD1VFoJg9+tr99jhOYLv21I6j4vTOYD7aAu3ek+5Kbw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795265252;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
+	 In-Reply-To;
+	bh=dy/9BbEZRYuwT8a6wlWpCFQITWgRsvXhPUvkZriskFw=;
+	b=EsFkhnf/Nu61SPWeGPNptAekfMAWleDOY0uTm1cB65wQzxkjl0CTCJp7MGJun2Br5n6C
+	 BPuANWTr58l2nc3szmHt7ZK0iaL/DqKaK418pm2u6ur/MrkTaIKG0PvxtLeioUlngxkiC
+	 rTA2WURpYJh/eHhJwsJziZrmVzCdpMNML1iVyk7WYUP7YAYfwmdhcmOfSlmlCu81Nf3g6
+	 UsX73FkWeHSwwHGB5zOGkLky38D+x2FPvk7f/5gH4IQUJmX03N68TBP34Xd6jWIWLPZYI
+	 hE4xuVnEuQTKoSH10qnr/QtjyrQZy5ep/cPF2HHO3AA+p+JyOgO1K7YaRui01ah115w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lBJKd2gZ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=l+2kgzyh;
+	arc=none smtp.remote-ip=74.125.82.48
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 055B2606A320;
-	Sat, 21 Nov 2026 12:26:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15110606A32C
+	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 12:47:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 15110606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lBJKd2gZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C998D1F000C0;
-	Sat, 21 Nov 2026 12:26:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795263982;
-	bh=C0neY9nO3KCbPA/3zfsAmJZKfNu+EcSR5phNhBE+ICg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=lBJKd2gZtJqmOhALUfIZFUGEvMU9nWGSgsPCQlQVBuILcl3ryODy3jrX3L+5KxaNE
-	 A5/UKy/VB9vg4xYZhigz4P5PaLg6q1sMJT26HWNFfUv4AiGMxWPn7/En1V+bzGAWZ5
-	 VnEF0dOMlckg76+ITSXFVB4vjFF5pTCqrn2L8KbdQ+SSEWVkRnqQ6/0ZBXkJYcFbMz
-	 ftRuhMvhUqewdzBr+hYn/LvI7xnCqMSiKxGDJT8W4F4NOTXhnuQ1sQ2OPsDwmJ0IDx
-	 2Rig2v2Ew16plr0Ar6yUMRxKRLYoYEh+XLDaTaoxTeXyM6DEL4tncZsQ13OigoyRT5
-	 qgkzmGsCcGG4w==
-From: David Hildenbrand <david@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, 
- Nico Pache <nico.pache@linux.dev>, 
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Arnd Bergmann <arnd@arndb.de>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, 
- "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-mm@kvack.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
- Shao Mingyin <shao.mingyin@zte.com.cn>
-In-Reply-To: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org>
-References: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org>
-Subject: Re: [PATCH 0/2] mm: two NR_BALLOON_PAGES accounting fixes
-Message-Id: <179526397954.4537.13435944828068166975.b4-ty@b4>
-Date: Sat, 21 Nov 2026 13:26:19 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=l+2kgzyh
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-194d0c31715so3293c88.0
+        for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 04:47:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1795265251; x=1795870051; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dy/9BbEZRYuwT8a6wlWpCFQITWgRsvXhPUvkZriskFw=;
+        b=l+2kgzyh1xNTG1bqs3OB94rKm68zq6g/bly/9Qlve0BwtoXVlt+DY9Y2GcVQc8ST4Z
+         aU5tiK3O6XR/OLXrtlNv2F7wtzynsiGHNJwNZD+vB0x70Qt+6u9ZSjfP1cUu21hdhYPG
+         oNu/ej4IVixcP2Tv4etGLBnDrAZuBqii7FkH++WCd1auInwHJ9SJVcDfPkM2BKC72SIH
+         NmBXJE3O5qtwh78qPgnPP4JDP6Ux+lf8fZhv4af74+dcFWkmZZC3rkdha8pcJzpoE67z
+         qvZ3Cs/iQGgkVuTzLuNNgxCLli578wG8+/eaju2ab0/w/4dKTL1u9Ilo3ek5FZdnyHEI
+         IWmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795265251; x=1795870051;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=dy/9BbEZRYuwT8a6wlWpCFQITWgRsvXhPUvkZriskFw=;
+        b=xmW8nDjii51VdfWOZK0eaZbVXYNFUlrPu+VNKWqsmM/XUxUt1tb0sW86V3CqoFs192
+         0dn9V2rO8IjNCihAeWFqFRmuORngbw9htyGnH6Ia8nCwDlp1iO0hQx9bNdUx8hqRUmhk
+         Vpf52vOwBjWiDkudVQYRLytV3hemeuKfszU8f6VjDiZeRf85J/wNmFG1xCTvc5145QYw
+         OfC3/F5W36z/m3LtSIE8sOsh2VpDYYw9PpEMPBXz+fH4AciCsE43y2H2zEQzVh0q1pAh
+         Z6Y9/UeFzRFOUJOngAuGRLBjRSwkGk0FnXcmPV38mop34bm5D6SqiCEYUa7FNJ+8mtua
+         MD4Q==
+X-Forwarded-Encrypted: i=1; AL+hErFBT6SVWjVaW5b7uDA8gQcDKmIXNVwU9CTKhbwRqG7viNVJXCWQ3zEoLocyI7lEhlpKmiLtsxRh4izR3F/7tg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9mFwTMYrvhU6pp/zYBh2GJji5BqroD4fOj5iEut1pmJOIuwGM/
+	xxtBNyeCGmTWiFsqLKij3VN0lyIBpOBuoaYnmNBYQA7JyDG3tkiAtjvO0B+xFiCCIw==
+X-Gm-Gg: AZFdTZemPUeER686LHYlZWp9hpTcyysb7HAhysK+qSBTtWMbIWfbkH99t5eJvXeMPhn
+	CbkSP8rXSnHZC9kGf7faIRMsRCLNADmlGPL5iStJzxog8TRM/hIjT7gNO0cXiNYCkFqHJhwBjcA
+	pOYSqiEpT32Eg6I9BmSrHghhnSi6C6+u0FWBbGWivPc6jwlU0uCWaSo7GDs5A95gwEz3AAEprT3
+	nman0e+yJu/dtaz7o+3RO3RRMrMqEz1fjs/lVOmsZAJcqIHUQGoy2IJ/oH2rXOr2kJCewmKpZmc
+	5PpCdxisaiXkGWuHIcePe44z6vceDcFr0qIikmnF/yg4stGUXnrzASvJZSVAHPsLYEa5gcZPLj2
+	BAADbk7I2t/3TQzd1pJquFc/9jYv6QkP8ttajSp+vsZ1SFlyqfRP3Ar92AzV7OKzQIhu9MZT1jt
+	mIfTgCoBxjNUl0Ts1upTL5uj/UY3TOr135LANVu1ADB0hZH8gYW2teAPJxO8p2FZNuUYHozTIYR
+	THxNdwSowhnhbKGBAGOzMaxpTF2y6z6qQjBdtbaUYz0gJ9dA9uIPtR0RX5mWxWqH3zHFGfKcjyK
+	/f+HkWJca/ASxStNt5Tj4d5HLHdtoFjhV0AUisXDf8hwCw3otzPW2+NTSAGCistpxSY=
+X-Received: by 2002:a05:701a:cca2:10b0:139:90c3:391b with SMTP id a92af1059eb24-1b56336e369mr649347c88.1.1795265250428;
+        Sat, 21 Nov 2026 04:47:30 -0800 (PST)
+Received: from google.com (105.211.142.34.bc.googleusercontent.com. [34.142.211.105])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385677c371esm17147164eec.23.2026.11.21.04.47.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 Nov 2026 04:47:29 -0800 (PST)
+Date: Sat, 21 Nov 2026 12:47:22 +0000
+From: Pranjal Shrivastava <praan@google.com>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Ioana Ciornei <ioana.ciornei@nxp.com>,
+	Longfang Liu <liulongfang@huawei.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	=?utf-8?Q?Micha=C5=82?= Winiarski <michal.winiarski@intel.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Mostafa Saleh <smostafa@google.com>, kvm@vger.kernel.org,
+	qat-linux@intel.com, virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org
+Subject: Re: [PATCH v2 03/10] vfio: Allow untainted use of driver_override
+Message-ID: <awGS2tAtt0yKFXMC@google.com>
+References: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+ <fb0df5c89336b77a373ae0f890f63427e4adbb28.1795171088.git.u.kleine-koenig@baylibre.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,41 +111,31 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.16.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fb0df5c89336b77a373ae0f890f63427e4adbb28.1795171088.git.u.kleine-koenig@baylibre.com>
 
-On Fri, 20 Nov 2026 11:34:41 +0100, David Hildenbrand (Arm) wrote:
-> two simple fixes for NR_BALLOON_PAGES accounting. I can take both
-> through the mm-core tree.
+On Fri, Nov 20, 2026 at 12:11:04PM +0100, Uwe Kleine-König wrote:
+> From: Alex Williamson <alex@shazbot.org>
 > 
-> I tested patch #1 briefly in a QEMU VM with two numa nodes.
+> Driver overrides are the standard mechanism for binding vfio drivers
+> to devices.  With the introduction of the support_driver_override flag
+> in the core driver struct, it's now required for drivers to declare
+> themselves as driver_override compatible, otherwise driver_override
+> bindings will be denied or generate a kernel taint.
+> 
+> Set the support_driver_override flag on the driver struct across all
+> vfio drivers.
+> 
+> Signed-off-by: Alex Williamson <alex@shazbot.org>
+> Reviewed-by: Brett Creeley <brett.creeley@amd.com>
+> Reviewed-by: Mostafa Saleh <smostafa@google.com>
+> Reviewed-by: Ankit Agrawal <ankita@nvidia.com>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
+> ---
 
-Applied, thanks!
+Reviewed-by: Pranjal Shrivastava <praan@google.com>
 
-tree: mm/core.git
-branch: balloon-7.5.misc
-
-Applied patches will appear soon in mm-next, followed by linux-next.
-
-Please report any outstanding bugs that were missed during review, so we
-can either drop the patch series or decide how to fix it up.
-
-It is encouraged to provide Acked-bys, Reviewed-bys, and Tested-bys even
-though the patches have already been applied. If possible, patch trailers
-will be updated.
-
-Note that commit hashes shown below are subject to change due to rebase,
-trailer updates or similar. Further, this is not a guarantee that the
-patches will go upstream. If in doubt, please check the listed branch.
-
-[1/2] mm/balloon: fix NR_BALLOON_PAGES accounting during page migration
-      https://git.kernel.org/mm/core/c/99d23a24
-[2/2] vmw_balloon: account 2 MiB pages in NR_BALLOON_PAGES
-      https://git.kernel.org/mm/core/c/7e980d06
-
--- 
-Cheers,
-
-David
-
+Thanks,
+Praan
