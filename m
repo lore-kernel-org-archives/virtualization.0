@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795245538;
-	b=u5aLcGg1uUfqma0d7AEMg5p8JPO6VCcP3/zo0ei8dQtMCMmgdv7mCGimu4rFFe8vPZwr
-	 Eeit8vYnDcraJKBcwvGDgR9KjT6E47ISeiPufL/2qCZRqVnygnZHnyxhdmYcddI3yV4ph
-	 KLjwb/HGZseWIc3Dr5YjGYJmLVTKclOU1J67rtSUKv8UQwHztj/+LogK5Gp8IudjbT0xs
-	 Z7+YSil423cjfKeqobb97++lZX3KAgnvG1XFc5MY8EQmO9du+kVghlJS/ozldoK5oqRA/
-	 oF/4AnDqpw/Vckjl/lLLCNRF4uoW/Clg8WT4EvtO3c+t/nEM9CNlwXwnf83DAp1ZtRg==
+	t=1795245539;
+	b=IqgOVgfDbgVylQfJv7j67noJIXvGAQpaOiRbgUxPMRhWgXSlPcsUfkRfCaP8ncel4bdn
+	 hIlbaUDTZci+VYPG8S7Ft7lIwPfItXw+NR2oyFDiXiOBY/HadmeLEs/kob/DuvieqAgj2
+	 MuomAZHQuIDSMTOEhxlg77/lW3om5+Jtmf1xw9GiYWBVqWpXkKwD3lbi7KF0GjNklb5rT
+	 XwI/o0UZnmW3ixI/LQ3WRDJXj8qxuHYRpWNLl4I8CXiZ2nKKlLhFXqxLsuEiua1UNWX3h
+	 XXR/VTIMczjB74z1nBDD4xMlhXS0GZFIreNY0Ah4ug/0BsxpOUtbc1pX1jTVHMcIgMg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795245538;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795245539;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=4ASn7NVUUnGxxx0coa/6cFc+dndnPMXB7kDNOtBE0cc=;
-	b=mnJIOVIY2s54nSdKaWcbtzkr3XQ5azV3MGGpd8qvCo+Nt0ZF3NKUgwmtbaTYq/tTJJob
-	 HivlK1H7fUrC2JDEhJsfd290EsWsxNs831GtOw61Vgdh7hQwjgY4R2VpEmcBjlex2HkcX
-	 UxSI3pdRmYBkTwH/rRaf4YCTKnhUp2ovXjsGvxasIfmn6qCnlMBWXrQoOPBPlQmILjGjS
-	 VfS/euBmYMJ0DPOxS7H24c9lL+fcr5m+FUNLNuEPHSLm2LK6nfpH/uaPEov6pwPOUi99A
-	 7yt3U75BQEz3z0rLae/ejkOHbmTjKAhAITFwUNdS/GFjsydr7YciBhiEiQQx4JYuvkw==
+	bh=d1l8MgpvV28ZMQXb6/mPW4wmJmUAXTmhJW0ynm2/x1g=;
+	b=bCelr/IDM6ilDAOjrXU8H7dPwR7SzkNcsXps9pH8ntaRLpBVIPxrqwbj+O7awE52/0BN
+	 Qt+tSw4kdJTz4yJLk9fd/WrAL6DX7ASHiMP8ro2wtKfiKv+qBJFmYeP/doRVZh7XBt7Se
+	 hY32sEuqg2PMZ8znPNT9gldPgvFp46hugxnViPCRT/DmJtp9S2HsdpMSCymENzaRSBKKB
+	 UglTFrfQ+Zxuy5bvOEjBXn0nfMcwYlFVFW+NIBkDbSlYz/rJDHzKag3GqclNBVxq32zuf
+	 x5vtOCziD0t+SOVWL19WGYU1K4Zf3sKAr77vz/drZBxzkVR83UXgBSFFWSJUSgjrx4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MbuGmaso;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c7BU5lgO;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAEF4606A320
-	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 07:18:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B444606A331
+	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 07:18:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MbuGmaso
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 121B31F000CA;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c7BU5lgO
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B24E11F000C0;
 	Sat, 21 Nov 2026 07:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1795245538;
-	bh=4ASn7NVUUnGxxx0coa/6cFc+dndnPMXB7kDNOtBE0cc=;
+	bh=d1l8MgpvV28ZMQXb6/mPW4wmJmUAXTmhJW0ynm2/x1g=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MbuGmasoMT9bFnPTiu/0n/i3hjhewyXDnjuwkKy9XsepJ6FIjKy1qgxKh+Bxz9Y+H
-	 eGHIRBZGxwHXUhqCQlM2Ghz8Ewl26GuYVIgjko4vGUZqXYCuiF/haK88hiZb6VgpT2
-	 swyjdsjSLzxXWckNgmgY1EcM1x15V2qgi8dZr1j3tCWysvO3NPbvIzrCexBDnEc/zG
-	 /3GEQ5hZClZmHnvUPWyhDg4v/OByGvl2iLdE/w9MN4hVw96HnXo85LVmPlqk6hed2W
-	 5jQpOh18kka6x3e5zV/PT7Zstbijgn/KHFPH19PvNNa3u3VEN/X22L+rfh/0khsXNy
-	 ddLZ2TWWjyLVA==
-Message-ID: <sashiko-outbox-226756@kernel.org>
+	b=c7BU5lgOiB5NOqrD23cEmfgZhwqc2oS0WUEP4lDRkaPXIgwcbUlBPLF29ZS4d1beB
+	 5d3CWt9BK7inYtEmeHdHvNBrwU62CB4kjls0LGlFm9eYkgtLVKnbqPKWkh1fnCN/Te
+	 rlNTURl8hywz4Vg70qTTqBmP9UH4YoXcPo05AdIWLshcESQXxoSlCUQsFJqpzc1d2E
+	 2ly4FF3BudcwLijx5TM1D0dmb4xJCqGl88Fxv8tzswYoy1B12eVX1eogUf944H/F/5
+	 y3rs5BtHxo3lnP6H6fPmoJGKrJTeDry2OhZz90q8W27BTKu47k9nylRj0IAlKZdbvq
+	 cuWjYn4T85org==
+Message-ID: <sashiko-outbox-226757@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/3] virtio: add virtqueue_get_last_used_idx() helper
+Subject: Re: [PATCH v2 2/3] virtio_net: introduce an RX queue watchdog for
+ stuck detection
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Longjun Tang" <lange_tang@163.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261120071826.198604-2-lange_tang@163.com>
+In-Reply-To: <20261120071826.198604-3-lange_tang@163.com>
 References: <20261120071826.198604-1-lange_tang@163.com>
- <20261120071826.198604-2-lange_tang@163.com>
+ <20261120071826.198604-3-lange_tang@163.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 21 Nov 2026 07:18:57 +0000
+Date: Sat, 21 Nov 2026 07:18:58 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,117 +62,141 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [Medium] virtio_ring: 4-byte WRITE_ONCE() on u16 last_used_idx in
-  tools/virtio
-- [Medium] virtio_ring: virtqueue_get_last_used_idx() misses in-order
-  batch buffers
-- [Medium] virtio: virtqueue_get_last_used_idx() ignores maintainer API
-  objection
+- [Medium] virtio_net: virtnet_rx_watchdog() races with
+  virtqueue_resize() and reset
+- [Low] virtio_net: unsynchronized watchdog init in virtnet_set_queues()
 --
 
-commit e3f548bc724c634761028f08e7565898a68423a0
+commit 093ca3617532e988a9fe20901b18a2e6a86aca17
 Author: Longjun Tang <tanglongjun@kylinos.cn>
 
-virtio: add virtqueue_get_last_used_idx() helper
+virtio_net: introduce an RX queue watchdog for stuck detection
 
-This commit adds a virtqueue_get_last_used_idx() helper to expose
-vring_virtqueue's last_used_idx and converts the split-ring updates of
-last_used_idx to use WRITE_ONCE().
+This commit adds a per-device 1 Hz watchdog timer that checks active RX
+queues for 5-second consumption stalls and reschedules NAPI when a queue
+is stuck with a non-zero backlog.
 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index f683a2d6a2002..e8af6d5c6432b 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1005,7 +1005,7 @@ static void *virtqueue_get_buf_ctx_split(struct vri=
-ng_virtqueue *vq,
->  	/* detach_buf_split clears data, so grab it now. */
->  	ret =3D vq->split.desc_state[i].data;
->  	detach_buf_split(vq, i, ctx);
-> -	vq->last_used_idx++;
-> +	WRITE_ONCE(vq->last_used_idx, vq->last_used_idx + 1);
->  	/* If we expect an interrupt for the next entry, tell host
->  	 * by writing event index and flush out the write before
->  	 * the read in the next get_buf call. */
-> @@ -1072,7 +1072,7 @@ static void *virtqueue_get_buf_ctx_split_in_order(s=
-truct vring_virtqueue *vq,
->  	ret =3D vq->split.desc_state[last_used].data;
->  	detach_buf_split_in_order(vq, last_used, ctx);
-> =20
-> -	vq->last_used_idx++;
-> +	WRITE_ONCE(vq->last_used_idx, vq->last_used_idx + 1);
->  	vq->last_used +=3D (vq->vq.num_free - num_free);
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 1cd64f9e12e74..7f21fe4f96a2b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
 
-[Severity: Medium]
-Does WRITE_ONCE(vq->last_used_idx, vq->last_used_idx + 1) perform a 4-byte
-store into the 2-byte u16 last_used_idx field when compiled under
-tools/virtio/?
+[ ... ]
 
-Because vq->last_used_idx + 1 undergoes integer promotion to int, the
-userspace WRITE_ONCE() stub in tools/virtio/linux/compiler.h casts the
-destination pointer to typeof(val) * (4 bytes):
-
-tools/virtio/linux/compiler.h:
-#define WRITE_ONCE(var, val) \
-	(*((volatile typeof(val) *)(&(var))) =3D (val))
-
-In struct vring_virtqueue, u16 last_used_idx is immediately followed by
-u16 last_used, so a 4-byte write clobbers vq->last_used right before
-virtqueue_get_buf_ctx_split_in_order() increments it (and on big-endian
-hosts writes zero into vq->last_used_idx in virtqueue_get_buf_ctx_split()).
-Casting the value to u16 (or fixing the tools/virtio/ macro to use
-typeof(var)) avoids the out-of-bounds write.
-
-> @@ -3236,6 +3236,20 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigne=
-d int last_used_idx)
+> @@ -3090,6 +3106,74 @@ static int virtnet_poll(struct napi_struct *napi, =
+int budget)
+>  	return received;
 >  }
->  EXPORT_SYMBOL_GPL(virtqueue_poll);
 > =20
-> +/**
-> + * virtqueue_get_last_used_idx - get the ring's last consumed position
-> + * @_vq: the struct virtqueue we're talking about.
-> + *
-> + * Returns: the vring_virtqueue's last_used_idx.
+> +/*
+> + * An RX queue is stalled if it has a backlog but makes no progress and
+> + * gets no new interrupt for VIRTNET_RX_WATCHDOG_TIMEO seconds, usually
+> + * because an interrupt was lost.  Mark it stalled and reschedule NAPI to
+> + * drain the ring and refill the buffers.
 > + */
-> +unsigned int virtqueue_get_last_used_idx(const struct virtqueue *_vq)
+> +static void virtnet_rx_watchdog(struct timer_list *t)
 > +{
-> +	const struct vring_virtqueue *vq =3D to_vvq(_vq);
+> +	struct virtnet_info *vi =3D timer_container_of(vi, t, rx_watchdog);
+> +	unsigned long timeout =3D VIRTNET_RX_WATCHDOG_TIMEO * HZ;
+> +	int i;
 > +
-> +	return READ_ONCE(vq->last_used_idx);
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_get_last_used_idx);
+> +	for (i =3D 0; i < vi->curr_queue_pairs; i++) {
+> +		struct receive_queue *rq =3D &vi->rq[i];
+> +		u16 last_used =3D virtqueue_get_last_used_idx(rq->vq);
+> +		u16 calls =3D rq->calls;
+> +		bool backlog =3D virtqueue_poll(rq->vq, last_used);
 
 [Severity: Medium]
-Can passing virtqueue_get_last_used_idx() to virtqueue_poll() falsely
-report no pending used buffers when VIRTIO_F_IN_ORDER is negotiated?
+Can virtnet_rx_watchdog() race with virtqueue_resize() or
+virtqueue_reset() and read freed vring memory?
 
-When a device completes a multi-buffer batch in order, it only writes the
-batch's single used entry (or the first descriptor on a packed ring), and
-virtqueue_get_buf_ctx_{split,packed}_in_order() caches the end of the batch
-in vq->batch_last.id while advancing vq->last_used_idx on each detached
-buffer.  If the driver stops consuming mid-batch (for example, when NAPI
-exhausts its budget), vq->batch_last.id is not UINT_MAX, yet
-virtqueue_poll() only inspects the ring at last_used_idx where the device
-wrote no descriptor flag or used entry, returning false while unconsumed
-buffers remain in the batch:
+When an RX ring is resized via virtnet_rx_resize() (or reset for AF_XDP in
+virtnet_rq_bind_xsk_pool()) while the interface is up, virtnet_rx_pause()
+disables NAPI and cancels DIM, but vi->rx_watchdog keeps firing:
 
-drivers/virtio/virtio_ring.c:more_used_packed_in_order() {
-	if (vq->batch_last.id !=3D UINT_MAX)
-		return true;
+drivers/net/virtio_net.c:virtnet_rx_pause() {
+	bool running =3D netif_running(vi->dev);
 
-	return virtqueue_poll_packed(vq, READ_ONCE(vq->last_used_idx));
+	if (running) {
+		virtnet_napi_disable(rq);
+		virtnet_cancel_dim(vi, &rq->dim);
+	}
 }
 
-[Severity: Medium]
-As reported by Michael S. Tsirkin on v1 [1], is exposing last_used_idx
-through virtqueue_get_last_used_idx() an appropriate public virtio API given
-that packed virtqueues do not have a used ring and encode both the
-descriptor index and VRING_PACKED_EVENT_F_WRAP_CTR wrap counter in
-vq->last_used_idx?
+Inside virtqueue_resize_split() and virtqueue_resize_packed(),
+vring_free() frees the old vring before virtqueue_vring_attach_split() or
+virtqueue_vring_attach_packed() installs the new ring pointers:
 
-[1] https://lore.kernel.org/r/20261112174936-mutt-send-email-mst@kernel.org
+CPU0                                  CPU1 (<softirq>)
+virtnet_rx_resize()
+  virtnet_rx_pause(vi, rq)
+  virtqueue_resize(rq->vq, ...)
+    vring_free(&vq->vq)
+                                      virtnet_rx_watchdog()
+                                        last_used =3D
+                                          virtqueue_get_last_used_idx(...)
+                                        virtqueue_poll(rq->vq, last_used)
+                                          <-- use-after-free
+    virtqueue_init(vq, ...)
+    virtqueue_vring_attach_split(...)
+
+On packed virtqueues, if virtnet_rx_resize() shrinks the ring and
+virtnet_rx_watchdog() reads last_used from the old ring right before
+virtqueue_init() resets vq->last_used_idx and attaches the smaller
+descriptor array, virtqueue_poll_packed() also indexes
+vq->packed.vring.desc[used_idx] out of bounds.
+
+In addition, both virtqueue_resize() and virtqueue_reset() reset
+vq->last_used_idx in virtqueue_init(), but virtnet_rx_resume() does not
+call virtnet_rx_watchdog_init_queue(rq) to resynchronize rq->watchdog.
+
+[ ... ]
+
+> @@ -3839,7 +3926,14 @@ static int virtnet_set_queues(struct virtnet_info =
+*vi, u16 queue_pairs)
+>  	if (vi->has_rss)
+>  		vi->rss_trailer.max_tx_vq =3D cpu_to_le16(queue_pairs);
+>  succ:
+> +	if (dev->flags & IFF_UP) {
+> +		/* Init new queues */
+> +		for (int i =3D old_queue_pairs; i < queue_pairs; i++)
+> +			virtnet_rx_watchdog_init_queue(&vi->rq[i]);
+> +	}
+> +
+>  	vi->curr_queue_pairs =3D queue_pairs;
+
+[Severity: Low]
+Can virtnet_rx_watchdog() observe the updated vi->curr_queue_pairs before
+the rq->watchdog fields initialized by virtnet_rx_watchdog_init_queue()?
+
+virtnet_set_queues() runs while vi->rx_watchdog is active and uses plain
+stores to initialize rq->watchdog and update vi->curr_queue_pairs.  By the
+time execution reaches the succ label, the CVQ command has already allowed
+the device to steer RX packets to the new queues:
+
+CPU0                                  CPU1 (<softirq>)
+virtnet_set_queues()
+  virtnet_rx_watchdog_init_queue(rq)
+    rq->watchdog.last_used =3D ...
+    rq->watchdog.calls =3D ...
+  vi->curr_queue_pairs =3D queue_pairs
+                                      virtnet_rx_watchdog()
+                                        i < vi->curr_queue_pairs
+                                        time_after(jiffies,
+                                          rq->watchdog.jiffies + timeout)
+                                          <-- stale jiffies, false stall
+    rq->watchdog.jiffies =3D jiffies
+
+If a newly activated queue already has a buffer in its used ring and
+virtnet_rx_watchdog() reads a stale rq->watchdog.jiffies (0 from initial
+allocation or an old timestamp from before the queue count was lowered),
+it logs a false RX stall warning and marks rq->watchdog.stalled.  If
+vi->curr_queue_pairs is lowered and raised again while
+virtnet_rx_watchdog() is mid-loop, both functions can also read and write
+rq->watchdog concurrently.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120071826.1986=
-04-1-lange_tang@163.com?part=3D1
+04-1-lange_tang@163.com?part=3D2
