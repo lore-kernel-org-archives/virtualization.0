@@ -1,45 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.191
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795223831;
-	b=srBavq3Q6cHLoLnQpTlp9uPfNIQFvqjKYtu/dqcVIbDvgCwwGym5WrpeEr298mfvav6D
-	 i/SgL6aKEo9YoGNTHt7iL7i/GsXOAhuw1CdJyVXddC7PBbiMwGfJ7LHbezbFs/+sqnnht
-	 EprhjgsRhzVlxkAMcsP9cyV6NYRGbnVvyttSLeOX1BdIvl4jGAOUeD5ig9NoeKuhBa5el
-	 iik0uveIGL3YIrEMewzKPhdUzLvJs+7cLjTN4Dkz2hmIoMSURxiF40xACUQEjp13UMWXN
-	 ucrWcfpUmK/F9TQEYt9p6n8rjCy88OCr0BKuEoQivxAhDa7vlxyLf2ihth58rCnqM8g==
+	t=1795224234;
+	b=AGvY98xY3TVkM5WYV2k1GZ1XqRoaqk3OW6DWbJkzipDho+86A/ottrgPYqH0HsXpP9Z2
+	 NL7LU333uqO6P2Lmk4W8K8jMx/ar6z+JDTAxyeM+vsjY0+eaVc126C6vrXpM7tVZBn0yp
+	 s3tc3+e535u7THinNTKpFAc3g3Wt/Hfbxfb92Fvci4BEH72Q4GLBfXnfMHvPUiSKHdP0L
+	 JqTJxGS9GmTBb0ThB7wvKR+4NgQjoVMuqI+a6tK3rZzVsnxlWuwDFRbOy5J+fcNGaM4sE
+	 4zUgichGZzAgCdXAoYK4iYul8PSp1jt64Vi+LXYaDa+xPXJ1haJqf2Kk+sPIve6Vhsg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795223831;
-	h=Received:DKIM-Signature:Mime-Version:Content-Transfer-Encoding:
-	 Content-Type:Date:Message-Id:Cc:To:From:Subject:References:
-	 In-Reply-To;
-	bh=QklyuLab+Ko9mnpTo5UeclQww95mzIqhLo3F7I/BQkg=;
-	b=wFVV4gYWrx01cnFSnadL5PevvX3j04xWSPddAXakIWD+eXJLlH0ZIsjFZradl0gada+n
-	 JWzLydX9rKP6CIQV2qLNrY/ZqZ5EMrmfpRIwH1B540gc1VhzEDXMsJteCDMgoC34CYI1f
-	 CzYDVn2+X4WE+Sa04XwHimGmnBk4XJmNdxBfyBVxB5adOkHWqJFerm/lZ8GEw46B00xjo
-	 DPlVj6KH+VTyxJ9o2qucMHz6wvor4wnvxkz44NEur9Prs+VGLzqW5ZhTQk+dn4sTFo413
-	 3DnR9KY3K1+EMFmWNRgAAyR35ktqZd2fCn1lWZoHm43YAe/vDLZosZZjqhdCOBLDO+A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795224234;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=Xz5cC2O8b4PhD3G6RP3szPC99+TsfFt+jwewiS/quyI=;
+	b=bw0+pYuBpZ8ti5xo6tmHhWNPnsDOJpUy1dnnKIJ7eRr3RKHxcdSAyQTQssC1y3ffNPqi
+	 va+41RpWpeoLAp0nAR997J20ljbUDLCT9i789V4IV0hGbou2TPMRsI1+jCOcMrmJUVRQG
+	 3H/Fezb9vITtIe7p67cPuaroeTA5BA5BJxt3gLphUf4qw99OIte7zDr8Fk1n+sN6cZdBG
+	 ZRM6sEFx645Y445u8y+9y8FIYrupMi25axPWrnNBem3LGaCGbNRDgnvmxusawShK4iUWU
+	 qudhsyCypF5qIDaH81sTb5Ld1zXAfRLTSw4ukimCrE1ujMxoAH3S3fc8BRFNQeDweQA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gm8eJtOH;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=bKCr41IE;
+	arc=none smtp.remote-ip=91.218.175.191
+Received: from mta0.migadu.com (out-191.mta0.migadu.com [91.218.175.191])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C352606A684;
-	Sat, 21 Nov 2026 01:17:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF060606A6A8
+	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 01:23:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DF060606A6A8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gm8eJtOH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE01B1F000CA;
-	Sat, 21 Nov 2026 01:16:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795223829;
-	bh=QklyuLab+Ko9mnpTo5UeclQww95mzIqhLo3F7I/BQkg=;
-	h=Date:Cc:To:From:Subject:References:In-Reply-To;
-	b=gm8eJtOHhBnaOZe7LwDMFJ8mofPVVmX1YGRFpGCBO2m5hz8UlzXX+WvNJUsq934h9
-	 Gtdb+AerXFQPif6SLfOq2/dWtEgcQTz7bh3I6KV8pXYeGgzuMqRHyjcJnn/Sn8iwhx
-	 YAqVTjTNfeSW2VdEJcGvIBkg4/J19L82jz9PAn9h9IkH5umIAy3FYAYFk2uVRLQd+T
-	 s94/ADqCteDEcqO9mcewjaHUBrR90XdQUJorq/NHZbaKSRZNalAGYYTXYCWvSW+hsc
-	 zi51JiNKnL+ynxLP/WhWXj9KNLrvetlXTYZdQhOtRoJb5Hc2rzkXDPGGzjDTCgK7xr
-	 LOe4azsm+AuJg==
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=bKCr41IE
+X-Envelope-To: virtualization@lists.linux.dev
+DKIM-Signature: a=rsa-sha256; bh=dx6Spe2vDjy+a5xjpfUPvPXuaxBXphqlSthJWpmUnwg=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1795224222; v=1; x=1795829022;
+ b=bKCr41IELwfn3Z45mSvylQXfnL3015HXb9GK96avk2/HTfTmNTzbhJRUkzaOvA7Xv1y7c/Sb
+ HkSXeueAMFlXgKJRADmPAcsKqnfvyeP9SzmeuV9SrejlSdaYDi2E1UIs/4KWKfL0fMiYbMDYEDq
+ 6yub7YMlszO24BUozCca6MVU=
+X-Envelope-To: virtualization@lists.linux.dev
+Received: by smtp.migadu.com with ESMTPS id ecbfa4d686ec920a;
+	Sat, 21 Nov 2026 01:23:42 +0000
+X-Mizu-Trace-ID: ecbfa4d686ec920a
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <e9ec7734-6cbe-4bc8-8ee1-d7347640fb8e@linux.dev>
+Date: Fri, 20 Nov 2026 18:23:34 -0700
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -48,77 +57,79 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 21 Nov 2026 02:16:56 +0100
-Message-Id: <DN0HQBTG5VUY.1F40HSFIRRGNQ@kernel.org>
-Cc: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, "Johan Hovold"
- <johan@kernel.org>, "Bjorn Helgaas" <bhelgaas@google.com>, "Nipun Gupta"
- <nipun.gupta@amd.com>, "Nikhil Agarwal" <nikhil.agarwal@amd.com>, "Ioana
- Ciornei" <ioana.ciornei@nxp.com>, "Longfang Liu" <liulongfang@huawei.com>,
- "Julian Ruess" <julianr@linux.ibm.com>, "Ankit Agrawal"
- <ankita@nvidia.com>, "Brett Creeley" <brett.creeley@amd.com>, "Giovanni
- Cabiddu" <giovanni.cabiddu@intel.com>, =?utf-8?q?Micha=C5=82_Winiarski?=
- <michal.winiarski@intel.com>, "Eric Auger" <eric.auger@redhat.com>, "Eric
- Farman" <farman@linux.ibm.com>, "Matthew Rosato" <mjrosato@linux.ibm.com>,
- "Tony Krowiak" <akrowiak@linux.ibm.com>, "Jason Herne"
- <jjherne@linux.ibm.com>, "Harald Freudenberger" <freude@linux.ibm.com>,
- "Holger Dengler" <dengler@linux.ibm.com>, "Haiyang Zhang"
- <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>, "Dexuan Cui"
- <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>, "Mark Brown"
- <broonie@kernel.org>, "Abel Vesa" <abelvesa@kernel.org>, "Stephen Boyd"
- <sboyd@kernel.org>, "Brian Masney" <bmasney+clk@redhat.com>, "Jerome
- Brunet" <jbrunet+clk@baylibre.com>, "Bjorn Andersson"
- <andersson@kernel.org>, "Mathieu Poirier" <mathieu.poirier@linaro.org>,
- "Srinivas Kandagatla" <srini@kernel.org>, "Sylwester Nawrocki"
- <s.nawrocki@samsung.com>, "Liam Girdwood" <lgirdwood@gmail.com>, "Jaroslav
- Kysela" <perex@perex.cz>, "Jonathan Corbet" <corbet@lwn.net>, "Rafael J.
- Wysocki" <rafael@kernel.org>, "Steven Rostedt" <rostedt@goodmis.org>,
- "Bradley Morgan" <bradley.morgan@linux.dev>, "Armin Wolf" <W_Armin@gmx.de>,
- "Masami Hiramatsu" <mhiramat@kernel.org>, <linux-doc@vger.kernel.org>,
- <driver-core@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
- <linux-trace-kernel@vger.kernel.org>, <linux-pci@vger.kernel.org>, "Alex
- Williamson" <alex@shazbot.org>, "Mostafa Saleh" <smostafa@google.com>,
- <kvm@vger.kernel.org>, <qat-linux@intel.com>,
- <virtualization@lists.linux.dev>, <intel-xe@lists.freedesktop.org>,
- "Vineeth Vijayan" <vneethv@linux.ibm.com>, "Peter Oberparleiter"
- <oberpar@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>,
- <linux-s390@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
- <linux-spi@vger.kernel.org>, "Frank Li" <Frank.Li@nxp.com>, "Sascha Hauer"
- <s.hauer@pengutronix.de>, <linux-clk@vger.kernel.org>,
- <imx@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
- <linux-remoteproc@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
- <linux-sound@vger.kernel.org>, "Takashi Iwai" <tiwai@suse.com>
-To: =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-From: "Danilo Krummrich" <dakr@kernel.org>
-Subject: Re: [PATCH v2 00/10] driver core: Disable driver overriding by
- default
-References: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
-In-Reply-To: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] mm/balloon: fix NR_BALLOON_PAGES accounting during
+ page migration
+To: "David Hildenbrand (Arm)" <david@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: linux-mm@kvack.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ Shao Mingyin <shao.mingyin@zte.com.cn>
+References: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org>
+ <20261120-b4-balloon_nr_pages-v1-1-d8944b587819@kernel.org>
+Content-Language: en-US
+From: Nico Pache <nico.pache@linux.dev>
+In-Reply-To: <20261120-b4-balloon_nr_pages-v1-1-d8944b587819@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri Nov 20, 2026 at 12:11 PM CET, Uwe Kleine-K=C3=B6nig wrote:
-> It is sensible to merge the driver core change (patch #1) together with
-> the individual driver patches setting .support_driver_override because
-> with the driver core change the driver override doesn't work any more
-> for the unmodified drivers (unless the new kernel parameter is provided
-> and a taint is accepted). So I suggest (once there is agreement that the
-> patches are fine) to merge them all in one go and provide a stable
-> branch in case a driver was missed to be adapted. I can create such a
-> branch and ask Greg or Linus to pull it, or Greg can do that.
 
-I think it should be good enough to just take them all through driver-core.=
- If
-it turns out in linux-next that we missed a driver we can always add anothe=
-r
-patch to the driver-core tree.
 
-Those patches only set support_driver_override =3D true, so there shouldn't=
- be
-interactions with other trees.
+On 11/20/26 3:34 AM, David Hildenbrand (Arm) wrote:
+> balloon_page_migrate() doesn't update NR_BALLOON_PAGES in two scenarios:
+> 
+>   (1) If the new page is on a different node than the old page.
+> 
+>   (2) If the old page was deflated but the new page could not be
+>       inflated, effectively deflating the balloon.
+> 
+> Consequently the "Balloon" values in /proc/meminfo, the per-node meminfo
+> etc. will be wrong.
+> 
+> Fix it by adjusting the "Balloon" counters accordingly just after
+> conditionally adjusting the manage page counts.
+> 
+> This has low urgency.
+> 
+> Fixes: 4d689474e1b2 ("balloon_compaction: update the NR_BALLOON_PAGES state")
+> Cc: stable@vger.kernel.org
+> Reported-by: Shao Mingyin <shao.mingyin@zte.com.cn>
+> Closes: https://lore.kernel.org/r/20261115004708909xx05JgB9nXnOCG0zL7h_K@zte.com.cn
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-So, let's keep it simple. I can pick this up once we have all the ACKs.
+Acked-by: Nico Pache <nico.pache@linux.dev>
 
-Thanks,
-Danilo
+> ---
+>   mm/balloon.c | 5 +++++
+>   1 file changed, 5 insertions(+)
+> 
+> diff --git a/mm/balloon.c b/mm/balloon.c
+> index 96a8f1e20bc66..b31543dd4d4d2 100644
+> --- a/mm/balloon.c
+> +++ b/mm/balloon.c
+> @@ -310,12 +310,17 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
+>   			adjust_managed_page_count(page, 1);
+>   			adjust_managed_page_count(newpage, -1);
+>   		}
+> +		if (page_pgdat(page) != page_pgdat(newpage)) {
+> +			dec_node_page_state(page, NR_BALLOON_PAGES);
+> +			inc_node_page_state(newpage, NR_BALLOON_PAGES);
+> +		}
+>   	} else {
+>   		/* Old page was deflated but new page not inflated. */
+>   		__count_vm_event(BALLOON_DEFLATE);
+>   
+>   		if (b_dev_info->adjust_managed_page_count)
+>   			adjust_managed_page_count(page, 1);
+> +		dec_node_page_state(page, NR_BALLOON_PAGES);
+>   	}
+>   
+>   	b_dev_info->isolated_pages--;
+> 
+
