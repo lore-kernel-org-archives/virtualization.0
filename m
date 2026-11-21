@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795230430;
-	b=y5S0gOwLzNUZuFRjI3kcG8iPGMMp6RUUiHeq8rI1dSJKA0fe8CnJpUuPShL2ZQgNzF2F
-	 rPMxn5c5dApDDORvGG4eIht20hMqQtaHsPMdTqWT+th4d6l5HzGHTZyNUHI9+rOwzTY6w
-	 AGH77O8Ac1k9bUNLKW5FOYk7mqb0QoJjyHBN3tlrVFJE2UPaieLFWRWJzkk4HxFdeuRg2
-	 43DcEegJ7KbEUmLHb5m2Lsl5ar48VparqQn9DBhOSFUr7hEILAJdmm5sI1LV9uHcErLX3
-	 doR/BryPJBCgQ9IvjhjYnJAPqQS9T2xtRhGxlASMirzw4koCvWuUm/agM/0YId8X30Q==
+	t=1795230809;
+	b=NCc9H1lJyYTsUjpcsPUW8Gl9z8jQtKEBMWur3ibPg0yERbje1Zrgb5zUZhQJg10UWC5n
+	 UTMWl2aPhTcZRQUYHHWX7PRxCYHbtlnou2phVOZgOgDFmvjkvJArIR/1K2/k/UomvO2B2
+	 u2nfciSBKRoM2kdAK1WRxzarsM2/iW5Ts99n405FdnWnnWNT45fvsKhqJokLrGrgoQECq
+	 yAyHPOewMfE3aIFaPk2xZIMRd5yopapz+N6ZDvrsAFTJsIbJfNi5NNqDl/fMYSDOSV9tO
+	 fr/qKlozdd+IZSw9fsKNcBC34mq7eIQFd29NVHmphXOxkkV9ePp5yTSiVFGIKWy43rg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795230430;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795230809;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=t00QPQPHZGjKqFU4ALiHfVhOwawSrErkBBwDCpRq5BM=;
-	b=LGAbYvBlVZpbqe34nFr+aOnY9N6mCWx8T897s4Cuyp88HSsYGCiCmFHjzTgOArKAEqnH
-	 30uJKXWGlgrfxPA9331nitIOc7RleRvdKyycz1VSzQ8im2STjdu30LTs98SV1VDyS/uY9
-	 hZPJV8Jr3+tQMGNb2clE951liphGQujSGSYtlDwgZvKCfR4HuZwq8WlV/Z6qrQBLX06Kx
-	 9NDSXtguDMHRzTEnxfIpnCacIT5PPM2wNNDf6fYv/uEUDCR3Tbpf5C2uKDAr9Zye5tyJM
-	 CJu4uLgQvS9zLIPmoBnIYqZtU7Ay2fwC0omCOOSRZOCQDY2QN0Dx0C19tcROtmThNPw==
+	bh=N3cX0BMGcAwhg/9cxMNLY5HCHkTkQSHwOn7S5DAqn08=;
+	b=ioTtYqcPKSGFcZd/3ttTzquiXff3yWeoaJFuV4EAFNBpiHSZT1naWNPj9XmVZpciVXBm
+	 PSFiHx6VpB3dMYmTpmr3ML9hBtf9IOYRocFPqj3uOCrUwLhS/McHHCI1XHvy2+K4hcHjt
+	 qSLvXSxudMXGnOcMqD9IKZ0xAFYdBJLV8TtlRihQAxxdKmMh9OrkopCEXPUaXHU+be2dH
+	 pa6QeJPft2RiYCovRTsFusJnO0RFEbsoapQbOj3mvxps60FZDnFy4c+Lrc97GQmvpmIUE
+	 kD2i3VHo/C1/GtC5NI7vaRA9jxGcpWuGD7iIlaUhyf03KjhtjVJIJXRitxEyl35m2bA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EDkscXht;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cgzwGwCr;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F45E606A6B8
-	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 03:07:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66FBD606A693
+	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 03:13:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EDkscXht
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A8D91F000C4;
-	Sat, 21 Nov 2026 03:07:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cgzwGwCr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C1E1F000C0;
+	Sat, 21 Nov 2026 03:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795230429;
-	bh=t00QPQPHZGjKqFU4ALiHfVhOwawSrErkBBwDCpRq5BM=;
+	s=k20260515; t=1795230809;
+	bh=N3cX0BMGcAwhg/9cxMNLY5HCHkTkQSHwOn7S5DAqn08=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EDkscXhtZgDJV3iU6zpAv0Koei3kOKytaBq/1KoLkQrUZ5FQXfMNSvtAev93wN/0j
-	 eTpIWyXSaMPJi+49DisMLa5EAcPm6V2RyiQmR0zKYXu6OX5Pm81bpRh9tPE9Xk6t/G
-	 Q3dMG1GAC9Z1v/KkVDmXnnJ9IC043O2wEiFwYcAEbB/wCKWX2C/pL7XPUQAkoj48+Y
-	 lphHzxnF/5xt0Ra80JOrd25vbsrEHU+gO8j1I9vGR/matzlwCCVbTq3xkWpaD0vCM/
-	 Vi+Hac48LK3PkFj6cxjF0PQ7tf5VM3H+jQQcib2WUVCBsookrL+BRqMKo9RYzGHc3H
-	 CaDPi6eBT93Bg==
-Message-ID: <sashiko-outbox-226557@kernel.org>
+	b=cgzwGwCrzGHZMJtILtAWd4Fh8npbOKJWVmvNjc5q0CmIzASRh7VDxwB0FotV9sLl8
+	 3Yhv5/qILvfLoZH0kY97lL+BaizA7Ub7kHHO5DVRtrvJy695DgAkXe8vOpXnBdIfaW
+	 1KlPpcZp8+xLurRp88uQu+KFCdpBaEW+nyA/iGcGjQBMPnjvdusY9QZzMWxz5z6jZz
+	 9FvCHgL40YFAotxeSxeiZTizrM18hh1JS9Ms9eIQK5TCOQuBQbR1GkKpNBxiaMTdCN
+	 EQDT/XAFLLes9E2Tansafogju8HuKpQ1viwZjMVfHoIbAZXPA24ZO432AaDhE0oJkd
+	 G7zRhl8Ncsnmg==
+Message-ID: <sashiko-outbox-226562@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 5/6] media: virtio: Add MMAP buffer mapping support
+Subject: Re: [PATCH v12 1/6] media: virtio: Add core driver and session
+ management
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Brian Daniels" <briandaniels@google.com>
 Cc: virtualization@lists.linux.dev, media-ci@linuxtv.org, "Michael S.
  Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261121025007.3445723-6-briandaniels@google.com>
+In-Reply-To: <20261121025007.3445723-2-briandaniels@google.com>
 References: <20261121025007.3445723-1-briandaniels@google.com>
- <20261121025007.3445723-6-briandaniels@google.com>
+ <20261121025007.3445723-2-briandaniels@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 21 Nov 2026 03:07:08 +0000
+Date: Sat, 21 Nov 2026 03:13:28 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,313 +62,316 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 8 potential
+Thank you for your contribution! Sashiko AI review found 6 potential
 issues to consider:
-- [High] media: virtio: missing vm_ops.open and pgoff bug in
-  virtio_media_vma_close()
-- [High] media: virtio: use-after-free of commandq in
-  virtio_media_vma_close()
-- [High] media: virtio: ABBA deadlock between mm->mmap_lock and
-  vv->vlock in mmap/close/ioctl
-- [High] media: virtio: use-after-free in virtio_media_vma_close() after
-  remove
-- [Medium] media: virtio: missing mmap_region bounds check in
-  virtio_media_device_mmap()
-- [Medium] media: virtio: offset truncation and VM_MAYWRITE in
-  virtio_media_device_mmap()
-- [Medium] media: virtio: missing VM_MAYWRITE clear on read-only mmap in
-  virtio_media_device_mmap()
-- [Medium] media: virtio: TOCTOU race on session->error in
-  virtio_media_device_mmap()
+- [High] media: virtio: UAF and NULL deref on close after
+  virtio_media_remove()
+- [High] media: virtio: unsynchronized commandq access and cb_param
+  wakeup race
+- [Medium] media: virtio: stack cb_param left queued if virtqueue_kick()
+  fails
+- [Medium] media: virtio: unsigned status negation and missing le32
+  conversions
+- [Low] media: Kconfig: MEDIA_VIRTIO depends on hidden VIDEO_DEV in
+  filter menu
+- [Low] media: virtio: kernel-doc warnings and C++ comment in UAPI
+  header
 --
 
-commit 14004eedd96a0d60c179b127c333d6afc58f6ae1
+commit 737186f1522940e8113c5acf117d0e10e560174d
 Author: Alexandre Courbot <gnurou@gmail.com>
 
-media: virtio: Add MMAP buffer mapping support
+media: virtio: Add core driver and session management
 
-This commit adds V4L2_MEMORY_MMAP buffer mapping support to the virtio-media
-driver by querying shared memory region 0 at probe time and implementing the
-mmap file operation and VMA close callback with VIRTIO_MEDIA_CMD_MMAP and
-VIRTIO_MEDIA_CMD_MUNMAP.
+This commit adds the initial virtio-media driver core, build system
+integration, MAINTAINERS entry, and V4L2 session lifecycle management.
+
+> diff --git a/drivers/media/Kconfig b/drivers/media/Kconfig
+> index 6abc9302cd84d..ce7d088e74418 100644
+> --- a/drivers/media/Kconfig
+> +++ b/drivers/media/Kconfig
+> @@ -136,6 +136,19 @@ config MEDIA_PLATFORM_SUPPORT
+> =20
+>  	  Say Y when you want to be able to see such devices.
+> =20
+> +config MEDIA_VIRTIO
+> +	tristate "Virtio-media Driver"
+> +	depends on VIRTIO && VIDEO_DEV && 64BIT && (X86 || CPU_LITTLE_ENDIAN)
+> +	select VIDEOBUF2_CORE
+> +	select VIDEOBUF2_MEMOPS
+> +	help
+> +	  Enables the virtio-media driver.
+> +
+> +	  This driver is used to virtualize media devices such as cameras or
+> +	  decoders from a host into a guest using the V4L2 protocol.
+> +
+> +	  If unsure, say N.
+> +
+>  config MEDIA_TEST_SUPPORT
+>  	bool
+>  	prompt "Test drivers" if MEDIA_SUPPORT_FILTER
+
+[Severity: Low]
+Can MEDIA_VIRTIO be selected when MEDIA_SUPPORT_FILTER=3Dy unless another
+media device category is also enabled?
+
+When MEDIA_SUPPORT_FILTER=3Dy, VIDEO_DEV has no prompt and is only enabled =
+by
+its default expression (MEDIA_CAMERA_SUPPORT || MEDIA_ANALOG_TV_SUPPORT ||
+MEDIA_RADIO_SUPPORT || MEDIA_SDR_SUPPORT || MEDIA_PLATFORM_SUPPORT ||
+MEDIA_TEST_SUPPORT).  Because MEDIA_VIRTIO is placed inside the "Media
+device types" filter menu with a dependency on VIDEO_DEV rather than under
+"Media drivers" (or included in VIDEO_DEV's default rule), it stays hidden
+unless an unrelated device category is enabled.
 
 > diff --git a/drivers/media/virtio/virtio_media_driver.c b/drivers/media/v=
 irtio/virtio_media_driver.c
-> index 7483577256bd0..eb6b31d7e370c 100644
-> --- a/drivers/media/virtio/virtio_media_driver.c
+> new file mode 100644
+> index 0000000000000..39c5a38d20b1b
+> --- /dev/null
 > +++ b/drivers/media/virtio/virtio_media_driver.c
 [ ... ]
-> @@ -697,12 +705,155 @@ static __poll_t virtio_media_device_poll(struct fi=
-le *file, poll_table *wait)
->  	return rc;
->  }
-> =20
-> +static void virtio_media_vma_close_locked(struct vm_area_struct *vma)
+> +static void commandq_callback(struct virtqueue *queue)
 > +{
-> +	struct virtio_media *vv =3D vma->vm_private_data;
-> +	struct virtio_media_cmd_munmap *cmd_munmap =3D &vv->cmd.munmap;
-> +	struct virtio_media_resp_munmap *resp_munmap =3D &vv->resp.munmap;
-> +	struct scatterlist cmd_sg =3D {}, resp_sg =3D {};
-> +	struct scatterlist *sgs[2] =3D { &cmd_sg, &resp_sg };
-> +	int ret;
+> +	unsigned int len;
+> +	struct virtio_media_cmd_callback_param *param;
 > +
-> +	sg_set_buf(&cmd_sg, cmd_munmap, sizeof(*cmd_munmap));
-> +	sg_mark_end(&cmd_sg);
+> +process_bufs:
+> +	while ((param =3D virtqueue_get_buf(queue, &len))) {
+> +		param->resp_len =3D len;
+> +		param->done =3D true;
+> +		wake_up(&param->vv->wq);
+> +	}
 > +
-> +	sg_set_buf(&resp_sg, resp_munmap, sizeof(*resp_munmap));
-> +	sg_mark_end(&resp_sg);
-> +
-> +	cmd_munmap->hdr.cmd =3D VIRTIO_MEDIA_CMD_MUNMAP;
-> +	cmd_munmap->hdr.__reserved =3D 0;
-> +	cmd_munmap->driver_addr =3D
-> +		(vma->vm_pgoff << PAGE_SHIFT) - vv->mmap_region.addr;
-> +	ret =3D virtio_media_send_command(vv, sgs, 1, 1, sizeof(*resp_munmap),
-> +					NULL);
-
-[Severity: High]
-Can virtio_media_vma_close_locked() dereference a freed vv->commandq if the
-virtio device was removed while a buffer remained mapped in userspace?
-
-An active VMA pins vma->vm_file, which keeps struct virtio_media allocated
-until all mappings are unmapped.  If virtio_media_remove() runs first, it
-calls virtio_dev->config->del_vqs(virtio_dev), freeing vv->commandq.  Unlike
-the v4l2 file operation wrappers that check video_is_registered(),
-vma->vm_ops->close is invoked directly by the MM subsystem on munmap() or
-process exit and sends VIRTIO_MEDIA_CMD_MUNMAP on the freed virtqueue.
-
-> +	if (ret < 0) {
-> +		v4l2_err(&vv->v4l2_dev, "host failed to unmap buffer: %d\n",
-> +			 ret);
+> +	if (!virtqueue_enable_cb(queue)) {
+> +		virtqueue_disable_cb(queue);
+> +		goto process_bufs;
 > +	}
 > +}
 > +
 > +/**
-> + * virtio_media_vma_close() - Close a MMAP buffer mapping.
-> + * @vma: VMA of the mapping to close.
-> + *
-> + * Inform the host that a previously created MMAP mapping is no longer n=
-eeded
-> + * and can be removed.
-> + + */
-> +static void virtio_media_vma_close(struct vm_area_struct *vma)
-> +{
-> +	struct virtio_media *vv =3D vma->vm_private_data;
-> +
-> +	mutex_lock(&vv->vlock);
-> +	virtio_media_vma_close_locked(vma);
-> +	mutex_unlock(&vv->vlock);
-> +}
-
-[Severity: High]
-When a mapped VMA pins vma->vm_file across virtio_media_remove(), does
-unmapping the VMA cause a use-after-free in virtio_media_vma_close() follow=
-ed
-by a use-after-free and double free of the session in
-virtio_media_device_close()?
-
-virtio_media_remove() deletes the virtqueues and frees every session in
-vv->sessions while vma->vm_file is still open.  When the process later unma=
-ps
-the VMA or exits, remove_vma() calls virtio_media_vma_close() (which uses t=
-he
-freed vv->commandq) and then drops vma->vm_file, triggering v4l2_release() =
-->
-virtio_media_device_close(), which accesses and frees the already-freed
-struct virtio_media_session a second time.
-
-> +
-> +static const struct vm_operations_struct virtio_media_vm_ops =3D {
-> +	.close =3D virtio_media_vma_close,
-> +};
-
-[Severity: High]
-What happens when a mapped VMA is duplicated by fork() or split by a partial
-munmap(), mprotect(), or mremap()?
-
-Because virtio_media_vm_ops has no .open callback and vma->vm_private_data
-Does not track a reference-counted mapping object, closing the first VMA in=
- a
-forked child or half of a split VMA sends VIRTIO_MEDIA_CMD_MUNMAP while the
-remaining VMA still maps those guest physical pages, and closing the
-remaining VMA sends an extra unmap command.
-
-In addition, __split_vma() advances vma->vm_pgoff on the upper half of a
-split VMA, so virtio_media_vma_close_locked() computes cmd_munmap->driver_a=
-ddr
-from the shifted vma->vm_pgoff instead of the buffer's base driver_addr and
-fails to unmap the buffer on the host.
-
-> +
-> +/**
-> + * virtio_media_device_mmap() - Perform a mmap request from userspace.
-> + * @file: opened file of the session to map for.
-> + * @vma: VM area struct describing the desired mapping.
-> + *
-> + * This requests the host to map a MMAP buffer for us, so we can then ma=
-ke that
-> + * mapping visible into user-space address space.
+> + * virtio_media_kick_command() - send a command to the commandq.
+> + * @vv: virtio-media device in use.
+> + * @sgs: descriptor chain to send.
+> + * @out_sgs: number of device-readable descriptors in @sgs.
+> + * @in_sgs: number of device-writable descriptors in @sgs.
+> + * @resp_len: output parameter. Upon success, contains the size of the r=
+esponse
+> + *            in bytes.
 > + */
-> +static int virtio_media_device_mmap(struct file *file,
-> +				    struct vm_area_struct *vma)
+> +static int virtio_media_kick_command(struct virtio_media *vv,
+> +				     struct scatterlist **sgs,
+> +				     const size_t out_sgs, const size_t in_sgs,
+> +				     size_t *resp_len)
 > +{
-> +	struct video_device *video_dev =3D video_devdata(file);
-> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
-> +	struct virtio_media_session *session =3D
-> +		fh_to_session(file->private_data);
-> +	struct virtio_media_cmd_mmap *cmd_mmap =3D &session->cmd.mmap;
-> +	struct virtio_media_resp_mmap *resp_mmap =3D &session->resp.mmap;
-> +	struct scatterlist cmd_sg =3D {}, resp_sg =3D {};
-> +	struct scatterlist *sgs[2] =3D { &cmd_sg, &resp_sg };
-> +	int ret;
-> +
-> +	mutex_lock(&session->error_lock);
-> +	bool session_error =3D session->error;
-> +
-> +	mutex_unlock(&session->error_lock);
-> +
-> +	if (session_error)
-> +		return -EIO;
-
-[Severity: Medium]
-Can session->error become true after session->error_lock is dropped here and
-before mutex_lock(&vv->vlock) is acquired below?
-
-CPU0                              CPU1 (eventq_work)
-virtio_media_device_mmap()
-  lock(&session->error_lock)
-  session_error =3D session->error
-  unlock(&session->error_lock)
-                                  virtio_media_process_events()
-                                    lock(&session->error_lock)
-                                    session->error =3D true
-                                    unlock(&session->error_lock)
-                                    virtio_media_session_close()
-                                      lock(&vv->vlock)
-                                      /* closes session->id on host */
-                                      unlock(&vv->vlock)
-  lock(&vv->vlock)
-  /* sends VIRTIO_MEDIA_CMD_MMAP
-     for closed session->id */
-
-Checking session->error after acquiring vv->vlock (or holding vv->vlock acr=
-oss
-the check) would avoid sending VIRTIO_MEDIA_CMD_MMAP for a closed session.
-
-> +	if (!(vma->vm_flags & VM_SHARED))
-> +		return -EINVAL;
-> +	if (!(vma->vm_flags & (VM_READ | VM_WRITE)))
-> +		return -EINVAL;
-> +
-> +	mutex_lock(&vv->vlock);
-
-[Severity: High]
-Does acquiring vv->vlock inside virtio_media_device_mmap() and
-virtio_media_vma_close() create an ABBA deadlock with current->mm->mmap_loc=
-k?
-
-CPU0                              CPU1
-----                              ----
-lock(&mm->mmap_lock)
-                                  lock(&vv->vlock)
-lock(&vv->vlock)
-                                  lock(&mm->mmap_lock)
-
- *** DEADLOCK ***
-
-CPU0: mmap_region() -> virtio_media_device_mmap() (or munmap() ->
-      virtio_media_vma_close())
-CPU1: virtio_media_device_ioctl() -> video_ioctl2() -> copy_from_user() (or
-      __scatterlist_builder_add_userptr() -> vb2_create_framevec())
-
-The MM core calls f_op->mmap and vm_ops->close with mm->mmap_lock held in
-write mode, whereas virtio_media_device_ioctl() holds vv->vlock across user
-copies and userptr page pinning that fault or take mm->mmap_lock.
-
-> +
-> +	cmd_mmap->hdr.cmd =3D VIRTIO_MEDIA_CMD_MMAP;
-> +	cmd_mmap->hdr.__reserved =3D 0;
-> +	cmd_mmap->session_id =3D session->id;
-> +	cmd_mmap->flags =3D
-> +		(vma->vm_flags & VM_WRITE) ? VIRTIO_MEDIA_MMAP_FLAG_RW_MASK : 0;
-
-[Severity: Medium]
-When a file opened O_RDWR is mapped with PROT_READ and MAP_SHARED, does
-leaving VM_MAYWRITE set on the VMA allow userspace to bypass the read-only
-host mapping via mprotect()?
-
-Because VM_WRITE is clear, VIRTIO_MEDIA_MMAP_FLAG_RW_MASK is not sent to the
-host, but VM_MAYWRITE remains set in vma->vm_flags, allowing a later
-mprotect(..., PROT_READ | PROT_WRITE) to make the guest page tables writable
-without host write permission.  Should this clear VM_MAYWRITE with
-vm_flags_clear(vma, VM_MAYWRITE) when !(vma->vm_flags & VM_WRITE)?
-
-> +	cmd_mmap->offset =3D vma->vm_pgoff << PAGE_SHIFT;
-
-[Severity: Medium]
-Can a 64-bit file offset >=3D 4 GiB silently truncate when assigned to the
-32-bit cmd_mmap->offset field?
-
-On 64-bit kernels vma->vm_pgoff is an unsigned long, so shifting it into
-__le32 cmd_mmap->offset without checking vma->vm_pgoff > (U32_MAX >>
-PAGE_SHIFT) discards the upper bits and aliases a valid 32-bit plane
-mem_offset instead of returning -EINVAL.  Also, when mapping read-only
-(!(vma->vm_flags & VM_WRITE)), VM_MAYWRITE is left set on the VMA, allowing
-mprotect(PROT_WRITE) to upgrade guest PTE permissions afterward.
-
-> +	cmd_mmap->__reserved =3D 0;
-> +
-> +	sg_set_buf(&cmd_sg, cmd_mmap, sizeof(*cmd_mmap));
-> +	sg_mark_end(&cmd_sg);
-> +
-> +	sg_set_buf(&resp_sg, resp_mmap, sizeof(*resp_mmap));
-> +	sg_mark_end(&resp_sg);
-> +
-> +	/*
-> +	 * The host performs reference counting and is smart enough to return
-> +	 * the same guest physical address if this is called several times on
-> +	 * the same
-> +	 * buffer.
-> +	 */
-> +	ret =3D virtio_media_send_command(vv, sgs, 1, 1, sizeof(*resp_mmap),
-> +					NULL);
-> +	if (ret < 0)
-> +		goto end;
-> +
-> +	vma->vm_private_data =3D vv;
-> +	/*
-> +	 * Keep the guest address at which the buffer is mapped since we will
-> +	 * use that to unmap.
-> +	 */
-> +	vma->vm_pgoff =3D (resp_mmap->driver_addr + vv->mmap_region.addr) >>
-> +			PAGE_SHIFT;
-> +
-> +	/*
-> +	 * We cannot let the mapping be larger than the buffer.
-> +	 */
-> +	if (vma->vm_end - vma->vm_start > PAGE_ALIGN(resp_mmap->len)) {
-> +		dev_dbg(&video_dev->dev,
-> +			"invalid MMAP, as it would overflow buffer length\n");
-> +		ret =3D -EINVAL;
-> +		goto cleanup;
+> +	struct virtio_media_cmd_callback_param cb_param =3D {
+> +		.vv =3D vv,
+> +		.done =3D false,
+> +		.resp_len =3D 0,
+> +	};
+> +	struct virtio_media_resp_header *resp_header;
+> +	int ret =3D virtqueue_add_sgs(vv->commandq, sgs, out_sgs, in_sgs,
+> +		  &cb_param, GFP_ATOMIC);
+> +	if (ret) {
+> +		v4l2_err(&vv->v4l2_dev,
+> +			 "failed to add sgs to command virtqueue\n");
+> +		return ret;
 > +	}
 > +
-> +	ret =3D io_remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
-> +				 vma->vm_end - vma->vm_start,
-> +				 vma->vm_page_prot);
+> +	if (!virtqueue_kick(vv->commandq)) {
+> +		v4l2_err(&vv->v4l2_dev, "failed to kick command virtqueue\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* Wait for the response. */
+> +	wait_event(vv->wq, cb_param.done);
+
+[Severity: High]
+Can commandq_callback() race with virtio_media_kick_command() on both the
+stack-allocated cb_param and vv->commandq?
+
+CPU0 (commandq_callback)          CPU1 (virtio_media_kick_command)
+param =3D virtqueue_get_buf(...)
+param->resp_len =3D len;
+param->done =3D true;
+                                  wait_event(vv->wq, cb_param.done)
+                                    /* sees cb_param.done =3D=3D true */
+                                  return 0; /* pops cb_param */
+wake_up(&param->vv->wq);
+  <-- stack use-after-return on param->vv
+
+                                  /* next command under vv->vlock */
+                                  virtqueue_add_sgs(vv->commandq, ...)
+virtqueue_enable_cb(queue)        virtqueue_kick(vv->commandq)
+  <-- concurrent unsynchronized virtqueue access
+
+wait_event() checks cb_param.done before taking vv->wq.lock, so CPU1 can
+observe param->done =3D=3D true and return from virtio_media_kick_command()
+before CPU0 reads param->vv in wake_up(&param->vv->wq).  Once CPU1 wakes,
+it or the next caller acquiring vv->vlock can also call virtqueue_add_sgs()
+and virtqueue_kick() while commandq_callback() is still calling
+virtqueue_get_buf(), virtqueue_enable_cb(), and virtqueue_disable_cb() on
+vv->commandq without a spinlock, violating virtio_ring's caller
+serialization requirement.
 
 [Severity: Medium]
-Should virtio_media_device_mmap() validate that resp_mmap->driver_addr is
-page-aligned and that the mapped range fits within vv->mmap_region.len befo=
-re
-calling io_remap_pfn_range()?
+If virtqueue_kick() fails after virtqueue_add_sgs() succeeds, does
+returning -EINVAL leave the stack address &cb_param and the caller's
+command buffer queued in vv->commandq?
 
-vv->mmap_region.len is never checked, so an out-of-bounds or overflowing
-resp_mmap->driver_addr or resp_mmap->len from the host would cause
-io_remap_pfn_range() to remap guest physical memory outside the virtio shar=
-ed
-memory region into userspace, and an unaligned driver_addr would lose its
-sub-page offset when shifted into vma->vm_pgoff.
+virtio_media_device_close() ignores the error from
+virtio_media_session_close() and frees session while session->cmd.close is
+still in the vring, and any later completion in commandq_callback() will
+write through the dangling &cb_param stack pointer.  Also, once
+virtqueue_kick() succeeds, wait_event(vv->wq, cb_param.done) sleeps
+uninterruptibly under vv->vlock with no timeout or removal wake condition,
+which will hang the caller and block virtio_media_remove() if the host
+stops responding.
+
+> +
+> +	if (resp_len)
+> +		*resp_len =3D cb_param.resp_len;
+> +
+> +	if (in_sgs > 0) {
+> +		/*
+> +		 * If we expect a response, make sure we have at least a
+> +		 * response header - anything shorter is invalid.
+> +		 */
+> +		if (cb_param.resp_len < sizeof(*resp_header)) {
+> +			v4l2_err(&vv->v4l2_dev,
+> +				 "received response header is too short\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		resp_header =3D sg_virt(sgs[out_sgs]);
+> +		if (resp_header->status)
+> +			/* Host returns a positive error code. */
+> +			return -resp_header->status;
+> +	}
+> +
+> +	return 0;
+> +}
+
+[Severity: Medium]
+Can negating the unsigned __le32 resp_header->status produce a positive
+return value that virtio_media_send_command() treats as success?
+
+Because resp_header->status is an unsigned 32-bit __le32,
+-resp_header->status is computed in unsigned arithmetic before converting
+to int.  If a buggy host writes a value with bit 31 set (such as a negative
+errno like -EINVAL =3D 0xffffffea), virtio_media_kick_command() returns a
+positive int, which bypasses the "if (ret < 0)" check in
+virtio_media_send_command() and causes virtio_media_device_open() to
+proceed with an invalid resp_open->session_id.  Status values between
+MAX_ERRNO + 1 and 0x80000000 also yield negative values below -MAX_ERRNO
+that VFS open() does not recognize as errors in IS_ERR().
+
+In addition, resp_header->status, cmd_open->hdr.cmd, resp_open->session_id,
+cmd_close->hdr.cmd, and cmd_close->session_id are all __le32 protocol
+fields accessed without le32_to_cpu() / cpu_to_le32(), which triggers
+Sparse -Wbitwise warnings.
+
+[ ... ]
+
+> +static void virtio_media_remove(struct virtio_device *virtio_dev)
+> +{
+> +	struct virtio_media *vv =3D virtio_dev->priv;
+> +	struct list_head *p, *n;
+> +
+> +	/* Remove the video device to stop accessing the commandq virtqueue */
+> +	video_unregister_device(&vv->video_dev);
+> +
+> +	/*
+> +	 * Acquire vlock to ensure no concurrent accesses to the commandq
+> +	 * virtqueue
+> +	 */
+> +	mutex_lock(&vv->vlock);
+> +
+> +	/* Stop all virtqueue callbacks */
+> +	virtio_reset_device(virtio_dev);
+> +
+> +	/*
+> +	 * Only detach the unused buffers to allow internal virtqueue clean up.
+> +	 * The actual buffers are freed in virtio_media_release()
+> +	 */
+> +	while (virtqueue_detach_unused_buf(vv->commandq))
+> +		;
+> +
+> +	/* Delete the virtqueues */
+> +	virtio_dev->config->del_vqs(virtio_dev);
+> +
+> +	mutex_unlock(&vv->vlock);
+> +
+> +	list_for_each_safe(p, n, &vv->sessions) {
+> +		struct virtio_media_session *s =3D
+> +			list_entry(p, struct virtio_media_session, list);
+> +
+> +		virtio_media_session_remove(vv, s);
+> +		virtio_media_session_free(s);
+> +	}
+> +
+> +	v4l2_device_put(&vv->v4l2_dev);
+> +}
+
+[Severity: High]
+What happens when a userspace process closes an open /dev/videoX file
+descriptor during or after virtio_media_remove()?
+
+video_unregister_device() prevents new opens, but existing open file
+descriptors stay open until userspace closes them, at which point
+v4l2_release() still invokes virtio_media_device_close().  Meanwhile,
+virtio_media_remove() destroys vv->commandq via del_vqs() and frees every
+active session in vv->sessions (without holding vv->sessions_lock across
+the list walk), and virtio_media_session_free() -> v4l2_fh_del() sets
+file->private_data =3D NULL.  When the open file descriptor is later closed,
+virtio_media_device_close() computes session =3D
+fh_to_session(file->private_data) (which is NULL, or a freed pointer if
+virtio_media_device_close() raced with virtio_media_remove()), dereferences
+session in virtio_media_session_close(), queues a command onto the already
+deleted vv->commandq, and frees the session a second time.
+
+> diff --git a/include/uapi/linux/virtio_media.h b/include/uapi/linux/virti=
+o_media.h
+> new file mode 100644
+> index 0000000000000..ad05d742165c7
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_media.h
+> @@ -0,0 +1,118 @@
+[ ... ]
+> +/**
+> + * struct virtio_media_config - Video device configuration space.
+> + * @device_caps: flags representing the device capabilities as used in &=
+struct
+> + *               v4l2_capability. It corresponds with the device_caps fi=
+eld in
+> + *               the &struct video_device
+> + * @ device_type: informs the driver of the type of the video device. It
+> + *                corresponds to with the ``vfl_devnod_type`` field of t=
+he
+> + *                device.
+> + * @card: name of the device, a NUL-terminated UTF-8 string. It correspo=
+nds
+> + *        with the card field of the struct v4l2_capability. If all the
+> + *        characters of the field are used, it does not need to be
+> + *        NUL-terminated.
+> + */
+> +struct virtio_media_config {
+> +	__le32 device_caps;
+> +	__le32 device_type;
+> +	__u8 card[32];
+> +};
+[ ... ]
+> +#endif // _UAPI__LINUX_VIRTIO_MEDIA_H
+
+[Severity: Low]
+In include/uapi/linux/virtio_media.h, the space in "@ device_type:" keeps
+scripts/kernel-doc from recognizing the member description, and the "//"
+comment on the #endif line violates the C90 requirement (-std=3Dc90) for
+exported UAPI headers.  In drivers/media/virtio/session.h and
+drivers/media/virtio/virtio_media.h, scripts/kernel-doc also warns on
+__dma_from_device_group_begin() and __dma_from_device_group_end() inside
+the kernel-doc documented structs virtio_media_session and virtio_media.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261121025007.3445=
-723-1-briandaniels@google.com?part=3D5
+723-1-briandaniels@google.com?part=3D1
