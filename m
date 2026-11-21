@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795230850;
-	b=VvjqqoafB81pPk39StCOGVojvdnZhHHhsozXskPbHcVXkRPr+23k98woi1Fj9WMJZDh0
-	 3Nwa7O/Iuq91PKKlTjnlEdfDy9kAQbAZ36kmQ6+tGzaHPHsfk4XTgcKn40Y1yf1C7VLar
-	 KnLssqA8OOrvVA2bT0kiljA0z7xDTrPUAuQ/dTtViZ5PY2pdZEsokAOOmRTiyk/sFjUP5
-	 AURnuWgQCfiq/uniodRxXCfmTXtEYU69LCZgp7dmWVuUpn+sL6GUltUqGqNwDKIfizeyn
-	 dt/wPc10j4SFjGhNAPIF8peBp+3JPnkqXPwvGocSEocmse+Zv58cWZKMND7trqnrOyA==
+	t=1795230936;
+	b=ZCsbAap7Japtvc2qoNT3dYrvsf1YQ97zAcucfbgv1GMDhTHprXQtRPr6LfLit5bBWoae
+	 QKZB4o4XoENzreZ4esRlhmDbw51eRUR9ISF6vdVu6FWa+jZ/ppM7XaqwNB3/PsjYzEffF
+	 B5sjJXIhMmlDpasA58kF8l0GqlCcae5KhmvBLY88Z/FxOKQ9VqDxUR+dio2NN5bia+ofo
+	 3/DYnmEPOGMFtqQnzaJzEMKH7SggwW8ZM+oJHdJn98wNZc+pgE5GqKcgUm2KZmBl0W/YA
+	 iWj8warASBUbROiZeUQYmOefC6nx0BICgSTjFGo9ieMlnFk1RtAxw3Flz+gf72LHX5Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795230850;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795230936;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=bGuoSobjJJHhadNnOeAyU8G32ROMq2iT1dSMwS406Cg=;
-	b=f1lJbVdrkfp+NVkmMzPPC+zg9F8cRlKULRSTda7fO60ue7xaNj4EgdkjorbtPsm4wRd2
-	 pVfM/atdmfSrKnCwql+5616c9xIu9zuSjBGWjaSXkHTu1dzWBiIkYOxUsigcpQEO16ISe
-	 ceHzz+tEA861pSNYIxkOXXbJzFrl4s1WTROldKwf+nMZAsGygDgRISVBCfEUWegWJG3UG
-	 VXiP0pG26UlCVEdLzHNHTXMRd8uf9NfCazxoy3d30j0SSyi4Uf3j7lsvqvU/LAehhLsUw
-	 74EzAUM2DBU76oecmEM1aMnqLdo0asEq5V5+rsi4cQwPMMJ2m9N0meiMXLGjHakv8ZQ==
+	bh=47OIPdlKA7fDbYUH7/n8Mmc6p4KNvnwGAlX9pqcpvMU=;
+	b=aC7jL6JF4r1pzQTRDS7vZxGUlj1hjC9MoGMvjGIhwtxiBcnUMlnyjYqYMD3Ic4a37K0v
+	 pbtWGlYfOI55eJL0B9RSCFpQE8oSfJ/VzmTW2uVYasBMI/HJXt2/3gS3fMVVFnm9WSClt
+	 oeaQjQ34lbhQR9texIWFo+bSBWKMgwCYuivC+60IanDG5sIGeNxtPZp7Zs8oSc3dXDt/P
+	 vz6lfJ/2oG/Jmr0aggVgZFJE9nXIDV1rykZWl2kw36vmPPfs3wJidpGP5fbbxgigTJ5Fq
+	 c2plhSAXgGCJK6b/EU/JtST5lL5Aq8LTAZXkG0KBSqYecxLAdZ68zV56dpledgVDZlA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y+EX8KNK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=niovuZtX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3704C606A33F
-	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 03:14:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53B9B606A6A9
+	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 03:15:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y+EX8KNK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9BCB1F000C4;
-	Sat, 21 Nov 2026 03:14:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=niovuZtX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7B371F000C0;
+	Sat, 21 Nov 2026 03:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795230850;
-	bh=bGuoSobjJJHhadNnOeAyU8G32ROMq2iT1dSMwS406Cg=;
+	s=k20260515; t=1795230935;
+	bh=47OIPdlKA7fDbYUH7/n8Mmc6p4KNvnwGAlX9pqcpvMU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Y+EX8KNKlLAn8emaPM+LxPH8Aw5MtRfSDXOZC0jMEGJGztgWE1NOlX3izSImUnjYh
-	 shdwf96AoBMtwJG8X0hBfFqusvBsAXg5cePh2aer+LaK+nzpiPSx/AHXvP3Eu93ZA8
-	 2YHqnKQQ1prKMZ9FqUZyJHOKJeWZqvSvBVnk1biHTK5JArVuMR/ShT+AGP+0a8B/z9
-	 leJdh4linDHeK9sbvgVuf1J+xV0/WtJBVzaHtQVbJQT6DZdI8HAdtCB20RTroqoLNz
-	 6hNoxDb5QCUMsPFj7YYfD+O26y3X7yH1ckFeEwgc6xiyf5wV0TnovIID7NrIGfwX8Z
-	 HJmZt73zKuHFg==
-Message-ID: <sashiko-outbox-226563@kernel.org>
+	b=niovuZtXBIUlZGSokFT+06yMN2ObinR7b+zEW+aVIUzpry+mbCvg0xTJUgIJOG67J
+	 2vnQVPwaXdVBYW7Pz8DuJ1ouCqSKrviRHzeIFdEGGIkuADBZu/ihYxTc+fqg6PwrYV
+	 oYLNaPukXmYw8DFegZEDi0s6U0UY9fr2w/Y2ySr1lK2BCAkQ+7eLmQFkeBB9Br8yzM
+	 aXRnzPuWhQxgItzaNnlJz11Lhk+VxvwZVjKeE9rIjJQaTpvKLtoXCsZ/Lc0h71cINS
+	 Mdicm5Nm7ibgDmEUwZpQOVlT3d3h0KcBedS6KI/91N+ErjKHX4pFTVXEKla8gBWsdT
+	 j61qQntmBdVYg==
+Message-ID: <sashiko-outbox-226565@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 3/6] media: virtio: Add extended controls support
+Subject: Re: [PATCH v12 2/6] media: virtio: Add V4L2 ioctl forwarding
+ infrastructure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Brian Daniels" <briandaniels@google.com>
 Cc: virtualization@lists.linux.dev, media-ci@linuxtv.org, "Michael S.
  Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261121025007.3445723-4-briandaniels@google.com>
+In-Reply-To: <20261121025007.3445723-3-briandaniels@google.com>
 References: <20261121025007.3445723-1-briandaniels@google.com>
- <20261121025007.3445723-4-briandaniels@google.com>
+ <20261121025007.3445723-3-briandaniels@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 21 Nov 2026 03:14:09 +0000
+Date: Sat, 21 Nov 2026 03:15:35 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,460 +62,280 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 10 potential
+Thank you for your contribution! Sashiko AI review found 5 potential
 issues to consider:
-- [High] media: virtio: two-argument calls to vb2_destroy_framevec()
-  break build
-- [High] media: virtio: framevecs array leak in
-  scatterlist_builder_free_framevecs()
-- [High] media: virtio: framevec and pinned page leaks on ext_ctrls
-  error paths
 - [High] media: virtio: stack buffers mapped for DMA in
   scatterlist_builder_add_data()
-- [Medium] media: virtio: gfp_mask =3D 0 passed to
-  sg_alloc_table_from_pages()
-- [Medium] media: virtio: ctrls->count checked before shadow copy and
-  not restored
-- [Medium] media: virtio: sgs index passed as desc_index in ext_ctrls
-  response
-- [Medium] media: virtio: wrong errno in
-  __scatterlist_builder_add_userptr()
-- [Low] media: virtio: missing @num_framevecs kernel-doc in
-  scatterlist_builder
-- [Low] media: virtio: missing endian conversions for
-  virtio_media_sg_entry
+- [High] media: virtio: V4L2 core and remove race bypass in
+  virtio_media_device_ioctl()
+- [Medium] media: virtio: const discard in
+  scatterlist_builder_retrieve_data() on ppc64le
+- [Medium] media: virtio: missing NUL-termination of card in
+  virtio_media_querycap()
+- [Medium] media: virtio: uninitialized stack payload in
+  virtio_media_g_input()
 --
 
-commit 27e06a79a3e678981f79713cac25fd1f43109084
+commit 2bb3f66c322d534b371d016a0dfc9daa0878344f
 Author: Alexandre Courbot <gnurou@gmail.com>
 
-media: virtio: Add extended controls support
+media: virtio: Add V4L2 ioctl forwarding infrastructure
 
-This commit adds support for the VIDIOC_G_EXT_CTRLS, VIDIOC_S_EXT_CTRLS,
-and VIDIOC_TRY_EXT_CTRLS ioctls by pinning userspace control payloads with
-frame vectors and passing their physical segments to the host via the
-session shadow buffer.
+This commit introduces a scatterlist builder and synchronous V4L2 ioctl
+forwarding via VIRTIO_MEDIA_CMD_IOCTL, along with handlers for
+VIDIOC_QUERYCAP and fixed-size V4L2 ioctls.
 
 > diff --git a/drivers/media/virtio/scatterlist_builder.c b/drivers/media/v=
 irtio/scatterlist_builder.c
-> index ae8ffee82fa6e..631c7b13c438c 100644
-> --- a/drivers/media/virtio/scatterlist_builder.c
+> new file mode 100644
+> index 0000000000000..ae8ffee82fa6e
+> --- /dev/null
 > +++ b/drivers/media/virtio/scatterlist_builder.c
-> @@ -220,3 +220,305 @@ int scatterlist_builder_add_ioctl_resp(struct scatt=
-erlist_builder *builder,
->  	return scatterlist_builder_add_data(builder, resp_ioctl,
->  					    sizeof(*resp_ioctl));
->  }
-> +
-> +/**
-> + * __scatterlist_builder_add_userptr() - Add user pages to @builder.
-> + * @builder: builder to use.
-> + * @userptr: pointer to userspace memory that we want to add.
-> + * @length: length of the data to add.
-> + * @sg_list: output parameter. Upon success, points to the area of the s=
-hadow
-> + *           buffer containing the array of SG entries to be added to the
-> + *           descriptor chain.
-> + * @nents: output parameter. Upon success, contains the number of entries
-> + *         pointed to by @sg_list.
-> + *
-> + * Data referenced by userspace pointers can be potentially large and ve=
-ry
-> + * scattered, which could overwhelm the descriptor chain if added as-is.=
- For
-> + * these, we instead build an array of &struct virtio_media_sg_entry in =
-the
-> + * shadow buffer and reference it using a single descriptor.
-> + *
-> + * This function is a helper to perform that. Callers should then add the
-> + * descriptor to the chain properly.
-> + *
-> + * Returns %-EFAULT if @userptr is not a valid user address, which is a =
-case the
-> + * driver should consider as "normal" operation. All other failures sign=
-al a
-> + * problem with the driver.
-> + */
-> +static int
-> +__scatterlist_builder_add_userptr(struct scatterlist_builder *builder,
-> +				  unsigned long userptr, unsigned long length,
-> +				  struct virtio_media_sg_entry **sg_list,
-> +				  int *nents)
-> +{
-> +	struct sg_table sg_table =3D {};
-> +	struct frame_vector *framevec;
-> +	struct scatterlist *sg_iter;
-> +	struct page **pages;
-> +	const unsigned int offset =3D userptr & ~PAGE_MASK;
-> +	unsigned int pages_count;
-> +	size_t entries_size;
-> +	size_t initial_cur_framevec =3D builder->cur_framevec;
-> +	int i;
-> +	int ret;
-> +
-> +	if (builder->cur_framevec >=3D builder->num_framevecs) {
-> +		pr_err("Ran out of framevecs (%zu/%zu)", builder->cur_framevec,
-> +		       builder->num_framevecs);
-> +		ret =3D -ENOMEM;
-> +	}
-> +
-> +	framevec =3D vb2_create_framevec(userptr, length, true);
-> +	if (IS_ERR(framevec)) {
-> +		if (PTR_ERR(framevec) !=3D -EFAULT) {
-> +			pr_warn("error %ld creating frame vector for userptr 0x%lx, length 0x=
-%lx\n",
-> +				PTR_ERR(framevec), userptr, length);
-> +		} else {
-> +			/* -EINVAL is expected in case of invalid userptr. */
-> +			framevec =3D ERR_PTR(-EINVAL);
-> +		}
-> +		return PTR_ERR(framevec);
-> +	}
-
-[Severity: Medium]
-Should this preserve -EFAULT instead of converting it to -EINVAL?
-
-For extended controls with userspace payload pointers ( unlike
-V4L2_MEMORY_USERPTR buffer queueing), the V4L2 UAPI and the kernel-doc
-above both specify -EFAULT when a control's userspace address is invalid.
-
-> +
-> +	pages =3D frame_vector_pages(framevec);
-> +	if (IS_ERR(pages)) {
-> +		pr_warn("error getting vector pages\n");
-> +		ret =3D PTR_ERR(pages);
-> +		goto free_framevec;
-> +	}
-> +	pages_count =3D frame_vector_count(framevec);
-> +	ret =3D sg_alloc_table_from_pages(&sg_table, pages, pages_count, offset,
-> +					length, 0);
-
-[Severity: Medium]
-Should the gfp_mask argument to sg_alloc_table_from_pages() be GFP_KERNEL
-instead of 0?  Passing 0 clears all reclaim flags, so scatterlist
-allocation in sleepable ioctl context cannot reclaim memory under pressure.
-
-> +	if (ret) {
-> +		pr_warn("error creating sg table\n");
-> +		goto free_framevec;
-> +	}
-> +
-> +	/* Allocate our actual SG in the shadow buffer. */
-> +	*nents =3D sg_nents(sg_table.sgl);
-> +	entries_size =3D sizeof(**sg_list) * *nents;
-> +	if (builder->shadow_buffer_pos + entries_size >
-> +	    builder->shadow_buffer_size) {
-> +		ret =3D -ENOMEM;
-> +		goto free_sg;
-> +	}
-> +
-> +	*sg_list =3D builder->shadow_buffer + builder->shadow_buffer_pos;
-> +	builder->shadow_buffer_pos +=3D entries_size;
-> +
-> +	for_each_sgtable_sg(&sg_table, sg_iter, i) {
-> +		struct virtio_media_sg_entry *sg_entry =3D &(*sg_list)[i];
-> +
-> +		sg_entry->start =3D sg_phys(sg_iter);
-> +		sg_entry->len =3D sg_iter->length;
-> +		sg_entry->__reserved =3D 0;
-> +	}
-
-[Severity: Low]
-struct virtio_media_sg_entry declares start as __le64 and len as __le32.
-Should these assignments use cpu_to_le64() and cpu_to_le32() to avoid
-Sparse endianness warnings?
-
-> +
-> +	builder->framevecs[builder->cur_framevec++] =3D framevec;
-> +
-> +free_sg:
-> +	sg_free_table(&sg_table);
-> +free_framevec:
-> +	// Only destroy the framevec if we didn't save it
-> +	if (builder->cur_framevec =3D=3D initial_cur_framevec && framevec)
-> +		vb2_destroy_framevec(framevec, false);
-> +	return ret;
-> +}
-
-[Severity: High]
-Does calling vb2_destroy_framevec() with two arguments break the build?
-
-In include/media/videobuf2-memops.h, vb2_destroy_framevec() takes only a
-single struct frame_vector * argument:
-
-  void vb2_destroy_framevec(struct frame_vector *vec);
-
-Because vb2_destroy_framevec() does not mark pages dirty,
-scatterlist_builder_free_framevecs() also leaves device-modified user pages
-clean when unpinning them unless it iterates over frame_vector_pages(vec)
-and calls set_page_dirty_lock() before destroying the frame vector.
+> @@ -0,0 +1,222 @@
 
 [ ... ]
 
-> +int scatterlist_builder_add_ext_ctrls(struct scatterlist_builder *builde=
-r,
-> +				      struct v4l2_ext_controls *ctrls)
+> +int scatterlist_builder_add_data(struct scatterlist_builder *builder,
+> +				 void *data, size_t len)
 > +{
-> +	int ret;
+> +	const size_t cur_desc =3D builder->cur_desc;
 > +
-> +	/* v4l2_ext_controls */
-> +	ret =3D scatterlist_builder_add_data(builder, ctrls, sizeof(*ctrls));
-> +	if (ret)
-> +		return ret;
+> +	if (len =3D=3D 0)
+> +		return 0;
 > +
-> +	if (ctrls->count > 0) {
-> +		/* array of v4l2_controls */
-> +		ret =3D scatterlist_builder_add_data(builder, ctrls->controls,
-> +						   sizeof(ctrls->controls[0]) *
-> +							   ctrls->count);
-> +		if (ret)
-> +			return ret;
-> +	}
+> +	if (builder->cur_desc >=3D builder->num_descs)
+> +		return -ENOSPC;
+> +
+> +	if (!always_use_shadow_buffer && virt_addr_valid(data) &&
+> +	    virt_addr_valid(data + len)) {
+> +		/*
+> +		 * If "data" is in the 1:1 physical memory mapping then we can
+> +		 * use a single SG entry and avoid copying.
+> +		 */
+> +		struct page *page =3D virt_to_page(data);
+> +		size_t offset =3D (((size_t)data) & ~PAGE_MASK);
+> +		struct scatterlist *next_desc =3D
+> +			&builder->descs[builder->cur_desc];
+> +
+> +		memset(next_desc, 0, sizeof(*next_desc));
+> +		sg_set_page(next_desc, page, len, offset);
+> +		builder->cur_desc++;
+> +	} else if (!always_use_shadow_buffer && is_vmalloc_addr(data)) {
+
+[Severity: High]
+Does scatterlist_builder_add_data() map kernel stack buffers directly into
+scatterlists for DMA instead of bouncing them through the shadow buffer?
+
+Most ioctl payloads passed here live on the kernel stack: video_usercopy()
+uses a 128-byte stack buffer (sbuf) for small ioctls, and handlers such as
+virtio_media_g_input(), virtio_media_s_std(), and
+virtio_media_device_ioctl() pass addresses of local stack variables.
+Because neither branch checks !object_is_on_stack(data), stack buffers
+match virt_addr_valid() when CONFIG_VMAP_STACK=3Dn and is_vmalloc_addr()
+when CONFIG_VMAP_STACK=3Dy.  Mapping stack memory into virtio scatterlists
+violates kernel DMA rules (triggering CONFIG_DMA_API_DEBUG warnings when
+the virtqueue uses the DMA API) and risks corrupting adjacent stack frames
+sharing a cache line on non-coherent DMA platforms while the caller sleeps
+in wait_event().
+
+Also, virt_addr_valid(data + len) checks one byte past the end of the
+buffer instead of data + len - 1.
+
+[ ... ]
+
+> +int scatterlist_builder_retrieve_data(struct scatterlist_builder *builde=
+r,
+> +				      size_t sg_index, void *data)
+> +{
+> +	void *shadow_buf =3D builder->shadow_buffer;
+> +	struct scatterlist *sg;
+> +	void *kaddr;
+> +
+> +	/* We can only retrieve from the range of sgs currently set. */
+> +	if (sg_index >=3D builder->cur_sg)
+> +		return -ERANGE;
+> +
+> +	sg =3D builder->sgs[sg_index];
+> +	kaddr =3D pfn_to_kaddr(page_to_pfn(sg_page(sg))) + sg->offset;
+
+[Severity: Medium]
+Does assigning pfn_to_kaddr() to void *kaddr fail to build on 64-bit
+little-endian PowerPC with CONFIG_WERROR=3Dy?  On PowerPC, pfn_to_kaddr()
+returns const void *, so this assignment triggers -Wdiscarded-qualifiers.
+Using sg_virt(sg) avoids the qualifier mismatch.
+
+> diff --git a/drivers/media/virtio/virtio_media_ioctls.c b/drivers/media/v=
+irtio/virtio_media_ioctls.c
+> new file mode 100644
+> index 0000000000000..e92032bce7dbe
+> --- /dev/null
+> +++ b/drivers/media/virtio/virtio_media_ioctls.c
+> @@ -0,0 +1,606 @@
+
+[ ... ]
+
+> +static int virtio_media_querycap(struct file *file, void *fh,
+> +				 struct v4l2_capability *cap)
+> +{
+> +	struct video_device *video_dev =3D video_devdata(file);
+> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
+> +
+> +	strscpy(cap->bus_info, "platform:virtio-media");
+> +	strscpy(cap->driver, VIRTIO_MEDIA_DEFAULT_DRIVER_NAME);
+> +
+> +	virtio_cread_bytes(vv->virtio_dev, 8, cap->card, sizeof(cap->card));
+> +
+> +	cap->capabilities =3D video_dev->device_caps | V4L2_CAP_DEVICE_CAPS;
+> +	cap->device_caps =3D video_dev->device_caps;
 > +
 > +	return 0;
 > +}
 
-[Severity: High]
-Does passing ctrls to scatterlist_builder_add_data() map kernel stack
-memory directly for DMA?
+[Severity: Medium]
+Can virtio_media_querycap() return a non-NUL-terminated cap->card string to
+userspace?
 
-video_usercopy() places struct v4l2_ext_controls in its stack buffer sbuf
-(and v4l_g_ctrl() / v4l_s_ctrl() allocate both struct v4l2_ext_controls and
-struct v4l2_ext_control on the stack).  When always_use_shadow_buffer is
-false, scatterlist_builder_add_data() checks virt_addr_valid() or
-is_vmalloc_addr() without checking !object_is_on_stack(data), mapping stack
-pages directly into the request and device-writable response scatterlists
-instead of copying through the shadow buffer.
+In include/uapi/linux/virtio_media.h, struct virtio_media_config documents
+that its 32-byte card field does not need to be NUL-terminated when all
+characters are used, whereas V4L2 requires v4l2_capability.card to always
+be NUL-terminated.  Ensuring cap->card[sizeof(cap->card) - 1] =3D '\0' (and
+using offsetof(struct virtio_media_config, card) instead of the hardcoded
+8) would prevent unterminated strings from reaching userspace.
 
-[ ... ]
-
-> +void
-> +scatterlist_builder_free_framevecs(struct scatterlist_builder *builder)
-> +{
-> +	if (builder->cur_framevec && builder->framevecs) {
-> +		struct frame_vector *vec;
 > +
-> +		while (builder->cur_framevec--) {
-> +			vec =3D builder->framevecs[builder->cur_framevec];
-> +			vb2_destroy_framevec(vec, true);
-> +		}
-> +
-> +		kfree(builder->framevecs);
-> +	}
-> +
-> +	builder->framevecs =3D NULL;
-> +	builder->num_framevecs =3D 0;
-> +	builder->cur_framevec =3D 0;
-> +}
-
-[Severity: High]
-Does scatterlist_builder_free_framevecs() leak builder->framevecs when
-builder->cur_framevec is 0?
-
-scatterlist_builder_allocate_framevecs() allocates builder->framevecs
-whenever any control has ctrl->size > 0.  If an error occurs before the
-first framevec is pinned (for example, vb2_create_framevec() fails on the
-first control's userptr), builder->cur_framevec is still 0, so
-kfree(builder->framevecs) is skipped before builder->framevecs is set to
-NULL.
-
-> diff --git a/drivers/media/virtio/scatterlist_builder.h b/drivers/media/v=
-irtio/scatterlist_builder.h
-> index 044ea409acdb1..bced1e0301402 100644
-> --- a/drivers/media/virtio/scatterlist_builder.h
-> +++ b/drivers/media/virtio/scatterlist_builder.h
-> @@ -25,6 +25,11 @@
->   * @sgs: descriptor chain to eventually pass to virtio functions.
->   * @num_sgs: total number of entries in @sgs.
->   * @cur_sg: next entry in @sgs to be used.
-> + * @framevecs: Array of *struct frame_vector that is allocated to keep u=
-ser
-> + *             pages pinned until after a response is received. It is al=
-located
-> + *             in scatterlist_builder_add_ext_ctrls_userptrs() and freed=
- in
-> + *             scatterlist_builder_retrieve_ext_ctrls().
-> + * @cur_framevec: next entry in @framevecs to be used.
-
-[Severity: Low]
-This kernel-doc comment is missing an entry for @num_framevecs (which
-triggers a W=3D1 kernel-doc warning), and @framevecs is allocated in
-scatterlist_builder_allocate_framevecs() and freed in
-scatterlist_builder_free_framevecs().
-
-> diff --git a/drivers/media/virtio/virtio_media_ioctls.c b/drivers/media/v=
-irtio/virtio_media_ioctls.c
-> index e92032bce7dbe..d0ea743e793bd 100644
-> --- a/drivers/media/virtio/virtio_media_ioctls.c
-> +++ b/drivers/media/virtio/virtio_media_ioctls.c
-> @@ -215,6 +221,130 @@ static int virtio_media_send_wr_ioctl(struct v4l2_f=
-h *fh, u32 ioctl,
->  	return 0;
->  }
-> =20
-> +/**
-> + * virtio_media_send_ext_controls_ioctl() - Send an ioctl taking extended
-> + * controls as parameters to the device.
-> + * @fh: file handler of the session doing the ioctl.
-> + * @ioctl: ``VIDIOC_*`` ioctl code.
-> + * @ctrls: &struct v4l2_ext_controls to be sent as the ioctl payload.
-> + *
-> + * Queues an ioctl that sends a &struct v4l2_ext_controls to the host and
-> + * receives an updated version.
-> + *
-> + * &struct v4l2_ext_controls has a pointer to an array of
-> + * &struct v4l2_ext_control, and also potentially pointers to user-space=
- memory
-> + * that we need to map properly, hence the dedicated function.
+> +/*
+> + * s/g_input/output work with an unsigned int - recast this to a u32 so =
+the
+> + * size is unambiguous.
 > + */
-> +static int virtio_media_send_ext_controls_ioctl(struct v4l2_fh *fh, u32 =
-ioctl,
-> +						struct v4l2_ext_controls *ctrls)
+> +
+> +static int virtio_media_g_input(struct file *file, void *fh, unsigned in=
+t *i)
 > +{
-> +	struct video_device *video_dev =3D fh->vdev;
-> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
-> +	struct virtio_media_session *session =3D fh_to_session(fh);
-> +	size_t num_cmd_sgs;
-> +	size_t end_ctrls_sg;
-> +	struct v4l2_ext_control *controls_backup =3D ctrls->controls;
-> +	const u32 num_ctrls =3D ctrls->count;
-> +	struct scatterlist *sgs[64];
-> +	struct scatterlist_builder builder =3D {
-> +		.descs =3D session->command_sgs.sgl,
-> +		.num_descs =3D DESC_CHAIN_MAX_LEN,
-> +		.cur_desc =3D 0,
-> +		.shadow_buffer =3D session->shadow_buf,
-> +		.shadow_buffer_size =3D VIRTIO_SHADOW_BUF_SIZE,
-> +		.shadow_buffer_pos =3D 0,
-> +		.sgs =3D sgs,
-> +		.num_sgs =3D ARRAY_SIZE(sgs),
-> +		.cur_sg =3D 0,
-> +		.framevecs =3D NULL,
-> +		.cur_framevec =3D 0,
-> +	};
-> +	size_t resp_len =3D 0;
-> +	int i;
+> +	u32 input;
 > +
-> +	int ret =3D scatterlist_builder_allocate_framevecs(&builder, ctrls);
-> +
+> +	int ret =3D virtio_media_send_r_ioctl(file_to_v4l2_fh(file),
+> +					 VIDIOC_G_INPUT, &input,
+> +					 sizeof(input));
 > +	if (ret)
 > +		return ret;
 > +
-> +	/* Command descriptor */
-> +	ret =3D scatterlist_builder_add_ioctl_cmd(&builder, session, ioctl);
+> +	*i =3D input;
 > +
-> +	if (ret)
-> +		goto free_framevecs;
-> +
-> +	/* v4l2_controls */
-> +	ret =3D scatterlist_builder_add_ext_ctrls(&builder, ctrls);
-> +	if (ret)
-> +		goto free_framevecs;
-> +
-> +	end_ctrls_sg =3D builder.cur_sg;
-> +
-> +	ret =3D scatterlist_builder_add_ext_ctrls_userptrs(&builder, ctrls);
-> +	if (ret)
-> +		goto free_framevecs;
-> +
-> +	num_cmd_sgs =3D builder.cur_sg;
-> +
-> +	/* Response descriptor */
-> +	ret =3D scatterlist_builder_add_ioctl_resp(&builder, session);
-> +	if (ret)
-> +		goto free_framevecs;
-> +
-> +	/* Response payload (same as input but without userptrs) */
-> +	for (i =3D 1; i < end_ctrls_sg; i++) {
-> +		ret =3D scatterlist_builder_add_descriptor(&builder, i);
-> +		if (ret < 0)
-> +			goto free_framevecs;
-> +	}
+> +	return 0;
+> +}
 
 [Severity: Medium]
-Can passing the builder.sgs[] index i as desc_index to
-scatterlist_builder_add_descriptor() point the response chain at the wrong
-descriptors?
+Can virtio_media_g_input() and virtio_media_g_output() copy uninitialized
+kernel stack memory into the DMA shadow buffer or back to userspace?
 
-When a vmalloc-backed payload (such as a large ctrls->controls array
-allocated via kvmalloc() in video_usercopy()) spans non-contiguous pages,
-scatterlist_builder_add_data() advances builder->cur_desc for each page seg=
-ment
-while adding only one entry to builder->sgs[].  Because end_ctrls_sg is
-taken from builder.cur_sg, indexing builder->descs[i] does not match
-builder->sgs[i] once any earlier entry uses more than one descriptor.
+Both functions leave their local u32 variable uninitialized before calling
+virtio_media_send_r_ioctl() -> scatterlist_builder_add_data().  When the
+shadow buffer path is used, scatterlist_builder_add_data() unconditionally
+runs memcpy(shadow_buffer, data, len) even for _IOR response buffers,
+copying the uninitialized stack value into session->shadow_buf, and if the
+host does not overwrite the buffer (or returns a status with bit 31 set,
+which virtio_media_kick_command() negates as unsigned __le32 into a
+positive value that virtio_media_send_command() treats as success), that
+uninitialized value is returned to userspace.
 
+[ ... ]
+
+> +long virtio_media_device_ioctl(struct file *file, unsigned int cmd,
+> +			       unsigned long arg)
+> +{
+> +	struct video_device *video_dev =3D video_devdata(file);
+> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
+> +	struct v4l2_fh *vfh =3D NULL;
+> +	struct v4l2_standard standard;
+> +	v4l2_std_id std_id =3D 0;
+> +	int ret;
 > +
-> +	ret =3D virtio_media_send_command(vv, builder.sgs, num_cmd_sgs,
-> +					builder.cur_sg - num_cmd_sgs,
-> +					sizeof(struct virtio_media_resp_ioctl) +
-> +					sizeof(*ctrls),
-> +					&resp_len);
+> +	if (test_bit(V4L2_FL_USES_V4L2_FH, &video_dev->flags))
+> +		vfh =3D file_to_v4l2_fh(file);
 > +
-> +	/* Just in case the host touched these. */
-> +	ctrls->controls =3D controls_backup;
-> +	if (ctrls->count !=3D num_ctrls) {
-> +		v4l2_err(&vv->v4l2_dev,
-> +			 "device returned a number of controls different than the one submitt=
-ed\n");
-> +	}
-> +	if (ctrls->count > num_ctrls)
-> +		return -ENOSPC;
-> +	if (ret < 0) {
-> +		/*
-> +		 * Even if we have received an error, we may need to read our
-> +		 * payloadback.
-> +		 */
-> +		if (resp_len >=3D sizeof(struct virtio_media_resp_ioctl) +
-> +		    sizeof(*ctrls)) {
-> +			/*
-> +			 * Deliberately ignore the error here as we want to
-> +			 * return the previous one.
-> +			 */
-> +			scatterlist_builder_retrieve_ext_ctrls(&builder,
-> +							       num_cmd_sgs + 1,
-> +							       ctrls);
+> +	mutex_lock(&vv->vlock);
+> +
+> +	/*
+> +	 * We need to handle a few ioctls manually because their results
+> +	 * rely on vfd->tvnorms, which is normally updated by the driver
+> +	 * as S_INPUT is called. Since we want to just pass these ioctls
+> +	 * through, we have to hijack them from here.
+> +	 */
+> +	switch (cmd) {
+> +	case VIDIOC_S_STD:
+> +		ret =3D copy_from_user(&std_id, (void __user *)arg,
+> +				     sizeof(std_id));
+> +		if (ret) {
+> +			ret =3D -EFAULT;
+> +			break;
 > +		}
-> +
-> +		goto free_framevecs;
+> +		ret =3D virtio_media_s_std(file, vfh, std_id);
+> +		break;
+> +	case VIDIOC_ENUMSTD:
+> +		ret =3D copy_from_user(&standard, (void __user *)arg,
+> +				     sizeof(standard));
+> +		if (ret) {
+> +			ret =3D -EFAULT;
+> +			break;
+> +		}
+> +		ret =3D virtio_media_enumstd(file, vfh, &standard);
+> +		if (ret)
+> +			break;
+> +		ret =3D copy_to_user((void __user *)arg, &standard,
+> +				   sizeof(standard));
+> +		if (ret)
+> +			ret =3D -EFAULT;
+> +		break;
+> +	case VIDIOC_QUERYSTD:
+> +		ret =3D virtio_media_querystd(file, vfh, &std_id);
+> +		if (ret)
+> +			break;
+> +		ret =3D copy_to_user((void __user *)arg, &std_id, sizeof(std_id));
+> +		if (ret)
+> +			ret =3D -EFAULT;
+> +		break;
+> +	default:
+> +		ret =3D video_ioctl2(file, cmd, arg);
+> +		break;
 > +	}
 > +
-> +	resp_len -=3D sizeof(struct virtio_media_resp_ioctl);
+> +	mutex_unlock(&vv->vlock);
 > +
-> +	/* Make sure that the reply's length covers our v4l2_ext_controls */
-> +	if (resp_len < sizeof(*ctrls))
-> +		return -EINVAL;
+> +	return ret;
+> +}
 
 [Severity: High]
-Do the early returns on ctrls->count > num_ctrls and
-resp_len < sizeof(*ctrls) leak builder.framevecs and leave userspace pages
-permanently pinned?
+Can intercepting VIDIOC_S_STD, VIDIOC_ENUMSTD, and VIDIOC_QUERYSTD before
+video_ioctl2() cause a use-after-free or NULL pointer dereference when
+racing with virtio_media_remove()?
 
-Both paths return directly instead of jumping to free_framevecs.  In
-addition, in __scatterlist_builder_add_userptr(), the bounds check
-if (builder->cur_framevec >=3D builder->num_framevecs) sets ret =3D -ENOMEM
-without returning, falling through to pin the pages and write past the end
-of builder->framevecs.
+CPU0                                  CPU1
+v4l2_ioctl()
+  video_is_registered(vdev) -> true
+  virtio_media_device_ioctl()
+                                      virtio_media_remove()
+                                        video_unregister_device()
+                                        mutex_lock(&vv->vlock)
+                                        virtio_dev->config->del_vqs()
+                                        mutex_unlock(&vv->vlock)
+                                        virtio_media_session_free(s)
+    mutex_lock(&vv->vlock)
+    virtio_media_querystd()
+      virtio_media_send_r_ioctl()     <-- NULL fh->vdev / UAF on session
+                                          and deleted commandq
 
-> +
-> +	ret =3D scatterlist_builder_retrieve_ext_ctrls(&builder, num_cmd_sgs + =
-1,
-> +						     ctrls);
+Unlike __video_do_ioctl(), which re-checks video_is_registered() after
+taking the lock, these manual cases proceed directly into the handlers
+after virtio_media_remove() has deleted vv->commandq and freed the
+sessions.
 
-[Severity: Medium]
-Isn't ctrls->count validated before scatterlist_builder_retrieve_ext_ctrls()
-copies the shadow buffer back into *ctrls, and left un-restored if the host
-increases it?
-
-When ctrls goes through the shadow buffer, ctrls->count still holds the
-pre-command value during the check above and is only overwritten by the
-device response here (and on the error path above).  Furthermore, if the
-device sets ctrls->count > num_ctrls and it is not clamped back to
-num_ctrls, V4L2 core post-processing (which runs even on error because
-VIDIOC_G/S/TRY_EXT_CTRLS have INFO_FL_ALWAYS_COPY) will read past the end
-of the num_ctrls-sized ctrls->controls buffer in
-v4l2_compat_put_array_args() and v4l_print_ext_controls().
+Bypassing video_ioctl2() here also skips 32-bit compat translation for
+VIDIOC_ENUMSTD32 (so 32-bit compat callers fall through to default and
+fail because video_dev->tvnorms is 0), skips is_valid_ioctl() and
+v4l2_prio_check() on VIDIOC_S_STD, and does not zero the output fields of
+struct v4l2_standard after index on VIDIOC_ENUMSTD.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261121025007.3445=
-723-1-briandaniels@google.com?part=3D3
+723-1-briandaniels@google.com?part=3D2
