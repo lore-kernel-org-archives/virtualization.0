@@ -1,62 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795285970;
-	b=D4xHndgBbeBdcvv+qYzyAIbfw2YZLvUsU8FM7n/ysoXOtRpk3l1j4tLVf0pqImu4Dq6u
-	 KNnYLchazZOLYwdAIdSL5z5v+53KhU/y4Iw9qFZh883DwkbCthugsFbHO+ufiFdgdSiFV
-	 045B0I3L+TWtb66cNYaL9Bq642VE/Y8K6m+2+y67OO0aP0OhQVa7t5fuZAVvxU+4Ap7Lv
-	 w+xxovuLm3wystYxQls86XsDRO7GlBR+nTlVdj7wL/tXq5Hz2ssdZCpvVqsVo6mNZAvd4
-	 uv7QDINYXKtA7xW0I7sakD5pBk3ohYKaU1rHkylzkdUpys+BKwY/NxMdPOprNJMJMQA==
+	t=1795304244;
+	b=PpmguAqeVFFiYT5XPOWxfpTe7HgRZpoJUWRGDyF8XXvhG/ZnWVXYrU9cX+k/FXEdOuvU
+	 aj9bCMpeOWQVOD98Re8c/w7eu5OXzYDvPKv8KvHnsYHi0iUhwlabN87ykJPhL2QHv4lGZ
+	 1KbOSaiXQtT35coQpR1zbAr3gCtwemyrjz7LGNj5lPSYxtf3rBf/yifDCUP3LBpXx5Ind
+	 7/6AQZXsXWVJTB63JazJTaIfr8cChstmU0kA133qKyVxPdyXyHyWZGzWv1tHJwmi56jrJ
+	 Qfj3IxYrcEPAiaRXlVopx2Xnaa2KG7IVIAsPDg32f1a2hFSVjC79OAAaI1L6EEBvsrw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795285970;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:From:Subject:To:Cc:References:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=fzDF0mKpBuN/Th1s2Wo0lqYfX3U1baz/HyUNpPlSrLo=;
-	b=w5AxJqHozSSramxXsRXBONabfP0Ggp7gY1W+ny8oNjWxkDQBQ3BBJ6EeWkAnoDojX47O
-	 T4pkYckq5vhf0hyEFRaQYGA2ySj4cH2iqNWJQ4llWljO8i7SneYRfSbMhohoX9esCuIzw
-	 oL4onZk5gkETKC85IwyvPZ95FLYtjM2alAph0DqwyECVTsp7ImMDq7DlCntRrXg3pwuxI
-	 cd1mptc3VkubRxgdl35kCvCrvs+pdehyLstuxlF/zBGv6rxk+ux4XvpTREFg601OsPq8H
-	 TD4ppOpmeqM4Ioa/x2b+whVrpFRru9f2Yi3I9DhIPRQuQ7ZQXaEagMFbTwlwMetS6Pg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795304244;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=4KPjgcwe8LG/IWwYnJ9R321g+N2W83kSLrvRS4eTumE=;
+	b=B/ZGA8TVqZVrqGSliT6409/V1J/O5S9SnVySq79CJO8HNpBnSsYk13YnWOEbV3mroRPf
+	 +qZyF35O4gJNr4oASe7pYtrQssz9vjo8garNuneNhZG7R4uVC4iaWe4OX1ALsVTkrhA6Y
+	 NSsZQOWBG1Bg3lffEZWBM78KAVDfcRv1uVJr1LBOEd2M8zeGfgdwrWSDJRCVHdVxfrcXh
+	 SQ+A5IGhpOaXOgG1ZmK5UV6JpZVf6V1SAlqa5QtoNJtHXusZGgHQVRGdd1gsyf0fLNVOW
+	 jkJuCV0ZmS4qUfWiENz94yK2ioeePLzHY4Kc6W5DDPDr9G5169CAbSNCGMMY4djU1Lw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rbox.co;
-	spf=pass smtp.mailfrom=rbox.co;
-	dkim=pass header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=EFDz5rbI;
-	arc=none smtp.remote-ip=185.226.149.38
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UIHFr5AC;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A1EE606A32A
-	for <virtualization@lists.linux.dev>; Sat, 21 Nov 2026 18:32:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2A1EE606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0E7606A320;
+	Sat, 21 Nov 2026 23:37:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=EFDz5rbI
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1xUpsz-00GOGa-3H; Sat, 21 Nov 2026 19:32:29 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
-	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=fzDF0mKpBuN/Th1s2Wo0lqYfX3U1baz/HyUNpPlSrLo=; b=EFDz5rbIH+g3Jvyr3pCaQMqHvE
-	Kn/I9edyG1N0gh5sRV+4prgaDrHW/9+1lUDXxvyw/13jqjpFKvgxcqAMweZwnByS4RMV/o+YmAxQl
-	6m1qvQ/BP9jBipOxsU6AOHP4NkXDcuP+WNbqTZTJQMn7uETD2PV0XIRY+TKI1H1tKQARJGofrDay3
-	TUlOSDev30eao2yDOE5oq9wwsqAiUtu45EwgFDXBdvmbPOP2BDJEV+caWeLftroGEFQCrfhpLT7RS
-	eyYTNmAOXOD8xIpjrD3IW99ugwP4DiGGx/rCO4XZSCw9Ugl/6CZZ6oloY5zkl3cZfplw4DgVAZdQH
-	psjNF2ZA==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1xUpst-000056-As; Sat, 21 Nov 2026 19:32:23 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.95)
-	id 1xUpsr-0001IN-15;
-	Sat, 21 Nov 2026 19:32:21 +0100
-Message-ID: <ed28d36a-682e-4db5-abf4-1339734e7c57@rbox.co>
-Date: Sat, 21 Nov 2026 19:32:15 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UIHFr5AC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D120F1F000C0;
+	Sat, 21 Nov 2026 23:37:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795304244;
+	bh=4KPjgcwe8LG/IWwYnJ9R321g+N2W83kSLrvRS4eTumE=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=UIHFr5AC4HfoRTZvYJgLLAXJkU+5szVCiBbgx9r4K+94+Ds+B7yjso9fJ6UxO9NEr
+	 i5E2H7b/vZ1qERmmoa2esSnQLSm9XliE1WV6fGDRyvy6hzITvZxlT8AsyjJQXPmc/a
+	 ZJx7+Eama47+yuYIMr55ujcUBhgADMCMspwjvc+DsKoccgSTuuliBQH5IigyvvFSyP
+	 fOBupnfZfSSAVhdYk3lz/hjOu4fShjlZwLjJfRDk9iUPQcyJkIqI1xqAuxfd3W5QSf
+	 d6BPPlDUMUaWFgzb9j86AgUgrQZ3a0Z4in29ek7BKLimqDv2FuVA2OwlS4J6ZkJn1N
+	 48y3O526nAozA==
+Subject: Re: [PATCH net v7] tun: bound the NAPI receive queue
+From: netdev-bot+sashiko@kernel.org
+To: antonio@mandelbit.com
+Cc: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@kernel.org,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
+ eperezma@redhat.com, ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+ john.fastabend@gmail.com, sdf@fomichev.me, maheshb@google.com,
+ peterpenkov96@gmail.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, bpf@vger.kernel.org
+Date: Sat, 21 Nov 2026 23:37:22 +0000
+Message-ID: <179530424233.3135.6226986969775563090@kernel.org>
+In-Reply-To: <20261119153056.353156-1-antonio@mandelbit.com>
+References: <20261119153056.353156-1-antonio@mandelbit.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,98 +66,141 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Michal Luczaj <mhal@rbox.co>
-Subject: Re: [PATCH net v2] vsock: only undo SS_CONNECTING when connect()
- fails
-To: Bobby Eshleman <bobbyeshleman@meta.com>,
- Stefano Garzarella <sgarzare@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, George Zhang <georgezhang@vmware.com>,
- Andy King <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, Kyle Zeng <kylebot@openai.com>
-References: <20261117-vsock-connect-close-v2-1-db5388323770@meta.com>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <20261117-vsock-connect-close-v2-1-db5388323770@meta.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 11/18/26 02:34, Bobby Eshleman wrote:
-> vsock_connect() sleeps with the socket unlocked. Meanwhile the transport
-> can complete the handshake, setting sock->state to SS_CONNECTED, and then
-> reset the connection, e.g. in vhost_vsock_reset_orphans(),
-> virtio_vsock_reset_sock() or vmci_transport_handle_detach(). When
-> connect() gets the lock back, it finds sk_err set and moves the socket
-> back to SS_UNCONNECTED. Userspace can then connect() the socket again,
-> and a connect() to a CID on another transport makes
-> vsock_assign_transport() release the transport the socket was connected
-> on.
-> 
-> Only move the socket back to SS_UNCONNECTED if it is still
-> SS_CONNECTING. A socket that got connected stays SS_CONNECTED, and
-> another connect() fails with -EISCONN.
-> 
-> Likewise, only move sk_state to TCP_CLOSE if it is still TCP_SYN_SENT.
-> Otherwise a second thread blocked in connect() on the same socket can
-> time out after the first one failed and called listen(), and overwrite
-> TCP_LISTEN.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider.
 
-Ohh, this took me a while.
+Critical: 0 · High: 1 · Medium: 1 · Low: 0
 
-> +/* Avoid breaking the socket when another thread has changed its state while
-> + * we were asleep.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [High] Bounding the IFF_NAPI queue by packet count only
+  (net_hotdata.max_backlog skbs per tun_file, ignoring size) does not…
+- [Medium] The patch silently changes behaviour for IFF_NAPI users who
+  set a finite send buffer with TUNSETSNDBUF, and the commit message…
+
+--
+
+tun: bound the NAPI receive queue
+
+This patch caps the IFF_NAPI sk_write_queue of each tun_file at
+net_hotdata.max_backlog packets. Excess packets are dropped and counted as
+rx_dropped in tun_get_user() and tun_xdp_one(). It also changes
+tun_napi_receive() to take at most budget skbs from the queue, so the rest
+stays visible to writers.
+
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 86fd44e107550..b7432bd4d3f03 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+
+[ ... ]
+
+> @@ -227,6 +228,16 @@ struct veth {
+>  static void tun_flow_init(struct tun_struct *tun);
+>  static void tun_flow_uninit(struct tun_struct *tun);
+>  
+> +/* In IFF_NAPI mode written packets wait in the tfile's sk_write_queue for the
+> + * NAPI poll, which may run later in a kthread or ksoftirqd. Bound that queue
+> + * like the per-CPU backlog.
 > + */
-> +static void vsock_connect_close(struct socket *sock)
+> +static bool tun_napi_queue_full(const struct sk_buff_head *queue)
 > +{
-> +	struct sock *sk = sock->sk;
-> +
-> +	if (sk->sk_state == TCP_SYN_SENT)
-> +		sk->sk_state = TCP_CLOSE;
-> +	if (sock->state == SS_CONNECTING)
-> +		sock->state = SS_UNCONNECTED;
+> +	return skb_queue_len_lockless(queue) >
+> +	       READ_ONCE(net_hotdata.max_backlog);
 > +}
 
-I was wondering why not
+[Severity: High]
+Is a packet count limit in tun_napi_queue_full() enough to prevent the
+global OOM described in the commit message?
 
-	if (sk->sk_state == TCP_SYN_SENT) {
-		sk->sk_state = TCP_CLOSE;
-		sock->state = SS_UNCONNECTED;
-	}
+tun_get_user() takes total_len = iov_iter_count(from) with no upper bound.
+tun_alloc_skb() can then build an skb with up to ~544 KB of frags plus a
+linear remainder:
 
-and I think the only reasons we can't say "SYN_SENT iff CONNECTING" is
-because shutdown() can flip SYN_SENT/CONNECTING to SYN_SENT/DISCONNECTING.
-On connect's failure, the blocking path kinda-ignores such shutdown() and
-resets the socket to UNCONNECTED anyway, while the non-blocking (i.e.
-vsock_connect_timeout()) also consults sk_shutdown != SHUTDOWN_MASK.
-
-So how about being consistent:
-
-static void vsock_connect_close(struct socket *sock)
-{
-	struct sock *sk = sock->sk;
-
-	// we follow vsock_connect_timeout():
-	// TCP_SYN_SENT implies SS_{DIS,}CONNECTING;
-	// and we do check sk_shutdown
-	//
-	// or am I missing something?
-
-	if (sk->sk_state == TCP_SYN_SENT &&
-	    sk->sk_shutdown != SHUTDOWN_MASK) {
-		sk->sk_state = TCP_CLOSE;
-		sock->state = SS_UNCONNECTED;
-	}
+drivers/net/tun.c:tun_alloc_skb() {
+    ...
+	if (len - linear > MAX_SKB_FRAGS * (PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER))
+		linear = len - MAX_SKB_FRAGS * (PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER);
+	skb = sock_alloc_send_pskb(sk, prepad + linear, len - linear, noblock,
+				   &err, PAGE_ALLOC_COSTLY_ORDER);
+    ...
 }
 
-What do you think?
+tun_chr_open() sets sk_sndbuf to INT_MAX by default. With that, a single
+tun_file can still hold about max_backlog * truesize. That is tens of MB
+with 64 KB writes, and much more with multi-MB writes.
 
-I guess this approach also addresses "[Severity: Low] What happens if
-another thread calls shutdown() while a blocking connect() is asleep?". As
-for "[Severity: Medium] Can a connect() waiter that times out late still
-abort a newer connect attempt on the same socket?", isn't this the current
-situation?
+The limit is also per tun_file. With IFF_MULTI_QUEUE, tun_set_iff() allows
+MAX_TAP_QUEUES (256) queues per device. The only gate is ns_capable() in
+the user's own namespace:
 
-thanks,
-Michal
+	int queues = ifr->ifr_flags & IFF_MULTI_QUEUE ?
+		     MAX_TAP_QUEUES : 1;
+
+Even with 1400-byte packets that is roughly 256 * 1000 * ~2.3 KB, or about
+590 MB per device. A namespace can also create several devices.
+
+The commit message lists this under "Still open". Even so, the same uid
+1000 process limited to a 128 MB memcg looks able to reach a global OOM
+with larger writes, more queues or more devices.
+
+Would this need a truesize based limit, or charging the queued skbs to the
+writer's memcg, to close the reported DoS?
+
+[ ... ]
+
+> @@ -2043,6 +2055,19 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  		struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
+>  		int queue_len;
+>  
+> +		/* Queue full: drop, and schedule NAPI, which a MSG_MORE sender
+> +		 * may not have done yet. Lockless: concurrent writers can each
+> +		 * still add one.
+> +		 */
+> +		if (unlikely(tun_napi_queue_full(queue))) {
+> +			local_bh_disable();
+> +			napi_schedule(&tfile->napi);
+> +			local_bh_enable();
+> +			rcu_read_unlock();
+> +			drop_reason = SKB_DROP_REASON_FULL_RING;
+> +			goto drop;
+> +		}
+
+[Severity: Medium]
+Is this behaviour change intended for IFF_NAPI users who set a finite send
+buffer with TUNSETSNDBUF?
+
+With a finite sk_sndbuf, tun_can_build_skb() refuses the build_skb path:
+
+	if (tfile->socket.sk->sk_sndbuf != INT_MAX)
+		return false;
+
+So every write goes through tun_alloc_skb()->sock_alloc_send_pskb(), which
+charges sk_wmem_alloc.
+
+Before this patch, skbs on sk_write_queue kept their wmem charge until the
+NAPI poll consumed them. A slow poll made a blocking writer sleep in
+sock_alloc_send_pskb(), and gave a non-blocking writer or vhost-net
+-EAGAIN.
+
+After this patch, this branch fires first once sndbuf is larger than about
+max_backlog * truesize. That is about 2.3 MB for 1400-byte packets with the
+default max_backlog of 1000. The skb is freed, which releases its wmem, and
+tun_get_user() returns total_len.
+
+The writer then never blocks and never gets -EAGAIN. Lossless backpressure
+that the user configured becomes silent packet loss. The commit message
+only mentions sndbuf as being INT_MAX by default.
+
+Could this be documented? Or could a full queue block or return -EAGAIN for
+writers on the charged path? Exempting finite-sndbuf queues alone would not
+be enough, since the same user could set sndbuf to INT_MAX - 1 to get
+around the cap.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261119153056.353156-1-antonio%40mandelbit.com
