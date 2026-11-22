@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795347215;
-	b=zbjkRS1bKq+Y9KCaEsjbQehdnpC2JVwqUMnPSlnixG4pr/FF2gAbou9YMY3gQjCwZSVH
-	 yCuMomPcjzYxGIKnw7D2blLExrgK4VYPZ+X2tiXjtAHhMn6R0VasDdS4K9MImSB9eTZHU
-	 bpX8WluzwAeqU59gcKZ3JD9Dj6J/RvMPVKz7Q4ArMdqyFPJn/fTimWxWKNdUyTCRyMI4Z
-	 8dT4Uxtyhvq86jp5YhZ4kKHenQ2BY4lZbRxHwx7Bw7u7iUr/WCHopaYoeOdfl8tpuvU4o
-	 1YLdbovNySEKevkfvycuqwbfFK6dTBBZhsn+lXCu28iRc8SSN2nUMrDGn1SltRMpzPA==
+	t=1795347297;
+	b=EvE/kEfCr6B9foO9XLkvl+zPi2wxsCwSFGl2utCXFYFHKU7YyVIWE0GSet1bn+s8ELoj
+	 pQhRnPhBGGwTwF+kkQw6vTjpr/nP3jVIz4YWzWz9DDm+MPgMd0Jds0SOVibLmNtVvqsdY
+	 op5IO2w2LnMY7e8kroKnGzmeo0FGD8Izvysaco2aToC3wDQvouAX36RExMbvRDoK3Bg5p
+	 urzM3vaeyGG3hZGWRXsmcp8nPnDlhP/DSvZTEEvyF7N+8cFRw3jDqwaSX0ufPUGuY99ca
+	 PYwOM0mmqk0v41qn4RIgHYBpCuD5K4qBcyzhshWfQUMSJ0KVXHhugFP07DcfZ1wuCWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795347215;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795347297;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=zWEZa03SCyKXbufBes9Agr+bKSMPLOJ12v+JF8SJl7E=;
-	b=XAlY+zVkBX4Zq/7JdLhW1yvl7j9dyMGCWKieldN/8EebUMb3Qjk9S+xDDNBvEkRcmOcd
-	 h+azI+SdDhsT4ixI1/yxOjvAlf3FGXjRn2m/krVoRgFPtkqf2j694hFaMcqYPZVcpnydX
-	 CyKKP9clrpxWReq6rXna/NtxEfxZayUHLid6vRDFGKKlQ/bYUYJUirM4ejYDzrHzQImcu
-	 4GcyhxjFMTXvGofpoXSlcNBzwz1YNZ+PPDYoIPu+EY27GKN0D8pdSyBs634jBZCTzWnqS
-	 wHthXkE92JxASpp8HnQptgWM2b43wRF7jguzt3brWPGWDUuesrcifJqqrd15Mz0sm+g==
+	bh=nQzV/9Wa47apIF2ZpStnVmsOFO0VSOl+SYDHpEGXpHw=;
+	b=tWwzftnnvbwnl9ySiccPF3liQgYXBYTQ1Qgot7eHqG5OdIgtxMit9Wj15AejPvnoHF5V
+	 fb9EbI4BWnUhnAI77MHx6vWeXidfu4Xu4Xbo0tRMK5CDPfSohlqdApnV1N465BBwtqIhW
+	 YXUZfxtdT9tik2+utJUeJdpRDUaQyNp548xonDiFwyQqT7TYNKOHgGZgngVymkII8108b
+	 p35pjOLqUn6CqKmLeZKp9AY1HqatKaV5ttt+f5e3dLFI0Fd9T7xooYTHfJ+5PGUGc74TN
+	 c+2wKjIFywAn/+On9jOVdOtNXP/z2R9oc5kLUshefD7kdNNJCxxTYD+2vEU5Ad5hp0w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e53IvUgz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="NKj/+re8";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33E0C606A320;
-	Sun, 22 Nov 2026 11:33:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78386606A320;
+	Sun, 22 Nov 2026 11:34:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e53IvUgz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D5511F000C4;
-	Sun, 22 Nov 2026 11:33:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NKj/+re8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48F151F000C0;
+	Sun, 22 Nov 2026 11:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795347214;
-	bh=zWEZa03SCyKXbufBes9Agr+bKSMPLOJ12v+JF8SJl7E=;
+	s=k20260515; t=1795347297;
+	bh=nQzV/9Wa47apIF2ZpStnVmsOFO0VSOl+SYDHpEGXpHw=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=e53IvUgzHCrkUAHG+yWvJd3c+dc99WoP+aVNVlRb0rhrjQFJ+6gqyLqWS0nRcpi6x
-	 MLEg/wL4oG68gmptGo7b8RmJ8IaKT2H4z0ElVEHeyKsnTlfX8H/YmkoSeRlcI2ct9P
-	 H+eug0ook4dd5TkUUn+mn+v61gtU6zZAZyXFfEYXJ6nT+0pbJQsDJeNodhevEpiF+H
-	 zK3JJaUl4U0ZOGBFWFdHX/hzs9Yylfkg6awe4pv4HU+WKKNuJjPKJOVthUxj1yhRTj
-	 B3AzWBaRFa+TecF1D+Yi8tHgqPUa8/RnGX6ZW9pKITUeV5VjpXA+c0ocxVSTXnVbsG
-	 QPJy1dwEHokpA==
-Date: Sun, 22 Nov 2026 12:33:29 +0100
+	b=NKj/+re8LgzSze/Za37NPrrrz9zYqxHFHzO7f8dZqTmv45wHkFwoCtaMgIuYxyR2l
+	 Ogw5SzsilayaXJN49VS4ILnYt+TnhJ0Inqlu/HNt/yKetSwsFH70N12Lq5lyf62iXB
+	 uiy080+z+yTbsrue/PlDLzllH61aXJxoZp6vGagCweR+ZPPSF/sjxouABjSR3ezFTL
+	 XJbNIKHZeKOShPfbYfwgo43JDKEC1J0T6huXy0hNYGO9hjbgSb+DhKZdltCoVA4rPo
+	 1UOhV/qUhsg2KGAgwodLhAktcd/iEbHcvlK9cJpPEK/vQkvrRaZC+POlv6oabRgsTo
+	 np9JRe9wf1pnA==
+Date: Sun, 22 Nov 2026 12:34:52 +0100
 From: Ingo Molnar <mingo@kernel.org>
 To: Juergen Gross <jgross@suse.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
@@ -50,10 +50,10 @@ Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>,
 	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Subject: Re: [PATCH v6 09/12] x86/msr: Remove wrmsr()
-Message-ID: <awLTCUz12tpDOFvp@gmail.com>
+Subject: Re: [PATCH v6 10/12] x86/msr: Remove rdmsr()
+Message-ID: <awLTXAT-amcgoRT7@gmail.com>
 References: <20261116150208.1572254-1-jgross@suse.com>
- <20261116150208.1572254-10-jgross@suse.com>
+ <20261116150208.1572254-11-jgross@suse.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -65,25 +65,21 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116150208.1572254-10-jgross@suse.com>
+In-Reply-To: <20261116150208.1572254-11-jgross@suse.com>
 
 
 * Juergen Gross <jgross@suse.com> wrote:
 
-> wrmsr() has no users left. Delete it.
+> rdmsr() has no users left. Delete it.
 
-So there's a few uses left within comments:
+Here too we have a few uses left in comments:
 
-  # wrmsr:
-  Documentation/arch/x86/microcode.rst:performing the wrmsr(0x79) to rendezvous in the MCE handler and shutdown
-  arch/x86/events/amd/ibs.c:		 *                  \        wrmsr(IBS_{FETCH|OP}_CTL, new value);
-  arch/x86/events/intel/core.c:	 * Quirk only affects validation in wrmsr(), so wrmsrq()'s value
-  arch/x86/events/intel/lbr.c: *   - For wrmsr(), bits 61:62 are considered part of the sign extension.
-  arch/x86/events/intel/lbr.c: * ... then any value passed to wrmsr() must be sign extended to 63 bits and any
+  # rdmsr:
+  arch/x86/events/intel/lbr.c: * value from rdmsr() must be converted to have a 61 bits sign extension,
   arch/x86/include/asm/shared/msr.h: * The kernel proper already defines rdmsr()/wrmsr(), but they are not for the
-  drivers/platform/x86/intel/ifs/load.c: * Run wrmsr(MSR_COPY_SCAN_HASHES) for scan hash copy and run wrmsr(MSR_AUTHENTICATE_AND_COPY_CHUNK)
+  arch/x86/kernel/cpu/feat_ctl.c:	 * Use raw rdmsr() for primary processor controls and pin controls MSRs
 
-But we can (and should) do that in a separate patch.
+Which can be addressed in a followup patch.
 
 Thanks,
 
