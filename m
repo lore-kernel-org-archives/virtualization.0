@@ -1,54 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795366163;
-	b=M2rVjQh+0cadtFz6iwnDh7OCO4OUXCRthieb2Oky2UfUVIRKoEJ4wo3UcNFCffaJkYUT
-	 ZfswG4mEnNsEIoNibiYKxyYY0LNhZGLoVKn/eGaV3L2W0RQ2ULD0j1p8SihuYfZnVTeSX
-	 KpXljjQYUGDtXN68S6Lzd8GA7ybWIbCuXDI9egEaoD66IpO/vG5J9F/bezvdm3XKxFah1
-	 IjPNl+wqWB1DaMQdTyR4fMs46QdF9X95PVH24LNpJ4hchSPHeVythVrmdIrnHVV0c4mWe
-	 MzVaWtH3+YzF1oHm2a33oPaRMpDTGNuK1y4FJ4bJvf9UHEoi/XtZT+9ujPhT+QfVpxQ==
+	t=1795374852;
+	b=OuuqwleQjnNtPImHE8MBqWsslVO+cY7Q5N73BYNmdBzEZnLGCLJGKjdkbhFX5/wwCmsH
+	 isNxQxuc5K6LPeX3Z66SdWDt6we1+qPA1wq8uQ+druEYSjPInlTApnmTgtxTUSMdutsuz
+	 s3rn6/mbGWA8DZhJqg4D5R60N+co0Wm5mMGgXzxYCs9eI5hf27S7PR5M52bVlwNc9jMD6
+	 K/d33VxMp625TzBqgAGqpxc9nl7+Y1ssXmSofnbU75y+Ji6wzPbhoqgX4WYkp+/1IBpZP
+	 w+UoR5zgsE3ysxmoKqhuA15LimfSQ4m2f+HHyTDP/hH83wjdbFVnmi9fYY+YRVjxCNA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795366163;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=1n4tlVAMD1oQEfLg7AgK6BF8JkJzQIdhcOfMal/6gZY=;
-	b=Xn1QeDYrhUCf5KSznSO8TQS5yilxytITKRCS0Q98TtaU1Bh2PDExizFYCKIpsHvWNcgu
-	 E8XcT6vXAr/qvpqYW6UanZhXVd3nys0uknOiOkyuE1nbGg3ePnHngh/HUpTFcrppOddb+
-	 czlTKIvcKQjOxOpAAww3jtr1ENgTkOAbpLuymNNNbcWpuKCoTDNENk+PuJqlRhFyFMIbO
-	 8nTLbkM8WWK8O7rYMuJeMtTKHHCp+ZwZ96VXFPChH5uGlDmPU3z/vlppNM3Aajjm3tGEV
-	 vDB+lc+wwmQyx1lsHZnZXAFp7qEp5VJCtD1ueBPgk9mRafCwMe+QOpjedDbWTQXMXIw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795374852;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=SPoTViWJGHL7QSLz+I0tDgbdnIX9thSbIOpbmEgxuw8=;
+	b=zxcJXBNIrQrjdnF6vdchT/IvZfWQExg2WeeEuVm9KM01k4wUbCOqbm9nqAz9PI0F+Ire
+	 5EFPjXdI1aCIt0Ik8S6AaNAGQDrcNoiG6bCfXCOq6F94IphdqEe9OcDfvg80dMCsJBUhr
+	 4lJ17bXkMO85PMYwqXoxhkFPtIyOGOYE0inmcrOGTRaviVoG7XENw5fALD3jzrnMZ1QYU
+	 JKPimjTiJQqSth5jEb2U505dwJa3QP7w+4Y+uvUnER5Qt2E4jt3uJPknH+SFgw99NigmO
+	 vFES114wNPS2oIMJCfYQ17YsQt/V77HyKjR5x4QAay5CxzmvTc69X/feAmXVr8F+8tg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=If1yj84T;
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZpAwrYuL;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 617FD606A320;
-	Sun, 22 Nov 2026 16:49:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 617FD606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C59D606A330
+	for <virtualization@lists.linux.dev>; Sun, 22 Nov 2026 19:14:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7C59D606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=If1yj84T
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=1n4tlVAMD1oQEfLg7AgK6BF8JkJzQIdhcOfMal/6gZY=; b=If1yj84Ty+PWC5pwN3l+urBf68
-	2hR0b/KbpLdHtCSDssJRGtWWNVVHcXXibwvo0e16Wu5PcF1GbzrF+0Nn/0orhZPZLp3AaUrOqCeE3
-	M0g3/VZCXrSCWsLf3OJiUda66VgMdDR5zNN/JnYJhMr6Zloh8ZVpZL5T6FbjOGEGGG9pYSEFlPSo3
-	xNjZ+pwXJ34Yaiph8LhnUvR+33XsPWSndNcZzF1mF1Y/Rg3p7J5onQ/FXu2y6sBr06vas2ATQ1cNu
-	jo4l2Ca8g1GdoMwCPQY26/RHxrAwrwLjXqoQ1EhLUm39E6z3sHmGRuhzwWdrOJON3ct7fIVJwApAK
-	GCbPEuHg==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xVAkg-00000001O6v-277K;
-	Sun, 22 Nov 2026 16:49:19 +0000
-Message-ID: <1e62d5c8-3ca7-441d-8979-f054fb815912@infradead.org>
-Date: Sun, 22 Nov 2026 08:49:16 -0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZpAwrYuL
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795374850;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SPoTViWJGHL7QSLz+I0tDgbdnIX9thSbIOpbmEgxuw8=;
+	b=ZpAwrYuLf5EdLloLxtncynvxdkf3IrcU3uWbIR/1vn8nDClXS68XwwZqoZEaHb4EEWypM7
+	if1l767wKwZ72NATFFD+S78SrI6tfnWhXMGf6KGmtG31XeFcBx1KlJPtHHT/yLha4LI1b3
+	bO8IaXfLRF2/9MoTLpg/x08hhJSGBzw=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-31-pKZ6WHAoOUqmr48oQKiqgg-1; Sun, 22 Nov 2026 19:14:08 +0000
+X-MC-Unique: pKZ6WHAoOUqmr48oQKiqgg-1
+X-Mimecast-MFC-AGG-ID: pKZ6WHAoOUqmr48oQKiqgg_1795374848
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-48e0ef019a4so1504175f8f.3
+        for <virtualization@lists.linux.dev>; Sun, 22 Nov 2026 11:14:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795374847; x=1795979647;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SPoTViWJGHL7QSLz+I0tDgbdnIX9thSbIOpbmEgxuw8=;
+        b=EkzMmAMfzRcyhHFi5uq5kehyw3taJfLXfxtzOXZC92OVRYFLLZ2a3/s4JaX+QS4xc3
+         x95wqEE8g0ia8zSRS2J95Nw/7UKtgPjYgnazEKVJwknA8vOEhTbGZOPMQmDG4yEeXGAB
+         wWbt07KbPx5R2FFWTnJPYyYOAW+IyIJ/7mSUabCkmvS79mRHgj1r1M2lLF6ADD2NRpNw
+         caB+U/o7f4r8ye2OPM+IAw7l9tsweTCeWRIMtjxjAksYxki3yG1U1sVcIH+l8KnsnvUF
+         fx15WJhnYY4c/Q4SogkTRJckw7qhLLFZ8sp/WCZb+PIS4nc9IX1Idl8t4sehyb1OZGIH
+         rTkQ==
+X-Forwarded-Encrypted: i=1; AL+hErHuAk8tzCRKg47pJzkDmq03YMLnBxtF6FmpbmLoLEmmVYaNiR1hs0A09BkRKJbtA3TuWMk6YB34l3rbxJ5D1g==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8dPuo0SY3cKQPXzWMuoSeDOiXbemCEXOk1SJY+UW+p4fzFa2N6
+	Dj0clewcvb0MoKET751xsUDTKGe1tCvThEQBFu2E/ammnM0Gxc7WVlLCOH69hNpyhbrIWmVyoZx
+	ROlgB6ReGYtcc++MKj+RhxPy9p+GKbdxF6Zs16X+amJ9oce1qP5TytVs9CEw9zepOlxPP
+X-Gm-Gg: AZFdTZf6zp43pRgBJO/CNWHITvvX9wPo+D7nRLwkuZzmFpdHrsSVgtJ4FZGQlHJtiyK
+	Qg9BHoYLcdCgF6GZRTYWc6g+26LswbW/n/PfWp9mAvVSVewJfP9w+J9AA0mpMB3bKAohiC05h57
+	w64bHQaWEez8w1cEvfK4NZVy+il7wRffoF0sQqlLwxzu2PU7ypAnyZwb3N0I6mYHf6j8pSk10V+
+	tHprvQ7iS6ILLFdkjOFA/x6cJ6Av0FKJYDO3OkNHnQEy4iEsyFSQk9sl0yc4E3zNld0vrjs2GfA
+	IXxxyv2Ad5NRvAuUHMBs0RXo2JUbDWp6s2J8HXf/6k6+3ttauHaGj16KgTeRCbwpuKg9YNxXcAH
+	zji/bdtndL+8XZ6nw46DOdJyHvYaTJira8m9oz0FI
+X-Received: by 2002:a05:600c:3b8c:b0:4b7:6c16:7b43 with SMTP id 5b1f17b1804b1-4bb8881d019mr195708835e9.10.1795374847337;
+        Sun, 22 Nov 2026 11:14:07 -0800 (PST)
+X-Received: by 2002:a05:600c:3b8c:b0:4b7:6c16:7b43 with SMTP id 5b1f17b1804b1-4bb8881d019mr195708385e9.10.1795374846810;
+        Sun, 22 Nov 2026 11:14:06 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1524:9e00:c39b:a740:e7:3fcf])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb90660cb4sm198874085e9.2.2026.11.22.11.14.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Nov 2026 11:14:06 -0800 (PST)
+Date: Sun, 22 Nov 2026 14:14:03 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Hengyu Liang <hengyul@cs.unc.edu>
+Cc: Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] vhost/net: bound the count of VHOST_SET_FEATURES_ARRAY
+Message-ID: <20261122134901-mutt-send-email-mst@kernel.org>
+References: <20261122092235-mutt-send-email-mst@kernel.org>
+ <20261122143829.2674252-1-hengyul@cs.unc.edu>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -58,104 +105,64 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 02/12] docs: ioctl-number: update sound entries
-To: sashiko-reviews@lists.linux.dev
-Cc: Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
- David Hildenbrand <david@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Leon Romanovsky <leonro@nvidia.com>, linux-mm@kvack.org,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-sound@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
- Marcel Holtmann <marcel@holtmann.org>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jason Wang <jasowangio@gmail.com>, David Heidelberg <david@ixit.cz>,
- Chas Williams <3chas3@gmail.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Helge Deller <deller@gmx.de>,
- dri-devel@lists.freedesktop.org, MPT-FusionLinux.pdl@broadcom.com,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, linux-scsi@vger.kernel.org,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Zhihao Cheng <chengzhihao1@huawei.com>, linux-mtd@lists.infradead.org,
- Neill Kapron <nkapron@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
- Juergen Gross <jgross@suse.com>, Stefano Stabellini
- <sstabellini@kernel.org>, Hans de Goede <hansg@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Sean Christopherson <seanjc@google.com>, Paolo Bonzini
- <pbonzini@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev,
- Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
- linux-ext4@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>,
- devel@lists.orangefs.org, Paulo Alcantara <pc@manguebit.org>,
- Namjae Jeon <linkinjeon@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
- Chao Yu <chao@kernel.org>, Florian Fainelli <florian.fainelli@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Tzung-Bi Shih <tzungbi@kernel.org>,
- Benson Leung <bleung@chromium.org>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- amd-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, intel-gfx@lists.freedesktop.org,
- Matthew Brost <matthew.brost@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- intel-xe@lists.freedesktop.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>
-References: <20261119053514.255348-1-rdunlap@infradead.org>
- <20261119053514.255348-3-rdunlap@infradead.org>
- <sashiko-outbox-224494@kernel.org>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <sashiko-outbox-224494@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20261122143829.2674252-1-hengyul@cs.unc.edu>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: BQ4cr1YfZh9AGu7ZCW5zAV2koS-EfrNnxlBALmg4EPM_1795374848
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun, Nov 22, 2026 at 09:38:29AM -0500, Hengyu Liang wrote:
+> On Sun, Nov 22, 2026 at 09:25:37AM -0500, Michael S. Tsirkin wrote:
+> > this is followed by:
+> >
+> >                 virtio_features_zero(all_features);
+> >                 argp += sizeof(u64);
+> >                 copied = min(count, (u64)VIRTIO_FEATURES_U64S);
+> >                 if (copy_from_user(all_features, argp, copied * sizeof(u64)))
+> >                         return -EFAULT;
+> >
+> > copies at most 8 bytes.
+> >
+> >
+> > did you test that this patch actually helps anything?
+> 
+> That first copy is bounded, yes. The unbounded part is the loop right
+> after it, which is outside the diff context:
+> 
+> 		for (i = copied; i < count; ++i) {
+> 			if (copy_from_user(&features, featurep + 1 + i,
+> 					   sizeof(features)))
+> 				return -EFAULT;
+> 			if (features)
+> 				return -EOPNOTSUPP;
+> 		}
+
+I see. So all it is doing is checking that these features
+are > 0 and erroring out.
+Let's just not do it - we don't have to.
 
 
-
-On 11/19/26 9:36 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue to consider:
-> - [Low] docs: ioctl-number: incomplete sequence range for
->   sound/scarlett2.h
-> --
+> It reads one u64 per iteration up to the count from user space. With
+> count = U64_MAX and a large zero-filled mapping, it only stops at the
+> first unreadable address.
 > 
-> commit 93a4f635ed001735e939a3dc4a2526e8af9e9bd0
-> Author: Randy Dunlap <rdunlap@infradead.org>
+> Yes, I tested it, on the vhost tree at 44293796526f (KASAN + lockdep),
+> count = U64_MAX:
 > 
-> docs: ioctl-number: update sound entries
+>   1 GiB zero-filled mapping:
+>     without the patch: EFAULT after 27.4 s
+>     with the patch:    E2BIG at once
 > 
-> This commit updates the ioctl-number documentation table with additional
-> sound subsystem files and sequence number ranges.
+>   2 GiB mapping, SIGKILL sent 1 s into the ioctl:
+>     without the patch: the process is reaped 46.7 s after the kill
+>     with the patch:    the ioctl has already returned
 > 
->> diff --git a/Documentation/userspace-api/ioctl/ioctl-number.rst b/Documentation/userspace-api/ioctl/ioctl-number.rst
->> index e1d56d5cccd14..f29d2c17ca7b9 100644
->> --- a/Documentation/userspace-api/ioctl/ioctl-number.rst
->> +++ b/Documentation/userspace-api/ioctl/ioctl-number.rst
+> I have a small reproducer (a few lines of C). Since I found this with
+> the help of an LLM, Documentation/process/security-bugs.rst asks me to
+> treat it as public and not post the reproducer to a public list, so I
+> have not included it here. I am happy to send it to you off-list if it
+> would help.
 > 
-> [ ... ]
-> 
->> @@ -204,6 +209,9 @@ Code  Seq#    Include File                                             Comments
->>  'S'   80-81  scsi/scsi_ioctl.h                                         conflict!
->>  'S'   82-FF  scsi/scsi.h                                               conflict!
->>  'S'   00-7F  sound/asequencer.h                                        conflict!
->> +'S'   20-52  sound/core/seq/seq_compat.c                               conflict!
->> +'S'   60-63  sound/scarlett2.h                                         conflict!
-> 
-> [Severity: Low]
-> Should the sequence range for sound/scarlett2.h be 60-64?
-> include/uapi/sound/scarlett2.h also defines
-> SCARLETT2_IOCTL_GET_ERASE_PROGRESS with sequence number 0x64:
-> 
-> include/uapi/sound/scarlett2.h:
-> #define SCARLETT2_IOCTL_GET_ERASE_PROGRESS \
-> 	_IOR('S', 0x64, struct scarlett2_flash_segment_erase_progress)
-
-Yes. Fixed now.
-
--- 
-~Randy
-
+> Thanks,
+> Hengyu
