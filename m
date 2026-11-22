@@ -1,99 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795358315;
-	b=Rdoa825HmkyxHfB5WqV1DxxJn/ctTdcJ3Zn252lthWibc4I424Oiko932EROlhpZcwGX
-	 vRn1tieZHDK5dSPYm4fx7N39pifcoTvyZbJE/vgNzTv3BiGwWGK6RcoosbWelfY/8MuPx
-	 DfxRTuIdWRXSzt6X+7y4wt7RoYZh8eZoxNdpiFJV1y9o5aNLQpNb+rbHklAP+urgwbIie
-	 +7LP9vH4FEjFNRwEJKNE7P9+GDLCE9hAtxi/3rP3BAacBh0/geeusp/JRLwwEyj/u6LRd
-	 HCY5e4D1Ho7oglt2xvNNvrIC9SqgMYkUKEE6w6zIok8kcFyw4JrfMn0hvi+zlnUjulg==
+	t=1795360638;
+	b=ccDbmdfkclwXdug8e9BcXCQ98jFD4Qz2Zc4RHQH6UP0iWJer4woY5LxZhVLxfIzyz6+J
+	 xxQo8lPa5nLavdyh/vunf3/QrgrPijoOBSPU4YASVjJdLt227r5HMtiYZsTMKEjDH1LFh
+	 Ww9BDZqGDchLtOlkg+8MGJIzzMSOoXVaOox9FXCwCp6q9U9f1UGSjLIim4gFj8vNeSC6/
+	 lmh+tCdWw3rWcwNerry8+Iil3t2ouDrw5iK0rN8EC/G+gzQEc0F1ajSERNk+W/LxT/UCi
+	 aJ3+Aod/mzSkOGtRdqsKgbsF0z94Jlm66xajNjdRpgpLwwuWYpXxfZFkp9nojVZmKAg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795358315;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795360638;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=m+lBzUtZbcPnxrRlj2a5ONA5sbQ6rA0NyyUMApXQnAc=;
-	b=ncgOzBfXL2XY3PljExmN4IUqJqMlKyNjj5nEWNNhsuaHg4twQuHFj/8HfZ8hYK3sIxEH
-	 IGvXXiJYQVcuaAqy2WDRIB519NyqVE4MtL3jL7mqVLazNBqDa/51m/2bTqxuxaeQYUEm3
-	 aebmq5ovy5b+lNe1M5a8Awfkm/7AU/ntqqzs6tEedAX+ydbBor3C6wKx8UaXQ++Ij8N1+
-	 lYvAyi9y2i0Y8zMSvhe9xJ/QKgbjUEB0ONOZlwWPHGE24nplhsXbW9DSRPbPTCOKzawVs
-	 yxDPCdlVMutndeuvacS2dlxw/1l4ODjiXxJ409uNdfXPLx+5GiUHTZVJW35fOotM/dw==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=9Ug5mbNx//jfk7IJQqQS2kOB5UthZWxihtQTk0CboWU=;
+	b=SjNpqeDaEGIXEGQSYNJKGVte30yVwLNeDO8zm0J3lVPsa2rRaGbG8VKO7VTi3Z4wRkrl
+	 NTwtxLMiTLk39a+E2llUeNy4lncJMWTc8uyNwRw7uU6A+QjZwmdCF3MSlb/nYGY20lMNB
+	 tjEigi9k6AYjxHnlGA2OiUJEv9JsQ3n2HlBvECI/14UvrhiMQPRoSRKP3FdGcr2VRadf0
+	 b+YS/rFePRAV0htCxDWlQo18uWhrFyVHwQzi83W7k4rTaV92NySQsfG6nH+Uv2zyxaAmy
+	 kZEQbebI/VTOseiVM/jTzH0XEbC5g43yuH9DLa3Sf88luu1CqXO/BEomiecePP4ArUA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cs.unc.edu;
-	spf=pass smtp.mailfrom=cs.unc.edu;
-	dkim=pass header.d=cs.unc.edu header.i=@cs.unc.edu header.a=rsa-sha256 header.s=google header.b=AwdDYYff;
-	arc=none smtp.remote-ip=209.85.219.46
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dkAB2HVP;
+	arc=none smtp.remote-ip=209.85.128.46
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2FD7606A337
-	for <virtualization@lists.linux.dev>; Sun, 22 Nov 2026 14:38:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F2FD7606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs.unc.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.unc.edu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F4D606A32C
+	for <virtualization@lists.linux.dev>; Sun, 22 Nov 2026 15:17:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36F4D606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cs.unc.edu header.i=@cs.unc.edu header.a=rsa-sha256 header.s=google header.b=AwdDYYff
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-9214032a2fdso17697886d6.0
-        for <virtualization@lists.linux.dev>; Sun, 22 Nov 2026 06:38:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dkAB2HVP
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4bb55cda775so14893365e9.0
+        for <virtualization@lists.linux.dev>; Sun, 22 Nov 2026 07:17:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cs.unc.edu; s=google; t=1795358314; x=1795963114; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=m+lBzUtZbcPnxrRlj2a5ONA5sbQ6rA0NyyUMApXQnAc=;
-        b=AwdDYYfflELfR/b5OcZN0PhvmBlwx/ot8s3TcBCgqak/0YvxpY6Jqj3N0VhFdbqERd
-         EfVcT8uc1St3x6iQiLlQXafHQXUtgG5zKcrhMI1H2ReXQLiVSqgxDpBUWllP3rUrNOEh
-         AOChrmCnBlGJZJuGFYNs834ISymOkN25t5hP40Fl22Btddf4g2nsvaEZh2gef1arkcsz
-         vpSKPZcywXXTrnZU8WSraygswQ/xZWub64BY8RXO3eh56Pk7C+aff/6KjlTH8IOcxCs/
-         IWZsCUWA5rJf0Zjkv5xlOYS9SyqzH3/1c5X4La7EFd4E3yfBr6Hqv0LCCCi9cOr8Ksi9
-         5JLw==
+        d=gmail.com; s=20260707; t=1795360636; x=1795965436; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9Ug5mbNx//jfk7IJQqQS2kOB5UthZWxihtQTk0CboWU=;
+        b=dkAB2HVPFs9xuDeAtYcKz4kF14MFdU4fLwBqVYxpVTUja8Xj86uVREda1L2UQuj8U+
+         5iXzEcxa3xC2+EqTaMvEZB30P42qBGYzJ7oMkzXhStXALPWwrlK7DK8G8xwz7SpWozfZ
+         lfFYNq+ZGB5aR/AKEgc3BuTbcItKHc6R7UFDaKZG+ntNGqp7ciP6NaElnlrqxBDhsr+A
+         e2vOod1puZPsLIp4qOAjGekDgb44wUca6/hKSg8av8QQolqEuG4y2ernSHkxoqN9P00m
+         n0Agqd9rtVDD8MsHljjTQaKp8O0Xr1Y3TYojU23zs+kGoINuv7R9IXTrFpeEYHvHh2DH
+         c2QA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795358314; x=1795963114;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=m+lBzUtZbcPnxrRlj2a5ONA5sbQ6rA0NyyUMApXQnAc=;
-        b=dG8E1g76SpnYwYCCCabVN0YasL5pI8G8nxxKlGYqjPt3WCYUFi7q6cKK2DaHgss6ye
-         v1vDI/Zp+FA2P59xzg7KFUhfu4064NmlfPztIKmoFpiwyeiWsJZD3UamkeDRB/OKwXKX
-         izn6RWDHoE1l1Cf5ZkJAxh7CLALyFKOaAICopGfSZag55mgnI24XyurMGJU+QS7dOU+w
-         aiTcAV+yBWq/VZA/VqWYP3deajfc/kSc+56xweY8f6IbI3IV/scTm897/DXpEYWfqJtm
-         ugE/exBBasxsc3lk3RM36BLBOhKUfKOTR++A2E9TRMP+TJS1UMGFw5GToIsakpglIK1B
-         6t5A==
-X-Forwarded-Encrypted: i=1; AL+hErGTSR4Zm3GOrpbFy3CnCtDMNGTDpKVHq2B3eJz+MgICssVFS6XNAX3dybV4OTtdAlqB+QJXhlrYXhpgyMLung==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9rbdG/iuKGokmkoIx2gRZHnDHcst07CaK+RJzm4QvLsmg9WUHg
-	PXhlMoRWIHnX1U68KWtamX1Fw5+FWWSoN4wg0GWrhyBPpzUpd/HyAkS+VQrhdJ7/ZQ==
-X-Gm-Gg: AZFdTZfZrSHMZtn+j7Gri4oSbTtA9ga21M7iIe3rvOTu0xAb0lX7qKRpvahzxKiguas
-	AGuQMciTG7iQmuEOHuDq7wzNw1pTRau2tqFnXyNPFIox9fnfLyHhOQeTZPN0yzRw7T1KOJalyaQ
-	G9N+TqXLUU5YKxHGr7Ggy8GBRCxjr996QU7V7oduLh/oQIHQCdgrYZ3ign3ZovnErgWQWg4+BEs
-	5BbbfxMYpxVWl33AU1YNEHH5KPzgf1Na43JJkl59sQE9FcRhgtuUfowejTJa818gBPiR50xffEM
-	FVYVdnt8xzW/zMdSo26lSdVIwjCrv/iHNwuazEe8eEBtIKvWvAuYX9mAxHKNPymL6VOqLy91uvn
-	7BF77lxpXMVSIAB/3d40H+JGsWIx07EgaHK2SmDHVyvep7Z+CT2LDszDoM6d1KHwD2Qz/wA2sdm
-	J09VQc/cW/Qy91G94mWmYp7VGnXuoEFjHfS23CoIz52KNNzgDt/NJO9wZLuVm7HazzZtvkn6Rj7
-	sEz5+apSV0TL67AsjXWSYsTzlKftHrq5pqG6e3v6FvmdnTE/x1dG9qRs0LS6MEN+bhGs4cibjYK
-	6ay4iqhLO/fv+ZFMhO8dP+3G2Pq2nXqdhE0pTuykvL2+mQB/F5b3
-X-Received: by 2002:a05:6214:5015:b0:921:8d9:7f8e with SMTP id 6a1803df08f44-92134a6ded7mr155188986d6.12.1795358313858;
-        Sun, 22 Nov 2026 06:38:33 -0800 (PST)
-Received: from cobra01.cs.unc.edu (cobra01.cs.unc.edu. [152.2.130.143])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-92134a16754sm79665516d6.39.2026.11.22.06.38.33
+        d=1e100.net; s=20260707; t=1795360636; x=1795965436;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=9Ug5mbNx//jfk7IJQqQS2kOB5UthZWxihtQTk0CboWU=;
+        b=gD9XXpd98Qh8MPFP51QWQVNP4V1vlc8OGxWHHhPA4nMT33l+bF/ebXGbEll9PX82Cj
+         02DlIEGWTl+nmFdg0Jv4WPi15GnrPHVg0V8MUSYSdyddmTRHNre+BIn5cFy0VkwsgDjI
+         vaI8jx36RXPBYrJo0GgdwSti4tX81K1TbxO90JHD4/CY9iQ3GkK8H9oEkQJ/bzzVWNxF
+         ey3KocZFNBri/qP3/cNYjrxgYTUmAJ8fuNug/C+VlfBEs/UW1uaxVnjqxPYGqbt7+ht9
+         BKtM6ZSZty71utsOiZKGioJ/VDTyfN5Sn/nro3jslnavAtCdY9RPC31ZNbzaqGkF3scx
+         /fXQ==
+X-Forwarded-Encrypted: i=1; AL+hErFGZz3YxOBpFTmU190qPAYokemQOe5ab8jmjUmeX/N52WLhL2P6zDX9O6z4m7wdBxzZLv7kf4ArEflX0Amytw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+/YnFR/ywyMVL784EnjCus1y5NCm2oGGEo8pA+Sv7puRxD6Kjp
+	Zu1+xPHnPHJUeD4ozZBVM7bHhZ0YwgVn3hZA7AOkdnhTv9MkUOuu4IDF
+X-Gm-Gg: AZFdTZcJjOII56HeWW+LOKpRmpgmTokZU2pm9956ehgXG/sFb1jSGqliaeVJxep7SwV
+	dA5kD9bJLMf1QuIuvrEd8nRSmblfJgwTpYvmDe3Ol/8kiwmneTgwyPFFCw0YbUx2zzqmjJxE4xE
+	8//mkE3YKHH6Q1gg6Zc7teBV8+ezTFtkewBWqkYx4FezLa/Y+wuQOulDhc/p5VFsSpa/L6Wrl1y
+	icW+yT+GiuKKpHKEdc2l5FV41Czzx0G2R2cHckrAnp5jNmQSVnyeRRQOiwcljLl59op2kPmxTRr
+	OiwZow/F9922HlepKXWBYM7CMvvK9hSczViGenA/oILgkWiB1e5WgF6jZaPYyTFKULCoHrnmkQU
+	hwsg/JN33vQZpDqU5ygDYTBfV1Zzr+9Z+kW5aGEJfjQzoTli57H7d0scyYTvSFVQDMrVcq/crHM
+	X5Vy+qbqF5q9Vd7+dKFTagko1Hak3W+a2TU5ti+RsPaUXGWMQcvZYfaC3YI8Rei8FeWzmOTNX+Q
+	6QfkCD9BAglnc6R8u8BTnD2GPk2uVSgRZMo+YJyXYgJ4lw6anU0e9EP1zwHmK2BXhjCywnPpW0G
+	+MMA+0FeHqkDsoJHdrq2ilFIloS/b/ISQCmxDYIdcmAc9ugNP6equd1XQCO8p8TyXlQdlMlqm34
+	INXGiXFKQuX0/5NJg
+X-Received: by 2002:a05:600c:12cb:b0:4a2:1104:7ca7 with SMTP id 5b1f17b1804b1-4bb861576bemr155677955e9.11.1795360636349;
+        Sun, 22 Nov 2026 07:17:16 -0800 (PST)
+Received: from torre-GIGABYTE-B550-AORUS-ELITE-V2 (212.pool95-21-2.static.orange.es. [95.21.2.212])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6b110d56sm16470775f8f.40.2026.11.22.07.17.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2026 06:38:33 -0800 (PST)
-From: Hengyu Liang <hengyul@cs.unc.edu>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	kvm@vger.kernel.org,
+        Sun, 22 Nov 2026 07:17:15 -0800 (PST)
+From: =?UTF-8?q?=C3=93scar=20Meg=C3=ADa=20L=C3=B3pez?= <megia.oscar@gmail.com>
+To: Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>
+Cc: =?UTF-8?q?=C3=93scar=20Meg=C3=ADa=20L=C3=B3pez?= <megia.oscar@gmail.com>,
 	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
+	spice-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] vhost/net: bound the count of VHOST_SET_FEATURES_ARRAY
-Date: Sun, 22 Nov 2026 09:38:29 -0500
-Message-ID: <20261122143829.2674252-1-hengyul@cs.unc.edu>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261122092235-mutt-send-email-mst@kernel.org>
-References: <20261122092235-mutt-send-email-mst@kernel.org>
+	linux-kernel-mentees@lists.linux.dev,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH] drm/qxl: zero-initialize struct qxl_release
+Date: Sun, 22 Nov 2026 16:16:10 +0100
+Message-ID: <20261122151629.223013-1-megia.oscar@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -103,53 +101,88 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Sun, Nov 22, 2026 at 09:25:37AM -0500, Michael S. Tsirkin wrote:
-> this is followed by:
->
->                 virtio_features_zero(all_features);
->                 argp += sizeof(u64);
->                 copied = min(count, (u64)VIRTIO_FEATURES_U64S);
->                 if (copy_from_user(all_features, argp, copied * sizeof(u64)))
->                         return -EFAULT;
->
-> copies at most 8 bytes.
->
->
-> did you test that this patch actually helps anything?
+qxl_release_free() used to check release->base.ops to find out whether
+the embedded dma_fence had been initialized. Since commit 2bcbc706dfa0
+("dma-buf: add dma_fence_was_initialized function v2") it uses a flag
+in fence->flags instead, but qxl_release_alloc() allocates the release
+with kmalloc(), so the flags contain stale data.
 
-That first copy is bounded, yes. The unbounded part is the loop right
-after it, which is outside the diff context:
+Cursor releases never go through dma_fence_init(), so with a stale flag
+qxl_release_free() takes the initialized-fence path and calls
+dma_fence_signal() on a garbage fence->lock, triggering:
 
-		for (i = copied; i < count; ++i) {
-			if (copy_from_user(&features, featurep + 1 + i,
-					   sizeof(features)))
-				return -EFAULT;
-			if (features)
-				return -EOPNOTSUPP;
-		}
+  BUG: KASAN: slab-use-after-free in _raw_spin_lock_irqsave+0x7b/0xe0
+  Write of size 4 at addr ffff888010462700 by task kworker/3:1/91
 
-It reads one u64 per iteration up to the count from user space. With
-count = U64_MAX and a large zero-filled mapping, it only stops at the
-first unreadable address.
+  CPU: 3 UID: 0 PID: 91 Comm: kworker/3:1
+    Not tainted 7.3.0-00341-gf47d223627f8-dirty #556 PREEMPT(lazy)
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+    BIOS Arch Linux 1.17.0-2-2 04/01/2014
+  Workqueue: events qxl_gc_work
+  Call Trace:
+  <TASK>
+  dump_stack_lvl+0x4d/0x70
+  print_report+0x14b/0x4b0
+  ? __pfx__raw_spin_lock_irqsave+0x10/0x10
+  kasan_report+0xfa/0x120
+  ? _raw_spin_lock_irqsave+0x7b/0xe0
+  ? _raw_spin_lock_irqsave+0x7b/0xe0
+  kasan_check_range+0x134/0x220
+  _raw_spin_lock_irqsave+0x7b/0xe0
+  ? __pfx__raw_spin_lock_irqsave+0x10/0x10
+  ? __kasan_slab_free+0x47/0x70
+  ? kfree+0x21b/0x450
+  dma_fence_signal+0x72/0x130
+  qxl_release_free+0x2cf/0x600
+  qxl_garbage_collect+0x25c/0x500
+  ? __pfx_qxl_garbage_collect+0x10/0x10
+  ? __pfx__raw_spin_lock+0x10/0x10
+  process_one_work+0x696/0xf90
+  ? __pfx___schedule+0x10/0x10
+  ? __pfx_process_one_work+0x10/0x10
+  ? _raw_spin_lock_irq+0x85/0xe0
+  ? __pfx__raw_spin_lock_irq+0x10/0x10
+  worker_thread+0x4bd/0xd00
+  ? __kthread_parkme+0x8d/0x170
+  ? __pfx_worker_thread+0x10/0x10
+  ? __pfx_worker_thread+0x10/0x10
+  kthread+0x32e/0x420
+  ? recalc_sigpending+0x162/0x210
+  ? __pfx_kthread+0x10/0x10
+  ret_from_fork+0x362/0x5a0
+  ? __pfx_ret_from_fork+0x10/0x10
+  ? __switch_to+0xaf9/0xf30
+  ? __switch_to_asm+0x33/0x70
+  ? __pfx_kthread+0x10/0x10
+  ret_from_fork_asm+0x1a/0x30
+  </TASK>
 
-Yes, I tested it, on the vhost tree at 44293796526f (KASAN + lockdep),
-count = U64_MAX:
+Allocate with kzalloc() so an uninitialized fence is always seen as such.
 
-  1 GiB zero-filled mapping:
-    without the patch: EFAULT after 27.4 s
-    with the patch:    E2BIG at once
+Fixes: 2bcbc706dfa0 ("dma-buf: add dma_fence_was_initialized function v2")
+Assisted-by: claude-Sonnet 5.5
+Cc: Christian König <christian.koenig@amd.com>
+Signed-off-by: Óscar Megía López <megia.oscar@gmail.com>
+---
+ drivers/gpu/drm/qxl/qxl_release.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-  2 GiB mapping, SIGKILL sent 1 s into the ioctl:
-    without the patch: the process is reaped 46.7 s after the kill
-    with the patch:    the ioctl has already returned
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 06979d0e8a9f..ffc9e8f0a4c2 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -91,7 +91,7 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+ 	int handle;
+ 	size_t size = sizeof(*release);
+ 
+-	release = kmalloc(size, GFP_KERNEL);
++	release = kzalloc(size, GFP_KERNEL);
+ 	if (!release) {
+ 		DRM_ERROR("Out of memory\n");
+ 		return -ENOMEM;
+-- 
+2.56.1
 
-I have a small reproducer (a few lines of C). Since I found this with
-the help of an LLM, Documentation/process/security-bugs.rst asks me to
-treat it as public and not post the reproducer to a public list, so I
-have not included it here. I am happy to send it to you off-list if it
-would help.
-
-Thanks,
-Hengyu
