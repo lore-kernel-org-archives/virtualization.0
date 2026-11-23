@@ -1,97 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.43.1
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795420294;
-	b=uR/Wcf1+EqXw+WUG5g/naXZ8BewtwastJaeavns2Q5BfkhhCghOEYWyFj+O/b3f9x+c5
-	 2417J50OsEB20th1HinT7Dib82g9nPmUUc9g2a+FfzthOy1teHpWaYaxv9unjKgQ3J7C3
-	 3ijQOXZUheblUzW6Z/lnhuGwH3JiayEcKBXiTW2hOLdCfrdJCHSG17Eu4C2QvvC5Bpwqd
-	 GzDJXrDe/0aqjJVexxOYPqzbodUq6/GFV5wiHkEDkdD9kIWqY8OMdZAiidMtPgz2H6qNU
-	 /Ud5A/CsRFvHTS9uvkAx2/rSZqqWtWUtS4kiMt8mf5X6ObpiPrsGuNACTX9DzoNA9KQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795420294;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:From:Subject:
-	 Message-ID:To:Cc:In-Reply-To:References:Date:Content-Type:
-	 Content-Transfer-Encoding:X-ClientProxiedBy:
-	 X-Microsoft-Original-Message-ID:MIME-Version:
-	 X-MS-Exchange-MessageSentRepresentingType:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SLBlob-MailProps:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=lPWDWRH3aCg4NQBP1++l8KXO5+4HENxaSy3szC6X9Yo=;
-	b=2JV3n0/eaVYG/2Mek4lLHW7cCOb8Ue0euWZd077P1LvPSTEmPuJh6VGCQ98oVIFfVqp7
-	 m8Be9kGCAS1kvtvBwQvU9qL9pHEpR8GEv2SuNWV4DF96lst178nLx+GQLGHoqqxe+sQk4
-	 k/4yMgech1sQaHXOfV2iOtisWeyodqIG48t+kpYssLkrcV3X/LHN72JAi7VLSQG1Qw5m3
-	 H1nQ9J1CZsMtrOUIlKNRX2/HRIM1qkhZ/a7ZgS7msERLtTvgJZ+DQwKU04h5XGfkeS2Ru
-	 RW3N7ducDYS+Mytyd3rMrcRUBHr4x4IDBcsnKPqMxVis2Eq2eMZyAyQ2IFTRXdyoP2w==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=hotmail.com;
-	spf=pass smtp.mailfrom=hotmail.com;
-	dkim=pass header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=Wq3aExZP;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.43.1
-Received: from TY3P286CU002.outbound.protection.outlook.com (mail-japaneastazolkn19010001.outbound.protection.outlook.com [52.103.43.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795423630;
+	b=igOkUzVmJIjadrzXNVz3vCYDTIOHxHWH+sQlVTZTHnknUeZiF9LrrkcDF7DV3XlR+/Ij
+	 mQM3+t2LqnJazngzzAnxNjbfae4NXRkW4SjceSIiFUB3DqkUZoDDWJ8M0DEksEPHbUWT7
+	 Lftd0INjxoQtCKhieuVsIrWS8V0HvkHDOHwSiuenSzoWAwyvHGMLM0tYkbGPwaPSEAnqm
+	 ubXrZeKOnv7cAcAV0Uq0JnmpXL3JgYPsdj1m9NgFGYsxOksPh0e4Bv6Fig1SbKX23oneZ
+	 hqkhGk7TDZPskRW6Q4GGD/1vzG8gBntk3pKgb75peEN8RjeqDHB1Y8Fj9knzGTfH62Q==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795423630;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=6TuXSWDdixhSOXgwiZNhSVNfQgsPxpgQ0Wl0SXXvDBk=;
+	b=EOfGOhd2QWohUURDA6/RK8dd6GyYOeXDTcYLJlG2bWoVOUDqa7CYsqTj2+HJ/7znRBZ4
+	 S2ZJSCsJZbvsMAgGkWHOp4G7BmrAJvBAIRetEjnNSbMxCyX43KcENUUC14JMNElyszAOb
+	 Ysmgp5tnKNEnwM/CFiLI52s5XFJ04lGoOGojIjqHGbxTjkCTqYpclS2nv2l9qTdwxKGFt
+	 0yitk0ERuvDzJyzwDMYwOH3SGWNPtIi3dsue9NXT/JVxHknjOuXrH9p+uTNHIXBCKB9a9
+	 D9Jmgod9l4w2Uz61cvanHcVRzd7NpXLWDTZ8XunFa4nqaHv3o5k9lSC3r9LhGrfDtuw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0M13Uf3G;
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76559606A683
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 07:51:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 76559606A683
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hotmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55FD0606A32E
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:47:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 55FD0606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=Wq3aExZP
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=lWU6p80xRq3p6yAWnZ7nwQarfVYSxnWsprFLDnpA8ZSdmiVvw1bHszeHayMM0PZSkbUI5aZQKr0sxRJFsYqxA0xZkRbNlDaz9QJAOXdal5PmzRLbJve7+AX6blM5o/lbzREaIIcMJvNA/TW1XP7DbAAG1FWeNm8hgljbw9qcMOXE/jvDfQxV/Bnm+RGGdW7/Fe9M/h260xjwBtVFlyLhBWvkgHbHTc24NZNcpWjIDE5tKZm8YxhvNugd2fCc2Y1lOM65uAVtO7Cy1eMZX81RuEfAtMsjdudDufQ6i8WaSOJ8WPbDevBYqqdbtYfgLtPt5aQIVCFcmRDM2XTip8veCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lPWDWRH3aCg4NQBP1++l8KXO5+4HENxaSy3szC6X9Yo=;
- b=YUmvI5RHA73oKVCurytJSWGZwDpiFElJDoOgsFRUL6rbcePeeIzNHZE6Jwu2nLXdTT3RS/cDYyS3eEAxqeF/KafbV9e7iDwPIw8S4mqFIZqBTKleo6nSopKAmffmCfm0fB2aQmabe8zAD3IMJFPWcOkrxkaTqa3elK8ZSsJ0NFrkA1yYrrsGVLxKg8IENjqWJO8lXTwRGN9JU3BlJ0okMngVqmecZ+ca23qnmlrHqjHG2U0P+AhwYDY1INa2wUW6owpValzpJ9AzHieF+og5Lqlu3vUDbnIEbOWkjIP/8JqmvEFZPV4UXcV/qLuRhyEnLDMDE1TAArbhDwrNHRn3oA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lPWDWRH3aCg4NQBP1++l8KXO5+4HENxaSy3szC6X9Yo=;
- b=Wq3aExZPk0LRB+G8JCtA9gBrupeuJKKS5/A9xdCmgqhKEzu3ZFQmS6gov9LOZCQSLlHKbOS1EJu1P/+oA85yhUW8nqn+cRUXG+V8/jbdaKd8cEvk56xszsdjYLevWBnBgjpYspR7t2KYVTJLhYEleCREOhTXbgws5RvAq/nEQC/TveTOMqfOPH/Ygd6rw6wFO74tZks5z+wM8E3JMqBFjD6Om4jQXI48jzMw2Il2AhsMFntpM3GeTexWMXNGDUT50ymqHeXNqytWr3GBHcbZal1Ds9TltthNdzz1JLr6pYbEq9gjt7vFFdIr0yfbr4hBCVTYpTpAGuOEihqnMAWMww==
-Received: from OS3PR01MB10251.jpnprd01.prod.outlook.com (2603:1096:604:1e1::9)
- by TYYPR01MB7712.jpnprd01.prod.outlook.com (2603:1096:400:118::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.12; Mon, 23 Nov
- 2026 07:51:28 +0000
-Received: from OS3PR01MB10251.jpnprd01.prod.outlook.com
- ([fe80::7edc:2a40:7b8f:56f9]) by OS3PR01MB10251.jpnprd01.prod.outlook.com
- ([fe80::7edc:2a40:7b8f:56f9%4]) with mapi id 15.21.0639.012; Mon, 23 Nov 2026
- 07:51:28 +0000
-From: "Jiaming Fan" <fan.jiaming@hotmail.com>
-Subject: Re: [PATCH] vhost: mask the in-order used-ring log cursor
-Message-ID:
- <OS3PR01MB10251C7A76A9ED480E3C497FEE7452@OS3PR01MB10251.jpnprd01.prod.outlook.com>
-To: "YanXin Li" <fadouse@pm.me>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	"Jason Wang" <jasowangio@gmail.com>, 
-	"=?utf-8?Q?Eugenio_P=C3=A9rez?=" <eperezma@redhat.com>, 
-	"Linfeng Sun" <linfeng.sun.dev@gmail.com>, 
-	"Fang Xieyan" <fangxy@xiaopeng.com>, <kvm@vger.kernel.org>, 
-	<virtualization@lists.linux.dev>, <netdev@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-In-Reply-To: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me>
-References: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me>
-Date: Mon, 23 Nov 2026 07:51:20 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: TP0P295CA0055.TWNP295.PROD.OUTLOOK.COM
- (2603:1096:910:3::11) To OS3PR01MB10251.jpnprd01.prod.outlook.com
- (2603:1096:604:1e1::9)
-X-Microsoft-Original-Message-ID:
- <101fcc7e-2e46-49fd-8b39-fd318a05ddc7@milk.local>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0M13Uf3G
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-38699cf08dfso2686435eec.1
+        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 00:47:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795423629; x=1796028429; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6TuXSWDdixhSOXgwiZNhSVNfQgsPxpgQ0Wl0SXXvDBk=;
+        b=0M13Uf3GHEynZ6F1ICFL+pYdmLa87yHa+qH1quk2DCV0TmtAoCHQ/ZH9clywsoGp9q
+         FaLJxeRfdrfmj0v+ER2fc5IxDEFTUIFIpOxXhcjIld1jTJ/7znt+jUy/WOcv/oRkvCxV
+         PKZOk5BimYeS2cPVtV7CoOj8j5gNTEec6lafOlUbJDTFUZQschmp279UEjnbNgT8Pr90
+         DzduMJ8vs3QiMmC+WDAQnEKew2dIEYT7ne3Xgc9WSoIu1cuDuaXerfruXVG4b7GYLn/H
+         s4nh/PpYIf/5Ldel1wXkXuLyoabotEAw5SUvn5G/Nw9QOOYinL+4OWH+xuhK5Zd93ftC
+         Ak6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795423629; x=1796028429;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=6TuXSWDdixhSOXgwiZNhSVNfQgsPxpgQ0Wl0SXXvDBk=;
+        b=noqoHrWCJv1tmUmXQeo+SqqiE0sNHdLiOkNHvrW/lj169exjuV0o3LS80PMrQxZo5A
+         e7swUqjHqlO/mOV9j20Sj4BnEUoSCab2iVu4PEwUkPXUSJeg0oT+FzFWCa8f4ie5rB8L
+         Z/XTL2mAK0Yny42n/AzClqQl4dCh1pjyJwqMEaXVfJlsvRkwGAksVPq9iHY6zzFlFVrK
+         Z0xBb14q+Vi1+AvoxgzYCz4OXHkKoxWJzfDrFTAic+IvbMto0SSqeM/qiWAvMeFyZjRi
+         6plypYBBSRnKU38N8/ZxfPNbPtCmGpXZuZqCdImhbAx89HNnHv6Pjb9kcTvz2cNP5QYQ
+         z0BA==
+X-Forwarded-Encrypted: i=1; AL+hErHtwY45eW/7U1z4pdYIOaz1AABU4bIm8NSsR58ymjAnYdYfR6IeGkYMAyKtpgvlxHPR3hnFSSPa2OLp+gtSaA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/Mt7M8CnEQbpfJGo0QiTg2jhjV3YvsQwHeaFun1SGPOgdrLyn1
+	HCImTXtSdF7SpHSGC7wckTaol9NSxRnH96UBqXA+s38BNaPpemBDhkd6
+X-Gm-Gg: AZFdTZfm54k/E+4ESbpKqPLfVLRbQzqIb/a7GkowNSmhRQE2atObG98v3WOcl5WqgqW
+	8NnifpiFc/KBwE1ATVLRfP04knzEj/SWqLg6k21ZjhS/vXssJ6dA0nyJSkVnvDcsI7lcSqJw7Zs
+	GCv1IVAdjj5JIhyMiLzcw5guMucEaOhz0U9BHSfTo8sqLvOiHgCfslvgEXN8NAyWze+DMkyu+eq
+	S0xqNkdudN+cs0zLt0reCDZZlezngeXYqii+RAvBZ9BW6n0nHuqu1e/nOJ46vCKI60ywHFM0C3j
+	PBJ2J3z6IXN+pspISDNXBm1NZe7vbWQAXPZkCX3rPIEwKZAQC23UcVcLr7A2mx2KJMORodhwJJG
+	vDluirmCUlbMz8jZ18yq8AOFELUZuzHpBF740dXTATdDk3KowoFv83GmcUEMr9HkoIMM87URPLD
+	LZiNStyDUriKZtXXt8yI1Zql9ftntzk58/BDUewvpB9aBoaDYFDBbDv+BV7D6lXvw1op/NFOT9d
+	tfJRgOFNkbXO/PJPLy41Tf1yMUt2+lxXYF9qH3mGUKCLoPXgYqV0RK92I2HPe5Q7UsgRCHjRjal
+	c+L3HFL3YEWB2MNos9QRknmlGTRFyTmrhTEG3VKSWcCtTrm+BM3zElTQpfyOAw3wKpE+3is=
+X-Received: by 2002:a05:7301:6187:10b0:386:a193:7eeb with SMTP id 5a478bee46e88-386a1938b8dmr5853810eec.30.1795423629042;
+        Mon, 23 Nov 2026 00:47:09 -0800 (PST)
+Received: from annie-ProLiant-DL380-Gen11.. ([119.204.109.68])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385666e7f59sm36040839eec.6.2026.11.23.00.47.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 00:47:08 -0800 (PST)
+From: Annie Kim <pulpannie@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>
+Cc: Hyokyung Kim <pulpannie@gmail.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] virtio_blk: validate zone append sector from device
+Date: Mon, 23 Nov 2026 17:46:59 +0900
+Message-ID: <20261123084701.2616027-1-pulpannie@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -101,99 +99,158 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: OS3PR01MB10251:EE_|TYYPR01MB7712:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4b4e9ade-134a-4368-8e6c-08df49369461
-X-MS-Exchange-SLBlob-MailProps:
-	WaIXnCbdHrO+2YmbT5jW+WUSUt4IT5vRHao5rn7FxoTsezuGRCdYrpB3fEYUlndJs16BFRSBTX2nSySHwG/vtuLwjvW8xsGlXvPG+J+awfPuQ5+VuVVYqEQFN0y5EzgWNb9kMFTrxZ9MvWakqVZ1t6oOmTvMgsT31I0IPKFY7KgS2I9MxYYWLxkw890i3mDldSP8wzldVXEFspTv3QBfQn+EbYo9VjLq8MrnqVNvHxI8X3GoVBRPHKdwjrvblFmxVTwcRBssmFR2duwQe1Mye8KoR63NsDvWnHCC/4zsy6Lr3q1pl2VwsxgNKjPCTQr5IFctRnvf0YuqZiSjqkDOfofBpHQER5GGwCIQQ7hxkoo4V0ylDdoFrD1az7i1fH5MeQ72JcC2Osk3ezvIn7pBjPkKXWJpSsKqeJObsEIfsOUZaYf+xwQjTXHyMIEdtEAtu9uSdFZSWfUQm6ZPbmzA+ABEmsfgDuFJye9Bxd/DKamsdgHXoEJ68sV96UmKtZ0MgRJyyKtwqbAZNpH8iwiG/I0NrQEy/q/jkablEx7lMbSuupLqChI7KT8GTQOak7rzFL3AF4sa8L81pYSUUfPgxJTxpJs2KnALJj/2tSfhGnU3krnVZiMnrAtVG1yWQG00tPBGx5lPOmNoGxjw8BBBa0/HiniuXpANMqFnOjrMm8eECeA0jt+uSgv24iWkGBtvdB6pMu9gAOn/IL9k/uTFHHR4I3qFiH5uQuhmm92axcqyq+dgF7eDVWiNZzKtemJ+6dVvN1Q2CkA=
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|25031999004|22091999003|24121999003|15080799012|6090799003|5072599009|23021999003|19110799012|55001999006|24021099003|8060799015|25010399006|4140399003|440099028|3412199025|52005399003|40105399003;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?REJuS3dFTUdUSXRoMmQ5Q3I2NnA2ZDhCK1hEcy94enUwY1ZQZ3hZTFppWGVw?=
- =?utf-8?B?ZWpXTXJ6R1pEVHpiZUhHVUU3MGtDRXNnRkR4RWZGeGo0YmdKOVFFblk4aHhq?=
- =?utf-8?B?U1dhb3hGT3pNL3Z1UVorT0dscmtRbmdmc05RZU16K2lJLzFkRGRyeTJOUmJ0?=
- =?utf-8?B?MW04eHlTajdqVkpZSnlDT2x1SHNjUXYzSHVUcjYrUTFHTStqbE5qak1ITjdv?=
- =?utf-8?B?Q3ArYnB0VWV2RkFCRVFVTDdHVGpHVGhzVUFoVGFwSUc1elJLTGpxUDZqVkdi?=
- =?utf-8?B?T3JQbkVrNVR0N2w0Y01vbXdwZjRkOXVTYU40MFhKMTNBeDV2ZzRCNFpWUDc3?=
- =?utf-8?B?MTdkNHRxVTNUTE14bkV6bmIvK1J1cU8ySVpsU2tNempEUmtDcUE3TzdMM1FK?=
- =?utf-8?B?SE12T05wc1F5SnZSRTQyd1d2Z01kQURpVE5Fek9rS3l1ZFhNM2tXRnc1dW9v?=
- =?utf-8?B?TUt4MHZQaGkvZHMrVnBSUlllTkNKOGYzb1VZdmFaSEpVS2FCQlN1SHc5MjYz?=
- =?utf-8?B?T1M2UFV3WlFBclNxdHFNR1lEQ3d0VDU0MkdiYmg5M1ExRHY0WlFXZGZseWNk?=
- =?utf-8?B?blV3MDAybUFrM3NGWmF6N2M3ais0OWVuU1BIZzN4bjlTRDUySGRDTE9QRkVI?=
- =?utf-8?B?K2JTcTB3NVVxQVZlVENybnVieWtZbnEwSklYTzJWZk1aSndQYysrRFFxM0RB?=
- =?utf-8?B?bnE3SGJtL29WS1UwUjBEeEVQWHRTZ3AySVorT1FyZm5sN2t0WVA3amtFZHd6?=
- =?utf-8?B?TFB5eXl6SkNQT3hTNk1iZm1YSGoyclBscTVLcXlyYlIxbkwwVVBLblBoRTJl?=
- =?utf-8?B?QzBCU3crelFjdms5QWg0QjA2dVFpVUFwd2wybjZnWWtIcytLaWxMQVJVczhi?=
- =?utf-8?B?NkMrcys0M2VXa1ZCcnJydGlFaU10QXJ6RzYzQ1FKbDBBK09yNll0WFl4STJJ?=
- =?utf-8?B?OGVOcXh5TDV2REgzWTZmYXV2TnRudUdqbmRGK2xSQUpYOFJLVVJkTjhCOWJO?=
- =?utf-8?B?eFJvTnRyUTdld2lldzRpOWJyVEYxVlNXZHdOWjZGTkhHWUVtRVJRenBTVGpL?=
- =?utf-8?B?dndJMVRCcDVHMStkNm80SDJvUzJaZlUvb0cxZHB6S0hBRGlxWGZ3NkRpMFpO?=
- =?utf-8?B?Y0Z4cTFnWFpvZk0yRmFKb1p0S1FjaFJEUzhIbldGNHZrSGUrcUdwMEVIV2p3?=
- =?utf-8?B?SHBZempWN1dCN3Z1aWdWWS8zSS9TTG9OdWYyZjFySzZSaFd2SXRwM1RPdHBm?=
- =?utf-8?B?b2d2dm9qTDYyYVE2ZWdYOGovMVFYZUxvTkhuWUMzOExLMWhBUHp4SjBsOTgx?=
- =?utf-8?B?Vi9DUklRU0xGaTl5RHdZZC92anYvSW5aVENoN3ltaTNYdjdtUGVRZnc2WXZO?=
- =?utf-8?B?M0hyTzRWTlNsMHRka1JWSU5oSWtIc3BLd1RsK2hYbEQ3R0ZPVWlJRk1BeEhv?=
- =?utf-8?B?ejc5VFZGOHFuS0xUV09IaHpBSGV0UUJzY0w0VHhESHB1YzNDc1Q5ZVN3ME1P?=
- =?utf-8?Q?RkpIjk=3D?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Y05GQkltVGgvY0RkNUIrSXZNbWxXcENwR3JmdmdBcmlIYi9GV08ySEhyclQr?=
- =?utf-8?B?WG5vRE5rVjljZ2U0MVZzeGtKY2RkT0MxWDFOYkd6T1p0emZRUTJvdVI4Mnor?=
- =?utf-8?B?VTlrS1JCOEVEUHQrL29ZeUNJci9mR0FmTnpBZktvRlliQ21GeG5UbU9FUk1o?=
- =?utf-8?B?SURUN0dpS25mN2c3cHJZOTQvaHZqWFRINS8yTlhKLzNnb1dFbkRKbC9kbzlE?=
- =?utf-8?B?ZnpKRlFjVUpCZ1FmSFpEQ2JIK2VGaUpuMEtRWHFkaHkxSEJubWhEQXJRVzYz?=
- =?utf-8?B?dStPS3JnYmJhSFlVNCtYZ3loOU5sTi9RRzVvVkl6cURvdWtNZzhKMWd2aE9Q?=
- =?utf-8?B?Vi9kRnRrekQxN3ZhSVErWW9zUjVBdXgvZlZJWkxkek93Vnk1OWdXc2lKN1FN?=
- =?utf-8?B?NDZjWTFFQ1BVUmtWei8wOFM3ZTRDZkVhUmI0VmJORU9aUWh0RFdkaFVIOUxa?=
- =?utf-8?B?eUpFay9vbFU3V08rYlN0UkE3VTlCSUpVejZVaUhRdERhVzBhZkljTEpiMG5u?=
- =?utf-8?B?Q2I2am4wSUtQTktTckNXalRoaW9OcWE0RXpRa1RZWTN3RktqQXJwd1NZNVRM?=
- =?utf-8?B?Unpoekh4N2hNT1FqcEdhSTJYc0JpTk93T3ZRazluQk00MXFKTlpkUVpNdFRK?=
- =?utf-8?B?WGlpbWwzQWhPS0ZFWGpkRzg3SnpRdG13c2VpMGpabk5nODIyeGlKdHY1aWpH?=
- =?utf-8?B?SVJMbHhPcGZOTEFEY29RRHpyTHBKT1RoZzJnRDRzOFJMTjVsaXNxMktLdUZ3?=
- =?utf-8?B?V0FtUVRQZHFwQ0M4ZlR2K1ViQUJFZlMvQjIxVWtPK00xYjZNWDJPeWVLZzI3?=
- =?utf-8?B?NjBkYVlURzlBTzVnWncyT2FOb1ZCUWNqWk54NXNHK245MytJaHpDVjhJQmdh?=
- =?utf-8?B?NkJrNWRUM2d1YnIzYWdPTmJOZDJmbmVuRkxwOWxwSDU5QWJvZ3VQR2dPVy9J?=
- =?utf-8?B?QngwdVpIUkRVMTlQL2o1N1NkVzZuQy9Wby9ubERjVmdKVjN2TGNTM2ptOWhQ?=
- =?utf-8?B?b3NaTkYxa1lVbW5sNDB6c1ZPZzVYdHRnMGJIRVk1T0VJdjBEZmJzbjNkMC9O?=
- =?utf-8?B?TzczVEsxZTIyV2g5aXBLZ0lxeHZPeVBnTHpKUGN3SHltNWFCTVUyYTJZQW13?=
- =?utf-8?B?cTBvWGc3dUY5dG5KalZldnFCY2dSZzFMMTc4d0hjTitqRG9GTCtBS0V0VkJH?=
- =?utf-8?B?dVc1WnFBY20rcWxMVGR3YU9qUkx3MmtZV0psT0RIRWJKTUVPblpUT1hCa0xm?=
- =?utf-8?B?NXlJOTFZQ3k2ajZ3MmNHY0llTmViNlgzbUdtSUhsakRhM0xXREg1RjlDU0Yw?=
- =?utf-8?B?UE9valVFS2hjMmZFNURCSUFoWVpKS2dDWVZMMnVmQWptVWxmblVJY09sWkVs?=
- =?utf-8?B?clpocEtjTVpnelNPcXFDMTUzcUYzeUtSVUN5eEdFa0FWWnR3L0pCZkJSQy9p?=
- =?utf-8?B?Q0lZNi9IUVF0QlAyNGdTVEp3MFIrYnBtWWdFLytONForVzUyYTdNOG1CbVRm?=
- =?utf-8?B?ZWZzUmlIdllMN1VRWGp0ZWRGQ1RLaHlHbkdnRUw4bUY2TUR6ZWlwZFkzSm5F?=
- =?utf-8?B?RGpkNmV1WFJEU3Jpcjl1a3ZKKzNKTVZZK0NvMHN0VVhmY0J5UFA0WkszVWlv?=
- =?utf-8?B?ZnlmYVFtZ05xcWdEUHNycGxleGtIbWRxUElVckNldnRQTGJVYjZVdGtzd3Q5?=
- =?utf-8?B?N3EveWdVdmVNeHdlV3ZGa1UySEthTnN1Mk8rd1Y3Qjl3c1o0R0IyK0lweEFr?=
- =?utf-8?B?Q2d2MVluMVczVVhsakNEYjBzWGlUYkdSbis2VVlTeEZNbGFILzNKZUVEZGFY?=
- =?utf-8?B?UkJMMlE0RUxlTGtsdzQ3eUczZ0FseGwrYmZJTnBHdzJHbnpWUU1NUGx3YXVv?=
- =?utf-8?Q?NgHQQpEd7q9Up?=
-X-OriginatorOrg: sct-15-20-9412-3-msonline-outlook-b83fc.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4b4e9ade-134a-4368-8e6c-08df49369461
-X-MS-Exchange-CrossTenant-AuthSource: OS3PR01MB10251.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Nov 2026 07:51:27.9274
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYYPR01MB7712
+Content-Transfer-Encoding: 8bit
 
-> If the guest refills the available ring while get_rx_bufs() collects
-> one mergeable-RX packet, that packet can consume more heads than
-> vq->num.
+From: Hyokyung Kim <pulpannie@gmail.com>
 
-The mask looks right to me. What I don't follow is how `nheads[0]`
-gets to 64 on a 32-entry queue. Those buffers haven't been returned to
-the driver yet, so what can it put back on the ring? Can this happen
-with a conforming driver, or does the test guest reuse descriptors
-that are still in flight?
+The device reports the starting sector for REQ_OP_ZONE_APPEND completions,
+and virtio_blk copies it into req->__sector without checking that it
+still refers to the requested zone. A buggy or malicious device can
+therefore make upper layers believe the append landed at an arbitrary
+location.
 
-Could you share the RX test program you used?
+Validate successful zone append completions before updating
+req->__sector. The returned sector must not precede the request start
+and the entire request must fit within the zone writable capacity.
+Reject invalid completions with BLK_STS_IOERR.
 
-Thanks,
-Jiaming Fan
+The polling path may batch successful completions, and a batch can only
+be completed as successful. Perform the same validation in
+virtblk_poll() before admitting a request to the batch, so that invalid
+zone append completions are not batched and are completed with an error
+instead. Move the request completion into __virtblk_request_done(),
+which takes the status from its caller, so that a polled completion that
+is not batched is not validated a second time.
+
+Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
+Signed-off-by: Hyokyung Kim <pulpannie@gmail.com>
+---
+Damien, thank you so much for the thoughtful review of v1. As a beginner
+contributor I learned a lot from your comments :).
+
+Changes in v2:
+- Check the request op and status in the callers and drop the status
+  argument of virtblk_update_zone_append_sector() (Damien). The function
+  still returns blk_status_t, since the callers need to fail the request
+  when the reported sector is invalid.
+- Initialize req_start and nr_sectors at declaration (Damien)
+- Drop the Assisted-by tag (Damien)
+- Fix the sector being validated twice for polled requests that were not
+  batched (Sashiko). virtblk_poll() now completes those requests through
+  __virtblk_request_done(), which does not validate again.
+- Link to v1: https://lore.kernel.org/lkml/20261120063039.4155597-1-pulpannie@gmail.com/
+
+Tested on v7.4-rc3+ using modified QEMU backend that returned incorrect
+zone-append sectors on a memory-backed null_blk zoned device.
+
+ drivers/block/virtio_blk.c | 63 +++++++++++++++++++++++++++++---------
+ 1 file changed, 49 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2b462005cdb6..547291c3ab99 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -331,29 +331,60 @@ static inline u8 virtblk_vbr_status(struct virtblk_req *vbr)
+ 	return *((u8 *)&vbr->in_hdr + vbr->in_hdr_len - 1);
+ }
+ 
+-static inline void virtblk_update_zone_append_sector(struct request *req,
+-						     struct virtblk_req *vbr)
++#ifdef CONFIG_BLK_DEV_ZONED
++static inline blk_status_t
++virtblk_update_zone_append_sector(struct request *req, struct virtblk_req *vbr)
+ {
+ 	struct virtio_blk *vblk = req->mq_hctx->queue->queuedata;
++	sector_t req_start = blk_rq_pos(req);
++	unsigned int nr_sectors = blk_rq_sectors(req);
++	sector_t sector, zone_end;
++
++	sector = virtio64_to_cpu(vblk->vdev, vbr->in_hdr.zone_append.sector);
++	zone_end = req_start + disk_zone_capacity(vblk->disk, req_start);
++
++	if (zone_end < req_start || sector < req_start || sector >= zone_end ||
++	    nr_sectors > zone_end - sector) {
++		dev_err_ratelimited(&vblk->vdev->dev,
++				    "zone append sector %llu + %u outside valid range [%llu, %llu)\n",
++				    (u64)sector, nr_sectors,
++				    (u64)req_start, (u64)zone_end);
++		return BLK_STS_IOERR;
++	}
+ 
+-	if (req_op(req) == REQ_OP_ZONE_APPEND)
+-		req->__sector = virtio64_to_cpu(vblk->vdev,
+-						vbr->in_hdr.zone_append.sector);
++	req->__sector = sector;
++	return BLK_STS_OK;
++}
++#else
++static inline blk_status_t
++virtblk_update_zone_append_sector(struct request *req, struct virtblk_req *vbr)
++{
++	return BLK_STS_OK;
+ }
++#endif
+ 
+-static inline void virtblk_request_done(struct request *req)
++static inline void __virtblk_request_done(struct request *req,
++					  blk_status_t status)
+ {
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+-	blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
+ 
+ 	virtblk_unmap_data(req, vbr);
+ 	virtblk_cleanup_cmd(req);
+ 
+-	virtblk_update_zone_append_sector(req, vbr);
+-
+ 	blk_mq_end_request(req, status);
+ }
+ 
++static inline void virtblk_request_done(struct request *req)
++{
++	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
++	blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
++
++	if (req_op(req) == REQ_OP_ZONE_APPEND && status == BLK_STS_OK)
++		status = virtblk_update_zone_append_sector(req, vbr);
++
++	__virtblk_request_done(req, status);
++}
++
+ static void virtblk_done(struct virtqueue *vq)
+ {
+ 	struct virtio_blk *vblk = vq->vdev->priv;
+@@ -1242,7 +1273,6 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
+ 
+ 		virtblk_unmap_data(req, vbr);
+ 		virtblk_cleanup_cmd(req);
+-		virtblk_update_zone_append_sector(req, vbr);
+ 	}
+ 	blk_mq_end_request_batch(iob);
+ }
+@@ -1260,13 +1290,18 @@ static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
+ 
+ 	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
+ 		struct request *req = blk_mq_rq_from_pdu(vbr);
+-		u8 status = virtblk_vbr_status(vbr);
++		blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
+ 
+ 		found++;
+-		if (!blk_mq_complete_request_remote(req) &&
+-		    !blk_mq_add_to_batch(req, iob, status != VIRTIO_BLK_S_OK,
++		if (blk_mq_complete_request_remote(req))
++			continue;
++
++		if (req_op(req) == REQ_OP_ZONE_APPEND && status == BLK_STS_OK)
++			status = virtblk_update_zone_append_sector(req, vbr);
++
++		if (!blk_mq_add_to_batch(req, iob, status != BLK_STS_OK,
+ 					 virtblk_complete_batch))
+-			virtblk_request_done(req);
++			__virtblk_request_done(req, status);
+ 	}
+ 
+ 	if (found)
+-- 
+2.43.0
 
