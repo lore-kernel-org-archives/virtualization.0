@@ -1,87 +1,104 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795450129;
-	b=PdYkmjXi+R7hf9j9RcZp9CM6pz9zwrwVTdouhDjiT4ZbFwnLQ/sQyqYk2tbj0SP4jri8
-	 IUf7sd5Ff9DtPt6NrqPa7o3LlfiHWgl1da5F6dKP/XkZc3x/beMIJrqRciWCyA3kcuuPn
-	 dCA9lgHTw8JzNLIexSieTTGawBLJCphi/p8Z+6UpsjE7az8Pnz0JXSvRxmSRl3oG+QdlF
-	 vBNoPzw7DDLRR4/dccDUrnNTYERFKQZflyCsLOHdLGETvmkz0W/K5upFZ9qZKWgPNzh6Z
-	 U/o7HicCRL2gWt4r4jxZziynDgZqX0IxIYhBloCUGDASWJ7KWkJdAeLICdd7vm9za8w==
+	t=1795450640;
+	b=rTg9HmsThi9al8dte5UfKsUyp5Hpjk0i8/ko3VHpkMLITH8afmzO/ocsNlzZurcCCwJT
+	 qZIoWpY2Rz3yTroTvmfycHTon6Fb34HUptV/eNWfkyZLF2kGCONpd27Ij3PFg4YaB6n1a
+	 tvQifpw3NMQtaB57qKzD5549rb3uYSwWyHxUradm1e7ld72T9SYFFUOEaplQW6+4uLTse
+	 kWkB4QOcFWGlEPxGefdcYuoCKC6Wz3/EkDKS0UUaEUyZdAMPAbz/tiGpgLHRydyncoKfp
+	 tg+LbqZSFE9xs7dGf0r3i79sEbVVub3Qe7ZmEZwJqMBvJYdlR/Kxo7aY3ma7oi2PkAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795450129;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795450640;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=lzGh06KvbW29kTdCwqSFpXTG7Ti9DVLUu53y+m7EPw8=;
-	b=IZsjW4ZbNkKwJxnvZ/1KMO6cZfTh2XIBqqCMTQeHZ4+a8QOmBuqWiuOADrcJG/vWU+FP
-	 Pddi3gMCvesjmdhLCRjzBwz+QVi2mi4tMGS9GLFqSvylfub4iQwburLz6o98YNhbG2kDu
-	 K63UjHte7MffhHi+3LwCJPliOpE5eQMJuumQiRTLiKwOV5P+3cGTeeA2HZdsmbbCkOGPE
-	 uA7RVR9FWHzn1lRDbeIxP2LmqmK1fMA368Q4ANQDVrLrf2TzN317F7PjO88onAIwLPzIg
-	 81+bjKhAE/syqjt8EOcKa/jNLsYiPUsiQ0pF2ZxBDyhxWWyMXIApdxr5B54DKeJWOyA==
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=+GHb/SYd6gXinJYqxw1GDlcMLdqBI2V3zFyLkxFbZ0k=;
+	b=pRLebvWtiODN364TQ+0bNwkPovmz/gmxjKcrNHQgGk4cQwzvmHk6GTYH7RRJ8YY72U/b
+	 hqQ9OE0bzpHN4tuhJ9QJOO8VIWL5kN2m27BH+1F4l33XEk+pJSRZo7iX+bBGtiCAM+8dT
+	 N4VwumDlu8zLEW4vzmWVmwsm3x3zRUAh4QF0tzBU+ivL5sj+f1yLxaobCwGvoGnrRW35I
+	 qxsNR+Lj9PQhx9apuQwPpeBjA/m9O4gjNPi87LTOhN8EFWSqgduu/hASxQ3A/FBHQH+i6
+	 qc3k4IMmvYDSDXvwGE0ll48vScPD5fdmyJRjKrKP6pZ7c7UbFwJiS2hNnVGNNA1RW7g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C5nucsP5;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d0y4f7iL;
 	arc=none smtp.remote-ip=170.10.129.124
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 463AB606A31A
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 16:08:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 463AB606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33ABB606A330
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 16:17:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33ABB606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C5nucsP5
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d0y4f7iL
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795450128;
+	s=mimecast20190719; t=1795450639;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lzGh06KvbW29kTdCwqSFpXTG7Ti9DVLUu53y+m7EPw8=;
-	b=C5nucsP50WObmK5Q7uRc+TveRbQ433qzGh7y2uyYQKa3lu8VBblMI/jfSafsNlAU5bzqM3
-	2Oof31kKa1N1IDRagkxQGSOfEn7xcPfxwBTeYUwTJmOllC7W87Xmt98CG4KzUEqxzOoPdu
-	PXhmAJmsmsCBRCvg+AyMrINooTjHRUA=
-Received: from mail-yx1-f69.google.com (mail-yx1-f69.google.com
- [74.125.224.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=+GHb/SYd6gXinJYqxw1GDlcMLdqBI2V3zFyLkxFbZ0k=;
+	b=d0y4f7iLfivHQWBFjZe0Gb0OBVayfWhwiCEqqJPb++ZTF43w9Evr2zOYx/xaqsOAMzMnWO
+	XUq3Pj8B/mM93fSY62IjCEmz/wM6AFBX7ho+YTAqAj1P9+aiPlCOgEwb3QN2JdW8KPYe/E
+	5pdEqWMJK7WCfhOPW31VK2v1cVqB7Rw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-319-JM_pdWGsNTeD0ou_QjuXMQ-1; Mon, 23 Nov 2026 16:08:46 +0000
-X-MC-Unique: JM_pdWGsNTeD0ou_QjuXMQ-1
-X-Mimecast-MFC-AGG-ID: JM_pdWGsNTeD0ou_QjuXMQ_1795450126
-Received: by mail-yx1-f69.google.com with SMTP id 956f58d0204a3-67bda487981so4861069d50.2
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:08:46 -0800 (PST)
+ us-mta-295-1cEM7v4xNqqQ6NCjihfOeA-1; Mon, 23 Nov 2026 16:17:16 +0000
+X-MC-Unique: 1cEM7v4xNqqQ6NCjihfOeA-1
+X-Mimecast-MFC-AGG-ID: 1cEM7v4xNqqQ6NCjihfOeA_1795450635
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a16dc2323cso6024415e9.3
+        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:17:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795450126; x=1796054926;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1795450635; x=1796055435;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lzGh06KvbW29kTdCwqSFpXTG7Ti9DVLUu53y+m7EPw8=;
-        b=1Fg+Q7Jl0+Akf6JTJpo5HMLoyIapPwEtqoFV664IEpBjT2tCeWhG+pU+cFX9NOq8wh
-         aCMLTkGfFAT9JH986sS8iIihga9a3G8ua8FQB4BtVmn7Yhn0ppyKKUsFc9y46nkXnusw
-         csrMl4spuor5Wme0mnWKXIwvxlMlNJGxyJ7+8HV+t714rZqRZzz1nuR77iKMOswU+eNc
-         KD56EFRhLgr3BXrNZF+/UE3jbMuNHGrsDoI66/hHIx2XkFh20WVonUpj62zSdqL3zg+8
-         XY3kC7vfYCtJGC6jxEmGBWCkOV5T1DtzYMIzZq0Uu0OQSGQ4QP/ItunjwUEKo3dVPEkT
-         wz+Q==
-X-Forwarded-Encrypted: i=1; AL+hErEt4UvK/oLZ1lFgr3ycSfeAHz1rSedWJfp47Fvn2BqSe9wzPn9x4br+d9VqTAHj+Hze4GIYiAMtkxvoUa9UeQ==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+c91hdz1fffI2d/zaUMDLWmvEMDNTcAFyMZkFU9XwAeKCYm/FP
-	gNYsvScvMAHw9w+HMNBhxBDDTZ8LN8jRvlIYPNOrwaozBldL0DKGpIHjigK+VCxksGP1B3VHMTA
-	dyrNiYOhyU0YgbBdB7LG8jmjAAZNbZqjGALcsmCrQqBMHvOScrggOL30P+Aw7bnHihK6w+C0T+6
-	yuwCOfbnajYTX0CXlmJMy+glPSOKBg9unPrCfa+/u5do8=
-X-Gm-Gg: AZFdTZeuFTGQo/bXIGh+kw+b43OreHtEDV9RPNZ+/oh/CYS6uRT3aLsmoGofHKt2etq
-	wrx0680GVz5c+UdtClYSc4FxyFCWwf2rPEfrTC7KC/J0+/wd8TqmOkDabMXU6FhlRh/3Udf6uEx
-	DJbJl6RGfYxodCOT+mD3zo6kSDek1iNqvPj7Lj71B4pWFgOd6vbmAq80Cf9uFSV2ksw1havaivM
-	WjYX4fYvu/H9eA9ylyOlKIyH7QAsj/ALiIw1+UpDX1edAvRlgWIcQuFG8Y=
-X-Received: by 2002:a05:690e:4883:10b0:677:d5bd:8349 with SMTP id 956f58d0204a3-67df445d5bfmr2252246d50.63.1795450125522;
-        Mon, 23 Nov 2026 08:08:45 -0800 (PST)
-X-Received: by 2002:a05:690e:4883:10b0:677:d5bd:8349 with SMTP id
- 956f58d0204a3-67df445d5bfmr2252240d50.63.1795450125014; Mon, 23 Nov 2026
- 08:08:45 -0800 (PST)
+        bh=+GHb/SYd6gXinJYqxw1GDlcMLdqBI2V3zFyLkxFbZ0k=;
+        b=JpvSqpmrNITfib89c9RbQ+MO3hIE1UYn8gg9XbGFRDZziENSWMWw5K3zmUe5ooZViS
+         yVmCeyb08pos30AjLnMX3UiAHDGgczxPQFkA7E4WUJR7jdD+QcLG/GND/lCRQU4dALOv
+         MR+7OHWgnySZpB3mRqjISc/QpWI0X4k8SCnuq/btAHFf90D/DiZpzF8a4vDaPKTY3l4/
+         /1RWdE6/aSPn6YC7ftjapUu4QTw08yc80ibK9Zt42EoI5G8VXbl9EeHqUP2QSw+1Gh+z
+         gFGfvuIv62GsPjJd3VIJz3EwFFknJYSYdYzqi3AFABcWyTXuHT9ya3hd7DaCerUBX72s
+         Vl1g==
+X-Forwarded-Encrypted: i=1; AL+hErHkvERXyLl6AuuE6UHir3cjJFTpMEw41MxJ1c0VDnkCHWK18EOFBnc4G2KOfWd+UTV1zs5eDII2CgQo9yg0Ig==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/KcySAVdmhUBMHdSeOxWs1ywnZ60SNbVsFS5SbPs/76hSrpK2A
+	STrJSd+zG15OEepvzaTDkHGsVmUsLk/llezuM4KoCrk8QUA1VmFc5B1T6I1fGjomqLIOlwl3yJd
+	XU0ZXqgWLOvPm5gc2f6lCvPriFE4FVeEiHnmtEDieSWVJ6gZmDtHaOYTVuTHnhvT29CJrrF0zGU
+	Ur
+X-Gm-Gg: AZFdTZdI8u9fNlyUZ0w7yuzc9eAx246i2cBnLKmUdlFLmg5KFMKaYj7zKsUT4eqaZF3
+	JR3ZaDFjFzo22YMVZHKUpoaTfeKW7Mf2kvzpGTLEV4O2t4z8oGS9tf61EhgE6XUy00zwL76zYjZ
+	5PUBi5eqoOhsKgig12zbZlf7TimqR7BEPMJ1iPLb0SMPBtqCfsuSTLFMjGltjWNag3U21K3Vh1k
+	zimkjiBAWPCON7Vp7ApyfgQwJQodluRK4xvRieA1CCGLDujKVMagnNVKNu0Qy63sUzBEt94uCVD
+	sqXrcCeSN9AfQ8ZK5JI1s2gpnDoGo1vTeKjR4z48QxqVNNA3SoZGpV2Oh4/q9Fakh09/HEYZ51c
+	ca0lcYPomz7ob4fGhmb8Hf5NMVA3yI76ya/w4MdRjszxcUXNhc9DBSA==
+X-Received: by 2002:a05:600c:674d:b0:4a0:1fb9:2f51 with SMTP id 5b1f17b1804b1-4bb88808263mr270420315e9.14.1795450634799;
+        Mon, 23 Nov 2026 08:17:14 -0800 (PST)
+X-Received: by 2002:a05:600c:674d:b0:4a0:1fb9:2f51 with SMTP id 5b1f17b1804b1-4bb88808263mr270419595e9.14.1795450634202;
+        Mon, 23 Nov 2026 08:17:14 -0800 (PST)
+Received: from sgarzare-redhat ([80.116.143.202])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb9067846esm209571105e9.4.2026.11.23.08.17.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 08:17:13 -0800 (PST)
+Date: Mon, 23 Nov 2026 17:17:07 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: jrmmhm.kernel@eldare.de
+Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net v6 1/2] vsock/bpf: fix zero-length, MSG_OOB and
+ MSG_ERRQUEUE reads
+Message-ID: <awRlwL1epH1j61Z7@sgarzare-redhat>
+References: <20261114-kbh3-1-022-fix-v2-v6-0-96b6029bbffa@eldare.de>
+ <20261114-kbh3-1-022-fix-v2-v6-1-96b6029bbffa@eldare.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,98 +108,79 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261123135646.3962652-2-dtatulea@nvidia.com> <20261123135646.3962652-3-dtatulea@nvidia.com>
-In-Reply-To: <20261123135646.3962652-3-dtatulea@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 23 Nov 2026 17:08:08 +0100
-X-Gm-Features: Aa3M54pR7ZVMpPP5oNO1OCA7GwyP-se96UdMP4VNO94DAWt_5DL7ZGYCWayniuk
-Message-ID: <CAJaqyWedvj6htnM4rJyrbynW3u1k=6uLHrfuK05YvM5z8v1Hjg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] vdpa/mlx5: Fix error cleanup when VQ setup fails in .dev_add
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, stable@vger.kernel.org
+In-Reply-To: <20261114-kbh3-1-022-fix-v2-v6-1-96b6029bbffa@eldare.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: BFGuw6NJIx-vwgaClEX11XLEiP4cqqE5_eyMwQB1eLY_1795450126
+X-Mimecast-MFC-PROC-ID: lOhvjF7bzS6rqYWDikuxChy7dNKlJ_Xp9-3_Ic21k4Q_1795450635
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Mon, Nov 23, 2026 at 2:59=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
+On Sat, Nov 14, 2026 at 12:59:14PM +0100, Jerome Mohm via B4 Relay wrote:
+>From: Jerome Mohm <jrmmhm.kernel@eldare.de>
 >
-> When setup_vq_resources() fails in mlx5_vdpa_dev_add(), e.g. because the
-> firmware rejects the provisioned features (HOST_TSO4/6 without CSUM),
-> the error path unregisters the vdpa device first and then keeps using
-> it:
+>On a vsock socket in a sockmap, vsock_bpf_recvmsg() sends zero-length,
+>MSG_OOB and MSG_ERRQUEUE reads down the sockmap path whenever the psock
+>queue has data or nothing is queued at all. That path copies from the
+>psock queue and waits for data, and it handles none of these reads:
 >
-> - _vdpa_unregister_device() drops the last reference to the device, so
->   mlx5_vdpa_free() runs and ndev is freed.
-> - destroy_workqueue(mvdev->wq) then reads the freed ndev.
-> - put_device() on the freed device underflows the refcount:
+> - a zero-length read with data in the psock queue spins with the
+>   socket lock held, and the delivery worker blocks on that lock;
+> - MSG_ERRQUEUE consumes stream bytes from the psock queue, and the
+>   zero-length MSG_ERRQUEUE read that MSG_ZEROCOPY users make to collect
+>   completions gets -EAGAIN or blocks instead of reading the error
+>   queue;
+> - MSG_OOB consumes ordinary stream bytes or waits for data, where a
+>   connected native socket returns -EOPNOTSUPP.
 >
->   refcount_t: underflow; use-after-free.
->   WARNING: lib/refcount.c:28 at refcount_warn_saturate+0x59/0x90
->   Call Trace:
->    mlx5_vdpa_dev_add+0x3e0/0x760 [mlx5_vdpa]
->    vdpa_nl_cmd_dev_add_set_doit+0x362/0x440 [vdpa]
->    ...
+>Hand these reads to __vsock_recvmsg(), the path of a socket outside a
+>sockmap, which does not wait for any of them. They now take one path,
+>so the order of the checks no longer matters.
 >
-> - mgtdev->ndev is left pointing to the freed ndev, so every following
->   "vdpa dev add" on this management device fails with -ENOSPC.
->
-> mlx5_vdpa_dev_del() already does the cleanup properly so use that. Just
-> make sure that an extra reference is taken during the call to avoid
-> _vdpa_unregister_device() from freeing the device under us.
->
-> Fixes: ffb1aae43ed5 ("vdpa/mlx5: Pre-create hardware VQs at vdpa .dev_add=
- time")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index 6830a80e8543..7a39b0bbbee3 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -161,6 +161,8 @@ static void mvqs_set_defaults(struct mlx5_vdpa_net *n=
-dev);
->  static int setup_vq_resources(struct mlx5_vdpa_net *ndev, bool filled);
->  static void teardown_vq_resources(struct mlx5_vdpa_net *ndev);
->  static int resume_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqu=
-eue *mvq);
-> +static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev,
-> +                             struct vdpa_device *dev);
->
->  static bool mlx5_vdpa_debug;
->
-> @@ -4043,7 +4045,10 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev =
-*v_mdev, const char *name,
->         return 0;
->
->  err_setup_vq_res:
-> -       _vdpa_unregister_device(&mvdev->vdev);
-> +       get_device(&mvdev->vdev.dev);
-> +       mlx5_vdpa_dev_del(&mgtdev->mgtdev, &mvdev->vdev);
-> +       put_device(&mvdev->vdev.dev);
-> +       return err;
+>The MSG_ERRQUEUE case was found with the help of Anthropic's Claude,
+>its stream-byte and MSG_ZEROCOPY parts by Stefano, and the zero-length
+>and MSG_OOB cases by the netdev Sashiko reviews. Each was reproduced in
+>a VM with a vsock-loopback socket in a sockmap, without kernel changes
+>or error injection. With this patch alone they behave as on a native
+>socket. The vsock vmtest.sh single-VM tests and the BPF sockmap
+>selftests pass with the series; I did not run them on this patch alone.
 
-As a suggestion, the cleanup could be more symmetric if
-mlx5_vdpa_dev_del checks for NULLs.
+nit: IMO talking about series/patch is confusing while reading when the 
+patches will be applied.
 
-But I'm ok if you prefer this way,
+>
+>Fixes: 634f1a7110b4 ("vsock: support sockmap")
+>Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+>Cc: stable@vger.kernel.org
+>Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
+>---
+> net/vmw_vsock/vsock_bpf.c | 3 +++
+> 1 file changed, 3 insertions(+)
+>
+>diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
+>index 9049d2648646..c9b399f37720 100644
+>--- a/net/vmw_vsock/vsock_bpf.c
+>+++ b/net/vmw_vsock/vsock_bpf.c
+>@@ -80,6 +80,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
+> 	struct vsock_sock *vsk;
+> 	int copied;
+>
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+nit: a brief comment here with the reason would be nice
 
-Thanks!
-
->  err_reg:
->         destroy_workqueue(mvdev->wq);
->  err_alloc:
-> --
-> 2.54.0
+>+	if (unlikely(!len || (flags & (MSG_OOB | MSG_ERRQUEUE))))
+>+		return __vsock_recvmsg(sk, msg, len, flags);
+>+
+> 	psock = sk_psock_get(sk);
+> 	if (unlikely(!psock))
+> 		return __vsock_recvmsg(sk, msg, len, flags);
+>
+>-- 
+>2.56.0
 >
 >
+
+Code LGTM, if you have to respin, maybe you can improve a bit more.
+
+Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+
 
