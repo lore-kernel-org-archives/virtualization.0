@@ -1,55 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.97
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795442802;
-	b=Y/tlOdUeKPMFdqlz+24SiybN/qIR1eCRldJXHQ5VS8YoabSogf9crN+PFBV369ao8iiz
-	 zZr4khSs6GtDL/XzkySeNH0oNEdf/esrZo06/IEx/6Gc1ilCsGUgcTWvJn7R0uUT9eD0+
-	 vMI2S2yGFvv06QwbSqYlWjEksFsMujKdNS+Z+btDvLe2M75JkLer/rp8MmsvJm/z09iAl
-	 Wy5w3XNb6WASfnDIzivOUqASoThcwonqVgR2lBP0DbUaliQXzd0CpaDJR2B12mloBFAiB
-	 oPgEqPoXry5uNQvsKGsXsEXbw0+X/grYJeljHPepgdxwO6eaW+iDFbLJf86oTxg7I0A==
+	t=1795444411;
+	b=PYI4tqu2uTX+vtY/TymGMleyOW7OVnKtaEMvH2d6J8c1S0JY6SQQd6ZmJEc7Y4UBhoSq
+	 /uKjkWxfC0mACvP2qdE+WEVAh33IQeWoBLZfS4GMjqYLWAwWm/WS7iEaL9psfmxnhv74G
+	 y1/V+WcVb/yEQPAg6LUP+KrZzxbGim3bSUA/F4zlsax0e3uaf/M2/hpo0T5gIHTUO052g
+	 ve2yc3o2oCjgiKSCzLgM/SqaXmr87Be9Ukmj5Oww2Yq3XMP0p42fCIfVG8CNxcChDJPLB
+	 Zt89S7kct4u/bxglSmrpW/bo9IVIw3bCgNTYilM2F4QkD1dbVq0pF0SWepxMmTxmaEQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795442802;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=nKSXhoh4Oa4WS7pgI/NqYnRFGbbpLmUx/Bh6U8MWlAk=;
-	b=fiqqeN/uCvUZK7dojL1IsRMMKxKtPZ81xvz4tO7h118bjngGp/wcVc+adQ7lBktWiiOh
-	 j3QS5ZgYD7A+cVqnyJ+P5fL/PE5j9c66QuAE5LnsyUdgg8olQgvvaZEDowMbQuyijhcrN
-	 UZRenXcM/Jj2uCPuOWOshTrOXEKzAR5Fq4x/7FrZox6PHjH0VnXXlIF5mSHj2sDtOrSTq
-	 qs3Rmyyms13pkCSp8UULtv2lSZ1N3d78RuBzWGM16qV6oEW/fn9ZA/Ii0dBoqRb9SL3MW
-	 OjaRKuX7SzSVHr1Op/ie/neuSDOb+xrj/zKQNOGLTFLmfS6VZ9KsgNZpdvC440r4ntA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795444411;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=OCPSiHkYqSNvnClc+FUc66tTva53YlW4lXZmEaSjud0=;
+	b=Cy1yS40rra4DCBFckIVgpHU59mGSxsPQEjQHc/BviZkRwXjJnL4sfeQ4JEXCovBUNeRt
+	 qIL2hocOXr8lKPBKHJRcu9WTUhOXB6nVWcXdKnry8ETtwPzF+sUJj2f4W/Da3CxwygkVD
+	 lUmYRzD8IG931Jas8l+CTG+kQpI+EW293ERbHWlcJKD/6J7i1OXjC28JxEIN7IXIRJ9Eh
+	 zjLmks0V2d2mdIU/ap8evkOduPtbLUJ4hbq8eaJVKk+E82Z4wmYtRWN3xG7NVfUJikbQh
+	 +Eq48UCcEKIDi1GeODbW5LEqa9RABwhd/wpwpx312g2A809kMGYdQhdm6Iu+COsB6qQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OYVWHtIc;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=xiaopeng.com;
+	spf=pass smtp.mailfrom=xiaopeng.com;
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=RkycBL4G;
+	arc=none smtp.remote-ip=115.124.28.97
+Received: from out28-97.mail.aliyun.com (out28-97.mail.aliyun.com [115.124.28.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4E2606A31E
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 14:06:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADAAA606A31F
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 14:33:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ADAAA606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OYVWHtIc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 011EC1F000CF;
-	Mon, 23 Nov 2026 14:06:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795442801;
-	bh=nKSXhoh4Oa4WS7pgI/NqYnRFGbbpLmUx/Bh6U8MWlAk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OYVWHtIcHD8TxnILpegxK0iqK3uGKZ1M7pdtCZc+NlE9zS1ssDcHvU/SRRqT+RPoP
-	 p5RaDgTiUtO4KiWean0B0FfoV5Y4vi4UN53XUVgmFCYNB7T0tfAcYC1vMM30KmH5Pz
-	 41UizErVqW0sRgfyPibuQfga8cUcHJN0/aUd/v/jHqKkoFqAhTnFcahJOey2xiw7cG
-	 YAN9HHqjG1n1bguyz+lYpLNBTCKqSYM2pBUXiXyyQUuR8k9R5IgQzFETAQHSIUws3e
-	 +HOnI2uDUet25ZUcxFvtlMIelOsDAf1MT1Cbm2g+f6zctvk1MhMIAtEGlFXjjd3ZxN
-	 pCpUCRhboD7Ow==
-Message-ID: <sashiko-outbox-229374@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 0/3] vdpa/mlx5: Misc fixes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dragos Tatulea" <dtatulea@nvidia.com>, virtualization@lists.linux.dev
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261123135646.3962652-2-dtatulea@nvidia.com>
-References: <20261123135646.3962652-2-dtatulea@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 14:06:40 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=RkycBL4G
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1795444400; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=OCPSiHkYqSNvnClc+FUc66tTva53YlW4lXZmEaSjud0=;
+	b=RkycBL4GD2EXhFYzp0KJkFi4j9vZnxYhH3VRJI9Qdrhr8JAxOmt0E2PeSnBtmCG4fwM84QAhno1JafzbyNRDPCfZXll792hP5JfMxnBhTZ+ZSI+PkBSVe+mZJalXkxYLLJb2a78JPVkFjnCVhiajTRR0vvnLNALV3DTcbtO5ChY=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.04439905|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00493033-8.00282e-06-0.995062;FP=6621435113100027107|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034017;MF=fangxy@xiaopeng.com;NM=1;PH=DS;RN=9;RT=9;SR=0;TI=SMTPD_---.k8K2y1G_1795444398;
+Received: from localhost.localdomain(mailfrom:fangxy@xiaopeng.com fp:SMTPD_---.k8K2y1G_1795444398 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Mon, 23 Nov 2026 22:33:20 +0800
+From: Fang Xieyan <fangxy@xiaopeng.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: Xie Yongji <xieyongji@bytedance.com>,
+	stable@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost-vdpa: skip unmapped gap in vhost_vdpa_va_map()
+Date: Mon, 23 Nov 2026 22:33:18 +0800
+Message-ID: <20261123143318.73514-1-fangxy@xiaopeng.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -58,9 +64,85 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Sashiko has reviewed this 3-patch series and found no issues.
+find_vma() returns the first VMA with vm_end > uaddr; when uaddr lies
+in an unmapped gap, vma->vm_start > uaddr and the offset arithmetic
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123135646.3962=
-652-2-dtatulea@nvidia.com
+	offset = (vma->vm_pgoff << PAGE_SHIFT) + uaddr - vma->vm_start;
+
+produces an incorrect file offset, potentially wrapping in u64
+arithmetic.
+
+The incorrect offset is stored in map_file->offset and passed to
+the mapping backend. Meanwhile, map_size includes the gap, causing
+the corresponding IOVA range to be mapped without valid backing.
+
+Skip the gap: stop if the whole remaining request is gap, otherwise
+shrink size, pin uaddr to vm_start and advance map_iova by the gap.
+The gap is left unmapped without error.
+
+Testing:
+- make W=1 drivers/vhost/vdpa.o
+- QEMU/KVM v7.4-rc1 with a probe vDPA parent; tested partial
+  gap, whole-gap and contiguous IOTLB updates.
+
+Fixes: d8945ec41120 ("vdpa: Support transferring virtual addressing during DMA mapping")
+Cc: stable@vger.kernel.org
+Signed-off-by: Fang Xieyan <fangxy@xiaopeng.com>
+---
+ drivers/vhost/vdpa.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+Reproducer: userspace model of va_map() with a mock find_vma(); shared
+file-backed VMA [0x2000,0x3000) at file offset 0, unmapped gap
+[0x1000,0x2000).
+
+  UPDATE iova=0x100000 uaddr=0x1000 size=0x2000 (partial gap):
+    without fix: ret=0, one map over the gap,
+                 file_offset=0xfffffffffffff000
+    with fix:    ret=0, map at iova=0x101000 uaddr=0x2000
+                 size=0x1000 file_offset=0x0
+  UPDATE uaddr=0x1000 size=0x1000 (whole request in gap):
+    without fix: ret=0, bogus map with underflowed offset
+    with fix:    ret=0, no mapping created
+
+Build: make W=1 drivers/vhost/vdpa.o completed without warnings on
+v7.4-rc1 (defconfig + VHOST/VDPA/VHOST_VDPA).
+
+Runtime: On v7.4-rc1 under QEMU/KVM, a userspace test client sent
+VHOST_IOTLB_UPDATE messages through the /dev/vhost-vdpa chardev to a
+probe vDPA parent with use_va enabled and dma_map logging.  Without
+the fix the parent receives offset=0xfffffffffffff000 for gap
+requests; with the fix the gap is skipped (map_iova advanced,
+offset=0), an all-gap request creates no mapping, and contiguous
+requests are unchanged.
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ff7d907..4a6a946 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -1109,6 +1109,20 @@ static int vhost_vdpa_va_map(struct vhost_vdpa *v,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
++		/*
++		 * uaddr may lie in an unmapped gap before vma->vm_start; skip
++		 * the gap so the offset calculation below uses an address in the VMA.
++		 */
++		if (uaddr < vma->vm_start) {
++			u64 gap = vma->vm_start - uaddr;
++
++			if (gap >= size)
++				break;
++			size -= gap;
++			uaddr = vma->vm_start;
++			map_iova += gap;
++			continue;
++		}
+ 		map_size = min(size, vma->vm_end - uaddr);
+ 		if (!(vma->vm_file && (vma->vm_flags & VM_SHARED) &&
+ 			!(vma->vm_flags & (VM_IO | VM_PFNMAP))))
+-- 
+2.50.1
+
