@@ -1,103 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795450858;
-	b=eRM5cg4Adv5lLGwAFMBmkrZ7+H+kom5BlfBtMz/oN6nLZr2z6Tu7HQTj/4fl9EGs70LL
-	 6aohd4Jp4WUZa486FU1WwTgShH/ROsORnR1mLU/L0XZIBbgBBYoZ4c1sIS2UDi0EFTTC1
-	 +QfpwztBeIG4mrw7DPLCXHqGniMfLoOqhPiGfS0w6QIDdYtUn8aX1ZoQt2H6W0RkB41LY
-	 ckI/NAfevOdE2P7OXElz59ba9gpSDQeP0JpA2JWT6yJoflLOoSQbAcApxBJnrQLiz+QCr
-	 HsjT8Jc3J4MIF0csmGyZc+QC1638WyFdWpomn7OoridU/F7MevXW0cTfmNct/RwHFfA==
+	t=1795452520;
+	b=CAdlK8NK6WqPlmfWB0nA5Gaf112rCCx0ecpT7gaKxro4IW5FhCQlUnquN/6Fu7RRTkbt
+	 lBuPdPzRttL8aKMfKh+eC9yByKIBMhcm9fbVv+d02ONvGq9u+gfrHqFMxgRu5jn23ciwA
+	 RVKUsmYwluPXfBCh1scjWrT4Ysricet1cMn9vVS61UpEsyTjqd63IbhWO1RxzMBhoDDKc
+	 xmuGFWB+ijKIk+Jp1JZEWOGr7b2Op9vwsPTHYvCIewuYjp5QbJR0AL8K77XYfoxPleMWV
+	 Ga1wJ1jUzYyYvFJKcVQWtLPZkZP862TVdxbsXOLUaBrImvGpkALTzhXDob3ZdbbnLzA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795450858;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=OMtq5aBML9D8zyZzLVDbeex6HGKBk1QCt6vR9V0tuYU=;
-	b=r6umGezKFUTyq+XmcrWHeTxdINLjW3ZuZBYUQ3AlqgU6DlsD7ePV3dhyzPju6rL10x3V
-	 pPxrEWpuAQfixC1p7hUXTRUyS7u0STLCJN+Yd08vPhykHejx4zHFm0LczROeX0W7BNrbS
-	 Tm2puXDdM2xQwh7nmUl2dsDdFSyAfFQvmR+MC3nA/bEEUJjMlLlyR8ca96pXStV9A0frz
-	 9y3NXhnw4oVJ21HTIxT2Kw/Bn+bjImjGsfXxNk47ZrLZcqEmAh2NgK+bFpv0x+/eXaU1n
-	 Iw1zKFnzrjCx4U4OUec6B7vnpmF7n7aRKQp20a17HHakCnivfUU1pTkUoNk5u8kiWuA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795452520;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=QTHxkjwnWdi0Sg67/NbYoTIjq9LWwP65YaigHl4xtvM=;
+	b=wHGloOPq5g9QCtsdihBU3I6WBK7GKJu1E9SXDSb8ys8pAl07kVz6supN57GhgAy/K90m
+	 QwsXE7EMGbcLXrojkht/tOyMmaWzuSkKDyUxLe9kmUkLNq1YiZQjz+eLtP+xt3IFD8vzM
+	 NmMLkmGIiX+ddO0TikcsB/1TRFnJrY2AVl79UHh2BzKQQ7i0fs8U8PNNcKSpcLUgABUgQ
+	 nCRg+nBwZvHZORFcYanzIhkH5z0V6ehbzJHbY8+TYsiGEisUUGZr14NaiZaB/2UVVaMHA
+	 MF8KGmEWgJIwZK6UmTVrGaAr3WxR4go9QFSUzQ2uAQdHgnVp53sBEhGwrPNjSDCNQJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="Yf48H/7w";
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=txLwN9ll;
+	arc=none smtp.remote-ip=209.85.210.178
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A4E0606A32C
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 16:20:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9A4E0606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59A8B606A33F
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 16:48:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 59A8B606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yf48H/7w
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795450856;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OMtq5aBML9D8zyZzLVDbeex6HGKBk1QCt6vR9V0tuYU=;
-	b=Yf48H/7w/9FB+A/8Me5stvnMKxqMCtMCAx1qe18pen+y8aOXIdb91/iK7dr7owJc/Lm62m
-	HdbUgCccy8sUq+aQEbaHD5mGo4eShDRnkwlkCr04tOczE5bqi23jSoxJqISgRWd3uhluO5
-	3oOrK6lempKzvyHKPSBsXaOnE9GBvXA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-189-c-Sdy-qwOs-230ZdogZT6A-1; Mon, 23 Nov 2026 16:20:51 +0000
-X-MC-Unique: c-Sdy-qwOs-230ZdogZT6A-1
-X-Mimecast-MFC-AGG-ID: c-Sdy-qwOs-230ZdogZT6A_1795450851
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4ba078f26f4so24689005e9.2
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:20:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795450851; x=1796055651;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=txLwN9ll
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8a07078200fso1771450b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:48:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795452520; x=1796057320; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=OMtq5aBML9D8zyZzLVDbeex6HGKBk1QCt6vR9V0tuYU=;
-        b=zr/Z8L/w9M2+o1p0FuNPVgBv9cDSjZVyVCXxZQzSCmo8IYHTsR0xBZVq5+H0shsRVb
-         UT72xf5vydqTSFX5o8zCwtkuwz8X1Czj8C2eeG04epyFm6W6TIM/KlvloAbTEFC9H8U6
-         MCPvAyxhWxUglHQjqNXeow3RFHHmFoTWlnR01ndnsdID+rPDJZycn+FJybOlYjKlubLp
-         Z5z8Ud25PuOmhdvlrWor3wyfz/XPgJgxpso7lyZO7rnayZRnxtaIhgAwX7FD0pGadHPT
-         3y+eGjNIDzgx+O0GtCBDTrw0v3qelOM1PAmT4e505iBPbKvFp21k7Qy8jS4W6B+KG4mc
-         KsZA==
-X-Forwarded-Encrypted: i=1; AL+hErEa8gwBM+/zx7OjgWRWl+USwmYaCyGV5y0g0XXShcNX9W2uLdrYEsl56oKqLPHpjprPXI0VNyz+KL550y9o0g==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9W9KqhsT2yqzDjXuD9g4eBQGn6ownC9ReaXEOcDyZ9no2T/e8F
-	3DjHYisBaPQzkGXa4LdLKc4nE7j6gzmvansDY/z1M5Cq9fWBkAs8cZOEZNUzl5NjF+wbXt2Ih+8
-	49y1O0ITbUUOm/gOj6SjBK0vZg0r0QC6Rqx1pQ9Il6bufMLUM29mCMVjftQyYjXcmYakr
-X-Gm-Gg: AZFdTZeT4a3x9N0vJ8PiVRBgWOkkdtz86u+/e4SCbXPhNcUbkD+yTqmpS4svUUoyL7W
-	7R+gGVlTs3FSNL1gtHX1rRkgI152BLDpe3mf4+1GgmzlYUCmvKCZa1qv323jgvgMn3dtfSu4ohZ
-	Z4NT2ExA7IAnDO6NGyXbihI1ZEuFfjKYetlWZ0UoQmPYEWizgVfOhCOxYyyWV3ItQOJWTvGogIi
-	cm1vipMpoz0AGWuQoWKykx28aDa6k6w112nHxLPiD77Y6Su7/woreu71xWpDsmJbC0G0I0fAseK
-	Wai35gPWmWlFgq+PvpM1BUcqaFrxMo5wCM+zz9Iy+9C5au7e75nt4fK5IzRxEG4HPlHzcADrMlQ
-	tIcpGwb/or8y43NA7QJFIgcBjHHRXVRwL/9Ib0KBMBK95LpGvg4iYeg==
-X-Received: by 2002:a05:600c:3b8a:b0:4bb:76d9:f81a with SMTP id 5b1f17b1804b1-4bb88824fc8mr265197995e9.34.1795450850746;
-        Mon, 23 Nov 2026 08:20:50 -0800 (PST)
-X-Received: by 2002:a05:600c:3b8a:b0:4bb:76d9:f81a with SMTP id 5b1f17b1804b1-4bb88824fc8mr265197125e9.34.1795450850173;
-        Mon, 23 Nov 2026 08:20:50 -0800 (PST)
-Received: from sgarzare-redhat ([80.116.143.202])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb8849e598sm320400955e9.8.2026.11.23.08.20.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 08:20:49 -0800 (PST)
-Date: Mon, 23 Nov 2026 17:20:44 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: jrmmhm.kernel@eldare.de
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v6 2/2] vsock/bpf: release sock lock while waiting
- for data in recvmsg
-Message-ID: <awRnkbbxYUw-ihGb@sgarzare-redhat>
-References: <20261114-kbh3-1-022-fix-v2-v6-0-96b6029bbffa@eldare.de>
- <20261114-kbh3-1-022-fix-v2-v6-2-96b6029bbffa@eldare.de>
+        bh=QTHxkjwnWdi0Sg67/NbYoTIjq9LWwP65YaigHl4xtvM=;
+        b=txLwN9llBvlRmNYUR+vvEymsCmBJ5ic2EI2O4iISIm5m0Vz4iH9U44mHYlmAo9m4L+
+         PHmX2hKQfkDknZoonnp8cSq0xo7/K8cCfMk1cqGeL67RJX7iKQGWg8VIL7KE1ED+ejTb
+         Id9/UMq+MKngLgWKCYnoB4lecf/bDCeayMMEVxP1JVyvIB4NDfd0baqn2sJ3rpIKwxVh
+         KOCEkZLu+kHnANQ+Hzh3kuKVili1YSh1dSpogcGd2HIwZ1e1yqRyAErkBeuM0nb3jCUp
+         X8CPFeIltHvZES0WR6mpXO3hlxlnsefgI0CPUf4hbCzHLQFvSecdU3BkMi/OAm1XScP8
+         xxUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795452520; x=1796057320;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=QTHxkjwnWdi0Sg67/NbYoTIjq9LWwP65YaigHl4xtvM=;
+        b=RHe9z9WCtWYiKFHyK9NwjIW6vE+bFD3N7uB5jPA/vFi0GBSvDrwnbD8rhfaDVge9aa
+         qVreJSdIuzLEY02wrPzbCO4QsOzuNpN7ysmIao5XgUsP0fGO1XKxo5s9wcRVG7S76S0l
+         VjZjYZtlYeu7FU7Afi0Y1aaAnL9hr9dpoDoXju56DBoqaNLckKCWrqUkPVoxZH9bgJsN
+         NoyFa2BbMykmomW0dABrqzMueqxQS0zeZfxI4W0Hj7gO9FeMU1uzRR8B5JXAoqNs7vos
+         ytP75FHdIAs8DjwiC2E7KFEpxAaPb79mOrvh5y7nWZe2WV5bQXh/UMzwyAkmRkv8/LGi
+         eSMQ==
+X-Forwarded-Encrypted: i=1; AL+hErG0KtDwMT99YmHLbyxu45AXGgGW08SvfZmE2S7kUhvgxt20iMdyGXBuU62PueoZcy9kNXE8TPGaxIwse9M48Q==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+8FtC7GPymKljtMDWrDafmgP3bd9EO6GgNq1SDQptfOxSgztpe
+	BOUbvMRImql7KHcCY84CQ/TUi94JyzQ7wqLh3xuqnaRF6mCkrw9a7G4c
+X-Gm-Gg: AZFdTZdUUjSN1eA2XT7y/CaDUmrDmwu96nL7OMKOE0I0Fy7nU8msGyR4QlDzztMrTM5
+	AoCDAi7qrjFxYSkWBssEgEdk4rkieW+sVz6d1CC0ShvYvIpHknc8FVUwEqaDzNAYGU2tshqvozg
+	prpRu1rl73y++o2hygXXw3YiH0AyDHuxl9zmY5mZHE8Fbw7s5hz/5bl+gMxbG7axmwwzOBqpPKy
+	QxQLLfuOo89d/Ac/RpJMnSzR3BSeJgIPvr6RQNp8Uy5J5UUI+lkssjV9jFbBgviSlZViADGR/ly
+	GKck3mR1pceNEWcgxtjk2WaKf8gp5r+4G4cC/QXwktdZFdYzPUynISS6Uv03ScQw6LS8vm5kk7Y
+	uta98XkXaPG8a7mEsb9xwyyiD+n6mHwooL6/QIyCjjAmXkTp5HrTeYyxp4KQgt/cKhk/8taAvnC
+	nEgBDLz6DYgHk2hkGEB+QSwYd2RmEpj2rZiv1U8i4p1o3jPlEXvxEm+92JHckFnerqidpAWci2D
+	kwY+HRx1Wc0cCAeMNFCOeMsYk9uAQeCic3lzTyonhbm/3ZIE0FJdEg9SF13LAZjwMpxKQxmfJNU
+	jbBpKVPgTbuzMW7INI3DWMjOFeBA4Q8RTEuCZgpi5XthGyQ=
+X-Received: by 2002:a05:6a20:c992:b0:3f9:9114:804f with SMTP id adf61e73a8af0-4014d15937dmr11140810637.27.1795452519544;
+        Mon, 23 Nov 2026 08:48:39 -0800 (PST)
+Received: from [10.2.0.2] ([159.26.115.37])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8c87343fe6csm6085691b3a.37.2026.11.23.08.48.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Nov 2026 08:48:39 -0800 (PST)
+Message-ID: <a7752192-b417-4e70-8f39-a3cdc983f447@gmail.com>
+Date: Tue, 24 Nov 2026 00:48:34 +0800
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -107,131 +92,106 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261114-kbh3-1-022-fix-v2-v6-2-96b6029bbffa@eldare.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: c8j08FAMiWLxq38zp7QD2FyS4j0ROJKlbknFqFAND_I_1795450851
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] vhost/vsock: annotate lockless accesses to guest_cid
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>,
+ Bobby Eshleman <bobbyeshleman@meta.com>, Jason Wang <jasowangio@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Asias He <asias@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20261117164916.2332953-1-phind.uet@gmail.com>
+ <20261118012321-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
+In-Reply-To: <20261118012321-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sat, Nov 14, 2026 at 12:59:15PM +0100, Jerome Mohm via B4 Relay wrote:
->From: Jerome Mohm <jrmmhm.kernel@eldare.de>
->
->vsock_bpf_recvmsg() sleeps in vsock_msg_wait_data() with the socket lock
->held, so the virtio delivery worker, which needs that lock, deadlocks
->with the reader and all vsock rx on that worker stops.
->
->Release the lock around the wait. The reader can then wake without
->data, so the wait also has to loop; the fix needs both halves. The loop
->ends on data, the timeout, a signal (the sleep returns at once while
->one is pending), a lost transport after a failed connect(), or a state
->in which __vsock_recvmsg() would not wait. Those states go to
->__vsock_recvmsg(), so a non-blocking read now sees them before -EAGAIN.
->A blocking read interrupted by a signal now gets -EINTR, or restarts,
->instead of -EAGAIN. One tested difference remains: a reader asleep at a
->virtio transport reset gets -ENOTCONN, where a native socket gets
->-ECONNRESET (0 on seqpacket).
->
->The deadlock was found with the help of Anthropic's Claude; the netdev
->Sashiko reviews and Alexei found the wakeup, reset, shutdown and
->lost-transport cases. Each was reproduced in a VM without kernel
->changes or error injection (the resets unbind the guest's virtio-vsock
->device), except the lost transport and a SHUT_RD with a pending socket
->error, which were checked only in the code. With this patch the
->reproduced cases behave as on a native socket, apart from the reset. I
->ran the vsock vmtest.sh single-VM tests and the BPF sockmap selftests
->with the series; they pass, though none of them sleeps in this wait.
-
-Ditto about series/patches.
-
->
->Fixes: 634f1a7110b4 ("vsock: support sockmap")
->Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
->Cc: stable@vger.kernel.org
->Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
->---
-> net/vmw_vsock/vsock_bpf.c | 42 +++++++++++++++++++++++++++---------------
-> 1 file changed, 27 insertions(+), 15 deletions(-)
->
->diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
->index c9b399f37720..41307759da99 100644
->--- a/net/vmw_vsock/vsock_bpf.c
->+++ b/net/vmw_vsock/vsock_bpf.c
->@@ -34,24 +34,37 @@ static bool vsock_has_data(struct sock *sk, struct sk_psock *psock)
-> 	return vsock_sk_has_data(sk, psock);
-> }
->
->-static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
->+/* __vsock_recvmsg() doesn't wait in these states. */
->+static bool vsock_rx_done(struct sock *sk)
-> {
->-	bool ret;
->+	return sk->sk_err || sk->sk_state != TCP_ESTABLISHED ||
->+	       (sk->sk_shutdown & RCV_SHUTDOWN) ||
->+	       (vsock_sk(sk)->peer_shutdown & SEND_SHUTDOWN);
->+}
->+
->+static int vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock,
->+			       long timeo)
->+{
->+	struct vsock_sock *vsk = vsock_sk(sk);
->+	int ret = 0;
->
-> 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
->
->-	if (sk->sk_shutdown & RCV_SHUTDOWN)
->-		return true;
->-
->-	if (!timeo)
->-		return false;
->-
-> 	add_wait_queue(sk_sleep(sk), &wait);
-> 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
->-	ret = vsock_has_data(sk, psock);
->-	if (!ret) {
->-		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
->-		ret = vsock_has_data(sk, psock);
-
-nit: a comment here to explain why a transport can become null would be 
-nice.
-
->+	while (vsk->transport && !vsock_has_data(sk, psock) &&
->+	       !vsock_rx_done(sk)) {
->+		if (!timeo) {
->+			ret = -EAGAIN;
->+			break;
->+		}
->+		if (signal_pending(current)) {
->+			ret = sock_intr_errno(timeo);
->+			break;
->+		}
->+		release_sock(sk);
->+		timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
->+		lock_sock(sk);
-> 	}
-> 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
-> 	remove_wait_queue(sk_sleep(sk), &wait);
->@@ -105,10 +118,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
-> 	while (copied == 0) {
-> 		long timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
->
->-		if (!vsock_msg_wait_data(sk, psock, timeo)) {
->-			copied = -EAGAIN;
->+		copied = vsock_msg_wait_data(sk, psock, timeo);
->+		if (copied)
-> 			break;
->-		}
->
-> 		if (sk_psock_queue_empty(psock)) {
-> 			release_sock(sk);
->
->-- 
->2.56.0
->
+On 11/18/2026 2:33 PM, Michael S. Tsirkin wrote:
+> On Wed, Nov 18, 2026 at 12:48:43AM +0800, Nguyen Dinh Phi wrote:
+>> vhost_vsock.guest_cid is written by vhost_vsock_set_cid() under
+>> vhost_vsock_mutex, but It is also read without that mutex in
+>> vhost_vsock_handle_tx_kick(), and vhost_vsock_get().
+>>
+>> KCSAN will report data-race if we issue VHOST_VSOCK_SET_GUEST_CID
+>> ioctl while the device has TX traffic. For example:
+>>
+>>  write to 0xffff88810f1596ac of 4 bytes by task 7914 on cpu 1:
+>>    vhost_vsock_dev_ioctl+0x25f/0x720
+>>    __x64_sys_ioctl+0xc2/0x110
+>>    x64_sys_call+0x299/0x20a0
+>>    do_syscall_64+0xc9/0x510
+>>    entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>>
+>>   read to 0xffff88810f1596ac of 4 bytes by task 7910 on cpu 3:
+>>    vhost_vsock_handle_tx_kick+0x41b/0x740
+>>    vhost_run_work_list+0x97/0xc0
+>>    vhost_task_fn+0x98/0x1f0
+>>    ret_from_fork+0x2e2/0x3c0
+>>    ret_from_fork_asm+0x1a/0x30
+>>
+>>   value changed: 0x0000004d -> 0x00000032
+>>
+>> Both readers load the CID once and works correctly with either the
+>> old or the new value.
+>>
+>> Mark the store with WRITE_ONCE() and the two lockless loads with
+>> READ_ONCE(), so KCSAN knows the race is intentional.
+> 
+> You make it sounds like it is just KCSAN false positive.
+> Is it?
+> if yes, this should be data_race. If no, document why.
 >
 
-I can't see anything wrong, just some nit comments left.
+This is an actual data race, not a false positive. The value of guest_cid
+can change while the TX worker or lookup path reads it with plain accesses.
+Because each check loads the CID once and either value is valid, the result
+is equivalent to the read running just before or just after the ioctl.
+Even so, plain concurrent accesses are a data race under the Linux kernel
+memory model, and using READ_ONCE()/WRITE_ONCE() also prevents
+compiler re-fetching or tearing rather than just silencing KCSAN.
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+>>
+>> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+>> Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+>> ---
+>>  drivers/vhost/vsock.c | 6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>> index 88a310390eb0..f26c59013075 100644
+>> --- a/drivers/vhost/vsock.c
+>> +++ b/drivers/vhost/vsock.c
+>> @@ -78,7 +78,7 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+>>  
+>>  	hash_for_each_possible_rcu(vhost_vsock_hash, vsock, hash, guest_cid,
+>>  				   lockdep_is_held(&vhost_vsock_mutex)) {
+>> -		u32 other_cid = vsock->guest_cid;
+>> +		u32 other_cid = READ_ONCE(vsock->guest_cid);
+>>  
+>>  		/* Skip instances that have no CID yet */
+>>  		if (other_cid == 0)
+>> @@ -572,7 +572,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>>  		hdr = virtio_vsock_hdr(skb);
+>>  
+>>  		/* Only accept correctly addressed packets */
+>> -		if (le64_to_cpu(hdr->src_cid) == vsock->guest_cid &&
+>> +		if (le64_to_cpu(hdr->src_cid) == READ_ONCE(vsock->guest_cid) &&
+>>  		    le64_to_cpu(hdr->dst_cid) ==
+>>  		    vhost_transport_get_local_cid())
+>>  			virtio_transport_recv_pkt(&vhost_transport, skb,
+> 
+> Will prevent compiler from hoisting the reads out of the loops.
+> Does it matter?
+> 
+
+Not much in practice: because the loop body calls non-inline functions, the
+field needs to be reloaded across calls anyway (and in `vhost_vsock_get()`,
+the `vsock` pointer changes on every iteration). I checked with gcc 16.2 and
+clang 21, and the compiler does not hoist the load out of the loop even
+without the patch.
 
 
