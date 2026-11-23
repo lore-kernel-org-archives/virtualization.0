@@ -1,105 +1,109 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795439886;
-	b=LBtRWeJD7O1zXxKyc9TTwHPkIs8t7BW43T4R5bMsKla7iUhi1oBfkODAj69CHPFWxeYk
-	 hZGAQEIkUPqwQvazWWvNE2ueOsrH3vOvgHEfTFrLBN1+YnPTqzCzSVgT/U6rhsUXqr+61
-	 rxLE9vZJjtHTK1kRPkDWeVIvXuCIW3gfL1FfNem4rbpbGaiMjw+2ufmWi5RulRqQinbdN
-	 bs+1BhyhFlD7hLThXhiQs8l9uR/jkkxdnUmdIrpURFqZ0FTEEYZRyfQzJ+L9mGGbQJ6XR
-	 PN9lJElN4aVGAnRmOQDMqtpj27N83Rj9tl4rf5uh3th/nIlx4ULfoK1ghWu5ye4r4wg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795439886;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=G8b0M55Qsr5j/jjPgd1PFdARJOj0KhBIrnCc7fyRQ00=;
-	b=CqDP1S4ALpMDLnbE2lqdCxE9cdZTzQEKyQ4lYiakHYD9Szzyl3XPsbdDKOM2kOuYTAdq
-	 QbFi10uQN72KSbuLVjELXmbEpp+o3ALEcfvOx81wS7R+xjVICkMGkxUpLL6eWL8ojCy9K
-	 +iGPrzi/00Q5rWtUse+nG78WAsvj0UNVsDkyB/j1+PmXzjYMZ+yLs7RrMDtjPJCVtD889
-	 YGRjp9PGm75GXrwHF2xOkg1nBr0NFzW3qnSd7RY+Cdgmp5hYEGonlNFh07MBYkGHyon10
-	 ss8NPOvqN+o32Ep8yvomhwBfmcNIOWHFig87XqBPPs/rbho9jryxtXqXHj8//lk9DlA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AoiiIpj0;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.53.41
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795442374;
+	b=4SwYc6wuxE7DEexVqiBSrieM8XyK+4Vb6URPzn8AbyjyeLxtX3BNz0e+U4uDzzDApsfG
+	 D776DL3MfrYYz+W9q3WaZapBh2IqDPlo+7psP3JiAm1bJ85GFhSBDdeVJE5gEi9syJ9fH
+	 YYkj7GCQ1ts8d3LDbZVYWk0ZP6BxabbMN7TkbqpyjEx8i83NKARDvUK74bSlZIhcKvs6Q
+	 ynHkoxohQw8hqjeFVkmyzhkGACcMevGeKl+ZfkbCjPISLlhN3DxIJVk7VxYRY0be5OT/p
+	 SfPRYVpvK0dk9LSfmZwkVsIh1Z5YcJ7Kyi/bm6wB808GBfk0ItdzfP5ISbjH6IdebmA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795442374;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:
+	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
+	 Received:Received:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:Content-Type:
+	 X-NV-OnPremToCloud:X-EOPAttributedMessage:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=frTHv8QvYSvGJVgZvgfZoTUzKOX0EfxbPZY31OxkMa0=;
+	b=MrwYOQdAxpeSCiQh8OcKJAVOVOQAz2lLBa2v8LY1vhW94p05nt06J6uvie3Qisch21Wk
+	 c5PCe2dvlLlVOBSbv5FqyL+n/PUYnVaIASqtaotDhmIq8HtFGCHng5de1AS1E1gRoPyeo
+	 yDW4mUBxodA0O7lHhb/HBhJ0CTYuAEgiJd4Q3K6HoP5oRMvD9PLdwIfG6b+C2Eo0ImEi6
+	 7nz4HJ4eCqsIWGM6UHVz1nC8jpVm3L3lq4C0h6o1FKRj+5YQOPrxBTlB4NS3OvMDBukNv
+	 nAYwpP1X/yDhobuw69uPCT4ZglMtonB+MrwUXMkFW8TtF4t0PkFdvusRhTxhdyAdIXA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=nvidia.com;
+	spf=fail smtp.mailfrom=nvidia.com;
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=CTCpp1DM;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.53.41
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012041.outbound.protection.outlook.com [52.101.53.41])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1787606A321
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 13:18:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F1787606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A34F1606A32A
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 13:59:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A34F1606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AoiiIpj0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795439885;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=G8b0M55Qsr5j/jjPgd1PFdARJOj0KhBIrnCc7fyRQ00=;
-	b=AoiiIpj0VZTp93rJAZ3T8xrfi0Oih6SS/iRqZs+Sd/TTloTOuS4JD6P2Ere8+TnUYGq+PX
-	tVbxLoWm7HN4LGuFdrGZiU6cae+j7QHwSmS+zDVxxRZ/HTv3Y/z5+H4kfjNzls0zHxzz2X
-	hVSkmFq+MSw8hWyz5z3e2RysP3O/Auo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-557-lakETB_iOVmzXbNPrdPRlg-1; Mon, 23 Nov 2026 13:18:03 +0000
-X-MC-Unique: lakETB_iOVmzXbNPrdPRlg-1
-X-Mimecast-MFC-AGG-ID: lakETB_iOVmzXbNPrdPRlg_1795439882
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4901562b819so2390739f8f.3
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 05:18:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795439882; x=1796044682;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=G8b0M55Qsr5j/jjPgd1PFdARJOj0KhBIrnCc7fyRQ00=;
-        b=PFh0rqB//VJgBfo5lvJyq6u/LvUTQgPvXKYkj/LMIntd1TUAWWw+amGtA1WLta65b+
-         p4HubZ4tT2gw7tNpe1FYCLryGvJyUMlEK5FUnSgVPGwhTR8QwiGu1cKxiBYhlzh4NnEk
-         yszgwWIXNMHOYxo9K0LI1gxGymoLW3imvK7MFw1E3OX0EhS3ow+9+o3cfPgiAgIhNPo9
-         k6PQK+n5p7qsYq+vdXSrBZ43pO2O96yxAQ0bAx4Rj0HLjvWwhapfQgXl9MRchHr0UWih
-         r5hBfy93ItQYSsrMaD9XOJfiGoElHFzFlYvk7DLrYnRJjK1wYLHSKoMneYnN2ngvUHj5
-         zNQg==
-X-Forwarded-Encrypted: i=1; AL+hErF3s2/Idx17CALFwtDzis6BrdVJYUn3DoAPOkg3O4gUVNbHeE3EqPtVWXpIIcJUzn0N5IvkHkeuxAG4ZqNz5A==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/N9HCVcvutvtwwAXV1uo/yNcAWV0szH77NBnEUwdpfC3+tC/wr
-	FjsYwxNqsbWrh/LNBK+ljlwozWC7kmlSyB6iVsTaR+x4wyvR69mas6fEUP4EFrC+ACuEBjX9YKH
-	aRcmgZC/UlG0ybvG+ysDZWhDIuRcmKy3W31sDcgPC0RsgKnBLd8THmp9TCju/tFFJcqof
-X-Gm-Gg: AZFdTZcPLIo7IgezKIKAskb5/D5KBxmDo/8Bkg0l6JEk0oNttmFRdgNDRm4uKxECmu7
-	VqYpi3OHEfxwXLWo1gpMRjtuKAN/aNkqGKamYRZ0oHMLT+69lsV6EoEu89mmeraEYA3aO9FZ2HP
-	Yvk3kH70jWxhWA3wCAa9ZsZTwMsGxvO6UCPM12CBKmvy7UhE1NtF1NA5uCRxRs8nd8YU7Mlehie
-	eI9NFXvpni4jV3/eSaiSYyORTtswzxhjJNmcRtrZN1Rbnhc9pXhs2CQdTtXaAsSoyPVLnjbVZHn
-	jA+J+kU8+JxeFR0957MlkZhB1NRooFQkkkkACNsBXZZRVsYwPNo9zvdkCBQy9EMmVN8xAifct+X
-	9lQFe3rjE87/TDGiZqAAYnFZCbDRFuKrvqxIkW+DWLIeQ96nFCwaa0g==
-X-Received: by 2002:a05:6000:491a:b0:4ac:37ff:140b with SMTP id ffacd0b85a97d-4ac37ff143amr20351757f8f.25.1795439881941;
-        Mon, 23 Nov 2026 05:18:01 -0800 (PST)
-X-Received: by 2002:a05:6000:491a:b0:4ac:37ff:140b with SMTP id ffacd0b85a97d-4ac37ff143amr20351692f8f.25.1795439881467;
-        Mon, 23 Nov 2026 05:18:01 -0800 (PST)
-Received: from sgarzare-redhat ([80.116.143.202])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6c61f558sm22435688f8f.58.2026.11.23.05.17.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 05:17:59 -0800 (PST)
-Date: Mon, 23 Nov 2026 14:17:54 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowangio@gmail.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Simon Horman <horms@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] vsock: only deliver taps to namespaces that can
- reach the device
-Message-ID: <awQ5xzF8P0NJiCsv@sgarzare-redhat>
-References: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
- <awQJo8WE5Gn4nYHp@sgarzare-redhat>
- <12a2b44d-3d24-4b77-9dd5-24361d5fe910@redhat.com>
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=CTCpp1DM
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wocW47H8dVO9mnBIVkz2hvjscvxgi/1ThyHb+GTqkUKxus+tNIafMlA4U0Qj0oTBMBTxMHgVWL5advufSzijGurkHO6FMPSmaXB2+B/eHOOk0O13cUQTGrzIdYx0TR9TxdIU2nX/j0gIjMWtG1xj/At0K+MLIbBVctKRnoR27Vk+JuyJ16u3sTjj/OMZGa/JiwEelhOGv8l4iWSCqlZGWf8L4mPxXGVc4zDNPQc0Nz1tCyemfE5E4dyoQzvpblRb1y06ZEaZk1z09Qfc/52Ga2M3h2WHSu1WX9LYNeZsPt3Dt3Lqfy6II5Ti4Mzno9tGpknSgxm4hodg9M45FMZ4qg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=frTHv8QvYSvGJVgZvgfZoTUzKOX0EfxbPZY31OxkMa0=;
+ b=P0yLJTLqLw4GZ0YGaMTQfkSUTfx+w2X0g/PYEVlZI9Z9Sbt7C8adaOjWBfDhnG8TNSMORERKkIi9A0t+SJDTrse2FaSjUGuV+uD8qP7URxpYFvCP2l0VQ70iXTxBQckyfUkV01GsAy2e08tzCvSUsaR/Q6tEAj25MshiD0VvCPia8W1fS+wx31zgGPMiSsHqbRHpL3Tja+VTPYQ0Q14yJVet7W7rv83czREAVMbR/gR9qGK2iLTWNW83HWQiYz0o11ZIQUNunI8528Z5rSVe29P4Nw6FayvzIi188m94hmVcinSe3KWhGPPUiYNx0T69eESAscSTuk7bvSytN4uNow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=frTHv8QvYSvGJVgZvgfZoTUzKOX0EfxbPZY31OxkMa0=;
+ b=CTCpp1DMlRj8eW6svMv+h/FhlCIKFOhpcT9sBGpMi4fEp/9tjMh8uCc8sKieVKhGSNrp9GU1ucfaPhNi1RC3nScp+j6M0yhPRjCWxLGtLAb97YFuQS9dbfH7sRIZMcIWAZpVtPLUnZXUhUfq4YTE7Xp50WI8+fmgLX8j9ss0Y+NLEY8hJVw5bFkDHS+rlybx9oVktqY7yhxsubv4vgP85QpH8ltzVklUrzGwqCFnsZy602QcRz7DtFrJ4jZhYRfBxnov1fRyd4KRcC338HuoNadxP9yuJ5CIzC0oTsyWAn4mmY7TqYm/rnMJUEUQrmcqnqze3On3gs781VBZgcpDFA==
+Received: from BY5PR04CA0018.namprd04.prod.outlook.com (2603:10b6:a03:1d0::28)
+ by IA4PR12MB340717.namprd12.prod.outlook.com (2603:10b6:207:14f::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.14; Mon, 23 Nov
+ 2026 13:59:28 +0000
+Received: from SJ1PEPF000037A9.namprd03.prod.outlook.com
+ (2603:10b6:a03:1d0:cafe::43) by BY5PR04CA0018.outlook.office365.com
+ (2603:10b6:a03:1d0::28) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.639.14 via Frontend Transport; Mon,
+ 23 Nov 2026 13:59:27 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 216.228.118.232) smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ SJ1PEPF000037A9.mail.protection.outlook.com (10.167.244.182) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.639.5 via Frontend Transport; Mon, 23 Nov 2026 13:59:27 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.57; Mon, 23 Nov
+ 2026 05:59:14 -0800
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.57; Mon, 23 Nov 2026 05:59:13 -0800
+Received: from f43.com (10.127.8.9) by mail.nvidia.com (10.126.190.180) with
+ Microsoft SMTP Server id 15.2.2562.57 via Frontend Transport; Mon, 23 Nov
+ 2026 05:59:12 -0800
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Eugenio Perez Martin
+	<eperezma@redhat.com>, <virtualization@lists.linux.dev>
+CC: Dragos Tatulea <dtatulea@nvidia.com>, <kvm@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Gal Pressman <gal@nvidia.com>
+Subject: [PATCH 0/3] vdpa/mlx5: Misc fixes
+Date: Mon, 23 Nov 2026 15:56:43 +0200
+Message-ID: <20261123135646.3962652-2-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -109,44 +113,47 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <12a2b44d-3d24-4b77-9dd5-24361d5fe910@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _IHEBSZ5dXg5G_9AWAoj_0gPmFc6SR-S77U1cmE1K1I_1795439882
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ1PEPF000037A9:EE_|IA4PR12MB340717:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1a944369-b0d2-4c2e-842c-08df4969fd4c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|36860700016|82310400026|376014|1800799024|18002099003|11063799006|56012099006|261028144727099003|261026140227099003|261026121527099003|261102123227099003|261021123027099003|261021121427099003|261022105027099003|261009223027099003|10067099003;
+X-Microsoft-Antispam-Message-Info:
+	QsBZW8ImuCZuHzYQevhid8k1rm7f+1fsW8TBVGIx1JwtqJonulxqeSSK+8ZtNscyfKtruzexZokxpGv9pvo3GDaUMuJ8yQ6Ne+aqydscZMnCIa9Lw9D06Y8qv8PNmYjagTrAkqfcEb+3WBEj6rutXSWAE1vyhPLFXMzwiqyPOnJAUK5s97gNtmuUBoFPEDVqRUnaJpQpSr2a2vLba3sCL34MJ9+q69m8gwuRK2be1fv49FDsPGzIXhwXfNlJR1eO687pTWOvh+TpFh3LBYRblVigyrAXyvjY3NgnGT7J0FBE9XWQPuEtXGqip8PoHxKkw/WEQs9s9VXpSt3PHhWd4nBdqX1UAIwgrJP4ZWiUPvnH+tyVLNhYSnhf18ijog41/ytpYLQlT0QRoXCatu1+efhM7ho6twvlEutj7W8tB7W4QBJF3O7X2hjsoz6waYFh8p32x1slBfYcSUJIgMQBOdQ6h0OrdyjEAvjvofrMMF7zGqhgrPfYJ9YnJfa4bK4KX/yaSpLdsFSUarTzIw+6/1N7xl55AC+zruXwNjtNwEIB8U7uB6kjtd1ZTIXD+zKbh/cAyKi0t/sGPtveIdEjcDkttPQlIS5Ju5ByT25cFJ5M80lCDt1kNvca1VnKYmjiAJUgKcFyJQhBUBa9y0l9XnjAiDb0W3D8I3lrlTuXmFQPHLpERYTHS4BO1pDHKTmHHYnoORBzkMX0qSnM9PfNvw==
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(23010399003)(36860700016)(82310400026)(376014)(1800799024)(18002099003)(11063799006)(56012099006)(261028144727099003)(261026140227099003)(261026121527099003)(261102123227099003)(261021123027099003)(261021121427099003)(261022105027099003)(261009223027099003)(10067099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	EDcJGikpElwZ9QPBpoLpywRH4cwUCk8J+WJ+7cfgyocb9/w8x0zM5bjP9bYKNx5JpfqKNJbKHCdo9smteOr0IP3HJ2FSzJr6BBF9kV5QzQzzTbKmW8iiiT09FYiFUZN6pAdxv+xxzN7iE75mHDNEx6EfunZTb642npS2uYLWVOSosJn/ntARVNXvI7YUOSAAAAWGrv78Gj1t54J2kWEBZ74VEbJ7IpbF/lnaZQHkEaRwXQc05grb1ee9v7DZ8eWAUNYe3osYN4I2eWsVW8Q3kSFT39sgx0vj43Qcy8/eaWcg9FQ5wkOi7de0ElTwRoW7UZDrHLxhVmPrTTf60jj2nZzFYOdVek+lDFmh1MFpiSCqaxwZjIlegbo12CXsToRoEiBDdrVtcAbyZJFxz0jmy9i1hC+1DhleidePzjVcZ+cCF+jlTXuJXwN+xa+VVLpN
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Nov 2026 13:59:27.9541
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1a944369-b0d2-4c2e-842c-08df4969fd4c
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ1PEPF000037A9.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA4PR12MB340717
 
-On Mon, Nov 23, 2026 at 12:58:38PM +0100, Paolo Abeni wrote:
->On 11/23/26 10:43, Stefano Garzarella wrote:
->>On Mon, Nov 16, 2026 at 03:46:49PM -0800, Bobby Eshleman wrote:
->>>vsock_deliver_tap() clones every packet to every vsockmon device on the
->>>system. Creating one needs only CAP_NET_ADMIN in the owning user
->>>namespace, so an unprivileged user can capture the traffic of local mode
->>>namespaces.
->>>
->>>Pass the packet's netns to vsock_deliver_tap() and only deliver to
->>>devices that pass vsock_net_check_mode(), the same rule socket lookups
->>>use. vhost passes the vhost_vsock netns, loopback the sending socket's
->>>netns, and virtio-vsock NULL (global mode).
->>
->>For local namespaces I think we are fine, but what about global?
->>
->>Is it okay that a namespace with global can capture all the packets of other global namespaces?
->>
->>Asking because at this point the CAP_NET_ADMIN is useless, since an user on a global namespace, without CAP_NET_ADMIN, can just create a namespace to have CAP_NET_ADMIN and access all the traffic. Should we fix also that?
->My take is that the above question is quite orthogonal to the current patch
->and may impact old applications relying on the legacy behavior.
+Here are 3 fixes that I've had queued for a few weeks but didn't get to
+send.
 
-True, but I'm not sure that behavior was correct since the beginning.
-E.g., what is the point of having CAP_NET_ADMIN requirement if an 
-unprivileged user can just crate a new namespace and get it?
+Dragos Tatulea (3):
+  vdpa/mlx5: Fix error cleanup when VQ setup fails in .dev_add
+  vdpa/mlx5: Increase the maximum virtqueue size
+  vdpa/mlx5: Don't flush the workqueue under reslock
 
-Anyway, it's eventually pre-existing netns support in vsock, so it 
-should be fixed with a followup.
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Thanks,
-Stefano
+-- 
+2.54.0
 
