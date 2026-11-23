@@ -1,104 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795450640;
-	b=rTg9HmsThi9al8dte5UfKsUyp5Hpjk0i8/ko3VHpkMLITH8afmzO/ocsNlzZurcCCwJT
-	 qZIoWpY2Rz3yTroTvmfycHTon6Fb34HUptV/eNWfkyZLF2kGCONpd27Ij3PFg4YaB6n1a
-	 tvQifpw3NMQtaB57qKzD5549rb3uYSwWyHxUradm1e7ld72T9SYFFUOEaplQW6+4uLTse
-	 kWkB4QOcFWGlEPxGefdcYuoCKC6Wz3/EkDKS0UUaEUyZdAMPAbz/tiGpgLHRydyncoKfp
-	 tg+LbqZSFE9xs7dGf0r3i79sEbVVub3Qe7ZmEZwJqMBvJYdlR/Kxo7aY3ma7oi2PkAQ==
+	t=1795450746;
+	b=kpx0ruLrFEIKd2ti3LD0+igBzGN25NZydfZToAnkpS5eTPThhSUspwfQEZzur9Qpyzpz
+	 Ln8QJC69nfkRGHTdr1mvWR+m5V7iBTngGuopDe1bkiW4N/cvo5yjDkzpcNIJTOtWt2XIq
+	 3O10R7kgLfMQ3bvQ8OYJYiNzqNkzWdZh/C5jUBw5/OVumEt8dk3g7IrJhWe9QT6PvAwb9
+	 MqLNvDitXYLAY7ASMcUcAzI9H3GclgiYoVOtfPBp00JNbkm5+Y3qGmEdJYI7Hy2lC8ZQC
+	 6HomI6CRHc2NJwDMmNBW7s4E9JUYHeNaxSDqlmlUveoKTOEBaP5x0DK4BYUdvO9Fu7A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795450640;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=+GHb/SYd6gXinJYqxw1GDlcMLdqBI2V3zFyLkxFbZ0k=;
-	b=pRLebvWtiODN364TQ+0bNwkPovmz/gmxjKcrNHQgGk4cQwzvmHk6GTYH7RRJ8YY72U/b
-	 hqQ9OE0bzpHN4tuhJ9QJOO8VIWL5kN2m27BH+1F4l33XEk+pJSRZo7iX+bBGtiCAM+8dT
-	 N4VwumDlu8zLEW4vzmWVmwsm3x3zRUAh4QF0tzBU+ivL5sj+f1yLxaobCwGvoGnrRW35I
-	 qxsNR+Lj9PQhx9apuQwPpeBjA/m9O4gjNPi87LTOhN8EFWSqgduu/hASxQ3A/FBHQH+i6
-	 qc3k4IMmvYDSDXvwGE0ll48vScPD5fdmyJRjKrKP6pZ7c7UbFwJiS2hNnVGNNA1RW7g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795450746;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
+	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Originating-IP:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Virus-Version;
+	bh=T3dIrp743mScXUEVTG9HzJg8wQXGZt9Ea7srRCQkNSQ=;
+	b=0F1c3tzf3NmJNbAI7tdxIxzWB1IbGrRqr9xy7R207gTC3sIYDjpdnqHT2q6JAv1g0wba
+	 bnk1EUZxV0FbSmkFSBC5b4aV2+6waIGB98YbVj2ZP75TM4pAVgxqWoAKzcpWmsx0g5Jw6
+	 TiWJzIfYwo2QyqmU7WQtnsuY8lSpy2RRu0esAlNo8NJXG+rSfnE1khQYyV08HNr2pMaZ9
+	 EbHhI1/gq4W8kgaf0ondwVFt6p/NScmF4nFaIEi0rZx2iSW7h0LSp2L3Npm3ynwKSjln6
+	 EFoCGUzs6jAEPsFnPCyjqrdWFmkKQoAFhiKCvlFVkg3l2WVcczp5OoSLmu3hEKA1m7g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d0y4f7iL;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=ftmTbLuk;
+	arc=none smtp.remote-ip=67.231.153.30
+Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33ABB606A330
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 16:17:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33ABB606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E806606A31E
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 16:19:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6E806606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d0y4f7iL
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795450639;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+GHb/SYd6gXinJYqxw1GDlcMLdqBI2V3zFyLkxFbZ0k=;
-	b=d0y4f7iLfivHQWBFjZe0Gb0OBVayfWhwiCEqqJPb++ZTF43w9Evr2zOYx/xaqsOAMzMnWO
-	XUq3Pj8B/mM93fSY62IjCEmz/wM6AFBX7ho+YTAqAj1P9+aiPlCOgEwb3QN2JdW8KPYe/E
-	5pdEqWMJK7WCfhOPW31VK2v1cVqB7Rw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-295-1cEM7v4xNqqQ6NCjihfOeA-1; Mon, 23 Nov 2026 16:17:16 +0000
-X-MC-Unique: 1cEM7v4xNqqQ6NCjihfOeA-1
-X-Mimecast-MFC-AGG-ID: 1cEM7v4xNqqQ6NCjihfOeA_1795450635
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a16dc2323cso6024415e9.3
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:17:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795450635; x=1796055435;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+GHb/SYd6gXinJYqxw1GDlcMLdqBI2V3zFyLkxFbZ0k=;
-        b=JpvSqpmrNITfib89c9RbQ+MO3hIE1UYn8gg9XbGFRDZziENSWMWw5K3zmUe5ooZViS
-         yVmCeyb08pos30AjLnMX3UiAHDGgczxPQFkA7E4WUJR7jdD+QcLG/GND/lCRQU4dALOv
-         MR+7OHWgnySZpB3mRqjISc/QpWI0X4k8SCnuq/btAHFf90D/DiZpzF8a4vDaPKTY3l4/
-         /1RWdE6/aSPn6YC7ftjapUu4QTw08yc80ibK9Zt42EoI5G8VXbl9EeHqUP2QSw+1Gh+z
-         gFGfvuIv62GsPjJd3VIJz3EwFFknJYSYdYzqi3AFABcWyTXuHT9ya3hd7DaCerUBX72s
-         Vl1g==
-X-Forwarded-Encrypted: i=1; AL+hErHkvERXyLl6AuuE6UHir3cjJFTpMEw41MxJ1c0VDnkCHWK18EOFBnc4G2KOfWd+UTV1zs5eDII2CgQo9yg0Ig==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/KcySAVdmhUBMHdSeOxWs1ywnZ60SNbVsFS5SbPs/76hSrpK2A
-	STrJSd+zG15OEepvzaTDkHGsVmUsLk/llezuM4KoCrk8QUA1VmFc5B1T6I1fGjomqLIOlwl3yJd
-	XU0ZXqgWLOvPm5gc2f6lCvPriFE4FVeEiHnmtEDieSWVJ6gZmDtHaOYTVuTHnhvT29CJrrF0zGU
-	Ur
-X-Gm-Gg: AZFdTZdI8u9fNlyUZ0w7yuzc9eAx246i2cBnLKmUdlFLmg5KFMKaYj7zKsUT4eqaZF3
-	JR3ZaDFjFzo22YMVZHKUpoaTfeKW7Mf2kvzpGTLEV4O2t4z8oGS9tf61EhgE6XUy00zwL76zYjZ
-	5PUBi5eqoOhsKgig12zbZlf7TimqR7BEPMJ1iPLb0SMPBtqCfsuSTLFMjGltjWNag3U21K3Vh1k
-	zimkjiBAWPCON7Vp7ApyfgQwJQodluRK4xvRieA1CCGLDujKVMagnNVKNu0Qy63sUzBEt94uCVD
-	sqXrcCeSN9AfQ8ZK5JI1s2gpnDoGo1vTeKjR4z48QxqVNNA3SoZGpV2Oh4/q9Fakh09/HEYZ51c
-	ca0lcYPomz7ob4fGhmb8Hf5NMVA3yI76ya/w4MdRjszxcUXNhc9DBSA==
-X-Received: by 2002:a05:600c:674d:b0:4a0:1fb9:2f51 with SMTP id 5b1f17b1804b1-4bb88808263mr270420315e9.14.1795450634799;
-        Mon, 23 Nov 2026 08:17:14 -0800 (PST)
-X-Received: by 2002:a05:600c:674d:b0:4a0:1fb9:2f51 with SMTP id 5b1f17b1804b1-4bb88808263mr270419595e9.14.1795450634202;
-        Mon, 23 Nov 2026 08:17:14 -0800 (PST)
-Received: from sgarzare-redhat ([80.116.143.202])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb9067846esm209571105e9.4.2026.11.23.08.17.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 08:17:13 -0800 (PST)
-Date: Mon, 23 Nov 2026 17:17:07 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: jrmmhm.kernel@eldare.de
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v6 1/2] vsock/bpf: fix zero-length, MSG_OOB and
- MSG_ERRQUEUE reads
-Message-ID: <awRlwL1epH1j61Z7@sgarzare-redhat>
-References: <20261114-kbh3-1-022-fix-v2-v6-0-96b6029bbffa@eldare.de>
- <20261114-kbh3-1-022-fix-v2-v6-1-96b6029bbffa@eldare.de>
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=ftmTbLuk
+Received: from pps.filterd (m0001303.ppops.net [127.0.0.1])
+	by m0001303.ppops.net (8.18.1.11/8.18.1.11) with ESMTP id 6ANGIIRg3716626;
+	Mon, 23 Nov 2026 08:18:49 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pps82601-s2048-2026-q3; bh=T3dIrp743mS
+	cXUEVTG9HzJg8wQXGZt9Ea7srRCQkNSQ=; b=ftmTbLuksZ18qcfFfRkriR971dv
+	dEYLc8rH4Og7I8wESceYbNcIzKBwhPNKt+zG3i8U5lIgQrebN0Ae1QFkj1HVVePN
+	7u87nd31X7efKdDfnkGw2B2tqxWkc3oVUvlCgJXauNpsnV9gddXaElDys2VcXhxR
+	+8Y76P6oINjFpwHqdywWh/DaySDNZZaHDz7VfFK2dIT0IYKtkMyvUs6dtONqjzZn
+	WgpHGJPDTSMWbiw3CGI87ALp6M4+dzo9poARQtizBW9erbRjn09Ojy3TdtO/fVn9
+	qrWHiWuhnGDZ7Apkmwln6u9VeCfa7gKZPJ2QnKW9K39cHkLFi8sBLTCbMaw==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by m0001303.ppops.net (PPS) with ESMTPS id 4j37udt00r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Mon, 23 Nov 2026 08:18:49 -0800 (PST)
+Received: from localhost (2620:10d:c085:208::f) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Mon, 23 Nov
+ 2026 16:18:47 +0000
+Date: Mon, 23 Nov 2026 08:18:47 -0800
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: Paolo Abeni <pabeni@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowangio@gmail.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric
+ Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+        Simon Horman
+	<horms@kernel.org>, <kvm@vger.kernel.org>,
+        <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net] vsock: only deliver taps to namespaces that can
+ reach the device
+Message-ID: <awRnZ9S+3B996VqJ@devvm29614.prn0.facebook.com>
+References: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
+ <awQJo8WE5Gn4nYHp@sgarzare-redhat>
+ <12a2b44d-3d24-4b77-9dd5-24361d5fe910@redhat.com>
+ <awQ5xzF8P0NJiCsv@sgarzare-redhat>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,79 +88,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261114-kbh3-1-022-fix-v2-v6-1-96b6029bbffa@eldare.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: lOhvjF7bzS6rqYWDikuxChy7dNKlJ_Xp9-3_Ic21k4Q_1795450635
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
+In-Reply-To: <awQ5xzF8P0NJiCsv@sgarzare-redhat>
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIzMDA2NCBTYWx0ZWRfX5r3cneGfkihi
+ SNwtFPkMtyBsD7xby0vFdVN7Veu2bLp9FJANDCVXDLDMydzzHzPMOksVokwfKKSRKQHEnNI5+K2
+ K6sqW7IFpidNYXSPeBclQv5eMZqHjZ6seFeXsN7/syjfQjRGZnkcUra+gWVfdIhGS/U9ik3etY4
+ qcM4PxkjSJCYUIgeTaRb3/V2OsCL6Pj0/LPpqCZjNXaqr8/f3ged9Y7ROkd5ICkyvoF8phbLeAe
+ EbI3LegRksfvyc9X1yPcbJEyiAZSvw6d7b5aQZrsqjDILmd3VwKOAU0Jj0tp8uW7F3N4tVX/2BN
+ 7xs2aACmI7uynv+HqSbUKS9z63YAH/AEP2ivj75gAvrsegqaQvSg4EcmXAdJi884ZEkzftbUV29
+ JShS/Hy1Blccvx/uYdP9Ucu/YPenqXTtRXsAVWsLSfgyDUpBr+T7QghZYuh8M29+GF4dSFrnFuZ
+ oJahC5jVyqebJ9kJ/kg==
+X-Proofpoint-ORIG-GUID: vkp3xM5VmOZ-hvVr8sf5yf6TGZeYqnHg
+X-Proofpoint-GUID: vkp3xM5VmOZ-hvVr8sf5yf6TGZeYqnHg
+X-Authority-Analysis: v=2.4 cv=VK5IDNPX c=1 sm=1 tr=0 ts=6b046769 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=_78whYxrdx1mplLwxq1U:22 a=20KFwNOVAAAA:8
+ a=QUIw27DrvkiG4lpEvKAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIzMDA2NCBTYWx0ZWRfXzO4NYOeXqdXM
+ PEcKJjN339C23yg71j/WjRFVdZZbuea4Qe4n/IVN3nQQAA6rgPm+GG8A/srvFX7rwgRb6LAiPHf
+ wWo7XD7TXJgA5MvgfJ43rvR9CgzuLUg=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-23_04,2026-11-23_01,2025-10-01_01
 
-On Sat, Nov 14, 2026 at 12:59:14PM +0100, Jerome Mohm via B4 Relay wrote:
->From: Jerome Mohm <jrmmhm.kernel@eldare.de>
->
->On a vsock socket in a sockmap, vsock_bpf_recvmsg() sends zero-length,
->MSG_OOB and MSG_ERRQUEUE reads down the sockmap path whenever the psock
->queue has data or nothing is queued at all. That path copies from the
->psock queue and waits for data, and it handles none of these reads:
->
-> - a zero-length read with data in the psock queue spins with the
->   socket lock held, and the delivery worker blocks on that lock;
-> - MSG_ERRQUEUE consumes stream bytes from the psock queue, and the
->   zero-length MSG_ERRQUEUE read that MSG_ZEROCOPY users make to collect
->   completions gets -EAGAIN or blocks instead of reading the error
->   queue;
-> - MSG_OOB consumes ordinary stream bytes or waits for data, where a
->   connected native socket returns -EOPNOTSUPP.
->
->Hand these reads to __vsock_recvmsg(), the path of a socket outside a
->sockmap, which does not wait for any of them. They now take one path,
->so the order of the checks no longer matters.
->
->The MSG_ERRQUEUE case was found with the help of Anthropic's Claude,
->its stream-byte and MSG_ZEROCOPY parts by Stefano, and the zero-length
->and MSG_OOB cases by the netdev Sashiko reviews. Each was reproduced in
->a VM with a vsock-loopback socket in a sockmap, without kernel changes
->or error injection. With this patch alone they behave as on a native
->socket. The vsock vmtest.sh single-VM tests and the BPF sockmap
->selftests pass with the series; I did not run them on this patch alone.
+On Mon, Nov 23, 2026 at 02:17:54PM +0100, Stefano Garzarella wrote:
+> On Mon, Nov 23, 2026 at 12:58:38PM +0100, Paolo Abeni wrote:
+> > On 11/23/26 10:43, Stefano Garzarella wrote:
+> > > On Mon, Nov 16, 2026 at 03:46:49PM -0800, Bobby Eshleman wrote:
+> > > > vsock_deliver_tap() clones every packet to every vsockmon device on the
+> > > > system. Creating one needs only CAP_NET_ADMIN in the owning user
+> > > > namespace, so an unprivileged user can capture the traffic of local mode
+> > > > namespaces.
+> > > > 
+> > > > Pass the packet's netns to vsock_deliver_tap() and only deliver to
+> > > > devices that pass vsock_net_check_mode(), the same rule socket lookups
+> > > > use. vhost passes the vhost_vsock netns, loopback the sending socket's
+> > > > netns, and virtio-vsock NULL (global mode).
+> > > 
+> > > For local namespaces I think we are fine, but what about global?
+> > > 
+> > > Is it okay that a namespace with global can capture all the packets of other global namespaces?
+> > > 
+> > > Asking because at this point the CAP_NET_ADMIN is useless, since an user on a global namespace, without CAP_NET_ADMIN, can just create a namespace to have CAP_NET_ADMIN and access all the traffic. Should we fix also that?
+> > My take is that the above question is quite orthogonal to the current patch
+> > and may impact old applications relying on the legacy behavior.
+> 
+> True, but I'm not sure that behavior was correct since the beginning.
+> E.g., what is the point of having CAP_NET_ADMIN requirement if an
+> unprivileged user can just crate a new namespace and get it?
+> 
+> Anyway, it's eventually pre-existing netns support in vsock, so it should be
+> fixed with a followup.
+> 
+> 
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> Thanks,
+> Stefano
+> 
 
-nit: IMO talking about series/patch is confusing while reading when the 
-patches will be applied.
+Its a fair point and I agree we should take it up in a follow up. My
+current instinct is that CAP_NET_ADMIN probably shouldn't be enforced
+for some (all?) of these global-mode paths.
 
->
->Fixes: 634f1a7110b4 ("vsock: support sockmap")
->Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
->Cc: stable@vger.kernel.org
->Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
->---
-> net/vmw_vsock/vsock_bpf.c | 3 +++
-> 1 file changed, 3 insertions(+)
->
->diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
->index 9049d2648646..c9b399f37720 100644
->--- a/net/vmw_vsock/vsock_bpf.c
->+++ b/net/vmw_vsock/vsock_bpf.c
->@@ -80,6 +80,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
-> 	struct vsock_sock *vsk;
-> 	int copied;
->
-
-nit: a brief comment here with the reason would be nice
-
->+	if (unlikely(!len || (flags & (MSG_OOB | MSG_ERRQUEUE))))
->+		return __vsock_recvmsg(sk, msg, len, flags);
->+
-> 	psock = sk_psock_get(sk);
-> 	if (unlikely(!psock))
-> 		return __vsock_recvmsg(sk, msg, len, flags);
->
->-- 
->2.56.0
->
->
-
-Code LGTM, if you have to respin, maybe you can improve a bit more.
-
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
-
-
+Best,
+Bobby
