@@ -1,57 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795416182;
-	b=o2ZORWq1ogbGLwFI9/iS9d2odEoMAb5VMJc7CWvcqrDpKDh2wMaEdYmAQIeAaZbz0szl
-	 1rt9IKuSobacYfQfeeuukhQrRyNYZfc+jouhBwKLHFfpdDSSWRHEcqaGv7Qigz1bL9+sn
-	 HwHKRZ1RHuvbXhSCn+RY9sGlxRjted87O3HkuwrigvduaYKli9qQJfuxr8lepNMFD+xlp
-	 VEmZjZcV5AQpsQ+hdAAfMeUmKNni55o2+wmOJo7w1wOobT1VbladmbE1uw3Zg02MVhtNa
-	 WVLnq68hcwyt5WH2ut6JaLspXzsho3fZvPggb0N5Q2L9saFEbevMqjVItbjP5o1lFLw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795416182;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=/JHD3sfJKMSRlIckrZpAwBP9cQ+RX1R1Rfl+YF8bLVM=;
-	b=EMwZiACW5jjHn9dnVA0IHvR2SvZgLnEeH9QO06I1IcC/mVDoLnCk0RAbCCqqaJQ+uk4W
-	 AFUleaagAEQHY4RxhWTDbq4m7NSDJWBv0qz+vDXyRYcISPdWdlNNUmTHe35TnV5LKoZja
-	 6vty3pLbgqjYk5x7upVtXPb0ZeboqexF77aE10JmfJXRYvYH8MKXdwKWaotvW8T3IH2a0
-	 XAeUBnWHKbUYgHIGlr8elOygl2fe5aHnoQ0yFPy3CsPnp8hIKjTfDAybmaYuSfYCnYBvD
-	 TwEvyJMHj6/uWnLPLesX+4hqA9lswaRkzpXlg1oi+vOMCQfokQdsM0oqHpMuJ96N/sw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QNEaFgmD;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.43.1
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795420294;
+	b=uR/Wcf1+EqXw+WUG5g/naXZ8BewtwastJaeavns2Q5BfkhhCghOEYWyFj+O/b3f9x+c5
+	 2417J50OsEB20th1HinT7Dib82g9nPmUUc9g2a+FfzthOy1teHpWaYaxv9unjKgQ3J7C3
+	 3ijQOXZUheblUzW6Z/lnhuGwH3JiayEcKBXiTW2hOLdCfrdJCHSG17Eu4C2QvvC5Bpwqd
+	 GzDJXrDe/0aqjJVexxOYPqzbodUq6/GFV5wiHkEDkdD9kIWqY8OMdZAiidMtPgz2H6qNU
+	 /Ud5A/CsRFvHTS9uvkAx2/rSZqqWtWUtS4kiMt8mf5X6ObpiPrsGuNACTX9DzoNA9KQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795420294;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:Subject:
+	 Message-ID:To:Cc:In-Reply-To:References:Date:Content-Type:
+	 Content-Transfer-Encoding:X-ClientProxiedBy:
+	 X-Microsoft-Original-Message-ID:MIME-Version:
+	 X-MS-Exchange-MessageSentRepresentingType:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SLBlob-MailProps:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=lPWDWRH3aCg4NQBP1++l8KXO5+4HENxaSy3szC6X9Yo=;
+	b=2JV3n0/eaVYG/2Mek4lLHW7cCOb8Ue0euWZd077P1LvPSTEmPuJh6VGCQ98oVIFfVqp7
+	 m8Be9kGCAS1kvtvBwQvU9qL9pHEpR8GEv2SuNWV4DF96lst178nLx+GQLGHoqqxe+sQk4
+	 k/4yMgech1sQaHXOfV2iOtisWeyodqIG48t+kpYssLkrcV3X/LHN72JAi7VLSQG1Qw5m3
+	 H1nQ9J1CZsMtrOUIlKNRX2/HRIM1qkhZ/a7ZgS7msERLtTvgJZ+DQwKU04h5XGfkeS2Ru
+	 RW3N7ducDYS+Mytyd3rMrcRUBHr4x4IDBcsnKPqMxVis2Eq2eMZyAyQ2IFTRXdyoP2w==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=hotmail.com;
+	spf=pass smtp.mailfrom=hotmail.com;
+	dkim=pass header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=Wq3aExZP;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.43.1
+Received: from TY3P286CU002.outbound.protection.outlook.com (mail-japaneastazolkn19010001.outbound.protection.outlook.com [52.103.43.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1794C606A31A
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 06:43:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76559606A683
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 07:51:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 76559606A683
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hotmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QNEaFgmD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F9261F000D1;
-	Mon, 23 Nov 2026 06:43:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795416181;
-	bh=/JHD3sfJKMSRlIckrZpAwBP9cQ+RX1R1Rfl+YF8bLVM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QNEaFgmD9oMGpefKgx2lh3T2XwWJVcDYa/qBCV4gqTvpGX51fHVyD7d5GYdCiLhid
-	 ClNP/hKL8na4VjdA6/0QKKuWx4YgmhDx7A8ePgy9jNhM9KwNK8G6fpfatDLW7WkteE
-	 nqib45m+fLCNI+LW//XMAiZCATVpfPrarOQMRMjV9dtc8j3E6+mdNHtFD5VpQf93/m
-	 uZguGbnfSQEPKCU28GzoS9/49SeLtVHrpfSj1LQBm3+Sj7ObGgyZ9FFU3sVGIV+RFv
-	 C6wcOJBqF/cj1X2Nliy/jPIc95ybhPbazaxvsKSjXUN+cjMUGOjKJNsvTJbkiNDX3I
-	 BQO/DW3R+5ALg==
-Message-ID: <sashiko-outbox-228776@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5] fuse: virtio-fs: fix lost wakeup on a full virtqueue
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Qihang <q.h.hack.winter@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261123063609.82014-1-q.h.hack.winter@gmail.com>
-References: <6c6cea56-1af2-4a37-b081-83244d5e09cd@kylinos.cn>
- <20261123063609.82014-1-q.h.hack.winter@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 06:43:01 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=Wq3aExZP
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=lWU6p80xRq3p6yAWnZ7nwQarfVYSxnWsprFLDnpA8ZSdmiVvw1bHszeHayMM0PZSkbUI5aZQKr0sxRJFsYqxA0xZkRbNlDaz9QJAOXdal5PmzRLbJve7+AX6blM5o/lbzREaIIcMJvNA/TW1XP7DbAAG1FWeNm8hgljbw9qcMOXE/jvDfQxV/Bnm+RGGdW7/Fe9M/h260xjwBtVFlyLhBWvkgHbHTc24NZNcpWjIDE5tKZm8YxhvNugd2fCc2Y1lOM65uAVtO7Cy1eMZX81RuEfAtMsjdudDufQ6i8WaSOJ8WPbDevBYqqdbtYfgLtPt5aQIVCFcmRDM2XTip8veCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lPWDWRH3aCg4NQBP1++l8KXO5+4HENxaSy3szC6X9Yo=;
+ b=YUmvI5RHA73oKVCurytJSWGZwDpiFElJDoOgsFRUL6rbcePeeIzNHZE6Jwu2nLXdTT3RS/cDYyS3eEAxqeF/KafbV9e7iDwPIw8S4mqFIZqBTKleo6nSopKAmffmCfm0fB2aQmabe8zAD3IMJFPWcOkrxkaTqa3elK8ZSsJ0NFrkA1yYrrsGVLxKg8IENjqWJO8lXTwRGN9JU3BlJ0okMngVqmecZ+ca23qnmlrHqjHG2U0P+AhwYDY1INa2wUW6owpValzpJ9AzHieF+og5Lqlu3vUDbnIEbOWkjIP/8JqmvEFZPV4UXcV/qLuRhyEnLDMDE1TAArbhDwrNHRn3oA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lPWDWRH3aCg4NQBP1++l8KXO5+4HENxaSy3szC6X9Yo=;
+ b=Wq3aExZPk0LRB+G8JCtA9gBrupeuJKKS5/A9xdCmgqhKEzu3ZFQmS6gov9LOZCQSLlHKbOS1EJu1P/+oA85yhUW8nqn+cRUXG+V8/jbdaKd8cEvk56xszsdjYLevWBnBgjpYspR7t2KYVTJLhYEleCREOhTXbgws5RvAq/nEQC/TveTOMqfOPH/Ygd6rw6wFO74tZks5z+wM8E3JMqBFjD6Om4jQXI48jzMw2Il2AhsMFntpM3GeTexWMXNGDUT50ymqHeXNqytWr3GBHcbZal1Ds9TltthNdzz1JLr6pYbEq9gjt7vFFdIr0yfbr4hBCVTYpTpAGuOEihqnMAWMww==
+Received: from OS3PR01MB10251.jpnprd01.prod.outlook.com (2603:1096:604:1e1::9)
+ by TYYPR01MB7712.jpnprd01.prod.outlook.com (2603:1096:400:118::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.12; Mon, 23 Nov
+ 2026 07:51:28 +0000
+Received: from OS3PR01MB10251.jpnprd01.prod.outlook.com
+ ([fe80::7edc:2a40:7b8f:56f9]) by OS3PR01MB10251.jpnprd01.prod.outlook.com
+ ([fe80::7edc:2a40:7b8f:56f9%4]) with mapi id 15.21.0639.012; Mon, 23 Nov 2026
+ 07:51:28 +0000
+From: "Jiaming Fan" <fan.jiaming@hotmail.com>
+Subject: Re: [PATCH] vhost: mask the in-order used-ring log cursor
+Message-ID:
+ <OS3PR01MB10251C7A76A9ED480E3C497FEE7452@OS3PR01MB10251.jpnprd01.prod.outlook.com>
+To: "YanXin Li" <fadouse@pm.me>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	"Jason Wang" <jasowangio@gmail.com>, 
+	"=?utf-8?Q?Eugenio_P=C3=A9rez?=" <eperezma@redhat.com>, 
+	"Linfeng Sun" <linfeng.sun.dev@gmail.com>, 
+	"Fang Xieyan" <fangxy@xiaopeng.com>, <kvm@vger.kernel.org>, 
+	<virtualization@lists.linux.dev>, <netdev@vger.kernel.org>, 
+	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+In-Reply-To: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me>
+References: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me>
+Date: Mon, 23 Nov 2026 07:51:20 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: TP0P295CA0055.TWNP295.PROD.OUTLOOK.COM
+ (2603:1096:910:3::11) To OS3PR01MB10251.jpnprd01.prod.outlook.com
+ (2603:1096:604:1e1::9)
+X-Microsoft-Original-Message-ID:
+ <101fcc7e-2e46-49fd-8b39-fd318a05ddc7@milk.local>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,36 +100,100 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: OS3PR01MB10251:EE_|TYYPR01MB7712:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4b4e9ade-134a-4368-8e6c-08df49369461
+X-MS-Exchange-SLBlob-MailProps:
+	WaIXnCbdHrO+2YmbT5jW+WUSUt4IT5vRHao5rn7FxoTsezuGRCdYrpB3fEYUlndJs16BFRSBTX2nSySHwG/vtuLwjvW8xsGlXvPG+J+awfPuQ5+VuVVYqEQFN0y5EzgWNb9kMFTrxZ9MvWakqVZ1t6oOmTvMgsT31I0IPKFY7KgS2I9MxYYWLxkw890i3mDldSP8wzldVXEFspTv3QBfQn+EbYo9VjLq8MrnqVNvHxI8X3GoVBRPHKdwjrvblFmxVTwcRBssmFR2duwQe1Mye8KoR63NsDvWnHCC/4zsy6Lr3q1pl2VwsxgNKjPCTQr5IFctRnvf0YuqZiSjqkDOfofBpHQER5GGwCIQQ7hxkoo4V0ylDdoFrD1az7i1fH5MeQ72JcC2Osk3ezvIn7pBjPkKXWJpSsKqeJObsEIfsOUZaYf+xwQjTXHyMIEdtEAtu9uSdFZSWfUQm6ZPbmzA+ABEmsfgDuFJye9Bxd/DKamsdgHXoEJ68sV96UmKtZ0MgRJyyKtwqbAZNpH8iwiG/I0NrQEy/q/jkablEx7lMbSuupLqChI7KT8GTQOak7rzFL3AF4sa8L81pYSUUfPgxJTxpJs2KnALJj/2tSfhGnU3krnVZiMnrAtVG1yWQG00tPBGx5lPOmNoGxjw8BBBa0/HiniuXpANMqFnOjrMm8eECeA0jt+uSgv24iWkGBtvdB6pMu9gAOn/IL9k/uTFHHR4I3qFiH5uQuhmm92axcqyq+dgF7eDVWiNZzKtemJ+6dVvN1Q2CkA=
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|25031999004|22091999003|24121999003|15080799012|6090799003|5072599009|23021999003|19110799012|55001999006|24021099003|8060799015|25010399006|4140399003|440099028|3412199025|52005399003|40105399003;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?REJuS3dFTUdUSXRoMmQ5Q3I2NnA2ZDhCK1hEcy94enUwY1ZQZ3hZTFppWGVw?=
+ =?utf-8?B?ZWpXTXJ6R1pEVHpiZUhHVUU3MGtDRXNnRkR4RWZGeGo0YmdKOVFFblk4aHhq?=
+ =?utf-8?B?U1dhb3hGT3pNL3Z1UVorT0dscmtRbmdmc05RZU16K2lJLzFkRGRyeTJOUmJ0?=
+ =?utf-8?B?MW04eHlTajdqVkpZSnlDT2x1SHNjUXYzSHVUcjYrUTFHTStqbE5qak1ITjdv?=
+ =?utf-8?B?Q3ArYnB0VWV2RkFCRVFVTDdHVGpHVGhzVUFoVGFwSUc1elJLTGpxUDZqVkdi?=
+ =?utf-8?B?T3JQbkVrNVR0N2w0Y01vbXdwZjRkOXVTYU40MFhKMTNBeDV2ZzRCNFpWUDc3?=
+ =?utf-8?B?MTdkNHRxVTNUTE14bkV6bmIvK1J1cU8ySVpsU2tNempEUmtDcUE3TzdMM1FK?=
+ =?utf-8?B?SE12T05wc1F5SnZSRTQyd1d2Z01kQURpVE5Fek9rS3l1ZFhNM2tXRnc1dW9v?=
+ =?utf-8?B?TUt4MHZQaGkvZHMrVnBSUlllTkNKOGYzb1VZdmFaSEpVS2FCQlN1SHc5MjYz?=
+ =?utf-8?B?T1M2UFV3WlFBclNxdHFNR1lEQ3d0VDU0MkdiYmg5M1ExRHY0WlFXZGZseWNk?=
+ =?utf-8?B?blV3MDAybUFrM3NGWmF6N2M3ais0OWVuU1BIZzN4bjlTRDUySGRDTE9QRkVI?=
+ =?utf-8?B?K2JTcTB3NVVxQVZlVENybnVieWtZbnEwSklYTzJWZk1aSndQYysrRFFxM0RB?=
+ =?utf-8?B?bnE3SGJtL29WS1UwUjBEeEVQWHRTZ3AySVorT1FyZm5sN2t0WVA3amtFZHd6?=
+ =?utf-8?B?TFB5eXl6SkNQT3hTNk1iZm1YSGoyclBscTVLcXlyYlIxbkwwVVBLblBoRTJl?=
+ =?utf-8?B?QzBCU3crelFjdms5QWg0QjA2dVFpVUFwd2wybjZnWWtIcytLaWxMQVJVczhi?=
+ =?utf-8?B?NkMrcys0M2VXa1ZCcnJydGlFaU10QXJ6RzYzQ1FKbDBBK09yNll0WFl4STJJ?=
+ =?utf-8?B?OGVOcXh5TDV2REgzWTZmYXV2TnRudUdqbmRGK2xSQUpYOFJLVVJkTjhCOWJO?=
+ =?utf-8?B?eFJvTnRyUTdld2lldzRpOWJyVEYxVlNXZHdOWjZGTkhHWUVtRVJRenBTVGpL?=
+ =?utf-8?B?dndJMVRCcDVHMStkNm80SDJvUzJaZlUvb0cxZHB6S0hBRGlxWGZ3NkRpMFpO?=
+ =?utf-8?B?Y0Z4cTFnWFpvZk0yRmFKb1p0S1FjaFJEUzhIbldGNHZrSGUrcUdwMEVIV2p3?=
+ =?utf-8?B?SHBZempWN1dCN3Z1aWdWWS8zSS9TTG9OdWYyZjFySzZSaFd2SXRwM1RPdHBm?=
+ =?utf-8?B?b2d2dm9qTDYyYVE2ZWdYOGovMVFYZUxvTkhuWUMzOExLMWhBUHp4SjBsOTgx?=
+ =?utf-8?B?Vi9DUklRU0xGaTl5RHdZZC92anYvSW5aVENoN3ltaTNYdjdtUGVRZnc2WXZO?=
+ =?utf-8?B?M0hyTzRWTlNsMHRka1JWSU5oSWtIc3BLd1RsK2hYbEQ3R0ZPVWlJRk1BeEhv?=
+ =?utf-8?B?ejc5VFZGOHFuS0xUV09IaHpBSGV0UUJzY0w0VHhESHB1YzNDc1Q5ZVN3ME1P?=
+ =?utf-8?Q?RkpIjk=3D?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?Y05GQkltVGgvY0RkNUIrSXZNbWxXcENwR3JmdmdBcmlIYi9GV08ySEhyclQr?=
+ =?utf-8?B?WG5vRE5rVjljZ2U0MVZzeGtKY2RkT0MxWDFOYkd6T1p0emZRUTJvdVI4Mnor?=
+ =?utf-8?B?VTlrS1JCOEVEUHQrL29ZeUNJci9mR0FmTnpBZktvRlliQ21GeG5UbU9FUk1o?=
+ =?utf-8?B?SURUN0dpS25mN2c3cHJZOTQvaHZqWFRINS8yTlhKLzNnb1dFbkRKbC9kbzlE?=
+ =?utf-8?B?ZnpKRlFjVUpCZ1FmSFpEQ2JIK2VGaUpuMEtRWHFkaHkxSEJubWhEQXJRVzYz?=
+ =?utf-8?B?dStPS3JnYmJhSFlVNCtYZ3loOU5sTi9RRzVvVkl6cURvdWtNZzhKMWd2aE9Q?=
+ =?utf-8?B?Vi9kRnRrekQxN3ZhSVErWW9zUjVBdXgvZlZJWkxkek93Vnk1OWdXc2lKN1FN?=
+ =?utf-8?B?NDZjWTFFQ1BVUmtWei8wOFM3ZTRDZkVhUmI0VmJORU9aUWh0RFdkaFVIOUxa?=
+ =?utf-8?B?eUpFay9vbFU3V08rYlN0UkE3VTlCSUpVejZVaUhRdERhVzBhZkljTEpiMG5u?=
+ =?utf-8?B?Q2I2am4wSUtQTktTckNXalRoaW9OcWE0RXpRa1RZWTN3RktqQXJwd1NZNVRM?=
+ =?utf-8?B?Unpoekh4N2hNT1FqcEdhSTJYc0JpTk93T3ZRazluQk00MXFKTlpkUVpNdFRK?=
+ =?utf-8?B?WGlpbWwzQWhPS0ZFWGpkRzg3SnpRdG13c2VpMGpabk5nODIyeGlKdHY1aWpH?=
+ =?utf-8?B?SVJMbHhPcGZOTEFEY29RRHpyTHBKT1RoZzJnRDRzOFJMTjVsaXNxMktLdUZ3?=
+ =?utf-8?B?V0FtUVRQZHFwQ0M4ZlR2K1ViQUJFZlMvQjIxVWtPK00xYjZNWDJPeWVLZzI3?=
+ =?utf-8?B?NjBkYVlURzlBTzVnWncyT2FOb1ZCUWNqWk54NXNHK245MytJaHpDVjhJQmdh?=
+ =?utf-8?B?NkJrNWRUM2d1YnIzYWdPTmJOZDJmbmVuRkxwOWxwSDU5QWJvZ3VQR2dPVy9J?=
+ =?utf-8?B?QngwdVpIUkRVMTlQL2o1N1NkVzZuQy9Wby9ubERjVmdKVjN2TGNTM2ptOWhQ?=
+ =?utf-8?B?b3NaTkYxa1lVbW5sNDB6c1ZPZzVYdHRnMGJIRVk1T0VJdjBEZmJzbjNkMC9O?=
+ =?utf-8?B?TzczVEsxZTIyV2g5aXBLZ0lxeHZPeVBnTHpKUGN3SHltNWFCTVUyYTJZQW13?=
+ =?utf-8?B?cTBvWGc3dUY5dG5KalZldnFCY2dSZzFMMTc4d0hjTitqRG9GTCtBS0V0VkJH?=
+ =?utf-8?B?dVc1WnFBY20rcWxMVGR3YU9qUkx3MmtZV0psT0RIRWJKTUVPblpUT1hCa0xm?=
+ =?utf-8?B?NXlJOTFZQ3k2ajZ3MmNHY0llTmViNlgzbUdtSUhsakRhM0xXREg1RjlDU0Yw?=
+ =?utf-8?B?UE9valVFS2hjMmZFNURCSUFoWVpKS2dDWVZMMnVmQWptVWxmblVJY09sWkVs?=
+ =?utf-8?B?clpocEtjTVpnelNPcXFDMTUzcUYzeUtSVUN5eEdFa0FWWnR3L0pCZkJSQy9p?=
+ =?utf-8?B?Q0lZNi9IUVF0QlAyNGdTVEp3MFIrYnBtWWdFLytONForVzUyYTdNOG1CbVRm?=
+ =?utf-8?B?ZWZzUmlIdllMN1VRWGp0ZWRGQ1RLaHlHbkdnRUw4bUY2TUR6ZWlwZFkzSm5F?=
+ =?utf-8?B?RGpkNmV1WFJEU3Jpcjl1a3ZKKzNKTVZZK0NvMHN0VVhmY0J5UFA0WkszVWlv?=
+ =?utf-8?B?ZnlmYVFtZ05xcWdEUHNycGxleGtIbWRxUElVckNldnRQTGJVYjZVdGtzd3Q5?=
+ =?utf-8?B?N3EveWdVdmVNeHdlV3ZGa1UySEthTnN1Mk8rd1Y3Qjl3c1o0R0IyK0lweEFr?=
+ =?utf-8?B?Q2d2MVluMVczVVhsakNEYjBzWGlUYkdSbis2VVlTeEZNbGFILzNKZUVEZGFY?=
+ =?utf-8?B?UkJMMlE0RUxlTGtsdzQ3eUczZ0FseGwrYmZJTnBHdzJHbnpWUU1NUGx3YXVv?=
+ =?utf-8?Q?NgHQQpEd7q9Up?=
+X-OriginatorOrg: sct-15-20-9412-3-msonline-outlook-b83fc.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4b4e9ade-134a-4368-8e6c-08df49369461
+X-MS-Exchange-CrossTenant-AuthSource: OS3PR01MB10251.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Nov 2026 07:51:27.9274
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYYPR01MB7712
 
-> virtio_fs_enqueue_req() drops fsvq->lock when virtqueue_add_sgs() fails
-> with -ENOSPC, and the caller requeues the request in a second critical
-> section.  Completion processing can run in between: it reaps a
-> completion, finds queued_reqs empty, and does not schedule dispatch.  If
-> the queue then goes idle, the request can remain on queued_reqs and keep
-> in_flight above zero.  A subsequent virtio_fs_drain_queue() can wait
-> indefinitely.
->=20
-> On -ENOSPC, add the request to queued_reqs before releasing fsvq->lock,
-> as send_forget_request() does.  This prevents
-> virtio_fs_requests_done_work() from checking queued_reqs between the
-> failed submission and the insertion.  Both callers can then return
-> immediately on -ENOSPC.
->=20
-> Free req->argbuf before adding the request to queued_reqs.  Once
-> fsvq->lock is released, the dispatch worker may already have taken the
-> request, so the -ENOSPC return path must skip any further access to req.
->=20
-> Count the request in in_flight on its first submission.  A retry keeps
-> the existing count.
->=20
-> Fixes: 106e4df1206b ("virtio-fs: improved request latencies when Virtio q=
-ueue is full")
-> Cc: stable@vger.kernel.org # 6.11+
-> Link: https://lore.kernel.org/all/sashiko-outbox-204365@kernel.org/
-> Signed-off-by: Qihang <q.h.hack.winter@gmail.com>
+> If the guest refills the available ring while get_rx_bufs() collects
+> one mergeable-RX packet, that packet can consume more heads than
+> vq->num.
 
-Sashiko has reviewed this patch and found no issues.
+The mask looks right to me. What I don't follow is how `nheads[0]`
+gets to 64 on a 32-entry queue. Those buffers haven't been returned to
+the driver yet, so what can it put back on the ring? Can this happen
+with a conforming driver, or does the test guest reuse descriptors
+that are still in flight?
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123063609.8201=
-4-1-q.h.hack.winter@gmail.com?part=3D1
+Could you share the RX test program you used?
+
+Thanks,
+Jiaming Fan
+
