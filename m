@@ -1,95 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.220
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795423630;
-	b=igOkUzVmJIjadrzXNVz3vCYDTIOHxHWH+sQlVTZTHnknUeZiF9LrrkcDF7DV3XlR+/Ij
-	 mQM3+t2LqnJazngzzAnxNjbfae4NXRkW4SjceSIiFUB3DqkUZoDDWJ8M0DEksEPHbUWT7
-	 Lftd0INjxoQtCKhieuVsIrWS8V0HvkHDOHwSiuenSzoWAwyvHGMLM0tYkbGPwaPSEAnqm
-	 ubXrZeKOnv7cAcAV0Uq0JnmpXL3JgYPsdj1m9NgFGYsxOksPh0e4Bv6Fig1SbKX23oneZ
-	 hqkhGk7TDZPskRW6Q4GGD/1vzG8gBntk3pKgb75peEN8RjeqDHB1Y8Fj9knzGTfH62Q==
+	t=1795424000;
+	b=Lxs1ctqA9ToL7ohcdPokHjBnXsy0dNGPfjw8Q5Lh0Af7BuUzOtMiVSPNSm8dv6NjsePg
+	 MvfgJYYzZpQhG+b+tKQ7TgywT8xcNz4VzVTXUsNXSl4E40RIzC0wQt2mOA+jbO8BW99UE
+	 j8UxYUVsb/5UDl59/rHc24stYvmHf7aipKLkwNvprDYZMe05L94Kyr9sMFgLr8bczY2LN
+	 xNTgQvDLbhaLsq4M9WurW3ZLMrPcJ7cJR2cRC8Vi6lpFlnw548ldqB+3ZgkV3X/6d08dr
+	 HgNXRaXE8EGmRJje906dYFEkj2OJn+3EBneXnDi0MX5J5ERX8NDhI2rabM6myC6OE8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795423630;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=6TuXSWDdixhSOXgwiZNhSVNfQgsPxpgQ0Wl0SXXvDBk=;
-	b=EOfGOhd2QWohUURDA6/RK8dd6GyYOeXDTcYLJlG2bWoVOUDqa7CYsqTj2+HJ/7znRBZ4
-	 S2ZJSCsJZbvsMAgGkWHOp4G7BmrAJvBAIRetEjnNSbMxCyX43KcENUUC14JMNElyszAOb
-	 Ysmgp5tnKNEnwM/CFiLI52s5XFJ04lGoOGojIjqHGbxTjkCTqYpclS2nv2l9qTdwxKGFt
-	 0yitk0ERuvDzJyzwDMYwOH3SGWNPtIi3dsue9NXT/JVxHknjOuXrH9p+uTNHIXBCKB9a9
-	 D9Jmgod9l4w2Uz61cvanHcVRzd7NpXLWDTZ8XunFa4nqaHv3o5k9lSC3r9LhGrfDtuw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795424000;
+	h=DMARC-Filter:dkim-signature:Received:Received:Received:Subject:To:CC:
+	 References:From:Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Originating-IP:
+	 X-ClientProxiedBy;
+	bh=6btJdVn7D7gz89a4EFk5GN2s9zXWiQL6EGDEhvkvBic=;
+	b=1zCU9dQsBf4kbID7uFRAtoarZWuQ8k0tUJj/zyGWUty47oie8Jisu+IkH5gvo1RJcsO8
+	 Rm1xcdn1JsGh8KpXbg01mAhujDu70bjHxLiMTBtc4UAbJ45Ze+RSi7fpFPnKTF6tMaAFr
+	 y8pPU9R+lNFVNHWoW5QdFOkPulwPjZ3s3bQzx7/t6tfkyDV8c8xsqMtUKqnbZKO82beh4
+	 tcx8kWeczmjTYmvlve2g8P5KAu0AEBpaO/CZwActfGtjJlc6CMzHWu3ZcUpriSIrUYU6L
+	 t02kXrPQ0ynr6IyGXMEso5ThMq9eWg/rsBdtK4wnC997fdqxVnWZDmePocTbi7ZgbTA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0M13Uf3G;
-	arc=none smtp.remote-ip=74.125.82.179
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=huawei.com;
+	spf=pass smtp.mailfrom=huawei.com;
+	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=EgK1mxZ4;
+	arc=none smtp.remote-ip=113.46.200.220
+Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55FD0606A32E
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:47:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 55FD0606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A6EB606A321
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 08:53:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7A6EB606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0M13Uf3G
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-38699cf08dfso2686435eec.1
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 00:47:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795423629; x=1796028429; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6TuXSWDdixhSOXgwiZNhSVNfQgsPxpgQ0Wl0SXXvDBk=;
-        b=0M13Uf3GHEynZ6F1ICFL+pYdmLa87yHa+qH1quk2DCV0TmtAoCHQ/ZH9clywsoGp9q
-         FaLJxeRfdrfmj0v+ER2fc5IxDEFTUIFIpOxXhcjIld1jTJ/7znt+jUy/WOcv/oRkvCxV
-         PKZOk5BimYeS2cPVtV7CoOj8j5gNTEec6lafOlUbJDTFUZQschmp279UEjnbNgT8Pr90
-         DzduMJ8vs3QiMmC+WDAQnEKew2dIEYT7ne3Xgc9WSoIu1cuDuaXerfruXVG4b7GYLn/H
-         s4nh/PpYIf/5Ldel1wXkXuLyoabotEAw5SUvn5G/Nw9QOOYinL+4OWH+xuhK5Zd93ftC
-         Ak6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795423629; x=1796028429;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6TuXSWDdixhSOXgwiZNhSVNfQgsPxpgQ0Wl0SXXvDBk=;
-        b=noqoHrWCJv1tmUmXQeo+SqqiE0sNHdLiOkNHvrW/lj169exjuV0o3LS80PMrQxZo5A
-         e7swUqjHqlO/mOV9j20Sj4BnEUoSCab2iVu4PEwUkPXUSJeg0oT+FzFWCa8f4ie5rB8L
-         Z/XTL2mAK0Yny42n/AzClqQl4dCh1pjyJwqMEaXVfJlsvRkwGAksVPq9iHY6zzFlFVrK
-         Z0xBb14q+Vi1+AvoxgzYCz4OXHkKoxWJzfDrFTAic+IvbMto0SSqeM/qiWAvMeFyZjRi
-         6plypYBBSRnKU38N8/ZxfPNbPtCmGpXZuZqCdImhbAx89HNnHv6Pjb9kcTvz2cNP5QYQ
-         z0BA==
-X-Forwarded-Encrypted: i=1; AL+hErHtwY45eW/7U1z4pdYIOaz1AABU4bIm8NSsR58ymjAnYdYfR6IeGkYMAyKtpgvlxHPR3hnFSSPa2OLp+gtSaA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/Mt7M8CnEQbpfJGo0QiTg2jhjV3YvsQwHeaFun1SGPOgdrLyn1
-	HCImTXtSdF7SpHSGC7wckTaol9NSxRnH96UBqXA+s38BNaPpemBDhkd6
-X-Gm-Gg: AZFdTZfm54k/E+4ESbpKqPLfVLRbQzqIb/a7GkowNSmhRQE2atObG98v3WOcl5WqgqW
-	8NnifpiFc/KBwE1ATVLRfP04knzEj/SWqLg6k21ZjhS/vXssJ6dA0nyJSkVnvDcsI7lcSqJw7Zs
-	GCv1IVAdjj5JIhyMiLzcw5guMucEaOhz0U9BHSfTo8sqLvOiHgCfslvgEXN8NAyWze+DMkyu+eq
-	S0xqNkdudN+cs0zLt0reCDZZlezngeXYqii+RAvBZ9BW6n0nHuqu1e/nOJ46vCKI60ywHFM0C3j
-	PBJ2J3z6IXN+pspISDNXBm1NZe7vbWQAXPZkCX3rPIEwKZAQC23UcVcLr7A2mx2KJMORodhwJJG
-	vDluirmCUlbMz8jZ18yq8AOFELUZuzHpBF740dXTATdDk3KowoFv83GmcUEMr9HkoIMM87URPLD
-	LZiNStyDUriKZtXXt8yI1Zql9ftntzk58/BDUewvpB9aBoaDYFDBbDv+BV7D6lXvw1op/NFOT9d
-	tfJRgOFNkbXO/PJPLy41Tf1yMUt2+lxXYF9qH3mGUKCLoPXgYqV0RK92I2HPe5Q7UsgRCHjRjal
-	c+L3HFL3YEWB2MNos9QRknmlGTRFyTmrhTEG3VKSWcCtTrm+BM3zElTQpfyOAw3wKpE+3is=
-X-Received: by 2002:a05:7301:6187:10b0:386:a193:7eeb with SMTP id 5a478bee46e88-386a1938b8dmr5853810eec.30.1795423629042;
-        Mon, 23 Nov 2026 00:47:09 -0800 (PST)
-Received: from annie-ProLiant-DL380-Gen11.. ([119.204.109.68])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385666e7f59sm36040839eec.6.2026.11.23.00.47.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 00:47:08 -0800 (PST)
-From: Annie Kim <pulpannie@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>
-Cc: Hyokyung Kim <pulpannie@gmail.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	virtualization@lists.linux.dev,
-	linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] virtio_blk: validate zone append sector from device
-Date: Mon, 23 Nov 2026 17:46:59 +0900
-Message-ID: <20261123084701.2616027-1-pulpannie@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=EgK1mxZ4
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=6btJdVn7D7gz89a4EFk5GN2s9zXWiQL6EGDEhvkvBic=;
+	b=EgK1mxZ4rwf0FdYKvbAyk3tKWhnlkpXMdq2lnKI0aHqEZSVBmVklN5XelXoaob/YyvSZtTXi2
+	EkoTI0jfU9k6Wh7anGXw2mzcQUhqbQSI/u3bkpaUD1AiKrMQ1kf8Xk0e40Z5AziNwAb6KjpaIuc
+	KIqMJB47Mw78+G44YMIp8MU=
+Received: from mail.maildlp.com (unknown [172.19.163.104])
+	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4jY07Y0Qyvz12LFt;
+	Mon, 23 Nov 2026 16:52:25 +0800 (CST)
+Received: from whupemk100014.china.huawei.com (unknown [7.152.184.20])
+	by mail.maildlp.com (Postfix) with ESMTPS id 62D064058C;
+	Mon, 23 Nov 2026 16:53:14 +0800 (CST)
+Received: from [10.67.121.110] (10.67.121.110) by
+ whupemk100014.china.huawei.com (7.152.184.20) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56; Mon, 23 Nov 2026 16:53:12 +0800
+Subject: Re: [PATCH v2 03/10] vfio: Allow untainted use of driver_override
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@baylibre.com>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Nipun Gupta
+	<nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, Ioana Ciornei
+	<ioana.ciornei@nxp.com>, Julian Ruess <julianr@linux.ibm.com>, Ankit Agrawal
+	<ankita@nvidia.com>, Brett Creeley <brett.creeley@amd.com>, Giovanni Cabiddu
+	<giovanni.cabiddu@intel.com>, =?UTF-8?Q?Micha=c5=82_Winiarski?=
+	<michal.winiarski@intel.com>, Eric Auger <eric.auger@redhat.com>
+CC: Alex Williamson <alex@shazbot.org>, Mostafa Saleh <smostafa@google.com>,
+	<kvm@vger.kernel.org>, <qat-linux@intel.com>,
+	<virtualization@lists.linux.dev>, <intel-xe@lists.freedesktop.org>
+References: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+ <fb0df5c89336b77a373ae0f890f63427e4adbb28.1795171088.git.u.kleine-koenig@baylibre.com>
+From: liulongfang <liulongfang@huawei.com>
+Message-ID: <724662fc-4927-6e75-7fe3-cb9a1079b6dd@huawei.com>
+Date: Mon, 23 Nov 2026 16:52:57 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -99,158 +78,223 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+In-Reply-To: <fb0df5c89336b77a373ae0f890f63427e4adbb28.1795171088.git.u.kleine-koenig@baylibre.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ whupemk100014.china.huawei.com (7.152.184.20)
 
-From: Hyokyung Kim <pulpannie@gmail.com>
+On 2026/11/20 19:11, Uwe Kleine-König wrote:
+> From: Alex Williamson <alex@shazbot.org>
+> 
+> Driver overrides are the standard mechanism for binding vfio drivers
+> to devices.  With the introduction of the support_driver_override flag
+> in the core driver struct, it's now required for drivers to declare
+> themselves as driver_override compatible, otherwise driver_override
+> bindings will be denied or generate a kernel taint.
+> 
+> Set the support_driver_override flag on the driver struct across all
+> vfio drivers.
+> 
+> Signed-off-by: Alex Williamson <alex@shazbot.org>
+> Reviewed-by: Brett Creeley <brett.creeley@amd.com>
+> Reviewed-by: Mostafa Saleh <smostafa@google.com>
+> Reviewed-by: Ankit Agrawal <ankita@nvidia.com>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
+> ---
+>  drivers/vfio/cdx/main.c                        | 1 +
+>  drivers/vfio/fsl-mc/vfio_fsl_mc.c              | 1 +
+>  drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c | 3 ++-
+>  drivers/vfio/pci/ism/main.c                    | 3 ++-
+>  drivers/vfio/pci/mlx5/main.c                   | 3 ++-
+>  drivers/vfio/pci/nvgrace-gpu/main.c            | 3 ++-
+>  drivers/vfio/pci/pds/pci_drv.c                 | 3 ++-
+>  drivers/vfio/pci/qat/main.c                    | 3 ++-
+>  drivers/vfio/pci/vfio_pci.c                    | 3 ++-
+>  drivers/vfio/pci/virtio/main.c                 | 3 ++-
+>  drivers/vfio/pci/xe/main.c                     | 3 ++-
+>  drivers/vfio/platform/vfio_amba.c              | 1 +
+>  drivers/vfio/platform/vfio_platform.c          | 1 +
+>  13 files changed, 22 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/vfio/cdx/main.c b/drivers/vfio/cdx/main.c
+> index 28dc8c825600..fb7679bf92fd 100644
+> --- a/drivers/vfio/cdx/main.c
+> +++ b/drivers/vfio/cdx/main.c
+> @@ -358,6 +358,7 @@ static struct cdx_driver vfio_cdx_driver = {
+>  	.match_id_table	= vfio_cdx_table,
+>  	.driver	= {
+>  		.name	= "vfio-cdx",
+> +		.support_driver_override = true,
+>  	},
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc.c b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+> index 15b05b8c0c90..1603f81e0257 100644
+> --- a/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+> +++ b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+> @@ -597,6 +597,7 @@ static struct fsl_mc_driver vfio_fsl_mc_driver = {
+>  	.remove		= vfio_fsl_mc_remove,
+>  	.driver	= {
+>  		.name	= "vfio-fsl-mc",
+> +		.support_driver_override = true,
+>  	},
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> index c82c59246a3f..5c56aff8db01 100644
+> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> @@ -1737,7 +1737,8 @@ static struct pci_driver hisi_acc_vfio_pci_driver = {
+>  	.id_table = hisi_acc_vfio_pci_table,
+>  	.probe = hisi_acc_vfio_pci_probe,
+>  	.remove = hisi_acc_vfio_pci_remove,
+> -	.driver = { .pm = pm_ptr(&hisi_acc_vf_pm_ops) },
+> +	.driver = { .pm = pm_ptr(&hisi_acc_vf_pm_ops),
+> +		    .support_driver_override = true },
 
-The device reports the starting sector for REQ_OP_ZONE_APPEND completions,
-and virtio_blk copies it into req->__sector without checking that it
-still refers to the requested zone. A buggy or malicious device can
-therefore make upper layers believe the append landed at an arbitrary
-location.
+Reviewed-by: Longfang Liu <liulongfang@huawei.com>
 
-Validate successful zone append completions before updating
-req->__sector. The returned sector must not precede the request start
-and the entire request must fit within the zone writable capacity.
-Reject invalid completions with BLK_STS_IOERR.
+Thanks.
+Longfang.
 
-The polling path may batch successful completions, and a batch can only
-be completed as successful. Perform the same validation in
-virtblk_poll() before admitting a request to the batch, so that invalid
-zone append completions are not batched and are completed with an error
-instead. Move the request completion into __virtblk_request_done(),
-which takes the status from its caller, so that a polled completion that
-is not batched is not validated a second time.
-
-Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
-Signed-off-by: Hyokyung Kim <pulpannie@gmail.com>
----
-Damien, thank you so much for the thoughtful review of v1. As a beginner
-contributor I learned a lot from your comments :).
-
-Changes in v2:
-- Check the request op and status in the callers and drop the status
-  argument of virtblk_update_zone_append_sector() (Damien). The function
-  still returns blk_status_t, since the callers need to fail the request
-  when the reported sector is invalid.
-- Initialize req_start and nr_sectors at declaration (Damien)
-- Drop the Assisted-by tag (Damien)
-- Fix the sector being validated twice for polled requests that were not
-  batched (Sashiko). virtblk_poll() now completes those requests through
-  __virtblk_request_done(), which does not validate again.
-- Link to v1: https://lore.kernel.org/lkml/20261120063039.4155597-1-pulpannie@gmail.com/
-
-Tested on v7.4-rc3+ using modified QEMU backend that returned incorrect
-zone-append sectors on a memory-backed null_blk zoned device.
-
- drivers/block/virtio_blk.c | 63 +++++++++++++++++++++++++++++---------
- 1 file changed, 49 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2b462005cdb6..547291c3ab99 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -331,29 +331,60 @@ static inline u8 virtblk_vbr_status(struct virtblk_req *vbr)
- 	return *((u8 *)&vbr->in_hdr + vbr->in_hdr_len - 1);
- }
- 
--static inline void virtblk_update_zone_append_sector(struct request *req,
--						     struct virtblk_req *vbr)
-+#ifdef CONFIG_BLK_DEV_ZONED
-+static inline blk_status_t
-+virtblk_update_zone_append_sector(struct request *req, struct virtblk_req *vbr)
- {
- 	struct virtio_blk *vblk = req->mq_hctx->queue->queuedata;
-+	sector_t req_start = blk_rq_pos(req);
-+	unsigned int nr_sectors = blk_rq_sectors(req);
-+	sector_t sector, zone_end;
-+
-+	sector = virtio64_to_cpu(vblk->vdev, vbr->in_hdr.zone_append.sector);
-+	zone_end = req_start + disk_zone_capacity(vblk->disk, req_start);
-+
-+	if (zone_end < req_start || sector < req_start || sector >= zone_end ||
-+	    nr_sectors > zone_end - sector) {
-+		dev_err_ratelimited(&vblk->vdev->dev,
-+				    "zone append sector %llu + %u outside valid range [%llu, %llu)\n",
-+				    (u64)sector, nr_sectors,
-+				    (u64)req_start, (u64)zone_end);
-+		return BLK_STS_IOERR;
-+	}
- 
--	if (req_op(req) == REQ_OP_ZONE_APPEND)
--		req->__sector = virtio64_to_cpu(vblk->vdev,
--						vbr->in_hdr.zone_append.sector);
-+	req->__sector = sector;
-+	return BLK_STS_OK;
-+}
-+#else
-+static inline blk_status_t
-+virtblk_update_zone_append_sector(struct request *req, struct virtblk_req *vbr)
-+{
-+	return BLK_STS_OK;
- }
-+#endif
- 
--static inline void virtblk_request_done(struct request *req)
-+static inline void __virtblk_request_done(struct request *req,
-+					  blk_status_t status)
- {
- 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
--	blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
- 
- 	virtblk_unmap_data(req, vbr);
- 	virtblk_cleanup_cmd(req);
- 
--	virtblk_update_zone_append_sector(req, vbr);
--
- 	blk_mq_end_request(req, status);
- }
- 
-+static inline void virtblk_request_done(struct request *req)
-+{
-+	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
-+	blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
-+
-+	if (req_op(req) == REQ_OP_ZONE_APPEND && status == BLK_STS_OK)
-+		status = virtblk_update_zone_append_sector(req, vbr);
-+
-+	__virtblk_request_done(req, status);
-+}
-+
- static void virtblk_done(struct virtqueue *vq)
- {
- 	struct virtio_blk *vblk = vq->vdev->priv;
-@@ -1242,7 +1273,6 @@ static void virtblk_complete_batch(struct io_comp_batch *iob)
- 
- 		virtblk_unmap_data(req, vbr);
- 		virtblk_cleanup_cmd(req);
--		virtblk_update_zone_append_sector(req, vbr);
- 	}
- 	blk_mq_end_request_batch(iob);
- }
-@@ -1260,13 +1290,18 @@ static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
- 
- 	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
- 		struct request *req = blk_mq_rq_from_pdu(vbr);
--		u8 status = virtblk_vbr_status(vbr);
-+		blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
- 
- 		found++;
--		if (!blk_mq_complete_request_remote(req) &&
--		    !blk_mq_add_to_batch(req, iob, status != VIRTIO_BLK_S_OK,
-+		if (blk_mq_complete_request_remote(req))
-+			continue;
-+
-+		if (req_op(req) == REQ_OP_ZONE_APPEND && status == BLK_STS_OK)
-+			status = virtblk_update_zone_append_sector(req, vbr);
-+
-+		if (!blk_mq_add_to_batch(req, iob, status != BLK_STS_OK,
- 					 virtblk_complete_batch))
--			virtblk_request_done(req);
-+			__virtblk_request_done(req, status);
- 	}
- 
- 	if (found)
--- 
-2.43.0
-
+>  	.err_handler = &hisi_acc_vf_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/ism/main.c b/drivers/vfio/pci/ism/main.c
+> index cce3bdf1f070..263b377e87c4 100644
+> --- a/drivers/vfio/pci/ism/main.c
+> +++ b/drivers/vfio/pci/ism/main.c
+> @@ -399,7 +399,8 @@ static struct pci_driver ism_vfio_pci_driver = {
+>  	.id_table = ism_device_table,
+>  	.probe = ism_vfio_pci_probe,
+>  	.remove = ism_vfio_pci_remove,
+> -	.driver	= { .pm = pm_ptr(&ism_vfio_pm_ops) },
+> +	.driver	= { .pm = pm_ptr(&ism_vfio_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &ism_vfio_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/mlx5/main.c b/drivers/vfio/pci/mlx5/main.c
+> index 18a6d224b1fd..63c89e461be8 100644
+> --- a/drivers/vfio/pci/mlx5/main.c
+> +++ b/drivers/vfio/pci/mlx5/main.c
+> @@ -1451,7 +1451,8 @@ static struct pci_driver mlx5vf_pci_driver = {
+>  	.id_table = mlx5vf_pci_table,
+>  	.probe = mlx5vf_pci_probe,
+>  	.remove = mlx5vf_pci_remove,
+> -	.driver	= { .pm = pm_ptr(&mlx5vf_pm_ops) },
+> +	.driver	= { .pm = pm_ptr(&mlx5vf_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &mlx5vf_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/nvgrace-gpu/main.c b/drivers/vfio/pci/nvgrace-gpu/main.c
+> index 5ddec340b73b..946da32c61ff 100644
+> --- a/drivers/vfio/pci/nvgrace-gpu/main.c
+> +++ b/drivers/vfio/pci/nvgrace-gpu/main.c
+> @@ -1438,7 +1438,8 @@ static struct pci_driver nvgrace_gpu_vfio_pci_driver = {
+>  	.id_table = nvgrace_gpu_vfio_pci_table,
+>  	.probe = nvgrace_gpu_probe,
+>  	.remove = nvgrace_gpu_remove,
+> -	.driver = { .pm = pm_ptr(&nvgrace_gpu_pm_ops) },
+> +	.driver = { .pm = pm_ptr(&nvgrace_gpu_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &nvgrace_gpu_vfio_pci_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/pds/pci_drv.c b/drivers/vfio/pci/pds/pci_drv.c
+> index cf7e33d4d17b..1fcef987f1b0 100644
+> --- a/drivers/vfio/pci/pds/pci_drv.c
+> +++ b/drivers/vfio/pci/pds/pci_drv.c
+> @@ -184,7 +184,8 @@ static struct pci_driver pds_vfio_pci_driver = {
+>  	.id_table = pds_vfio_pci_table,
+>  	.probe = pds_vfio_pci_probe,
+>  	.remove = pds_vfio_pci_remove,
+> -	.driver = { .pm = pm_ptr(&pds_vfio_pm_ops) },
+> +	.driver = { .pm = pm_ptr(&pds_vfio_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &pds_vfio_pci_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/qat/main.c b/drivers/vfio/pci/qat/main.c
+> index 69448fa57df4..8a616f9b6494 100644
+> --- a/drivers/vfio/pci/qat/main.c
+> +++ b/drivers/vfio/pci/qat/main.c
+> @@ -695,7 +695,8 @@ static struct pci_driver qat_vf_vfio_pci_driver = {
+>  	.id_table = qat_vf_vfio_pci_table,
+>  	.probe = qat_vf_vfio_pci_probe,
+>  	.remove = qat_vf_vfio_pci_remove,
+> -	.driver	= { .pm = pm_ptr(&qat_vf_pm_ops) },
+> +	.driver	= { .pm = pm_ptr(&qat_vf_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &qat_vf_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> index e7c012febe91..fde2c3fc88eb 100644
+> --- a/drivers/vfio/pci/vfio_pci.c
+> +++ b/drivers/vfio/pci/vfio_pci.c
+> @@ -260,7 +260,8 @@ static struct pci_driver vfio_pci_driver = {
+>  	.remove			= vfio_pci_remove,
+>  	.sriov_configure	= vfio_pci_sriov_configure,
+>  	.err_handler		= &vfio_pci_err_handlers,
+> -	.driver		= { .pm = pm_ptr(&vfio_pci_pm_ops) },
+> +	.driver		= { .pm = pm_ptr(&vfio_pci_pm_ops),
+> +			    .support_driver_override = true },
+>  	.driver_managed_dma	= true,
+>  };
+>  
+> diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
+> index 123ff5193812..1e02a8fd4a61 100644
+> --- a/drivers/vfio/pci/virtio/main.c
+> +++ b/drivers/vfio/pci/virtio/main.c
+> @@ -222,7 +222,8 @@ static struct pci_driver virtiovf_pci_driver = {
+>  	.id_table = virtiovf_pci_table,
+>  	.probe = virtiovf_pci_probe,
+>  	.remove = virtiovf_pci_remove,
+> -	.driver = { .pm = pm_ptr(&virtiovf_pm_ops) },
+> +	.driver = { .pm = pm_ptr(&virtiovf_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &virtiovf_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/pci/xe/main.c b/drivers/vfio/pci/xe/main.c
+> index 7dab3e024aa8..e0ab61f604de 100644
+> --- a/drivers/vfio/pci/xe/main.c
+> +++ b/drivers/vfio/pci/xe/main.c
+> @@ -592,7 +592,8 @@ static struct pci_driver xe_vfio_pci_driver = {
+>  	.id_table = xe_vfio_pci_table,
+>  	.probe = xe_vfio_pci_probe,
+>  	.remove = xe_vfio_pci_remove,
+> -	.driver = { .pm = pm_ptr(&xe_vfio_pm_ops) },
+> +	.driver = { .pm = pm_ptr(&xe_vfio_pm_ops),
+> +		    .support_driver_override = true },
+>  	.err_handler = &xe_vfio_pci_err_handlers,
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+> index fa754f203b2d..2c87caf1b7f7 100644
+> --- a/drivers/vfio/platform/vfio_amba.c
+> +++ b/drivers/vfio/platform/vfio_amba.c
+> @@ -137,6 +137,7 @@ static struct amba_driver vfio_amba_driver = {
+>  	.id_table = vfio_amba_ids,
+>  	.drv = {
+>  		.name = "vfio-amba",
+> +		.support_driver_override = true,
+>  	},
+>  	.driver_managed_dma = true,
+>  };
+> diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platform/vfio_platform.c
+> index a4d3ace3e02d..93d06032cdde 100644
+> --- a/drivers/vfio/platform/vfio_platform.c
+> +++ b/drivers/vfio/platform/vfio_platform.c
+> @@ -116,6 +116,7 @@ static struct platform_driver vfio_platform_driver = {
+>  	.remove		= vfio_platform_remove,
+>  	.driver	= {
+>  		.name	= "vfio-platform",
+> +		.support_driver_override = true,
+>  	},
+>  	.driver_managed_dma = true,
+>  };
+> 
