@@ -1,60 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=79.135.106.120
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795437872;
-	b=TrTNjCQyKsZWidzgrre5WYdJQ/3xATDjJVKPX3D+uQL+KoNo9PwKFhQS9JoqG/o2END2
-	 plf4nKoQBQsptf9wDVRrczWMS5yJwXWngOMHDkdxREiNDkL9xVGczUv8fnHWGIPvZS12f
-	 FbZJoW00CEvwzxQWqqQPS9ByQHuR11OCv/AC6FRgQvCEL0soRWHbEVSah4RMJ7/vSKTs8
-	 abeMbhqw7sajEwH+a6ux4GiahdqYWsp5wMszNu9ZAi54ZkOMP7u4rUc8L481ZLthkP+Ku
-	 52m+f7eu8Lyts5AHAm5PLKfn6AqWj3x46OsLSYaXd+si+VPCGjy9/Q9xbSSmwPrL5Aw==
+	t=1795439886;
+	b=LBtRWeJD7O1zXxKyc9TTwHPkIs8t7BW43T4R5bMsKla7iUhi1oBfkODAj69CHPFWxeYk
+	 hZGAQEIkUPqwQvazWWvNE2ueOsrH3vOvgHEfTFrLBN1+YnPTqzCzSVgT/U6rhsUXqr+61
+	 rxLE9vZJjtHTK1kRPkDWeVIvXuCIW3gfL1FfNem4rbpbGaiMjw+2ufmWi5RulRqQinbdN
+	 bs+1BhyhFlD7hLThXhiQs8l9uR/jkkxdnUmdIrpURFqZ0FTEEYZRyfQzJ+L9mGGbQJ6XR
+	 PN9lJElN4aVGAnRmOQDMqtpj27N83Rj9tl4rf5uh3th/nIlx4ULfoK1ghWu5ye4r4wg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795437872;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type;
-	bh=0b+/w/Gu7/81yyJrjZNFubpzFxZIbcXJGpm7HBlFaXw=;
-	b=kMstzRfHCmHIIvTeJ2pT8weDsysNaGj1sV5kIg1ECJyZ4tB2ov4j7ApgI+KMc6ISHKtX
-	 lOkPVnp+aolGFIazhyX6jwh0FGzGIIgHGTjQAq1pN0sxs+TFpoQMls+Gh979BKUf9Wb/W
-	 NZsF6a1ms/15rAAjrGc+bNlK+moBCOGX0WDhS30cZAWBkMA+7qVZoXNdWiM8oYWUDaYTW
-	 9WsnEdNPoywVDKXwFBwI2JXxioR81jwhI/jCsLKw3IMVFom6VxsMFLntxmqtekYVqA19/
-	 kUAN9nc1rksR0/khg6EgWxHwE6ADNBnnszMDT/LsAP4aYoIaPLE2EiSgp+jxoJyuXvw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795439886;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=G8b0M55Qsr5j/jjPgd1PFdARJOj0KhBIrnCc7fyRQ00=;
+	b=CqDP1S4ALpMDLnbE2lqdCxE9cdZTzQEKyQ4lYiakHYD9Szzyl3XPsbdDKOM2kOuYTAdq
+	 QbFi10uQN72KSbuLVjELXmbEpp+o3ALEcfvOx81wS7R+xjVICkMGkxUpLL6eWL8ojCy9K
+	 +iGPrzi/00Q5rWtUse+nG78WAsvj0UNVsDkyB/j1+PmXzjYMZ+yLs7RrMDtjPJCVtD889
+	 YGRjp9PGm75GXrwHF2xOkg1nBr0NFzW3qnSd7RY+Cdgmp5hYEGonlNFh07MBYkGHyon10
+	 ss8NPOvqN+o32Ep8yvomhwBfmcNIOWHFig87XqBPPs/rbho9jryxtXqXHj8//lk9DlA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=pm.me;
-	spf=pass smtp.mailfrom=pm.me;
-	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=S37Ksspv;
-	arc=none smtp.remote-ip=79.135.106.120
-Received: from mail-106120.protonmail.ch (mail-106120.protonmail.ch [79.135.106.120])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AoiiIpj0;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BD57606A31E
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 12:44:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4BD57606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1787606A321
+	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 13:18:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F1787606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=S37Ksspv
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-	s=protonmail3; t=1795437870; x=1795697070;
-	bh=0b+/w/Gu7/81yyJrjZNFubpzFxZIbcXJGpm7HBlFaXw=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=S37Ksspv6FMqeI67YJdulvHnqRcN/UI+pKp65mZ2bogVh145crzoixmMolgKrQa9E
-	 idfpE8XCqH4Oe46Ca3wc7PTRyNXcMpYk+7EcxYOHuoP67Ro4kDMs16RlVcuznuAXri
-	 vyd+J6WYYaFs3ZxbZmv+WQhG0Eo+VxGI8OMhlzFdowGQQ7gPy2zewf3eIwa4F00WC/
-	 jP1Mk99FKjYHZ/TWzqZtBa6lZCbOSb/zLCW9drubMU5p4HWvsFOhcNXDaiMoigAhJk
-	 RSyjKz2kTFpzIQ72gY/HPuY4mPtf7WrTfJHADbY5WjhOySyWgussHw6cQcCeQF1kc+
-	 BrHvEwPM3y98g==
-Date: Mon, 23 Nov 2026 12:44:24 +0000
-To: Eugenio Perez Martin <eperezma@redhat.com>
-From: fadouse <fadouse@pm.me>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, Linfeng Sun <linfeng.sun.dev@gmail.com>, Fang Xieyan <fangxy@xiaopeng.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] vhost: mask the in-order used-ring log cursor
-Message-ID: <uD642sRa0jdIPD2nCoKzjJDfS2fpCefT340JqjRvOUyFkoXpwNAAabmjwSltui9-PD1DNwFJrw0xrsZqbYKJ5x3fraz9Wv46l3OrkBVA3vc=@pm.me>
-In-Reply-To: <CAJaqyWdOF3LVF+WHaGw8gimULaCunRkuLnKAhciB7HWpYhnm9w@mail.gmail.com>
-References: <20261122-b4-06-vhost-in-order-log-oob-v1-35efdba8fbab-v1-1-fc1253d60351@pm.me> <CAJaqyWdOF3LVF+WHaGw8gimULaCunRkuLnKAhciB7HWpYhnm9w@mail.gmail.com>
-Feedback-ID: 173252840:user:proton
-X-Pm-Message-ID: bafe6e04ebbed8c7cdd7426462ae83353df9de95
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AoiiIpj0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795439885;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=G8b0M55Qsr5j/jjPgd1PFdARJOj0KhBIrnCc7fyRQ00=;
+	b=AoiiIpj0VZTp93rJAZ3T8xrfi0Oih6SS/iRqZs+Sd/TTloTOuS4JD6P2Ere8+TnUYGq+PX
+	tVbxLoWm7HN4LGuFdrGZiU6cae+j7QHwSmS+zDVxxRZ/HTv3Y/z5+H4kfjNzls0zHxzz2X
+	hVSkmFq+MSw8hWyz5z3e2RysP3O/Auo=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-557-lakETB_iOVmzXbNPrdPRlg-1; Mon, 23 Nov 2026 13:18:03 +0000
+X-MC-Unique: lakETB_iOVmzXbNPrdPRlg-1
+X-Mimecast-MFC-AGG-ID: lakETB_iOVmzXbNPrdPRlg_1795439882
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4901562b819so2390739f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 05:18:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795439882; x=1796044682;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=G8b0M55Qsr5j/jjPgd1PFdARJOj0KhBIrnCc7fyRQ00=;
+        b=PFh0rqB//VJgBfo5lvJyq6u/LvUTQgPvXKYkj/LMIntd1TUAWWw+amGtA1WLta65b+
+         p4HubZ4tT2gw7tNpe1FYCLryGvJyUMlEK5FUnSgVPGwhTR8QwiGu1cKxiBYhlzh4NnEk
+         yszgwWIXNMHOYxo9K0LI1gxGymoLW3imvK7MFw1E3OX0EhS3ow+9+o3cfPgiAgIhNPo9
+         k6PQK+n5p7qsYq+vdXSrBZ43pO2O96yxAQ0bAx4Rj0HLjvWwhapfQgXl9MRchHr0UWih
+         r5hBfy93ItQYSsrMaD9XOJfiGoElHFzFlYvk7DLrYnRJjK1wYLHSKoMneYnN2ngvUHj5
+         zNQg==
+X-Forwarded-Encrypted: i=1; AL+hErF3s2/Idx17CALFwtDzis6BrdVJYUn3DoAPOkg3O4gUVNbHeE3EqPtVWXpIIcJUzn0N5IvkHkeuxAG4ZqNz5A==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/N9HCVcvutvtwwAXV1uo/yNcAWV0szH77NBnEUwdpfC3+tC/wr
+	FjsYwxNqsbWrh/LNBK+ljlwozWC7kmlSyB6iVsTaR+x4wyvR69mas6fEUP4EFrC+ACuEBjX9YKH
+	aRcmgZC/UlG0ybvG+ysDZWhDIuRcmKy3W31sDcgPC0RsgKnBLd8THmp9TCju/tFFJcqof
+X-Gm-Gg: AZFdTZcPLIo7IgezKIKAskb5/D5KBxmDo/8Bkg0l6JEk0oNttmFRdgNDRm4uKxECmu7
+	VqYpi3OHEfxwXLWo1gpMRjtuKAN/aNkqGKamYRZ0oHMLT+69lsV6EoEu89mmeraEYA3aO9FZ2HP
+	Yvk3kH70jWxhWA3wCAa9ZsZTwMsGxvO6UCPM12CBKmvy7UhE1NtF1NA5uCRxRs8nd8YU7Mlehie
+	eI9NFXvpni4jV3/eSaiSYyORTtswzxhjJNmcRtrZN1Rbnhc9pXhs2CQdTtXaAsSoyPVLnjbVZHn
+	jA+J+kU8+JxeFR0957MlkZhB1NRooFQkkkkACNsBXZZRVsYwPNo9zvdkCBQy9EMmVN8xAifct+X
+	9lQFe3rjE87/TDGiZqAAYnFZCbDRFuKrvqxIkW+DWLIeQ96nFCwaa0g==
+X-Received: by 2002:a05:6000:491a:b0:4ac:37ff:140b with SMTP id ffacd0b85a97d-4ac37ff143amr20351757f8f.25.1795439881941;
+        Mon, 23 Nov 2026 05:18:01 -0800 (PST)
+X-Received: by 2002:a05:6000:491a:b0:4ac:37ff:140b with SMTP id ffacd0b85a97d-4ac37ff143amr20351692f8f.25.1795439881467;
+        Mon, 23 Nov 2026 05:18:01 -0800 (PST)
+Received: from sgarzare-redhat ([80.116.143.202])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6c61f558sm22435688f8f.58.2026.11.23.05.17.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 05:17:59 -0800 (PST)
+Date: Mon, 23 Nov 2026 14:17:54 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowangio@gmail.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Simon Horman <horms@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] vsock: only deliver taps to namespaces that can
+ reach the device
+Message-ID: <awQ5xzF8P0NJiCsv@sgarzare-redhat>
+References: <20261116-vsock-tap-net-v1-1-7e24f45adad3@meta.com>
+ <awQJo8WE5Gn4nYHp@sgarzare-redhat>
+ <12a2b44d-3d24-4b77-9dd5-24361d5fe910@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,97 +109,44 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha512; boundary="------58b4c18d041a1900b7efe55bc7f3f43ca00cda905f3a1cbf8a2befe5d918f9b7"; charset=utf-8
+In-Reply-To: <12a2b44d-3d24-4b77-9dd5-24361d5fe910@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: _IHEBSZ5dXg5G_9AWAoj_0gPmFc6SR-S77U1cmE1K1I_1795439882
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------58b4c18d041a1900b7efe55bc7f3f43ca00cda905f3a1cbf8a2befe5d918f9b7
-Content-Type: multipart/mixed;boundary=---------------------d069c3b756c1c87bc344816b0df5f7b0
+On Mon, Nov 23, 2026 at 12:58:38PM +0100, Paolo Abeni wrote:
+>On 11/23/26 10:43, Stefano Garzarella wrote:
+>>On Mon, Nov 16, 2026 at 03:46:49PM -0800, Bobby Eshleman wrote:
+>>>vsock_deliver_tap() clones every packet to every vsockmon device on the
+>>>system. Creating one needs only CAP_NET_ADMIN in the owning user
+>>>namespace, so an unprivileged user can capture the traffic of local mode
+>>>namespaces.
+>>>
+>>>Pass the packet's netns to vsock_deliver_tap() and only deliver to
+>>>devices that pass vsock_net_check_mode(), the same rule socket lookups
+>>>use. vhost passes the vhost_vsock netns, loopback the sending socket's
+>>>netns, and virtio-vsock NULL (global mode).
+>>
+>>For local namespaces I think we are fine, but what about global?
+>>
+>>Is it okay that a namespace with global can capture all the packets of other global namespaces?
+>>
+>>Asking because at this point the CAP_NET_ADMIN is useless, since an user on a global namespace, without CAP_NET_ADMIN, can just create a namespace to have CAP_NET_ADMIN and access all the traffic. Should we fix also that?
+>My take is that the above question is quite orthogonal to the current patch
+>and may impact old applications relying on the legacy behavior.
 
------------------------d069c3b756c1c87bc344816b0df5f7b0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;charset=utf-8
+True, but I'm not sure that behavior was correct since the beginning.
+E.g., what is the point of having CAP_NET_ADMIN requirement if an 
+unprivileged user can just crate a new namespace and get it?
 
-Hi Eugenio,
+Anyway, it's eventually pre-existing netns support in vsock, so it 
+should be fixed with a followup.
 
-> Although I'm ok with the proposed patch as hardening or optimization,
-> this sounds more like a bug in get_rx_bufs. Where are the memory
-> addresses for these pieces stored if there are no more buffers in the
-> virtqueue? Or is it able to loop through the vq?
 
-Yes =E2=80=94 get_rx_bufs() loops around the same virtqueue when a
-non-conforming guest advances avail->idx while earlier descriptors are
-still in flight.  handle_rx() passes quota =3D UIO_MAXIOV (1024) for
-mergeable RX, and each vhost_get_vq_desc_n() call appends the
-translated buffer addresses into vq->iov (also sized to UIO_MAXIOV).
-Because vhost_get_avail_idx() compares avail_idx against
-vq->last_avail_idx rather than vq->last_used_idx, it rejects only when
-
-  (u16)(avail_idx - vq->last_avail_idx) > vq->num
-
-so the guest can reuse the 32 ring slots mid-packet and get_rx_bufs()
-appends those addresses again into vq->iov[32..63], returning
-headcount =3D 64.
-
-Bounding get_rx_bufs() (e.g. capping its quota against vq->num, or
-checking in-flight descriptors more broadly) is certainly worth
-looking at separately, while keeping the mask in
-vhost_add_used_n_in_order() keeps the dirty-logging cursor consistent
-with the publishing loop from commit e244725e86be.  If you think a
-follow-up check in get_rx_bufs() makes sense, I'm happy to look into
-that as a separate patch.
-
-> Can you post the reproducer? Even better if it is integrated in
-> tools/virtio/vhost_net_test.c.
-
-I just posted the standalone C reproducer in my reply to Jiaming in
-this thread.  Note that tools/virtio/vhost_net_test.c drives the ring
-through the conforming vring_new_virtqueue() / virtqueue_add_inbuf()
-API, whereas reproducing this requires a raw vring advancing avail->idx
-past last_used_idx + vq->num with VIRTIO_F_IN_ORDER |
-VIRTIO_NET_F_MRG_RXBUF | VHOST_F_LOG_ALL and VHOST_VRING_F_LOG set in
-VHOST_SET_VRING_ADDR.  If you'd still like a raw-vring test case added
-under tools/virtio/, I'm happy to include it in a v2 (along with fixing
-the minor 262 -> 260 byte used-ring size typo in the commit message).
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 Thanks,
-YanXin
------------------------d069c3b756c1c87bc344816b0df5f7b0
-Content-Type: application/pgp-keys; filename="publickey - fadouse@pm.me - 0x99485AA3.asc"; name="publickey - fadouse@pm.me - 0x99485AA3.asc"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="publickey - fadouse@pm.me - 0x99485AA3.asc"; name="publickey - fadouse@pm.me - 0x99485AA3.asc"
-
-LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgp4ak1FYVV1T01SWUpLd1lCQkFI
-YVJ3OEJBUWRBdG5ZbFN6SFRMSEEySXp1TkUxQXk4SnJLVUN4NmhQKy8KdGM0TERYQ25yZXpOSFda
-aFpHOTFjMlZBY0cwdWJXVWdQR1poWkc5MWMyVkFjRzB1YldVK3dzQVJCQk1XCkNnQ0RCWUpwUzQ0
-eEF3c0pCd2tRdVoxZ3QrWG0yWFJGRkFBQUFBQUFIQUFnYzJGc2RFQnViM1JoZEdsdgpibk11YjNC
-bGJuQm5jR3B6TG05eVp6bTBCcDNlRVhSV2tuSWdDbFd3dmR4Wm1vMVhuVmI2RmthalhUVk0KMUIv
-akF4VUtDQVFXQUFJQkFoa0JBcHNEQWg0QkZpRUVtVWhhbzNaL0FuQkk0TEJZdVoxZ3QrWG0yWFFB
-CkFMcTJBUUQ3OEs2cGVkU1gzbGROeXFkM09IMXVNak8zdjdMWU1oTytsN2NuU0xXckVBRCtPQ1Nx
-MTFTZQphS29ic1ZHckxlalRNc21Nc1BCOGpueGZpZDNoQ04rcGV3VE9PQVJwUzQ0eEVnb3JCZ0VF
-QVpkVkFRVUIKQVFkQXdYZHpWSXFFSC94OEhaalIvUE90MkFpRmJFbTZZcVhYMmoydjJpS0RzUU1E
-QVFnSHdyNEVHQllLCkFIQUZnbWxMampFSkVMbWRZTGZsNXRsMFJSUUFBQUFBQUJ3QUlITmhiSFJB
-Ym05MFlYUnBiMjV6TG05dwpaVzV3WjNCcWN5NXZjbWRkS05RWURGV2NFVmQzeE9IZVFwNnN5bjc5
-TkZwTnFrSHoraXpwSUxCblVnS2IKREJZaEJKbElXcU4yZndKd1NPQ3dXTG1kWUxmbDV0bDBBQUR6
-UWdEL2NJSjA4OUprbm9nVHM2dnZRWitKCjNMUklEYUk5K1FtK1Q1cU9tTms0eVhFQkFMUElsSkNT
-OGFoNWRCWVphOUwrSHFqYkRtZVNnRG81OHVTeAoraVd3KzZVTAo9TXVzVAotLS0tLUVORCBQR1Ag
-UFVCTElDIEtFWSBCTE9DSy0tLS0tCg==
------------------------d069c3b756c1c87bc344816b0df5f7b0--
-
---------58b4c18d041a1900b7efe55bc7f3f43ca00cda905f3a1cbf8a2befe5d918f9b7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wrsEARYKAG0FgmsENRsJELmdYLfl5tl0RRQAAAAAABwAIHNhbHRAbm90YXRp
-b25zLm9wZW5wZ3Bqcy5vcmdj965l96TGsIIKmmxQU32Zw/dVnWCzLdb8YQz0
-Gr3K8RYhBJlIWqN2fwJwSOCwWLmdYLfl5tl0AAD7hQD/fwtoieRvuhRodIxq
-IWCsEyxpCrl4gXWSL/hGE2HK77gBAPyNdErgg+xso5um/oMKGA/E16dhYy4H
-l2dwd5UCXaEH
-=1GBE
------END PGP SIGNATURE-----
-
-
---------58b4c18d041a1900b7efe55bc7f3f43ca00cda905f3a1cbf8a2befe5d918f9b7--
+Stefano
 
