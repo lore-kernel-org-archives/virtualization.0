@@ -1,102 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795522239;
-	b=e18OmLIs3q7GqLHnW6AmbcyZZ6z0bl7sYIxNiZotOA2DPAiGB/V4i57h/fjsfz6mJyUM
-	 2KjJvPSbehTPSSZCJOL6HnO9fIIQwSoEUfU7meoMPPUWrb1/uS15vcfBRqxJkxRTMO5pB
-	 NeUEWfInbg4p8v3WbbtMOgFGpaQDxeH9MLIg85gER7O3xOrFAw0QKmdtf5EAR9CpTclko
-	 4YJOLSaBHrElP+iVYXnXZEv2CnIQ4B8aKcGpV/qDnCq58tjmrmgY14hLSWr8iMdWfvQw7
-	 ROEPXJKA59PHQMiJuitSLlBongTY6eKnD3SFy0A7VHxDkEw0x+/LltHdCw70nBuFAQg==
+	t=1795522665;
+	b=JFtW+h0ZIhOg4HpFgUdCYNhhPiYo8QAcn0JmbOgx/DS+BsRQ300pF/6CDww39kjjXyEV
+	 Ulg3irP0/i/eedXoVOhzaC6SuuGVuAawllzeBDrW/pr4EhA5wteTJBLb9G+4je91h8uPi
+	 Ebb5luBgcLzdKVM3dHne6JG/DHBy61dUP8jlDR4a45BTRnIJMe1FD2ROA3SFCJsQ2ds7C
+	 2WwGxXY6UUn962WcQNe9AyJUBnGihERxkotltmONR/dm9/OK6MkkZbVQ24HumwR4y7jcL
+	 MynHOXAkZtRndA0AI39sjtG0u7BNZrQemesExhAGp34i5cRS8ptEQYfNNIYh16jv/cQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795522239;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=TNtaF0DLgYxwre8UJL5XaZV5dHuYhll67t5b/hqMCng=;
-	b=uwou4N5VmDmsyFpoe9wsKZHl/katz3eZcuaakwy9MdD/tm9NmWudT3wyTrjsyjgEAovM
-	 MnDy3hihP1xEzUWYSLpagJP3rsKWD/6G2V0Pb/E4Xvuy7741nqEs3Y2UgObNz8KhkV0IA
-	 C+ffXBurLoQEP4rJardZHiLwr77KVnG9eTviCr/HNAE6JFM2j270J5DcsLEHvmnmKHGLr
-	 KximSxVhKMc1+q3xO7RiVysbWiD/d/2ZWQvuh6gYFs0P9PtrbdN1gP/ZCUV7o/BDS7GG3
-	 DrWsi2+A/sVlaoMt5iwFwxeiDUOf4Dh8M7K9ERjJz8pY83qf6/l7lTEkzfGDjJWpmYg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795522665;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=DbmIw63aK5D8KN1MjDBOUuihKJOCEJYVlY9ddII3aL8=;
+	b=CPoI5bWO/Twrc4FxgXTK9thDLQ4HKqrY26Pdp2RXz4n260P7s8t5Rb4DQPh3mZeLii90
+	 EDfpT0gniprLpNEiTUNV9Ty5edmJptXPSeJrEiau6tEExiXEPppLzC0+4Rmg7qQ2a/GHs
+	 OTcCCrZktjMGjzEqGhOVAOcme5Qvd2kkqp9Kn8vwsJ2jVe0/23WodKqT+Lciikb12CXff
+	 Yn9d4rBgLFRczebLZ/muIhwOSGQoKKjQ5CAOXVFuxhL6IRiOGmvKRZITvfGotc4WTDs14
+	 Yb93zDxhSaqNMZQfY9YSgU9v2hE1O2UUbXAKP7O0fuMD3zJMkwQ/VQWB2tt6y9LIfIQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BeUHGopn;
-	arc=none smtp.remote-ip=209.85.160.42
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aijY3mNF;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3FFB606A31E
-	for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 12:10:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A3FFB606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B687606A32D
+	for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 12:17:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B687606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BeUHGopn
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-451a49abd8aso4478526fac.3
-        for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 04:10:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795522237; x=1796127037; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=TNtaF0DLgYxwre8UJL5XaZV5dHuYhll67t5b/hqMCng=;
-        b=BeUHGopn3iG62mYrkqMCVGCtZTgNiRPSC64Xx2LGF+5/hgjf3x4q+Qb+Ad1gsGfgPU
-         XzKQZnGQoAO8zPnZiRgsj0F5zzeCbamTRqaleONLmjH20CcjMjxT6mbknnzqlp/8F3cZ
-         JdtsmzU/uiYMp/MKD7AG0wN+7G08uvN8+hSQhY/ftekJDJlifs6LQLKJ2sXrcww202L1
-         qibUiSW6bfO+bRJNad5wDlnn/gKTLE3dL4jhYK7nhhzQJXd2jcsbFGMx3WZgMQmyb8aA
-         6eHcb6wcpepoEV4tMoz+B/JxZG9Ambx1xekoxdaxs5J0zADCQ+JU3yKTkXPqyU6SQxZm
-         972g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aijY3mNF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795522663;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DbmIw63aK5D8KN1MjDBOUuihKJOCEJYVlY9ddII3aL8=;
+	b=aijY3mNFYk26Nodyhy5eSg5CG9IQDsGh/LGD/e7DjzB0LhXjHMtT8+4mjVuwKPxu62TT5Y
+	RrzSwf5LEodAhliqiUUqVycHRxWEDF3fXWB0mTvFYtd9iZpN3pSacC2YKCyXpcmQrMrJ0/
+	bCytnoVPjda1rVXPpFik237OtZ0cRLk=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-674-yhxAmXoQMzOglXQLVYQ8Ew-1; Tue, 24 Nov 2026 12:17:41 +0000
+X-MC-Unique: yhxAmXoQMzOglXQLVYQ8Ew-1
+X-Mimecast-MFC-AGG-ID: yhxAmXoQMzOglXQLVYQ8Ew_1795522661
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-8b502255651so60766827b3.1
+        for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 04:17:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795522237; x=1796127037;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TNtaF0DLgYxwre8UJL5XaZV5dHuYhll67t5b/hqMCng=;
-        b=f+IKbunK57lMrZWgL7t8d4S9wZvQmyK45rnXuQi2z0f7OB0ZyyODwxYotwflM4zbh4
-         wlgv3hzZeqR/r0NPipe67gwc11vnbgpI8HyKjBzfNQba8c2vMXWKC9OQg1SIc0FsTQlh
-         eViNNFLO2ICY33MuwwauvvDgyxy3AlcFpfDQwjjR6fSx9rIUXMvVw80j7ACDOxTnsFMz
-         N5WFIKwzl4VO+DZI3jFRlg9oGcqvE5yxSbzP8B7mE5CXty7se5+4heH4JQZXEA923k/1
-         /jlEMT0Ia7dFlW1FnzyA99SG6CtbigfYReSa9hlbd7y7+HOElAQQUM0cIQmPdMCwKayV
-         vOhQ==
-X-Forwarded-Encrypted: i=1; AL+hErEFN5QKvr+Pb6X/LTz1n2zOhWmeg1V4FhoIt8HgB5Ul/+AHvOCTIGLXUMYNg0gHp1fVepI/xNs9fQ39bpyIEw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z81xsfpukYSr2oigIOLty5hehvsIUOKFKgmTADXG8iBu25ze144
-	U/7X2pym60la5ovYaTw5Y+1aAaCSdXAIzB/svXBWlfTABdROfC3acWDKq9N63wpbknc=
-X-Gm-Gg: AZFdTZdUQIcf6HnslY+9GP53sU7lqT5yGTfhKdfAQ6LvWz6HjDhowH1+M4mENSCdOWB
-	F/nL+ISOV89MwJdVfe+ueo8oEyA4EOBimdj8xz1dRdK2f8t/gMS3QGj/oZg3gzjqvSQYSHTbP0u
-	Ev9FJFqKRPHiELYCriqB5hdufJFwB8Sx8IuCVizQix3GY9h4VMTtxx3/NqSMlbXBFnY8A7WAWt0
-	KWtSavQyAAZm1ShCvoqRNLk5HWegwwCDgMWhvlbFVlJ3XFg+C3OOyiRnsG6FGEZKFTyJ7AN/e5V
-	Zx5mH10Tgpfiev//E4MtLPLeo6Gef5TMUrC0oDBQ7NET/nfBZE3nvDYeO70uyWeH5rSYRVz3tA1
-	5LZpaOxKCxznzAmWxaC/6I/HZApx7eqvD5oKa7mJIlU4jWWcdIj/KXVCD9A94I1dsgv5TDucYok
-	j1ItkDyvjvoF/+8lUA/+ZnmBrrOKFPBSjH8L5IY7SoSYscmL8YtcFeFG+a59qDv9j8lDpEOA8vw
-	/E8BUgiOlOo+rQUqEjTyrMrHVE10dnleXLMu5gcLACpeKaSXFXxspij8SaFnPD+761pfqO7Ilw5
-	Q055Er9hSSbrhA5smnh3srw=
-X-Received: by 2002:a05:6870:e08e:b0:48f:e0e5:a1f8 with SMTP id 586e51a60fabf-4bc8492648bmr14119241fac.44.1795522237361;
-        Tue, 24 Nov 2026 04:10:37 -0800 (PST)
-Received: from localhost ([2a03:2880:10ff:71::])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4bc5ebdc0acsm15053309fac.3.2026.11.24.04.10.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 04:10:36 -0800 (PST)
-From: Vlad Poenaru <vlad.wing@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Si-Wei Liu <si-wei.liu@oracle.com>,
-	Jonah Palmer <jonah.palmer@oracle.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	Kyle McMartin <jkkm@meta.com>,
-	Joao Martins <joao.m.martins@oracle.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	kernel-team@meta.com
-Subject: Re: [PATCH] virtio_pci: limit Oracle DSC2-200 virtio-net to 48-bit DMA
-Date: Tue, 24 Nov 2026 04:10:30 -0800
-Message-ID: <20261124121030.38490-1-vlad.wing@gmail.com>
-X-Mailer: git-send-email 2.53.1
-In-Reply-To: <20261121063742-mutt-send-email-mst@kernel.org>
-References: <20261109184253.531677-1-vlad.wing@gmail.com> <20261119200654.1048266-1-vlad.wing@gmail.com> <20261119181557-mutt-send-email-mst@kernel.org> <20261120171435.83458-1-jonah.palmer@oracle.com> <20261120123500-mutt-send-email-mst@kernel.org> <b8ff5bab-d08f-42b8-9c88-e4665ea3078c@oracle.com> <20261121063742-mutt-send-email-mst@kernel.org>
+        d=1e100.net; s=20260707; t=1795522661; x=1796127461;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=DbmIw63aK5D8KN1MjDBOUuihKJOCEJYVlY9ddII3aL8=;
+        b=T/EUId6aS6UXwyiqet5bFAI+Ke17B2RzgxD0+e+bt0nLdkTHzETvC92c8k1I7u0oLt
+         /b8S3vWR8uwIi1kateNNtDmifwcHBAfpLKmKWHRgPnb9af5H1DpJVsDkKtfcZwkJQGRJ
+         mbRGK0hHpbV0mFtVumx+j7VtC3EyM3V6sLiey8RIpOyal9HTZUFa488nEjbcwufkJNUO
+         Q0kujJ7GLIkdGwyUj+NS2POap/02yqHAb7HDMHaqN67K/qcMQdZjQdxPLxAjD/qWH4NI
+         EprcpsciFdxcY4pccK2Db1xhLLU88hhmn04kbcQP5PFuF6cGSoJ5mJE8QOHEkL6RNGAN
+         kL/A==
+X-Forwarded-Encrypted: i=1; AL+hErEZMgreEq3GZfmRyfC7gcwogHUTOj+JVxIHc8siazCWtz7/EwIYCgybDN0hyHPTbqmlY9uRzIrlaXuzGRNRVg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8Kcvtg5Qml+F9Xp6vuXZ37WxV/CpbuPJOepPnk8I65+nhBo5O6
+	NM2tSDaGoQlK3VjI7TnCW16G9qqgoElKPqACJOO8F64tisB6XXuReMhUt6YXFl8xqIB+5wNpImp
+	EDmYwoiTmwhQ3RfDRCZIy8v/0CB+hYEyw/9/gbEo7BjSFyWqMDcALNMiIqh7cYAPGJMvKxWTmpQ
+	ZjMpKB6DYn27AxrntnMvSh5/YFwlo37wA4M275DAUOhjw=
+X-Gm-Gg: AZFdTZfm7TmkUbzNGC3/SX/uDkgLoA9O2H4hVXBIDQl9CekG+aqDLR3fE/f/W1X8v4w
+	6AvAkhW1OliHkrPFfEMM1LzdzPlJYe5b3ZDdW7tai1ZRHXOR5rcR3igICefCp0ZOTLYpo3cQz8a
+	2Vm+d1XLZQMN8aNKFxfiLrLmeDfB269QhRW6W2mwscyaTVs2f8kOLdLDJUvqypTXQmFsRKMUOXW
+	2/nipkqmODWZyH0hspYmPBZeWN3Rm+VclbAT2aB9rAmgioBncRdedPYsfs=
+X-Received: by 2002:a05:690e:12c1:b0:67d:c0d2:d1a4 with SMTP id 956f58d0204a3-67df43f2946mr5746538d50.24.1795522661120;
+        Tue, 24 Nov 2026 04:17:41 -0800 (PST)
+X-Received: by 2002:a05:690e:12c1:b0:67d:c0d2:d1a4 with SMTP id
+ 956f58d0204a3-67df43f2946mr5746518d50.24.1795522660569; Tue, 24 Nov 2026
+ 04:17:40 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,22 +91,127 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20261123192220.4013325-1-nilayvaish@google.com>
+In-Reply-To: <20261123192220.4013325-1-nilayvaish@google.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 24 Nov 2026 13:17:02 +0100
+X-Gm-Features: Aa3M54oMFIvhNd4yA8WUxlIHyLTQrWthI4lAaUAMGkK0ZLwLtvJCUTh2MEvQmbU
+Message-ID: <CAJaqyWfVmp8KuqX_8v_QnXFysmwjNieWbosqD+R=Oqo4Pmg+5w@mail.gmail.com>
+Subject: Re: [PATCH net-next] virtio_net: use page_private() accessors for the
+ big-packets page chain
+To: Nilay Vaish <nilayvaish@google.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: WifKSjAYC27q9oUCKEMB3wOPzdu-e64ZrppWdc85IuI_1795522661
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Michael, Si-Wei, Jonah,
+On Mon, Nov 23, 2026 at 8:22=E2=80=AFPM Nilay Vaish <nilayvaish@google.com>=
+ wrote:
+>
+> Big packets mode chains its receive pages through page->private, reading
+> and writing the field directly.
+>
+> struct page is being shrunk as part of the memdesc work, and its private
+> field is one of those that will move. Direct users have to go through
+> the accessors before that can happen.
+>
+> Use page_private() and set_page_private() instead, like the rest of the
+> kernel, so that the driver no longer depends on where struct page keeps
+> the field.
+>
+> No functional change.
+>
+> This patch was written with the help of an AI coding assistant (Gemini).
+>
 
-Michael, please keep the quirk in your tree. A firmware fix only
-helps the hosts that receive it. Hosts on today's firmware, including
-those booting stable kernels, need the quirk until their firmware is
-updated.
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Yes to 51 bits, given Jonah's testing. I will send a v2 with 51 bits
-to replace the version in your tree.
+> Signed-off-by: Nilay Vaish <nilayvaish@google.com>
+> ---
+>  drivers/net/virtio_net.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0988a946ef35..5eef2c315963 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -680,8 +680,10 @@ static void give_pages(struct receive_queue *rq, str=
+uct page *page)
+>         struct page *end;
+>
+>         /* Find end of list, sew whole thing into vi->rq.pages. */
+> -       for (end =3D page; end->private; end =3D (struct page *)end->priv=
+ate);
+> -       end->private =3D (unsigned long)rq->pages;
+> +       for (end =3D page; page_private(end);
+> +            end =3D (struct page *)page_private(end))
+> +               ;
+> +       set_page_private(end, (unsigned long)rq->pages);
+>         rq->pages =3D page;
+>  }
+>
+> @@ -690,9 +692,9 @@ static struct page *get_a_page(struct receive_queue *=
+rq, gfp_t gfp_mask)
+>         struct page *p =3D rq->pages;
+>
+>         if (p) {
+> -               rq->pages =3D (struct page *)p->private;
+> +               rq->pages =3D (struct page *)page_private(p);
+>                 /* clear private here, it is used to chain pages */
+> -               p->private =3D 0;
+> +               set_page_private(p, 0);
+>         } else
+>                 p =3D alloc_page(gfp_mask);
+>         return p;
+> @@ -881,7 +883,7 @@ static struct sk_buff *page_to_skb(struct virtnet_inf=
+o *vi,
+>                  * Currently, big packets mode doesn't use page pools.
+>                  */
+>                 if (!rq->page_pool) {
+> -                       page =3D (struct page *)page->private;
+> +                       page =3D (struct page *)page_private(page);
+>                         if (page)
+>                                 give_pages(rq, page);
+>                 }
+> @@ -929,7 +931,7 @@ static struct sk_buff *page_to_skb(struct virtnet_inf=
+o *vi,
+>                 skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, off=
+set,
+>                                 frag_size, truesize);
+>                 len -=3D frag_size;
+> -               page =3D (struct page *)page->private;
+> +               page =3D (struct page *)page_private(page);
+>                 offset =3D 0;
+>         }
+>
+> @@ -2705,7 +2707,7 @@ static int add_recvbuf_big(struct virtnet_info *vi,=
+ struct receive_queue *rq,
+>                 sg_set_buf(&rq->sg[i], page_address(first), PAGE_SIZE);
+>
+>                 /* chain new page in list head to match sg */
+> -               first->private =3D (unsigned long)list;
+> +               set_page_private(first, (unsigned long)list);
+>                 list =3D first;
+>         }
+>
+> @@ -2725,7 +2727,7 @@ static int add_recvbuf_big(struct virtnet_info *vi,=
+ struct receive_queue *rq,
+>         sg_set_buf(&rq->sg[1], p + offset, PAGE_SIZE - offset);
+>
+>         /* chain first in list head */
+> -       first->private =3D (unsigned long)list;
+> +       set_page_private(first, (unsigned long)list);
+>         err =3D virtqueue_add_inbuf(rq->vq, rq->sg, vi->big_packets_num_s=
+kbfrags + 2,
+>                                   first, gfp);
+>         if (err < 0)
+> --
+> 2.56.1.839.g22a8290db9-goog
+>
 
-Jonah, Si-Wei: will the fixed firmware be visible from the PCI side,
-for example as a new revision ID or subsystem device ID? If so, a
-follow-up can limit the quirk to the old firmware and give fixed
-devices the full mask.
-
-Thanks,
-Vlad
