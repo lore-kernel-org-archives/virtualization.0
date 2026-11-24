@@ -1,94 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.226
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795477576;
-	b=VVANZqyKm4fx9FxVUPl+cLlNirpQUXOxi/NpltzGAByr7qyJA9opFeG4LlnEQl5o/m7Y
-	 4tLG1LYsIkfY/MUVHkKhfEUNUgpVTnfnZmTd+ed1bqQrbdZxVPsxCDOobPI61AD7S5FlJ
-	 siduq4uGobngmA2DImNzNUOeccbNAV9yzL3AuLF643laQrapKejuewyxtb8hSQ4hIbwMe
-	 2kMn57Q/A6f3GXN8q7Zkl81qIqFT1J+sReaatHC/tvgZlXIv+sMFzUpMgMISOY38tEKBb
-	 IXgD2EGqE9Nn6xIAgwWqdnjDMHaTPmnu6RNuPYhnckDcIUNJmeRz/HTnjJRCxv8oPzg==
+	t=1795480796;
+	b=ea7cm55FnsCtZBRr79VIhZ8R3Bz/YDMEyXut9q9YRCwag/6o/jDySIKi6l/cWKSaDb5g
+	 xnN4GfQCgB/rLJLIEO1u90aD+fHClgpC8x+NlGs29VrjCrf30XQ1WKsAbbIzKIt/decau
+	 ArJKzkiRHQV2zg5JVqeYeY005XcMyvBxEuCHHDDbZaYP9DS+GakzfKE+kKGJn3Gf+Q++T
+	 YGsEe7yMjG3QYzjThBAzCstseAM6Z8U/itJMBT1ekF4L2qrJRxvfLfMlcnVQkwuthcaRi
+	 CFfFHx1zX0yo2w+p8RXJy2zis0NPSxrd1LPP6nKGf9sZFFK3svYuC2fz3AnpZCcFTYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795477576;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
-	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Received:X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-DetectorID-Processed:
-	 Content-Type;
-	bh=QW2v1rbRcBcXiGETe7ORF7SmQ8ayMndDkPMesbNu3qg=;
-	b=Nol5CLsNUnV/JV2hLhqcYIzZcEL95FwsUJ0FqOLTqlYQHa93zxJQBXDnnaiPPuwX+QE4
-	 eUEtlLgtxs7x4djpQa1qyec8ZuKiM+EoyJ0XFoRqm0dJjf9hcA1ViVsHyE/YLOL8zykwT
-	 d5kd5iyrM+T6Ij0Zb5u2+bzD/1nK40+xFQa/VmuEIMsnVGYITkgaXNXv5cSxkO+pepDIr
-	 a6hTV8M9RPS7ZdzMmLLVlqKcKr3E+0/foWVYC1N1oo5CgNYl6HrQfZ625RUjxpfFkF/jS
-	 H/B4NBd86+/tKamtP6FXS0TJ0Wm9l0Z5VZDx7WhEp4A2nI4l5a2RWV7C6bFiwjpcaVg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795480796;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
+	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Originating-IP:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version;
+	bh=efALRy5JehNWwR5fNw4avw3lMC0wfy+UAUaAyAGBkW8=;
+	b=pneehtV9zaHd11du+eSekcQsAla540sl1fXFjbkphJ8NQLpbLCkn+lVTTZOGs4gOj+B9
+	 PztchXLLz+VpPU86wbQ8Yxq07UT2ZDZAtLuq6Eb9j41GOixuB9ElzKBr/47/AYtGgkR6+
+	 28IBZU44bg9ffykkR3wE6K2oNM7Dn3dCqWmrsnnxWZiQhuFxEv7en5XEHBxpsFtsFxGwi
+	 ULKgseXW1bBjsAmM4wj1MjtuQsYamKXc22dHWoXC1y+fphjS7CoDqL01tyOk1EeFkpsDX
+	 p9tutufksOjQs6u1TJqB5E9Z1tFzNtLEBAQWnSPvCff6ssmOpiU2tVxVeoaem5Q4q5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=broadcom.com;
-	spf=fail smtp.mailfrom=broadcom.com;
-	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=Wb2M2k4U;
-	arc=none smtp.remote-ip=209.85.222.226
-Received: from mail-qk1-f226.google.com (mail-qk1-f226.google.com [209.85.222.226])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=MQ8d7z+H;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E66C0606A326
-	for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 23:46:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E66C0606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0410E606A31E
+	for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 00:39:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0410E606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=Wb2M2k4U
-Received: by mail-qk1-f226.google.com with SMTP id af79cd13be357-949b0d32315so334534985a.1
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 15:46:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795477575; x=1796082375;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:dkim-signature:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QW2v1rbRcBcXiGETe7ORF7SmQ8ayMndDkPMesbNu3qg=;
-        b=Qwzwh8BUEJcu5bfp6sr9ekm0OhL1dwzOS2s//NHSRxlNImvoIdAmTHxJTLu+2fSJo8
-         muTJr1k5HIsN+zHdqPEWr5j3pltoQgBctvKt/kojSSWKBnKaQdhBLtdGNtT6CABJhjlu
-         +vuFao14qYXvJ0EtfVhWkFm8TYtroLHvCc8QPa6ckKVBdbzP7dXeKj+xxXjx4Y7IEgIe
-         KRBqL8i77Q/meGVkVsrTdCjW36b15kvnSXyUS+1o11zKvu19UiIGvmpoL7jppHIti/2W
-         CVJ76+5/tw6GnsO1EyGaajJvuwWyBFuZ+j+XhqI1C8EnmLHGdX3l0seIZim8ZA9c1/tT
-         zTeQ==
-X-Forwarded-Encrypted: i=1; AL+hErHO5K4pVmSzmJKCUiFtDZWxFTWGgIJWlZS+NbrbgVxclKrNPZYuPbCNts8wqG6nDsqwxjc7X+92V+iWp1GuVA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9Mh9+Yhg25yX2gFmyoT8dZbR/fDWWzPx45kd50ELqTvaGTnl9b
-	23SEgGTFORT137JTy6hA/b1eLY3eWLHBAqt2T71s/AYmCqvygOkM4d+Jg0bjidySXzNXAYsTiWn
-	pDE2UzkzM8wvDCn4sku9KymcfvJLX0yEaKT78uicLXohFSo8NFseIN9Nsqz+ARbJf4ZpRNQgY8r
-	MYd/J73AGE97je15pKD/9CU6sZPQNX5sb9/fseFx9bkUWrhqDoYFppeA6uS2+L0nFP9mSYkI0Hd
-	yYHDX1Vay5HPbkOKJ6Pj089kHdGWn4=
-X-Gm-Gg: AZFdTZd/cBeUvaKbd9QkQicWT/N34IMUKBdEb73+XmZCLCg3flGTTMdZpdNcc19N/uJ
-	g+IXZO6PAYUMttNbTMe3LAqMRGD9APmZiheEMh5fP+X4rqboTHquVt5ovyVrFXybCZq36X/rxv1
-	SwYU2uY6p7rmqnPJqgvYe8k1KuqXkcBGAXw3y+jC9pla0WmJpIIhAAM7NNKEVqzz7sqTiOo6Tc2
-	uLEsdoLlDRLLUdERYogUJyRZUJ80AT+YNpPnpJY2ylQJUu0KuJhNSwUpIOsuPb1vijlNF+Ppa3k
-	VpsiNoFiW0fMm8dlt/dIfP/Z+AIzRxHtO4jEiAwCQvDBFi/uFCSF8gCcvonmoeswSWiOXykFowt
-	OwVVYXhVJbSOJtb7vrVGIwiiQ1JaBVt8mzKGWv9QZRlwRsIy1anvwRJzvJ/zvt2bYJV5gKR1GjD
-	BtKEz8GxmLPi2HqZmq9jYbonxQV5MpCTUzyExpih8tl2YnnBc=
-X-Received: by 2002:a05:620a:3715:b0:949:a139:2f2a with SMTP id af79cd13be357-949ba7ccbe4mr2189006585a.9.1795477574584;
-        Mon, 23 Nov 2026 15:46:14 -0800 (PST)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-100.dlp.protect.broadcom.com. [144.49.247.100])
-        by smtp-relay.gmail.com with ESMTPS id af79cd13be357-949bb224c9csm71239785a.3.2026.11.23.15.46.14
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 Nov 2026 15:46:14 -0800 (PST)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-7d304016194so2523734137.3
-        for <virtualization@lists.linux.dev>; Mon, 23 Nov 2026 15:46:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1795477574; x=1796082374; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QW2v1rbRcBcXiGETe7ORF7SmQ8ayMndDkPMesbNu3qg=;
-        b=Wb2M2k4UwF9ETM/0zYLprrwERUxV53CkXby0ZJH4GzuUSPUebdXOL/qt+qCbbfB6nY
-         QwYNyVAFjtCOuNfKfVoXw+eMX/8yJbBvkcq0nrw/FC/OZgdIm7xE4W6YZVHIvwlS7mhh
-         Mg1NP6/H/wC4Mtx7RS1BlTCozGb0zA/Td01XI=
-X-Forwarded-Encrypted: i=1; AL+hErFKnfGdqrRxL+yta0HMa9FKbnkxEF5MtOWLK62vVn6pmZneirYGz8hfX8P9fdmQ6i/3A52FsVgctZ6vLbWiFQ==@lists.linux.dev
-X-Received: by 2002:a05:6102:1610:b0:7d2:8dd0:2eb with SMTP id ada2fe7eead31-7d7393ff1d8mr5969329137.8.1795477574036;
-        Mon, 23 Nov 2026 15:46:14 -0800 (PST)
-X-Received: by 2002:a05:6102:1610:b0:7d2:8dd0:2eb with SMTP id
- ada2fe7eead31-7d7393ff1d8mr5969322137.8.1795477573649; Mon, 23 Nov 2026
- 15:46:13 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=MQ8d7z+H
+Received: from pps.filterd (m0109334.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ANJw71x2854679;
+	Mon, 23 Nov 2026 16:39:54 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pps82601-s2048-2026-q3; bh=efALRy5JehN
+	WwR5fNw4avw3lMC0wfy+UAUaAyAGBkW8=; b=MQ8d7z+HPPVzwqqHYCFi8TAuGwm
+	B9aeFtqef2e09TvZfP65mSE4FZYADxTllsLWaz7gzGazpDqtMiS7J9D2QPeGr+3Z
+	1/sCV+dRKUxpaqEv0XjThiTEAtUmFlH+5dTw1nYaUH+LHv0CuITIWrSelt8lpyu0
+	Fr4atcCmSUBbDE3oI9X6dF/715epjh8k3wuKHB64EkdOVdZqqfTtoSxAP9WncO+1
+	dtVsfdxyJKAChQe8b8LMhMoYCTqUShqttQQOd8UzZJVYQbdy6pktGNbmrFTsEA8f
+	JWZAfjwSDDSdNY3jLutjx8se6BA55cBr1eJNMpF8UDhg+4lZYqItkvgKOHw==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4j3bfmwfvk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Mon, 23 Nov 2026 16:39:54 -0800 (PST)
+Received: from localhost (2620:10d:c0a8:1b::2d) by mail.thefacebook.com
+ (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Tue, 24 Nov
+ 2026 00:39:37 +0000
+Date: Mon, 23 Nov 2026 16:39:36 -0800
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+To: Nguyen Dinh Phi <phind.uet@gmail.com>
+CC: "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi
+	<stefanha@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jason Wang
+	<jasowangio@gmail.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?=
+	<eperezma@redhat.com>,
+        Asias He <asias@redhat.com>, <kvm@vger.kernel.org>,
+        <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net] vhost/vsock: annotate lockless accesses to guest_cid
+Message-ID: <awTcyKKYa8R7s6h1@devvm29614.prn0.facebook.com>
+References: <20261117164916.2332953-1-phind.uet@gmail.com>
+ <20261118012321-mutt-send-email-mst@kernel.org>
+ <a7752192-b417-4e70-8f39-a3cdc983f447@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -98,152 +83,123 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261120-b4-balloon_nr_pages-v1-0-d8944b587819@kernel.org> <20261120-b4-balloon_nr_pages-v1-2-d8944b587819@kernel.org>
-In-Reply-To: <20261120-b4-balloon_nr_pages-v1-2-d8944b587819@kernel.org>
-From: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
-Date: Mon, 23 Nov 2026 15:45:47 -0800
-X-Gm-Features: Aa3M54o9To1m2Mt4frhSqoy_chjBpgWQHpG9-FBy-A8uiNdhJvZ87Cw0sfMLCGk
-Message-ID: <CACKNADXLUOdqtJLWdqy1OPEeEmj+XnPk8usqRHcssOYjt+8yeg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] vmw_balloon: account 2 MiB pages in NR_BALLOON_PAGES
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Nico Pache <nico.pache@linux.dev>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, linux-mm@kvack.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="000000000000053ed60660fa33b8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <a7752192-b417-4e70-8f39-a3cdc983f447@gmail.com>
+X-Authority-Analysis: v=2.4 cv=DqvDa2/+ c=1 sm=1 tr=0 ts=6b04dcda cx=c_pps
+ a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=crHB47gyY4rKiduisYu9:22 a=pGLkceISAAAA:8
+ a=BpIEGQ5VxnvoCYnNX3YA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: WMQG2mlDY79KFTZ1_j5ltsmJFe1zfpH_
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDAwMSBTYWx0ZWRfX8MBqf1PahJTV
+ FDRNyD2aYRuxT+r4naWLGIQoRkN0jFDLil2xAoygo3uc7S/Cof8sxQFNA23fvlZnw+3OGMEt/Wx
+ 6rw+rltyDJmixWNnylpfTrLyJOSPOPc=
+X-Proofpoint-ORIG-GUID: WMQG2mlDY79KFTZ1_j5ltsmJFe1zfpH_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDAwMSBTYWx0ZWRfXwWTiFaotObcB
+ EM1sufzoe0pFQ9Iuoyiae5qj2SfvlTIJiMtUGa3Cvjp+XSRn3UA4ySp924cMHBISYGzVRN3MMAZ
+ trfJI3QknuOBkpRSMLJNdXZs/UbgTBJSyRFgAyExEnzbEx/YhSOqLQM2aOVBhIG1EYvp/kAVAyC
+ FgV7rVO+S5LlNDgJZBgeSezY2wUN7+1XAa1T/My0nw4mv5VQGVTzQI2VJD5znETK/6lXzfj/gsn
+ f3TdSb6AgP8bHXZKLyam0VTPOyVpK6huf2JRc2xUkd95us/vf5ZolIh8PLafbDV7Mz1q4RgPFkN
+ wjJqqnriWaEZnwJnBvXGh2uCA8V2FrfeKrYvs/YI/J9yTkSfxKt80fKID8VA3zNvLs9q3/I+JJB
+ Dft5gKkA+AzF6KBeq+RVFW62db3n2iJZG9aV0maXlxNCx1SVPVJp4jw93J6Tqw+tO9PXjvQ5b9R
+ PtDJoMA1C1HEISAYJew==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-23_05,2026-11-23_01,2025-10-01_01
 
---000000000000053ed60660fa33b8
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Tue, Nov 24, 2026 at 12:48:34AM +0800, Nguyen Dinh Phi wrote:
+> On 11/18/2026 2:33 PM, Michael S. Tsirkin wrote:
+> > On Wed, Nov 18, 2026 at 12:48:43AM +0800, Nguyen Dinh Phi wrote:
+> >> vhost_vsock.guest_cid is written by vhost_vsock_set_cid() under
+> >> vhost_vsock_mutex, but It is also read without that mutex in
+> >> vhost_vsock_handle_tx_kick(), and vhost_vsock_get().
+> >>
+> >> KCSAN will report data-race if we issue VHOST_VSOCK_SET_GUEST_CID
+> >> ioctl while the device has TX traffic. For example:
+> >>
+> >>  write to 0xffff88810f1596ac of 4 bytes by task 7914 on cpu 1:
+> >>    vhost_vsock_dev_ioctl+0x25f/0x720
+> >>    __x64_sys_ioctl+0xc2/0x110
+> >>    x64_sys_call+0x299/0x20a0
+> >>    do_syscall_64+0xc9/0x510
+> >>    entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> >>
+> >>   read to 0xffff88810f1596ac of 4 bytes by task 7910 on cpu 3:
+> >>    vhost_vsock_handle_tx_kick+0x41b/0x740
+> >>    vhost_run_work_list+0x97/0xc0
+> >>    vhost_task_fn+0x98/0x1f0
+> >>    ret_from_fork+0x2e2/0x3c0
+> >>    ret_from_fork_asm+0x1a/0x30
+> >>
+> >>   value changed: 0x0000004d -> 0x00000032
+> >>
+> >> Both readers load the CID once and works correctly with either the
+> >> old or the new value.
+> >>
+> >> Mark the store with WRITE_ONCE() and the two lockless loads with
+> >> READ_ONCE(), so KCSAN knows the race is intentional.
+> > 
+> > You make it sounds like it is just KCSAN false positive.
+> > Is it?
+> > if yes, this should be data_race. If no, document why.
+> >
+> 
+> This is an actual data race, not a false positive. The value of guest_cid
+> can change while the TX worker or lookup path reads it with plain accesses.
+> Because each check loads the CID once and either value is valid, the result
+> is equivalent to the read running just before or just after the ioctl.
+> Even so, plain concurrent accesses are a data race under the Linux kernel
+> memory model, and using READ_ONCE()/WRITE_ONCE() also prevents
+> compiler re-fetching or tearing rather than just silencing KCSAN.
+> 
+> >>
+> >> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+> >> Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+> >> ---
+> >>  drivers/vhost/vsock.c | 6 +++---
+> >>  1 file changed, 3 insertions(+), 3 deletions(-)
+> >>
+> >> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> >> index 88a310390eb0..f26c59013075 100644
+> >> --- a/drivers/vhost/vsock.c
+> >> +++ b/drivers/vhost/vsock.c
+> >> @@ -78,7 +78,7 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+> >>  
+> >>  	hash_for_each_possible_rcu(vhost_vsock_hash, vsock, hash, guest_cid,
+> >>  				   lockdep_is_held(&vhost_vsock_mutex)) {
+> >> -		u32 other_cid = vsock->guest_cid;
+> >> +		u32 other_cid = READ_ONCE(vsock->guest_cid);
+> >>  
+> >>  		/* Skip instances that have no CID yet */
+> >>  		if (other_cid == 0)
+> >> @@ -572,7 +572,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+> >>  		hdr = virtio_vsock_hdr(skb);
+> >>  
+> >>  		/* Only accept correctly addressed packets */
+> >> -		if (le64_to_cpu(hdr->src_cid) == vsock->guest_cid &&
+> >> +		if (le64_to_cpu(hdr->src_cid) == READ_ONCE(vsock->guest_cid) &&
+> >>  		    le64_to_cpu(hdr->dst_cid) ==
+> >>  		    vhost_transport_get_local_cid())
+> >>  			virtio_transport_recv_pkt(&vhost_transport, skb,
+> > 
+> > Will prevent compiler from hoisting the reads out of the loops.
+> > Does it matter?
+> > 
+> 
+> Not much in practice: because the loop body calls non-inline functions, the
+> field needs to be reloaded across calls anyway (and in `vhost_vsock_get()`,
+> the `vsock` pointer changes on every iteration). I checked with gcc 16.2 and
+> clang 21, and the compiler does not hoist the load out of the loop even
+> without the patch.
 
-On Fri, Nov 20, 2026 at 2:34=E2=80=AFAM David Hildenbrand (Arm)
-<david@kernel.org> wrote:
->
-> vmw_balloon keeps 2 MiB balloon-inflated pages on its own list, not
-> using balloon core that takes otherwise care of updating NR_BALLOON_PAGES
-> for base pages.
->
-> So far we didn't account 2 MiB pages under the "Balloon" counters, so
-> /proc/meminfo etc. would not reflect them.
->
-> Fix it by updating NR_BALLOON_PAGES when enqueuing and dequeuing for
-> these pages manually.
->
-> This has low urgency.
->
-> Fixes: 4d689474e1b2 ("balloon_compaction: update the NR_BALLOON_PAGES sta=
-te")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
-> ---
->  drivers/misc/vmw_balloon.c | 4 ++++
->  1 file changed, 4 insertions(+)
+I do appreciate actually looking at compiler output, but I would advise
+taking it with a grain of salt. My now-very-rusty reading of
+memory-barriers.txt is that we do not expect memory ordering
+optimizations to be consistent over time.
 
-Acked-by: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
+I think the code looks okay. I do second Michael's ask for clarifying
+its not just a false positive, as that was initial reading as well.
 
---000000000000053ed60660fa33b8
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-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
-tJVewHuOmXgWQxNWV7Oiszu1d9xAcqyj65s1PrEIIaHnxEM3eTK+teecLEy8QymZjjDTrCHg4x36
-2AczdlQAIiq5TSAucGja5VP8g1zTnfL/RAxEZvLS471GABptArolXY2hMVHdVEYcTduZlu8aHARc
-phXveOB5/l3bPqpMVf2aFalv4ab733Aw6cPuQkbtwpMFifp9Y3s/0HGBfADomK4OeDTDJfuvCp8g
-a907E48SjOJBGkh6c6B3ace2XH+CyB7+WBsoK6hsrV5twAXSe7frgP4lN/4Cm2isQl3D7vXM3PBQ
-ddI2aZzmewTfbgZptt4KCUhZh+t7FGB6ZKppQ++Rx0zsGN1s71MtjJnhXvJyPs9UyL1n7KQPTEX/
-07kwIwdMjxC/hpbZmVq0mVccpMy7FYlTuiwFD+TEnhmxGDTVTJ267fcfrySVBHioA7vugeXaX3yL
-SqGQdCWnsz5LyCxWvcfI7zjiXJLwefechLp0LWEBIH5+0fJPB1lfiy1DUutGDJTh9WZHeXfVVFsf
-rSQ3y0VaTqBESMjYsJnFFYQJ9tZJScBluOYacW6gqPGC6EU+bNYC1wpngwVayaQQMIIGczCCBFug
-AwIBAgIMP8k3oYr9dy0fawOFMA0GCSqGSIb3DQEBCwUAMFIxCzAJBgNVBAYTAkJFMRkwFwYDVQQK
-ExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBDQSAy
-MDIzMB4XDTI0MTEyODA2NDc1N1oXDTI2MTEyOTA2NDc1N1owgbcxCzAJBgNVBAYTAlVTMRMwEQYD
-VQQIEwpDYWxpZm9ybmlhMREwDwYDVQQHEwhTYW4gSm9zZTEZMBcGA1UEYRMQTlRSVVMrREUtNjYx
-MDExNzEWMBQGA1UEChMNQlJPQURDT00gSU5DLjEcMBoGA1UEAxMTSmVycmluIFNoYWppIEdlb3Jn
-ZTEvMC0GCSqGSIb3DQEJARYgamVycmluLnNoYWppLWdlb3JnZUBicm9hZGNvbS5jb20wggEiMA0G
-CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC97H4mZ7IND/iMuoaowZaUcFWQmAEUROR90vJqkzU3
-4ljaKHGMed2anb74NFJ+ij38btvWCdWlqUCs4umStciFyeOshWgBWlZO3bpE9BkonLzG9DGwSz5v
-Ve2coDRxUIjXbcXgys1z+HiIaZVEBEtpGgBz/Y6KeJr6HHOLq3+1VA6HZ887DMaJ0BygdtOm/g/o
-6d185nbusa6X1Si3WqQQEGq9/dHdVg/ScOBl4Hu/sEyY5dYEtIS6+wJOfeWq7PnJwK/ebKrmDXRl
-CPyPFwCghdN64vwTIJ+z21krDj9mv3w4e/ow2NiOI82oVpFYCmR7NQAYn+zR+9ZMebTTtUR/AgMB
-AAGjggHhMIIB3TAOBgNVHQ8BAf8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAC
-hjpodHRwOi8vc2VjdXJlLmdsb2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMu
-Y3J0MDkGCCsGAQUFBzABhi1odHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVj
-YTIwMjMwZQYDVR0gBF4wXDAJBgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQw
-MgYIKwYBBQUHAgEWJmh0dHBzOi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1Ud
-EwQCMAAwQQYDVR0fBDowODA2oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2
-c21pbWVjYTIwMjMuY3JsMCsGA1UdEQQkMCKBIGplcnJpbi5zaGFqaS1nZW9yZ2VAYnJvYWRjb20u
-Y29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8GA1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCS
-MB0GA1UdDgQWBBRPHRKFeJNRjFAKjHRo2iVVbhmbHzANBgkqhkiG9w0BAQsFAAOCAgEAZ1qrS6Fb
-dv9hzcer2Yv+uU29P/iOOBMMIkRHYE2il+wClTPJMmcqRAmTu8S2az2h8XpMkKoWDTHwcj2KUfaQ
-UlkMc5m9wMxAVDrklB1uE25jWKnE2X3NQn62oxIMbATya2F6ev8p59kLh2xo0GVxotVnapnbuAaH
-2D6xevthNq3e2akPKltISCI38CVOcC7rWuBZrLgdR8dEDLyZW6UMPwJLk7v4ZPyn8E5pMKc0fI5V
-ZaWzs68PnkVmKNbpx1cECaQjsrBrXo/HNOQ/DGhHXNIF2k71laGetuCwhewrSdiLQZ3g+oAAvfKU
-/FZV1kxiUVet5SmPA02BCW5yz80uHPemLT8KW8un9H15UXd+axLYqKEgr0nzl9stxbsC3vC4pbXQ
-688Xqj7ZDCj3LGVbFWcdQ6bPAcxDwLm2z6A7PJdV4xDPTYhsK4io5/ZfaHOC8DqKT3klVZIo+Heg
-5NMaydZ2ZiuKonE1AwMVn0KLV7r+vs/l8mIxwHLrNuWu501u2FYtMLcau6ZT0KbjwCKmMVqpvqMk
-Wybe9jF+aZWzjNutxjSJGP5oSmrUpNP3UzAio93FKeLiweQ6L7E6GTBIrWNKHEog46OpVY865QPD
-v1r5jLUYELDXa/NsznnUxWljMsYK9Qa4a9MUkQn+FF0b1xE5XuFm3mncJgGAsbZeN8kxggJXMIIC
-UwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQD
-Ex9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBDQSAyMDIzAgw/yTehiv13LR9rA4UwDQYJYIZIAWUD
-BAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIHHwhlLmK+lPSjnvL0KJHTVkI4kBzkdH2IHR6pHEdN9L
-MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MTEyMzIzNDYxNFow
-XAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQMEASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAK
-BggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAJXc
-BfmrWXFo69xOCkcKAonrEpIu5YNuIdsEaxRC5r7BR21kWFGz6i7JUyYx5bfAjtjl8OfdVzh9kxMH
-kBw2aGvpq2DZgbbXRDf1A2JoH07VhvbtaWnsCxpoM9vGreNMdwJZQvgieBUAfrFjwVH5XrFkK3UZ
-UXn8TNNq/xPBDvrNRVUvq44ZS5LDXikxAs5LZwtb9Pyo2vve6N0Glo+UuPlH46UaFKTXxQ/m8XWP
-Hyi4L0pE3AfjHT1r6uA++/IjuklgTR8WwKFp40O7USavYut9YyFI/DKwdFMTaHIPAMgtq8GCCM+v
-+lRG/dDMsLbHxK8FR1f9/VzdsLRaGZoIkUs=
---000000000000053ed60660fa33b8--
+Best,
+Bobby
