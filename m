@@ -1,97 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.53.58
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795547766;
-	b=SOCxhAq4MfAiQ/Zjz1NHEh3eHsUe8dbI+wvtwdLOA4pRNbGAC7NceTnCttK2L5wVa57r
-	 ZkbMmm58FjAfKcx6NXUTore/llIBbROBqpgXriElOX3LdBvY24TI7cY20Smd/tqppQpTc
-	 RBQlI9Uocc7whbrZRA05vlGCjEsPuaIvy5mTkgUNztojoOlzlssN/uTgBW0keitvLGlk0
-	 HEs+UpoV1TFP5pNrbLtzZnmoGkUEhu4XwqXqpE/90QVNP6XlfxkQb/5IdBGJ8EMb783lJ
-	 4TSi15hEZqbno4u1lBt4WYUDicC7/ApZFMuLHdEA5AZDO9KB0aR+k+RyBEdJka1wQJA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795547766;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=uM//dOam8DkJvuuXWFByFXD5vsyC5IJq/TeXum8HMPM=;
-	b=2Y3EWzkkn8sXSuDf2n4/lFAkMQhbo0MOkvfCc0ZwE9xe0GA+f+glC3DoiGPOi4P7gldu
-	 fOY1G/kWg95VXra8TxFfw8JFtBZOKwHq2Vwpx9+F2MB1y46Pma4HHU9NPrLtxaa22mFnQ
-	 LoG09e9AUT1W/uHwQ8rUa5dxrw0aekT+dbqn0isV7jFTOhFY0zLCTVwPyPG+qdspUWZVd
-	 wgAkNRPP/Zpnlxre3qN2xr8c2doTeV3pptgsr982glN8hjjOJ5CGuQb2LTP2wLeAWeZgH
-	 MxHa/hbPLOJ2scgYK2dLX/tG0vLbYNRUNLw5VoG3+axBpPXHfw2B+idvtjGoQzW32Ig==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Lqrju3rg;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.53.58
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012058.outbound.protection.outlook.com [52.101.53.58])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.197
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795551461;
+	b=epxxDryfz68U2EaEq1G0+09AW332bcs7bEL48MlMtqFY1VFOJIHddcq2SwCmv7o9c14S
+	 8PPZW3KZGQ0NpEmEHyYbY2OMJkiOYDU4+fKKTzFUMJ1zj6jUxLIwT86zGGU8cDF7sFS1U
+	 9xMXuIb6X2gvtBGoAQdTQUjqjsbrkPjDpinox0JCwM9BdKYpY8PK8/NhC0r95+3d4Ix0l
+	 9LbP7s6GEhiHkv2xXt3NkAsQpfwbkBskb0eTO+iPgkTB9sWVtFyA2u+vT+oz2Eo6FAUO7
+	 RTioZFbwDf0T6MD5zoSiOh1WGwMJRnpjpBKa6FOD1F4k+dlAgG0JBlJNk0Bk0S/Avcg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795551461;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
+	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
+	 Content-Type;
+	bh=7tEIWHNr59KovVpk7gJw0JqnDAdNK2se9vPrBzQVaug=;
+	b=nuneSU6TurOVGcKDKXDksWtaWginkwGFzzfVrQdfyFlh2cAAoy9SBcoxiGewZNspUqjq
+	 jlTxqGgvbNxPTu1TIJ3CJvhsZaGFg4tdPDMphk5iAKT1pRV9kK4KhLiD5R7WQYW2MilFb
+	 AbE+trOmLbov3kp1qkhSFkrm421G5gRS8Y/WmmIgLHL6QYzrvHSGWqJNqFY78ELnMVPhd
+	 XhwRsMOUQcfiiJmsQCld86ncIfXYWPwBrRb5gexdV4I1x64yDon9hkUq7Jb/z3DYcB9c8
+	 hFUCNDrIh7Kpgm/GQmxbnrRWni3PkoJJ0II7UMmSUTCvDxocGofU4OFwMKhPhxnKn5A==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--pratmal.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="ap1Clq/f";
+	arc=none smtp.remote-ip=74.125.82.197
+Received: from mail-dy1-f197.google.com (mail-dy1-f197.google.com [74.125.82.197])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D15B7606A327
-	for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 19:16:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D15B7606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FA48606A330
+	for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 20:17:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0FA48606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--pratmal.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Lqrju3rg
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=zBIuC1GUcVTU1qa65JJFmOB0xjoLycPMa8gc/cSLwY+bG3JKGaVHDHCO6Mf0mO3rWOhDEbA7vfgOawVqAiMA/tBRqUFFdruWlQ7uMc489SL5fN7eIhEtvAGB/Io48gyCepE7dEUVqxrPmTuIF3AbgAz7wckb5hNjGUS4otpKSE95GHgslYLiX1Td6V9i+9CfpcyqkOOstvPx1cg88rwYfEXHU0+cx0IMCdt0Qa1LJj1uqyJos8ccugOb6pXtQALjGJkT2s5Qt0UQ3vrt1mEXjdNQjJlwnhshfOb7NpEZ0XjjnSBazKo7iW8DhDFJxBFUrqOeFuYhs8ME9xLR8//Kkw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uM//dOam8DkJvuuXWFByFXD5vsyC5IJq/TeXum8HMPM=;
- b=XkHB8rQwIKcJv6nOZz5x2ZxPgu2HSeg/dKOLenoyVtk7MRoPasCGamnjIfJCGC3WgqA+dwW8SCd+D5tFXjuRmcREoXXK4ZF7l+9qLBeliBdCB1TYbP848nurhRH99rOqH9FzfIVpVQ4DR0B/O2R5J+36JhDAqwDI58EwQrjm87oHo0Muq43KKXGbNutjJySWS1rKUOpNz8d/5h6yrF9C+iS1qciOGln8PWCrHWmhn3KFTXq/U5KlCUwn/FuYjkVbaxmglNLbOD+tQ08gLA7MweQtNFBqBlNCPcIIkiNnJLBKPvwY2TVJOlCczQwT3YzgvZZuDG4fJ8SDzTnkqdQhug==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uM//dOam8DkJvuuXWFByFXD5vsyC5IJq/TeXum8HMPM=;
- b=Lqrju3rgR1fQXzuuYBcmDb+7DcixfpmY0E2uib4QzQAUPo/4DToGS2Ej/ekD+fpIP/XnHc53FH2/eOG4RNBgm/FzwiEjLO1q/SsNfL5BCdp9gPhje07tiXz3vtfdIaBtLyRjiISkdfR5+mbF+r3rv53tnYAac0P2Y3aRLaSznXwU0sQgxxTfL+5Z+XxOWdrXN0itdQ7iuTivzJE10J9k97/h0xa0VHV0Ho251VrRc2x9DgXdKXpX31ZJRmbjnq7LLVET2mLDGXuj0CPBylGknzCWpbjMbFtSQ9WZkrNCmpFjxXykXsbq8Jm4BEzwEgAXfTIZK2d2t+xNT52Nntio0Q==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CHAPR12MB999248.namprd12.prod.outlook.com
- (2603:10b6:610:2ff::22) by DS7PR12MB6357.namprd12.prod.outlook.com
- (2603:10b6:8:96::16) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.13; Tue, 24 Nov
- 2026 19:16:00 +0000
-Received: from CHAPR12MB999248.namprd12.prod.outlook.com
- ([fe80::4972:8062:d74e:b205]) by CHAPR12MB999248.namprd12.prod.outlook.com
- ([fe80::4972:8062:d74e:b205%6]) with mapi id 15.21.0662.001; Tue, 24 Nov 2026
- 19:16:00 +0000
-Message-ID: <abc046dd-b8d4-4620-bc5a-08f12b7efcb6@nvidia.com>
-Date: Tue, 24 Nov 2026 20:15:55 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] vdpa/mlx5: Fix error cleanup when VQ setup fails in
- .dev_add
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
- Gal Pressman <gal@nvidia.com>, stable@vger.kernel.org
-References: <20261123135646.3962652-2-dtatulea@nvidia.com>
- <20261123135646.3962652-3-dtatulea@nvidia.com>
- <CAJaqyWedvj6htnM4rJyrbynW3u1k=6uLHrfuK05YvM5z8v1Hjg@mail.gmail.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <CAJaqyWedvj6htnM4rJyrbynW3u1k=6uLHrfuK05YvM5z8v1Hjg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR4P281CA0247.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:f5::10) To CHAPR12MB999248.namprd12.prod.outlook.com
- (2603:10b6:610:2ff::22)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=ap1Clq/f
+Received: by mail-dy1-f197.google.com with SMTP id 5a478bee46e88-386177b0516so12843959eec.1
+        for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 12:17:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1795551460; x=1796156260; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=7tEIWHNr59KovVpk7gJw0JqnDAdNK2se9vPrBzQVaug=;
+        b=ap1Clq/fx+UlLwb+bqkF5T6saRHf3wORsrPtk9RbHmmgjFQp6rD+VKCVBAsaDaM6OR
+         1P5GwsncLbSx6rDDA24ygnK1Y3h3z4Ge2JBxzT/FOb0DxKTm34k+QA6ANcrgBobQyilF
+         Itw97ZnOzEu+dy2OtKrugE7vRfJIoWJ8384Le999k+TibXLdfx97tAs+Qr0noXvhoaGN
+         L4WZJgURoW7g08kAzI7XCecg7vDQkddBhMo3goOuX/446fKzPytdoc785vbfNQTDMq/W
+         3kYQ8UdY1mqJuEumy343e0jAszTA8wa1oJqNry/FyLaZN3nf/Qq9823m+xz8Z/js6iax
+         JvbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795551460; x=1796156260;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7tEIWHNr59KovVpk7gJw0JqnDAdNK2se9vPrBzQVaug=;
+        b=va4zDKqrTh13MjU1Ysrkv3zAeK0Rzwj/swcxjyklEePf/+ESNSYaWzQJgoSX4ghVO1
+         9LEndv1OkeFqgFAM4wSaqflOfYQbWbrQQ0mNNbBICUovyw43xwSYNAEowlmDidP4o8o+
+         JHgcA2iWs2NL9valLPQ2cHTs5DIs2mZDAU0/m9utb6R0vLDSQImcm65K9tuB2RvMftT7
+         WLrh/lNZCh2a+PE/GYPtK0O+bQ6GrElTDqbzCgRa9XPR6LD59oZ9wAyIqwJEOW/ao6Xo
+         DJ2O7s21NbYSxrevg7glZ2V/aIEdeN6TV+XJ/ctMKBAZX6p6luqQQPDYiMJIO86TUNfC
+         602g==
+X-Forwarded-Encrypted: i=1; AL+hErGiIOLV5RJ2EJBgE1YYtw3RRq1SQiJsfFvxJ4NxL6YkpbfeDkLz4IIs11MP3dS4BxdJNtEp3e63gfR7YlMR6A==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+Q1tjYPEpnSsE/EzwxgBT1xrH7F6qHFvgvBy4RsHg8ZlUYFGCM
+	4B+iy0KTMXPfgeUTHz0jSGT2K0YmKLyXbq/KqHSdggfJ0Ez97PdCIK2p6VLdLa06C7A8h86kadu
+	FQEmFFYWr0w==
+X-Received: from dyblz33.prod.google.com ([2002:a05:7301:1621:b0:34c:9660:9612])
+ (user=pratmal job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:20ce:20b0:37a:a9db:6bd2
+ with SMTP id 5a478bee46e88-3856e63b064mr17431781eec.11.1795551459435; Tue, 24
+ Nov 2026 12:17:39 -0800 (PST)
+Date: Tue, 24 Nov 2026 20:17:35 +0000
+In-Reply-To: <2d518dd7b8f7be147b9a957ad94f6c6641e4b5ef.1795089715.git.mst@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -100,144 +78,52 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CHAPR12MB999248:EE_|DS7PR12MB6357:EE_
-X-MS-Office365-Filtering-Correlation-Id: a9c32b03-0881-443b-439b-08df4a5f5fbb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|1800799024|23010399003|366016|22082099003|18002099003|261009223027099003|4143699003|56012099006|261026140227099003|11063799006|10067099003|261028144727099003|261102123227099003|261026121527099003|261022105027099003|261021123027099003|261022075727099003|261021121427099003;
-X-Microsoft-Antispam-Message-Info:
-	eYmVV8MAadIOPhtURzJm9M174YB8Pl694hsHBQLU1z5wpsa6NTvRD/12OpEAzovqKRuXNeklM6mOkrsr3vcuGNyYkWr6sRGM2GE2sqK7YqAfXjkxgHdejJbS9s93ap9O7ASq8ZXfLXDtmydVGckt8FPRUgll0fjSsj2H5C84kQFKHJ7m5D42vxM2ZAOw9gCvZ0kLJ44F82p450iejSIkHHZW3uv1gOxpEpTPoySy+AH/h6wAK/4swHmARlsapY7f5S+TodJDSR5davS6moTZv3lGWtWWACQWODzeG6trdPH9P9QF7p6GiOo2sY9jD0BtD9OFGPeIzH8GyESEDA9PoMNkzKGGlUtdTDhuu/BaCBrk4MgFz98qFZLfki7Y+2/BXdGTLq0Hjpvqymw8nn/O4AXFUcoi0gzv1SNw7EOvzm1uRGl5truuDUaWOnEvyAbDCujlet84eRD+eZCAbcaaHaKvhLrceKjmADqN9z6Z21WEr1vdKUwSj3xLVS0vzK5Vxg/2pClN56NWzl4r9Rpb1Kge4QGrVy+gGH+GwR1D/U31hmbsfbua4NG+wj6ffcFQpTR1eVS7jW90CoQsTV6CrF/SfY4AhCTkqPoFjpV7l67xKKYAiQ/pdkHbccu3rCu2kn/CJ7cv37dSF2fT+CdPW8q1TL4ErGhg0laE+0RADCw=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CHAPR12MB999248.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(23010399003)(366016)(22082099003)(18002099003)(261009223027099003)(4143699003)(56012099006)(261026140227099003)(11063799006)(10067099003)(261028144727099003)(261102123227099003)(261026121527099003)(261022105027099003)(261021123027099003)(261022075727099003)(261021121427099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?TkR4ZU4rR09QUzI5aGo1ZzRGeVk5Ynh1L2FlZXFjRWtEZDF2Q2xMMXVmdit2?=
- =?utf-8?B?R25lb2FBSjVSZHE4anZQNWZaUTlrTnRNTmxOYVBocmNwdVpvMEE2UkxQZ2t5?=
- =?utf-8?B?VyttVGtUR3JLY21oTFcxQk1UeitZS1I5UHFoalhBa1lWV1c0Vm1tQ09lWi9m?=
- =?utf-8?B?cm5WdVlnRUl2aWxGei9xN0kxT0V3RDZxdWU4M3NuQ3VTU2hTV1N4cGtnb0FD?=
- =?utf-8?B?RUxjUWxnL2NjRFRiRDJ6VjVWcS9pUWRNVjFzNXdOclc0VTE5Y3JWTFp5VjE0?=
- =?utf-8?B?TTV1Q3ZHeTRwVDhBTmh5cnhiTFpraGQ0MHNadFBvdUw0OWlpTmJUKytmVUJk?=
- =?utf-8?B?VVB4VzlUbUUrNkYwcXhkTVA2S1RwK0Y4emJLMVhPUU15Y1BESzBrMWk5Sk0x?=
- =?utf-8?B?YVFYVWJVQ2lTTWhBb0Fkak50TEpBWUJCWHdBTlZMc0NRRE0xMFc1SmJHbnMx?=
- =?utf-8?B?NDgrMk55QzBGaHhyNUFRVThGbTZ6R2l3RENMQm1BMHB3c0JSTkRmdE92aG9K?=
- =?utf-8?B?QnFUUDliSFVUTlBQYWFTS1JiZWJvSTNUUkFKamowT2VHRi9HWll0VWxPZlAr?=
- =?utf-8?B?ZXA5SW8wMzVCY0RKT01UMnBxbGZoTXNuWU1QNWloUDF1SVdhS2lPK3RHeWg0?=
- =?utf-8?B?NmR5Wjd0UlRBemt5TEJyNFo2aFpVTWxDdkdQS21teCtoWExkYkhaRHdZM0Vp?=
- =?utf-8?B?NmRBNC9OcktqMXdaU3VTYWMyLzZKaXZJb3RWSzFhd3BiYVNQallzRlk0eU9D?=
- =?utf-8?B?a29vYkIzREp0UE4yTnpEeEV3cXJnQkdqMFUzMkpEdXd2a3RYWDVvU3lDbEE3?=
- =?utf-8?B?N2tXOW5mM3orTHZXRTFYM2EwcmZEcW5IQk5NM2lUVTAzSzl2T0wydGRGZTJt?=
- =?utf-8?B?d2VodWJUOHVIMjMvM3lXaFh5V1B6cEg2eVVHS1NTVXFqRXZkTGhPUjMwU1dq?=
- =?utf-8?B?TmgxRXZ6Rno5RkxqTzh2OUlJUVJVcWpQMTBqUkNNWTJpTzNhTG41MThOQ3Fy?=
- =?utf-8?B?K1lTS0ZlYmhGUHQ1dDMrcmhRU2UzSnd1aEt6eStzanhvc1JjT0ZyUmJ2SHJK?=
- =?utf-8?B?VUF5cUJSOG1WUEpVV1JFd2FuRW5Na3Q2RUttU1lZejNXNC8wbjljd1hxR2wv?=
- =?utf-8?B?bUIvS0lpdGI2TEIrMGNzT3VzT05PdmNMUmV5Mm42SXA1S054T1o4eUUwQkNi?=
- =?utf-8?B?eWRudGFRMGhURXhnRWRZdTkrK2o4M2dXbGl6ZG5qbnFxRUFTYzZvUmtlbzVR?=
- =?utf-8?B?Y2lwbmFycGNFMm54VG1sZUtBOGNiUEoxUWYvaWNWQW1FWGdVY1NqbXlHNDRn?=
- =?utf-8?B?aHZRK2F5RnRJenlIeXh3WFNBekcvNGZCTUpzQlUvU05zVEJKREM3K3IwZlhV?=
- =?utf-8?B?WE1HRVc4dDMrT3RISXZkSkVraHRNNFBsalJ0MWtJV2pScWsyaWpXNWIwWEUv?=
- =?utf-8?B?NC85SUQvUlh2d0ZtYVFjdHVIYTlyK0lrV2N2RlpPTUJFQjRZaVR4bXlkSm1R?=
- =?utf-8?B?cy9FM2o5Z1IzZVN2V09wMmxVS0FyNHdRVDV4L0NMSVNhNUFXeWhvSXlMOVJJ?=
- =?utf-8?B?Lzh0OXVOU0hZbXIweEpTYlJkNDhKMjhzUTE1QnlkSTV5eG12MkVvbHp0RjRx?=
- =?utf-8?B?Tld4YnhoMG1XTGIxMWxTWXljbXNwZEtiY0czRlR1TXE0dVhxRGtpTlFVNk9T?=
- =?utf-8?B?L3kyL0lFOGd4MnlrWHJSekpMcDAxY090Tmthanp3M0JMWHNvbW92LzdwUjZx?=
- =?utf-8?B?NmNzZlBwTVJRNUR4TllpY3hRR3NpbTV1b2xybTZ5Qi9YdXlzb1ZpMVIrWXBp?=
- =?utf-8?B?UFI0MkUycndQMnc5QjZQbUpmcGQ1djhMSlJheEY1N0Q5QmhjUVc1cVVWVGt0?=
- =?utf-8?B?bXk5QjRFSjA3cDdpczVISXhyUjAyU1RqdzIyb3k0UWRELzRITGtnZ0xWS0kz?=
- =?utf-8?B?VVlsK0VZdWQvUGFBeE02cjlUT3hrMHNNVXJIK1k2U0VMRVd0cEY4cEdiTWpO?=
- =?utf-8?B?SStkdVBwVk4rbXJXY1BLTXJRekVNMS9LaWg2bGR0NmRzem9tcDNZL2g2eTBD?=
- =?utf-8?B?NXJkeklUby9IZmhzd3RSWGNBY0o4V29XZUJsRzZ3cklLcmxzQVZpK3M3SkJ5?=
- =?utf-8?B?c2Vub0ZyWFRUSTZRY3lPSGg0MysyV0JlcnRVYTRudXJja1QzUlNhOTQ0cGNz?=
- =?utf-8?B?MDUrRTJvVDB1VTVDYVJZMXFidWMwMDJtazlnaitKQmRJeXp2RWVDVlZqUVAy?=
- =?utf-8?B?VXE2bXpMODNMcTEza29Xd2JsaUJjWVRtUHN1ODRreC9MYmM2NHRSYzU1cSta?=
- =?utf-8?B?VmNYblF2ZHRqdVZZZ0lPbm1pNlJpQzVNdjJETi9mM2RSTmZwOGJXQT09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a9c32b03-0881-443b-439b-08df4a5f5fbb
-X-MS-Exchange-CrossTenant-AuthSource: CHAPR12MB999248.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Nov 2026 19:16:00.0528
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: OVdxslBPZr9X3ZLtiPB1yQJKFeAGfHwB5AswW/8H3HpTR0fBu3+Y+tkcdKJ7DKcagd5TIrQQtChFRIuDFopuqw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6357
+Mime-Version: 1.0
+References: <2d518dd7b8f7be147b9a957ad94f6c6641e4b5ef.1795089715.git.mst@redhat.com>
+X-Mailer: git-send-email 2.56.1.839.g22a8290db9-goog
+Message-ID: <20261124201735.1311047-1-pratmal@google.com>
+Subject: Re: [PATCH v11 7/7] mm: page_reporting: add flush parameter with page budget
+From: Pratyush Mallick <pratmal@google.com>
+To: mst@redhat.com
+Cc: pratmal@google.com, aarcange@redhat.com, akpm@linux-foundation.org, 
+	brendan.jackman@linux.dev, david@kernel.org, dev.jain@arm.com, 
+	geert@linux-m68k.org, gerg@linux-m68k.org, gourry@gourry.net, 
+	hannes@cmpxchg.org, jasowang@redhat.com, lance.yang@linux.dev, 
+	linmag7@gmail.com, linmiaohe@huawei.com, linux-kernel@vger.kernel.org, 
+	linux-mm@kvack.org, ljs@kernel.org, mhocko@suse.com, surenb@google.com, 
+	vbabka@kernel.org, virtualization@lists.linux.dev, willy@infradead.org, 
+	ying.huang@linux.alibaba.com, ziy@nvidia.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 23.11.26 17:08, Eugenio Perez Martin wrote:
-> On Mon, Nov 23, 2026 at 2:59 PM Dragos Tatulea <dtatulea@nvidia.com> wrote:
->>
->> When setup_vq_resources() fails in mlx5_vdpa_dev_add(), e.g. because the
->> firmware rejects the provisioned features (HOST_TSO4/6 without CSUM),
->> the error path unregisters the vdpa device first and then keeps using
->> it:
->>
->> - _vdpa_unregister_device() drops the last reference to the device, so
->>   mlx5_vdpa_free() runs and ndev is freed.
->> - destroy_workqueue(mvdev->wq) then reads the freed ndev.
->> - put_device() on the freed device underflows the refcount:
->>
->>   refcount_t: underflow; use-after-free.
->>   WARNING: lib/refcount.c:28 at refcount_warn_saturate+0x59/0x90
->>   Call Trace:
->>    mlx5_vdpa_dev_add+0x3e0/0x760 [mlx5_vdpa]
->>    vdpa_nl_cmd_dev_add_set_doit+0x362/0x440 [vdpa]
->>    ...
->>
->> - mgtdev->ndev is left pointing to the freed ndev, so every following
->>   "vdpa dev add" on this management device fails with -ENOSPC.
->>
->> mlx5_vdpa_dev_del() already does the cleanup properly so use that. Just
->> make sure that an extra reference is taken during the call to avoid
->> _vdpa_unregister_device() from freeing the device under us.
->>
->> Fixes: ffb1aae43ed5 ("vdpa/mlx5: Pre-create hardware VQs at vdpa .dev_add time")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
->> ---
->>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 7 ++++++-
->>  1 file changed, 6 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> index 6830a80e8543..7a39b0bbbee3 100644
->> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> @@ -161,6 +161,8 @@ static void mvqs_set_defaults(struct mlx5_vdpa_net *ndev);
->>  static int setup_vq_resources(struct mlx5_vdpa_net *ndev, bool filled);
->>  static void teardown_vq_resources(struct mlx5_vdpa_net *ndev);
->>  static int resume_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq);
->> +static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev,
->> +                             struct vdpa_device *dev);
->>
->>  static bool mlx5_vdpa_debug;
->>
->> @@ -4043,7 +4045,10 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->>         return 0;
->>
->>  err_setup_vq_res:
->> -       _vdpa_unregister_device(&mvdev->vdev);
->> +       get_device(&mvdev->vdev.dev);
->> +       mlx5_vdpa_dev_del(&mgtdev->mgtdev, &mvdev->vdev);
->> +       put_device(&mvdev->vdev.dev);
->> +       return err;
-> 
-> As a suggestion, the cleanup could be more symmetric if
-> mlx5_vdpa_dev_del checks for NULLs.
-> 
-It does, that's why we can call it:
-- teardown_vq_resources() checks ndev->setup.
-- mdev->wq is already initialized, so no need to check
+On Thu, Nov 19, 2026 at 07:03:00AM -0500, Michael S. Tsirkin wrote:
+> Add a write-only module parameter "flush" that triggers immediate
+> page reporting.  The value specifies approximately how many pages
+> (at page_reporting_order) to report.  And I mean, very approximately.
 
-My initial version was checking for NULLs and getting references in
-mlx5_vdpa_dev_del() but then I realized that it is not needed and
-it made the code more ugly.
+[...]
 
-> But I'm ok if you prefer this way,
-> 
-> Acked-by: Eugenio Pérez <eperezma@redhat.com>
-> 
-Thanks for the Ack.
+> +	if (prdev) {
+> +		while (budget) {
+> +			budget -= min(budget, PAGE_REPORTING_CAPACITY);
+> +			flush_delayed_work(&prdev->work);
+> +			__page_reporting_request(prdev);
+> +			flush_delayed_work(&prdev->work);
+> +			if (atomic_read(&prdev->state) == PAGE_REPORTING_IDLE)
+> +				break;
+> +			if (signal_pending(current))
+> +				break;
+> +		}
+> +	}
 
-Thanks,
-Dragos
+I think the amount subtracted from budget here doesn't reflect how many
+pages actually get reported in that iteration.
+
+Each iteration runs at least one full page_reporting_process() pass,
+which walks every zone, migrate type and every order from
+page_reporting_order through MAX_PAGE_ORDER. How much a pass reports
+depends on how much unreported free memory there is.
+So even "echo 1 > flush" can report far more pages than requested.
+
+Could we use this flush as a trigger to start free page reporting right
+away rather than waiting for the delay, and flush whatever unreported
+free memory is there?
