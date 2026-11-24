@@ -1,86 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795535682;
-	b=1A3rkLOzOyaVBHFUfv8+iR6W1Wwd2DcSlZCn/lWZD4eweyqLAsbn8ed+7EsKGoEVS8HB
-	 vATzXSezpnRbvEyDRb8wbWes96x3s1wog8h9wvMUtm9lZrhQiGCDfVarG3c5tVKGMqZam
-	 pUVp4dYeoFOzoplyvGj6mR7HfUiYnG2AKfwuciZ/yMg9Ip5T/I/w2o0KIZEUDaUz3TWqw
-	 00uqeQWrPM+SpWz/d0kZhC2pHn/S4beG5sfB28LpKeLWdQe/9UONKWZ6FdCVliYkmH3Pr
-	 NEbaMjoE+z/N6AZAeRbAbQ6ryVH04AAsvWB1PAZPduqhOBzTt0DP5lxSVVMsuV3iGGw==
+	t=1795535684;
+	b=gy7H9b4JbgiIbhGjCT6IITSwrC85pLZcrmDBfyzo7332/ICTjlcw5aCCd/KE9xtLftST
+	 fdOn+KraO23cXe1xd5hciTyjeBjd089DqteIKuZCozXxrBXjwzDvs0Xgvt2wX5eazSlpa
+	 BD/H7pPkj71WjnBQjU2p9WRBwEXDbEherd8Kro/g/M0dx3Rf/H7u2S0NPaylQ8l/OSisn
+	 zwvzp5SNzjOOdC4dK0vUHWPnjvP/LLt+7CUsQH9eobEhuun7bGkD3JsIgNljXWVppmduX
+	 zxvPkEGdSUUxjGb8CP0AVtSCKTXXVSnZ2Wz2zSwxEip7oGoKo5e7MONQGlLi4u4heoA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795535682;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795535684;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=rvCNVroBe45nReiXZTtlC74wEuZ8rCsFlaFAoUyYogU=;
-	b=Jn4T6DzFaEbirPLUuvp+uFrGyLAjnWtyx8EJ1/32rmy/8yBwy+EUjJ+djdkG/wXpx6D4
-	 +qD/gBUgAnk2PJDOheySQkJRrJ8LG+AjlLqaLtC/SIKBcRqy0/U3fTtYfJ3KmeqvPypiz
-	 ruAK+LSMZl53vUwH9UbXwu1NXcADEG5nAtVV2DDjZ8WiG5pfp16QaC2DjkhqnR7/Z5Bml
-	 iS66pjSIg14KhhoGBS73uVcTpLEfz9VlVky93u7o+D2QMp9cstmTNeK/O10672Q1qkHo4
-	 HeITQaVGzP2+CVzQKSPGgO0bC9/dYlolH+KKidywvEVercMp0cXiorfEKoBsKUP4Wbg==
+	bh=IchOjVdYa1fDISQIC3H7DTl7BgoC0ZxrvVLIntVYFiA=;
+	b=JfkAzilxlxZarLEnobIEoSTPGMvePXM2XfLEqNZT3DIVXrRsl17CjJtqs7wb4BGPjvHV
+	 uWKNRhNu2Lnztr7V3ds9ChSrLHv4XWGCb1jN31brq2rhNmu4fYrw9M7pBEV+q+QzQNBqA
+	 2FKbreCRHnzwhT+Yi+kJpeh40CxVvG4BeXGQsOBnKN7TxRYnoKJo6P1Y+i1ODPV52nvQt
+	 m4ggTnjVpdvppIj3fM2I/eiOGnO2hIMuCYuqLGyO639o7Pmz5LpK2KLzyEGX41JevSLMj
+	 OBAugHzT5kgYk49Wnm8QJYYGM4ptkF1RBlTioF6KL57kWpaASiACTFltvoJmMJMrIEw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jkhw3aBZ;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=rCeK4cUn;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E8E4606A32A;
-	Tue, 24 Nov 2026 15:54:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8E8E4606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFEEF606A6B4;
+	Tue, 24 Nov 2026 15:54:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BFEEF606A6B4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jkhw3aBZ
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOFZ2eR2806137;
-	Tue, 24 Nov 2026 15:54:15 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=rCeK4cUn
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOFYfVR2851796;
+	Tue, 24 Nov 2026 15:54:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=rvCNVroBe45nReiXZ
-	TtlC74wEuZ8rCsFlaFAoUyYogU=; b=jkhw3aBZQTAaGwTSSy+Dv3aD5BYTZ2DYA
-	hoMSZXPpcWLod3D9GgiIM7I30uB9B5f0+k+K5B6//bCJUTdBq6XLuFkQ8zCTcRjg
-	WL+W06Mwc92jZy0JSX/3QYrSWn5wuVM3ULDcXANZNDTr1oCIrZJ71TApbOjCILmw
-	jOkW3Y2X8z5jQdX/f7A4A1YUXm/IUhIb2eKN6cLw2+AD01RociYhZtfnaJOS5njz
-	lt4OqaKftWTQifJJMfN1lFYV6VirCxd6QEgaKjWDXXvWGv2IDRyqAG/VaB9lh1Et
-	cCBzYf0EYHwgPYH7s2rEGbL+Ty+c37MJmWafhab+guElzRoE6Htlw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34gv82p2-1
+	:mime-version:references:subject:to; s=pp1; bh=IchOjVdYa1fDISQIC
+	3H7DTl7BgoC0ZxrvVLIntVYFiA=; b=rCeK4cUnuy/4QzBAY70TazhxqaRO5dLHz
+	hY0ON7tTmhmvZCzMwErx8Gu6EE8ELvpZhL7JuyIitwln0E9ayyfyqa1Y9hmqG/RF
+	ni0ZrZJxejQ2sMNUl6nMhE9mP7RbcPlyyLs0DNZivY/hxFOhmKplyIZQOf6ekPt2
+	obAJHBCDl8EmnbNHhfu1sbaWHcmFKQo5oz5qnwUfFQHa8fiuhHmZ6AeIPvs2szAY
+	gMazkCPT1AyNKvIn4+E+h2ArMpaeLHG6I+SvG7T725ltRGLeUb9XdF9HbX7dqjgm
+	Mx8WNUzYlHiuJrelh8Cv1jMwD1A83CZjAVvuCKSyqXj6LluHW2QRA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34fkgeqs-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 24 Nov 2026 15:54:15 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOFJXRC2883604;
-	Tue, 24 Nov 2026 15:54:14 GMT
+	Tue, 24 Nov 2026 15:54:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOFJGID2467736;
+	Tue, 24 Nov 2026 15:54:15 GMT
 Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j3p0vk8d4-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j3quftx00-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Nov 2026 15:54:14 +0000 (GMT)
+	Tue, 24 Nov 2026 15:54:15 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AOFsDx819268234
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AOFsDaU14418568
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Nov 2026 15:54:13 GMT
+	Tue, 24 Nov 2026 15:54:14 GMT
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 13AC458060;
+	by IMSVA (Postfix) with ESMTP id BA7A85805F;
 	Tue, 24 Nov 2026 15:54:13 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 70D5558051;
-	Tue, 24 Nov 2026 15:54:12 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2BFA35805C;
+	Tue, 24 Nov 2026 15:54:13 +0000 (GMT)
 Received: from li-505aefcc-3230-11b2-a85c-f1e8e6da9e06.pok.ibm.com (unknown [9.105.76.126])
 	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Nov 2026 15:54:12 +0000 (GMT)
+	Tue, 24 Nov 2026 15:54:13 +0000 (GMT)
 From: Cam Miller <cam@linux.ibm.com>
 To: jpb@kernel.org, joro@8bytes.org, will@kernel.org
 Cc: robin.murphy@arm.com, iommu@lists.linux.dev,
         virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
         schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-Subject: [RFC linux v1 2/3] iommu/virtio: Prevent driver unbind via sysfs
-Date: Tue, 24 Nov 2026 10:54:09 -0500
-Message-ID: <20261124155410.768743-3-cam@linux.ibm.com>
+Subject: [RFC linux v1 3/3] iommu/virtio: Add device links for endpoints
+Date: Tue, 24 Nov 2026 10:54:10 -0500
+Message-ID: <20261124155410.768743-4-cam@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261124155410.768743-1-cam@linux.ibm.com>
 References: <20261124155410.768743-1-cam@linux.ibm.com>
@@ -95,65 +95,68 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=CYCdd7rl c=1 sm=1 tr=0 ts=6b05b327 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDA2MSBTYWx0ZWRfXz+4r2QuhKVQB
+ 3adKd8H97F6dI1YUIRlSLyO/9TpUWev7tgFBkj/5H00WYZEWDFqJU3OHaXikZq+EjwlbbBZAHcv
+ cuTP3mtUzOjbIE8+J83CCoIQ2KoTTcgdYRv9CH21YOyngArMHSsXTVs0++C/IClHvxOQykNneJZ
+ 66owqvobtkYNV7J6auOzTUh+WQt57TbGEDrwbZAte3augoPyTxhD/BEuz26bWnbE8fbLzgous6v
+ qWD0fXbzABYBWMc3o9EM0SzlGXcZ4oIB2Ng5RsqXEuEuu51oUn89x1rM3FMthfY5tctU9bY+BVa
+ xFesFgMasG6f1nNWvDQnJKcl8yvQ4R1XmByGj4nDW8n55TySG4lJkRUY2iyrv79w76j3WUbfYbW
+ eksEzquz7TpqV3VkGkzefpCakJ4mzNmsjXIjSbjpDbDJ07eDPLQJMqCpuzHYyKWyvs6/tzQ9Bdd
+ JiyTK07ofnlDx7I18wg==
+X-Proofpoint-ORIG-GUID: q2EMZpFej54bNnwBDcRmVd_8YI99nY9O
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDA2MSBTYWx0ZWRfXxGItENaIbK7p
+ rS8uxKr7crVaDwQIvMByjjdySfNz1VmYT9uZ1GJzWyieHjhyJa1tiZQRrOcvBUgwrqfRz4xbEK/
+ tUTD2fEUbS9DTB0HPEmmNJnZxkYm7Ss=
+X-Authority-Analysis: v=2.4 cv=A9z5rKWG c=1 sm=1 tr=0 ts=6b05b328 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=6WNED9Rxp78MK61v1xYA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDA2MSBTYWx0ZWRfXwesCZw/RaSsH
- S04bGEEIHrszPxBwsFRaRBo549lMYGLmWQHthIGQJ4ZKpxONUNsAeQ1JrkJDZ5vfftIYhdU028s
- Ap5X2DddomcPgW0GsQMb4nfh1vh+bWI=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDA2MSBTYWx0ZWRfX9dkRBgIPHn77
- 2cR/tNnHZqv2PsBe8DCgwA26Z+By79wWVdUP8MFSrQ849RqIpdjOji/a0nzQmScbxO5ctgY9gW4
- 20JiP7Ohse4pTOZbJmdtSttLFd9wuIZRoegSP31I/PhCbh6WcDJ4Dx6vLGCcl0bBisHeBg4uFuY
- r1I4KMP36ht99ABQ+VGCHdeoD9o7Ryje17u+yw2etBGI2iWnvxP3JIOm5NGSBxfDpBwdTUf8azY
- blcCvApMoH/GBOZPwnCr0pSGB5CnheCWtk6KPnNedUbyPbBAjusrpROfDqEgeFWX0QLY6Af/3mm
- kOhdjMS8/JXX3YjkFGNWcWxm6v3qUgcR4xqeDbdxSvpwmhyoC80fm7c3tVmfH+QORxYXUvsLfWZ
- e+G7pIooV3gyggEUrC7+DP3IvGyYtyM4UHBKzgLwqxlTYeCgMM6DVVuCPfJ92ddzaDlNA6bczkG
- DEOZIUA/Ta3qYyV0wmw==
-X-Proofpoint-ORIG-GUID: ostNga8bdfFg5uPx6H80cvPkN_hsdrwQ
-X-Proofpoint-GUID: ostNga8bdfFg5uPx6H80cvPkN_hsdrwQ
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=Grr11ITIlXNgMPy9vfoA:9
+X-Proofpoint-GUID: q2EMZpFej54bNnwBDcRmVd_8YI99nY9O
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-24_04,2026-11-23_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- clxscore=1011 spamscore=0 bulkscore=0 impostorscore=0 adultscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611240061
+ clxscore=1011 adultscore=0 phishscore=0 priorityscore=1501 impostorscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611240061
 
-Set suppress_bind_attrs on the virtio-iommu driver to prevent userspace
-from triggering driver unbind via sysfs.
+Make each endpoint a consumer of the virtio-iommu device, so that the
+driver core unbinds each endpoint driver before viommu_remove() runs.
 
-Unbinding the IOMMU driver from beneath live endpoint devices would
-leave those devices with dangling domain pointers. This would not be a
-recoverable operation.
+Before this change, removing a virtio-iommu (for example via "echo 1 >
+/sys/bus/pci/devices/<dev>/remove") tears down the IOMMU groups of all
+its endpoints while their drivers are still bound. The endpoints keep
+stale IOVAs and their later dma_free_contiguous() leads to WARNs in
+__iommu_group_free_device(), endpoint IO hanging, and crash at shutdown.
 
-Note that suppress_bind_attrs covers only the driver bind/unbind path,
-not PCI-level device removal triggered via the sysfs remove file.
+Make each endpoint a consumer of the viommu with device_link_add(), as
+arm-smmu and other IOMMU drivers do. The driver core then unbinds the
+endpoint drivers before viommu_remove() runs, so that their DMA teardown
+will still see an intact domain.
 
 Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
+Suggested-by: Jean-Philippe Brucker <jpb@kernel.org>
 Signed-off-by: Cam Miller <cam@linux.ibm.com>
 ---
- drivers/iommu/virtio-iommu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iommu/virtio-iommu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index a08474eeed58..dd10c3e98a3d 100644
+index dd10c3e98a3d..a84a653f269e 100644
 --- a/drivers/iommu/virtio-iommu.c
 +++ b/drivers/iommu/virtio-iommu.c
-@@ -1285,7 +1285,10 @@ static struct virtio_device_id id_table[] = {
- MODULE_DEVICE_TABLE(virtio, id_table);
+@@ -1044,6 +1044,9 @@ static struct iommu_device *viommu_probe_device(struct device *dev)
+ 			goto err_free_dev;
+ 	}
  
- static struct virtio_driver virtio_iommu_drv = {
--	.driver.name		= KBUILD_MODNAME,
-+	.driver		= {
-+		.name		= KBUILD_MODNAME,
-+		.suppress_bind_attrs     = true,
-+	},
- 	.id_table		= id_table,
- 	.feature_table		= features,
- 	.feature_table_size	= ARRAY_SIZE(features),
++	if (!device_link_add(dev, viommu->dev, DL_FLAG_AUTOREMOVE_SUPPLIER))
++		dev_dbg(dev, "could not add device link\n");
++
+ 	return &viommu->iommu;
+ 
+ err_free_dev:
 -- 
 2.54.0
 
