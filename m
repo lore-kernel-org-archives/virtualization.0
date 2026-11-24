@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795524454;
-	b=RlcMkpncTO+M0gRmlmAbpSX8HoyQVXwvf1zerytD7W2GgtXyx4e/DU+qvPjqacZiNVpD
-	 4DbBWc9PINoOl1ejISuFbKiZi9ho01Dzz5qUOvIlMAGWaqqjWIYhuruhESbmz/i3d5IUk
-	 UqZogKj+xN5jmqb6n/TU6ekXrd6qTjjJy5czNr5nmLe+ebdP4jCu1pT4sUKUkOAP7qAhW
-	 TZVuTkC6cuitWRrKU79AuBNlrw1Zsf7KBxfWK0+mQR07jQYPoyn7UtLHWS7axg9U8lUSH
-	 UeG4w9R7b5ov4Rf4vH37Q/cxHS/BdCrbqA+PQtop/TIkPHexc9Tbr+RSGRGK7GtNI4Q==
+	t=1795524459;
+	b=oB9VW9vbxLIB7Ppc24I5CBVjK3S2JJ2Am9ff6meMzLxo1FkkGntKDkqWDP0IRrPlcfYG
+	 3M3Mu/Fq0n9tE/SOIqmNdIeq3dvFbeYGN/Sf5dXp9lQhsuwFgaqK+MLV0Lc/pUPnVPvp/
+	 gtnIOkcXIKTk3yvzBLrZPLKhxl7/jot1tdTa9OoHDY43Xi8ETbr1uv7DtUdOaV5/B4G8P
+	 RgwamNTVnzJrAJ4pCSTB7V/1grZ24Z7RpytiS9DhKDxwaLwmJ+3vQ8gHXY1/2rWFMGDnd
+	 Zyf1453RcWBmxHcAMOWvAb9ItWdnx+Q8JMBLWydRm/+SDXISPEjtJh81QLdzXKKMblA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795524454;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795524459;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ro/RH43C78Nv0CR/7XnRdlSOTeJqQRr+VavPu3YBWK4=;
-	b=1Jy4RW6uI74IFMKZDWRY2AaUazDTncwqLWohDfDQxPauIs6ee3v7YSQ8x5TXspCZQtlb
-	 a4Ie8wSEmDOsj2ShvMGMB6XUpq1PTHOgHy5PNY0mvtwXoGV6peM23vHtUTAS98x6fQsdW
-	 /Z706OhQTOJ7LGb60R9POQiuBeOeuyRbYQXiOKWCUDfPyVh+zMPZ22IcNCkV666WVZJmq
-	 pR+F/fkOH4s9+XixWIj96J15Fh4JKujGUATdSrY49OAVStMlt+jxeI3EnycdndKxnyedQ
-	 I5MkqsoxaXczRqnPU8AxOzRzZ7Be0ouZdmmbpz5qIWpiMvEUvDEjYCyIeRKEbB5d+Pw==
+	bh=dOJBmO456M8iG2ZvjfoVtvl6aoiUJN0Hhtj1Nb7Oo+Q=;
+	b=ixKLsfdgliPxZ1MShSXFtyaE9zBA+Pkxs6uRIGaagzb5KNF3Zw1AefnjrH7NRCheGMPl
+	 em/zzXBNrjQ2V+STQOKvwBxyY+MFMLUScbah5FeO+ZM/GMb0frS3ldvpP6HKlGoiBjxXx
+	 QzdDiPWFRd496WRgIrISNsm+Jkl605cC18F9+jHX0lVFb5/KYz2/hWqJnBnntFCcUr2Ye
+	 GyBp5HZGHtAmz6r753nrPNFHngOwWIlSPqaJx+4V41g7F6jETBBTlwqZB0cOJIHND81QY
+	 Y05Xq7sXA6GIYOn9pctpe2Mf2cdh/fMdJho6reKTRebp47J0IDLqU98zTM1tMjiN+mw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mxfeyXLD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Sxxwd1No;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6BCB606A31E;
-	Tue, 24 Nov 2026 12:47:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3741606A321
+	for <virtualization@lists.linux.dev>; Tue, 24 Nov 2026 12:47:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mxfeyXLD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31D7C1F000CA;
-	Tue, 24 Nov 2026 12:47:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Sxxwd1No
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D88B1F000CF;
+	Tue, 24 Nov 2026 12:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795524453;
-	bh=ro/RH43C78Nv0CR/7XnRdlSOTeJqQRr+VavPu3YBWK4=;
+	s=k20260515; t=1795524459;
+	bh=dOJBmO456M8iG2ZvjfoVtvl6aoiUJN0Hhtj1Nb7Oo+Q=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mxfeyXLD1gPs4UQR8oTQj3OkLshj7HZiQUBU45TqVI28lk9JhOxpgQq7BDQaFClJV
-	 hkpfcliDjY+qoVOgqamRxWmXAaYN1feznIRPtzOHCK0o8k9EOsmt1GOMiFoS3AICN/
-	 vWK93aucLOFcdfR/CAu9armJTVyRUwysQM8vj/qVLPLcnhh4o9iSzjVbPW49uGBcjZ
-	 UD+0CNAV1M3PspaMlA9puxg3BJUt3qaeGmL2Y9KDnT/tUxcGjyhbeEWvh3ZMamRP0w
-	 e1KZ7cCtD9x0brzVfrQ5mdPrIoInMVaV6bpYftG/0yF/drjSzzNAehBcbi6IPMJZ83
-	 EdfRrfBiSkm0A==
-Message-ID: <sashiko-outbox-231174@kernel.org>
+	b=Sxxwd1NoFklpDWQ00uFdPWpR7K+dRB3HG2RmMYYS6GHXCgc9cCzopWW924/WH/4JU
+	 0m4Ppit12uyZOhoF/lwI9bCrdkZB5HaoZ/eIVlv34gTWsxwtI/Cc+SGJki0mjjn5Ck
+	 sbnLfpTz8lqopsc6daIKXWilm5kReX/TB9ZkqOMCihDdoIoYzBttBEY1fJTXWmME+a
+	 imriGlSL5zP9bjIfnWQRZqhOCMTtXb51DRgDsYzFm4uO/23JzUHr2FIUyValE8vqFu
+	 79seciGRPxl9LiyNkMSoujiMzokTpC5534huxqcCu7NCJdkzLMjiWUSdzkAyPDMhUP
+	 DLByKjoFP0Gfg==
+Message-ID: <sashiko-outbox-231175@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v4 8/8] vsock: add datagram tests to vsock_test
+Subject: Re: [PATCH RFC v4 0/8] vsock: add datagram support to virtio and
+ vhost
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sergio Lopez" <slp@redhat.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, bpf@vger.kernel.org, linux-hyperv@vger.kernel.org, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261124-vsock-dgram-support-v4-8-3607484e85e8@redhat.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261124-vsock-dgram-support-v4-0-3607484e85e8@redhat.com>
 References: <20261124-vsock-dgram-support-v4-0-3607484e85e8@redhat.com>
- <20261124-vsock-dgram-support-v4-8-3607484e85e8@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 12:47:32 +0000
+Date: Tue, 24 Nov 2026 12:47:38 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,123 +61,16 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] vsock_test: vsock_dgram_check_vmci_host() skips when
-  vhost_vsock is unloaded
-- [Medium] vsock_test: local CID tests fail when VMCI coexists with
-  vhost and loopback
---
+Sashiko has finished reviewing this 8-patch series:
 
-commit 792ed67e2ec454b7d9e33e144a3b395a0eb9843c
-Author: Sergio Lopez <slp@redhat.com>
+- Patches 1-5 and 7: no issues found.
+- Patch 6 ("vsock: allow datagrams to use directional transports"): 3
+  potential issues (3 Medium)
+- Patch 8 ("vsock: add datagram tests to vsock_test"): 2 potential
+  issues (2 Medium)
 
-vsock: add datagram tests to vsock_test
-
-This commit adds SOCK_DGRAM test cases to vsock_test covering local
-loopback semantics, host/guest transfers, transport routing, and queue
-accounting, along with capability-based skip checks and a --local mode.
-
-> diff --git a/tools/testing/vsock/vsock_test_dgram.c b/tools/testing/vsock=
-/vsock_test_dgram.c
-> new file mode 100644
-> index 0000000000000..16c3a6e59f792
-> --- /dev/null
-> +++ b/tools/testing/vsock/vsock_test_dgram.c
-
-[ ... ]
-
-> +static bool usable_local_cid(void)
-> +{
-> +	unsigned int cid;
-> +	int fd, ret;
-> +
-> +	fd =3D open("/dev/vsock", O_RDONLY | O_CLOEXEC);
-> +	if (fd < 0)
-> +		return false;
-> +	ret =3D ioctl(fd, IOCTL_VM_SOCKETS_GET_LOCAL_CID, &cid);
-> +	close(fd);
-> +	return ret =3D=3D 0 && cid !=3D VMADDR_CID_ANY && cid > VMADDR_CID_LOCA=
-L;
-> +}
-
-[Severity: Medium]
-Can usable_local_cid() enable the local-CID loopback tests when VMCI owns
-VMADDR_CID_HOST?
-
-When vhost_vsock, vsock_loopback, and vmw_vsock_vmci_transport are loaded
-together in a global namespace without a guest-to-host transport,
-IOCTL_VM_SOCKETS_GET_LOCAL_CID returns VMADDR_CID_HOST (from vhost_vsock),
-so vsock_dgram_check_local_cid() enables test_dgram_bound_lookup() and
-test_dgram_connected_cid().  However, VMCI is the datagram owner in a
-global namespace and its local CID is also VMADDR_CID_HOST, so
-vsock_select_transport() routes packets addressed to VMADDR_CID_HOST
-through vmci_transport instead of vsock_loopback.
-
-As a result, test_dgram_bound_lookup() fails with EADDRNOTAVAIL when
-sending from a socket bound to VMADDR_CID_LOCAL to one bound to
-VMADDR_CID_HOST, and test_dgram_connected_cid() times out because the
-receiver connects to VMADDR_CID_HOST (selecting vmci_transport) while the
-packet arrives over loopback_transport and is dropped by
-virtio_transport_dgram_source_allow().
-
-[ ... ]
-
-> +const char *vsock_dgram_check_vmci_host(const struct test_opts *opts)
-> +{
-> +	unsigned int caps =3D dgram_capabilities(opts, 0);
-> +	unsigned int cid;
-> +	char mode[16];
-> +	FILE *file;
-> +	int fd;
-> +
-> +	if (!(caps & DGRAM_SOCKET))
-> +		return "datagrams unavailable locally";
-> +	if (!(caps & DGRAM_VMCI_MODULE))
-> +		return "requires VMCI datagram transport";
-> +
-> +	file =3D fopen("/proc/sys/net/vsock/ns_mode", "r");
-> +	if (!file)
-> +		return "requires a mounted vsock namespace sysctl";
-> +	if (!fgets(mode, sizeof(mode), file)) {
-> +		fclose(file);
-> +		return "cannot read vsock namespace mode";
-> +	}
-> +	fclose(file);
-> +	if (strncmp(mode, "global", 6))
-> +		return "requires a global vsock namespace";
-> +
-> +	fd =3D open("/dev/vsock", O_RDONLY | O_CLOEXEC);
-> +	if (fd < 0)
-> +		return "cannot open /dev/vsock";
-> +	if (ioctl(fd, IOCTL_VM_SOCKETS_GET_LOCAL_CID, &cid)) {
-> +		close(fd);
-> +		return "cannot read local CID";
-> +	}
-> +	close(fd);
-> +	if (cid !=3D VMADDR_CID_HOST)
-> +		return "requires VMCI host CID without an active guest CID";
-> +	return NULL;
-> +}
-
-[Severity: Medium]
-Does checking IOCTL_VM_SOCKETS_GET_LOCAL_CID =3D=3D VMADDR_CID_HOST skip
-test_dgram_vmci_host_routes() whenever vhost_vsock is unloaded and no
-/dev/vmci host context is active?
-
-Loading vmw_vsock_vmci_transport only registers transport_dgram_fallback;
-vmci_register_vsock_callback() registers transport_h2g only while
-vmci_host_users() > 0.  Because vsock_dev_do_ioctl() queries only
-transport_g2h, transport_h2g, and transport_local for
-IOCTL_VM_SOCKETS_GET_LOCAL_CID (never transport_dgram_fallback), the ioctl
-returns VMADDR_CID_ANY or VMADDR_CID_LOCAL when vhost_vsock is not loaded,
-causing vsock_dgram_check_vmci_host() to skip the test even though VMCI
-host datagram sockets can bind and send to VMADDR_CID_HOST.
-
-Instead of requiring the ioctl to return VMADDR_CID_HOST, could this verify
-that the ioctl does not return a guest CID (> VMADDR_CID_HOST) and probe
-binding a datagram socket to VMADDR_CID_HOST?
+Detailed reviews have been sent as separate replies to patches 6 and 8.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124-vsock-dgra=
-m-support-v4-0-3607484e85e8@redhat.com?part=3D8
+m-support-v4-0-3607484e85e8@redhat.com
