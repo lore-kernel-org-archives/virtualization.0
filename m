@@ -1,96 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=182.48.54.220
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795622498;
-	b=bRPaqME+H14JCWVjtTTQckfrXptuugFdFWl2ZCiM6GE8zmbDH5NK6+t/UGd8bjMOy/yN
-	 dfeqgkPK570rh/qHgNFaoT6r1Izw5fMwUJsVulQ3cQVK/NOZVTfyajIbC7t8QM9hRNSy5
-	 y6sZTo+ROFe30488FJytG6Y/QSNxCtbVeCEhLbEhI5Hvxa3UgRtbxKs+72+sYo5Ntq4Tj
-	 ph4Pda/vwIfrqTFTd1v6S24C4+CQuUWeRtWJQ6hSmTIurrKqezHANMLrXzlsyB12jva27
-	 TRGQzNiBv/TP7VsddJXhyqP3PhdxI+vaJm+Dxy4op5U84SY+PgjQ105YKh2X7n8+X6A==
+	t=1795622817;
+	b=u6FjZtdJ+RitAgZa8Y0Z3Y0IAqVBGLhBerMud/hlnM7t0v8XSFf9exYOMBC4qliimcue
+	 y3J/jhECilh9wAZI/fpA7722h3s5XslFwAfkKcIgC9juBiTtF4JfoXRJ/sOpVjtzTRTZR
+	 of4Sw24iBTBGX6S1dtj1T98SHYPezWpi6SWo9+2h+E4jq9p0sCB96viaCyd2PoY9pT1zm
+	 hB403EY6WPgsWDyiHRoeIFUa4UpN+1pNEnGH8gJXIE8Iq/2HEt2YczOlKTUu1wlduwrwO
+	 5Mf8Un00Fc12GQjPQKHEc13L/3zpEXXC4jN7xOMD9xu1f0hG+BTyfr09pDwN6K/Bprw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795622498;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=5ClKnQa/VnC+RbYcmAaKA5Lo4uOLHVVXMvjGc4c3TSI=;
-	b=ymfImtpcXGezzRQhscJut9qlQo6KpVPKGCRRctUempTRl9l8B5KgTWaGXMmzgnrse5LE
-	 bi5kmJLn8iCY3kqguMhqcSWyRhKQkkHCy1lv1Jo8N8jMuang5rILGzqwNMk/+PTBCCt3a
-	 mcJDIlmhsldZN+30+VFsRhsjhFWFCO9+/goh59Sju+tYq73GASJyQKs/qwqgb05TWP8rW
-	 3utZFq8B1pFgMYqC0umTp5TsEvsH5tcitb0+2LgWRZQaqdlrYAHRrIy85zGrovitKVtwY
-	 aBTy5sCIf5aXK+cvzITRDUEIPNmRoUFLh7Bpcm87RtoXfSnkKXu+sG5gHqoys+QdTHw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795622817;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=tbHtq4u5qNw0coKzM67hn3NfizR9DRcO7y7V+ZSUs48=;
+	b=uzuZXBrcXYbw9chQGERHOah619BlqxXCHMZ4wql/OvEViacBCtbGLfG+MgiQ0oxCMTIc
+	 YZg9MTBvL8bGEOT/74uXoPin2Qi4OFhPmkKgIv0rFWdVT/i05Dyw1NV9a72sR6Wyt8OOP
+	 hfgmmnSLQaCGazdwb5p3Ss8uLRkiUGgQaD4UsCGoHQi1wC4J3kSGPmOczqHKmWhdeoslr
+	 cR5aRmk+xT4VYFhCDyFV8qaFHFaWU7Dgn+8+6KeDlfPuh0PfpT5fEvo6COzvb6UetEUau
+	 dqZBZwqluKKJL3N0gZsJepjNpKiXpby8uD4z03iYwsQd/bT7cPLp2tAfmPZjpCLEAnQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="R/AIC3x/";
-	arc=none smtp.remote-ip=209.85.210.173
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A864606A333
-	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 16:01:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2A864606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=R/AIC3x/
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-8b271e573adso2565102b3a.2
-        for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 08:01:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795622496; x=1796227296; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=5ClKnQa/VnC+RbYcmAaKA5Lo4uOLHVVXMvjGc4c3TSI=;
-        b=R/AIC3x/CWPr3USlFpmOSi95pWuDK7xnk/Y+5OVrinhhgydloYvZueY0VXejdqtRj6
-         YiyFR8dFPJhVpyX0stdYRPRl7Fu1k/cbKmACMKHYqBxdKzACJKdP9RpwNF2yvnhUldea
-         Ek+fbAIUx3WalvhLalpbHotzf8TDL0+9RGycnI3vKmc5B44UyMLXjbXbzlOv5SJBpDSS
-         5NUYrUkndcRT6NE3f3Jdir8BRuqmwoWfkuJ5l/wZpmptk/rtrpQ8uK5BJvuYof4pcWqH
-         2iDhScmiPyZoGQIfKUuudvpfWJcSGpEN8l2WMRalmduMAJVZ3jhcmCZDSS0dFoG3Qa4Q
-         413A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795622496; x=1796227296;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=5ClKnQa/VnC+RbYcmAaKA5Lo4uOLHVVXMvjGc4c3TSI=;
-        b=2VdRvQY3Vs1SwyWIOwAospQBwsBKoftI0HyjobLB8vK3iIdHrHsr6AK/OpyS1q/EJ6
-         huNgna9SJvpxFPNrEqZn8TuBdBexVZvgR2uBO7cTvh4+Pbrbgz3jl1dLoJUSL9/WfR93
-         JbzPy7S2VTpAXHx47rwPxZYxoveIgA18ekaN9/q3apsEoofLF267ONbFofd8W1dQC5US
-         jCKyJCJ+tpa4q7hMRb5XeWp3sLwO8lDLqX2dDuoM0eCmunjWZmsp5nb5zASCz/5RjHHt
-         EQbiqTfdwYd5RRWxD9Q/3Fyg/SaXZKZFQ3YIwAb8lFe09ZMNomVrd7UEDFdxeBw9N1C4
-         +qyA==
-X-Forwarded-Encrypted: i=1; AL+hErH3qY4ozRVwQBVYFSucfseGprvdvmAZz9tz4iGxuGyHuvhX4dSRCxdIybHVxc9MdvngqtOx08AagHHp2jdyAg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8vqV4JAvHhA3MKc/NdUwTWEsJjAgik3CPME9gq0vDFDLIHQTx2
-	OdKoyDuTF/XKDcpqSmao5asCcoYg2v3IxAjnMRkXv3boEkk7pn+kPOwE
-X-Gm-Gg: AZFdTZd3/kKPcalqnSwWLAC1jhVQUhu0Vri/9WfbrV9ogkUrsTnSIbQL4IneQmqYqb4
-	lMcgahygubTh8vNYXgsHW0xdow0GJzTnkuyuN8IBG8TdNCKQQRrYtoN4TuyrTnap3JmnjvqJe6G
-	+a6DbPO5ecxvo3BqOkdngj+cuS9b3jsbgVCrbh8HCpkRDBRTWPkywt4zlBKUi/ejZHM7281BJV2
-	jjRVVvFxeWmqP/G4MshF7ZUgOInmOUd6IfcOiCKzr/WjGnfLSppzhEh//pyf9qsDpXN2Pm+oPlD
-	nIRP+DxEcaubFqPteVH6Xr3wo0AGbE+7A+Oe/TSZfM3hZVntrNmHHov8OizMEiiL2e83+5Q0HB1
-	MR82Y96WurOrfSkW8ZhkmP1yqMPNfl/zD66z2/+w79LjqmckuM11VVjjWlxUwDOdDZBXvBmhiPo
-	z92gfELBQbj3kK0jqC/d3NLdHkwbTCLSn0+qy9EkU+c/bSpoW6qQiUPRSQWvXZJJjUP0sSHQ+N8
-	RHLfzpRlN8G+GF/70VDdr9nPP3N87lPKMo3Yd5jCDxLdjp+Iq5hxA6QozjMopbST4JG02dyIBW1
-	c8dyaIxFaiXuLWKvAuUThNc40DKeLhQHhfshnUudHJ7dcQlXOn27UH+JmGG+3uUhKmjFSKMv2QN
-	/
-X-Received: by 2002:a05:6a00:3c92:b0:882:bba:8791 with SMTP id d2e1a72fcca58-8c87c4845d7mr14583753b3a.34.1795622496414;
-        Wed, 25 Nov 2026 08:01:36 -0800 (PST)
-Received: from O1PCCC03033100.cn.corp.seagroup.com ([143.92.127.241])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8cdfbe269b9sm3645215b3a.20.2026.11.25.08.01.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Nov 2026 08:01:35 -0800 (PST)
-From: "chenglong.ma" <longpareto@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	dmarc=none header.from=snowrabbit.org;
+	spf=pass smtp.mailfrom=snowrabbit.org;
+	arc=none smtp.remote-ip=182.48.54.220
+Received: from bambi.snowrabbit.org (bambi.snowrabbit.org [182.48.54.220])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 81B69606A33D
+	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 16:06:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81B69606A33D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=snowrabbit.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=snowrabbit.org
+Received: by bambi.snowrabbit.org (Postfix, from userid 3001)
+	id 2B33CC9300; Thu, 26 Nov 2026 01:06:55 +0900 (JST)
+From: Showta Ishizaki <zakinko@snowrabbit.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	netdev@vger.kernel.org
+Cc: Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Simon Horman <horms@kernel.org>,
+	=?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	Xie Yongji <xieyongji@bytedance.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Chris Arges <carges@cloudflare.com>,
+	Paulos Yibelo <habte.yibelo@gmail.com>,
+	=?utf-8?b?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
 	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] vduse: don't set VM_IO on the domain file mapping
-Date: Thu, 26 Nov 2026 00:01:28 +0800
-Message-ID: <20261125160128.796-1-longpareto@gmail.com>
-X-Mailer: git-send-email 2.45.2.windows.1
+	linux-um@lists.infradead.org,
+	linux-doc@vger.kernel.org,
+	Showta Ishizaki <zakinko@snowrabbit.org>
+Subject: [PATCH RFC net v8 0/6] more virtio-net csum hardening
+Date: Thu, 26 Nov 2026 01:06:41 +0900
+Message-ID: <20261126.rfcv8.99797.0.zakinko@snowrabbit.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -100,62 +66,82 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Commit bb2e6f166547 ("vduse: fix VA/PA confusion in the coherent page fault path")
-set VM_IO on the domain file mapping so that
-vhost_vdpa_va_map() would skip it. Since 99fd6bf43d5d, mm refuses VM_IO
-on mm-managed mappings: mmap() of the domain file fails with a
-WARN_ON_ONCE() and -EINVAL, which breaks VDUSE userspace.
+Michael wrote in v7 that he would be on other things for a while and
+posted it in case anyone wants to take it up, so here it is, rebased and
+with the review comments addressed. Michael, if you already have a newer
+version, I am happy to drop this one in favor of it. Patches 1-4 and 6
+are yours; what I changed is noted above my sign-off.
 
-VDUSE is currently broken in 7.4 because of this. Please treat this as
-a hotfix for 7.4.
+Changes since v7:
+- Rebased. Commit 73e08d50eb13 ("net: virtio: validate outer protocol of
+  UDP tunnel GSO packets") has the header parsing helpers and the outer
+  header checks, so those are gone from patch 4.
+- Patch 4: has_eth is passed to virtio_net_hdr_to_skb() as well, instead
+  of looking at the device type. I dropped Chris' Tested-by, as this is
+  no longer what he tested.
+- Patch 4: the tnl_csum_negotiated check is ahead of the validation
+  again, as Willem pointed out.
+- Patch 5 is new: the outer checksum of tunnel packets that are too small
+  to segment. Willem asked for it as a separate patch.
+- Patch 6: the sysctl does not turn off the outer header checks, which
+  are in the tree unconditionally now. I turned the Reviewed-by tags into
+  Cc, as that changes what was reviewed.
 
-VM_IO is not needed. vduse_domain_set_map() already rejects vhost-vdpa
-entries backed by the domain file, and the file check in
-vduse_domain_get_coherent_page() keeps any other entry from being
-translated as a physical address. A self-referencing mapping now
-reaches vduse_domain_set_map() and is refused with -EINVAL.
+The two issues Michael listed as open in v7 are still open, hence the
+RFC: the inner packet of a tunnel can have a valid header at
+inner_nh_offset that overlaps the real transport header, and completing
+the checksum at input breaks nf/BPF programs that edit the payload and
+rely on CHECKSUM_PARTIAL.
 
-Fixes: bb2e6f166547 ("vduse: fix VA/PA confusion in the coherent page fault path")
-Reported-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-Closes: https://lore.kernel.org/r/awWOpS3HR_2FTN3I@gremlin
-Suggested-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-Signed-off-by: chenglong.ma <longpareto@gmail.com>
----
+I compared no patches, 1-4 and 1-6 on arm64 (qemu, TCG) with frames
+written to a tap:
 
-Notes:
-    Tested on v7.4-rc2 (commit 7475ea8b58616b33c04afb976cf0fbaad9dd63fb).
-    
-    Control, without this patch: mmap() of the VDUSE domain file fails,
-    with the WARN_ON_ONCE() from 99fd6bf43d5d.
-    
-    With this patch applied: mmap() of the domain file succeeds, and
-    importing that mapping through vhost-vdpa is refused by
-    vduse_domain_set_map() with -EINVAL.
-    
-    Dynamic tests also confirmed that vduse_domain_get_coherent_page()
-    refuses to translate entries backed by any file other than the domain
-    file, and that legitimate coherent vring mappings are still translated.
+- Non-GSO UDP tunnel packets that ask for the outer checksum, over IPv4
+  and IPv6, go out with a wrong one without the series and with 1-4, and
+  with a correct one with 1-6.
+- When the inner packet is a fragment, 1-4 reject them with EINVAL, and
+  1-6 send them with a correct checksum.
+- GSO behind an IPv6 AH is accepted without the series, and rejected
+  with 1-4 and with 1-6.
+- A plain UDP packet with csum_offset at the destination port is
+  completed at input and counted in rx_csum_sw. One with good metadata is
+  not counted.
 
- drivers/vdpa/vdpa_user/iova_domain.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The objects touched build on x86_64 with W=1 after each patch. At the end
+of the series I also built the um objects, and linked an arm64 kernel
+with CONFIG_INET=n and VIRTIO_NET=y.
 
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
-index 28a977248a0d..3c6fa18703b4 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.c
-+++ b/drivers/vdpa/vdpa_user/iova_domain.c
-@@ -588,7 +588,7 @@ static int vduse_domain_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct vduse_iova_domain *domain = file->private_data;
- 
--	vm_flags_set(vma, VM_IO | VM_DONTDUMP | VM_DONTEXPAND);
-+	vm_flags_set(vma, VM_DONTDUMP | VM_DONTEXPAND);
- 	vma->vm_private_data = domain;
- 	vma->vm_ops = &vduse_domain_mmap_ops;
- 
+Based on net e6474ead54b8, where the tests were run as well.
 
-base-commit: 44293796526f4343639f87b2acc53811c78b5d54
+Michael S. Tsirkin (5):
+  net: account for ingress-resolved virtio net hdr state
+  um: vector: trim skbs before verifying the header
+  virtio_net: parse tunnel csum_start little-endian
+  net: resolve uncommon partial checksums at ingress
+  net: add a sysctl to opt out of virtio net hdr checksum validation
+
+Showta Ishizaki (1):
+  net: virtio: compute the outer checksum of non-GSO tunnel packets
+
+ Documentation/admin-guide/sysctl/net.rst |  19 ++
+ arch/um/drivers/vector_kern.c            |   6 +-
+ arch/um/drivers/vector_transports.c      |   4 +-
+ drivers/net/tap.c                        |   4 +-
+ drivers/net/tun.c                        |  44 +++-
+ drivers/net/tun_vnet.h                   |   4 +-
+ drivers/net/virtio_net.c                 |   2 +-
+ include/linux/virtio_net.h               | 247 ++++++++++++++++++++++-
+ include/net/netns/core.h                 |   1 +
+ net/core/dev.c                           |   7 +
+ net/core/net_namespace.c                 |   1 +
+ net/core/sysctl_net_core.c               |  50 +++++
+ net/packet/af_packet.c                   |  16 +-
+ 13 files changed, 381 insertions(+), 24 deletions(-)
+
+
+base-commit: e6474ead54b8acecb8b0462dde2d77f46d2b7dc1
 -- 
-2.45.2.windows.1
-
+2.54.0
