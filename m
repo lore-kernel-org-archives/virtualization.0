@@ -1,87 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795598234;
-	b=P6gAiT6G3qCO+n7VUGZIjjP/NUPpYEczg2lNVdsRtaTFiSO8wrX1UlXXjKbteRdcaexm
-	 ZH5uJ69a4pd5UFrwDQqkpug1ciD0ldwOw6JSASWJsUZLwsD6j2wLcAyMPssOrQV3iLKoZ
-	 O4x/BuR0EH+hVic0ZRYGg+8VcrjwuGrqx3IxxF4b4C8GzZQJ9CJZ4LbRs8rgCaZwCAnr0
-	 zE4qptvxm9v3We7yhGMoBMwoq+DeG6zLciNVqCtLdyHTdVS558vkQqubLZafoRTMSI0MP
-	 4odHgwoqb6Tds13h+DOdvMH8+xWCmYSTc7YWOkrmQ7k/kGnCD1uY/hNuzZjy2Fqc5iQ==
+	t=1795599584;
+	b=V+oUEvMaqMPPRYdAEqrYZLYEofAyYRieVlC+VRgoZbSkExEdTgMNE0F2Y5KyarnExt2w
+	 8hGVlJj+nnLriVuhAr7g4HFUPEoTt2b6mDwCwL3wAYztoNE1wO2iaxlRH6aWIdRa37tD4
+	 zVxMnz2x1iDK4I0ekf1smYgfZMkOF/8tUBTLIuDz07W9UBhiA1J7o7MV/XJi0Opka9yVK
+	 tUO8Rv4AYh/ea0A7epiv2UQi5inhHvNOwi7RtLGFLmYnuHzB95CjYNIDUfRlxACdtnIGy
+	 0RGjNaoJez2yBUvVvoMkuUT89EMHCHCfA49avX/wmLTKLWTuP242xmC+WF9YjDvAjpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795598234;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
+	a=rsa-sha256; c=relaxed/relaxed; t=1795599584;
+	h=DMARC-Filter:X-UUID:X-CTIC-Tags:X-CID-P-RULE:X-CID-O-INFO:X-CID-INFO:
+	 X-CID-META:X-CID-BVR:X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:
+	 Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=cAYdqBNBEgg5h2s+5Nw6P6avYopE1k6reY3QHsLhPtk=;
-	b=ZvM7RWPbYEAwA6F6gckLN5xD5Qr7qi+dwNgepqTOIhh1EiPUtbX42sNbmG2bV3HFbQbv
-	 bdjpmyP2Sj9q9V7Kvli5ldEAjsNUObWW0XlUa2bcLMTxW79YodzXE37Z4E4VJT6eUQ8qx
-	 wb184ID80SSFgOLyAci/1TdArZMO24lGE6YoZdSlBQeU72abuwIUfrX5xYfS6EwheOT2G
-	 XtrYWaXc7DDlaIRiIm5nhBGeedyRwsywQTi2fVvGobA6bxQJCh8NL4Pj3oeSveZM68psH
-	 iNx2v6laxiuTJcbe2HYJuVnLUDnAqaFp2vX/G1kGpPsqfXYyKBLwhBZq9GdR/lAn1ug==
+	bh=06CDHqP7t8VW2Q7Qnt1JYGz3UVTxeAwOx5LZVWzf/jo=;
+	b=o6h+SaWoxcBXxje1c/ptupcgcy3Cby8onHxIrHLEmfupm5TQCG1Y/to4zFRsCHinmxjX
+	 GJaHxRhXzmFHFvkoHNvBpaGb9u/VIXsC65cBZqmGGrINk2/1aY9iFV7zmhN0dBDVDTyYj
+	 Z1FSDmmWL56+YIFVpqEVogfJsZi51PC/JJNyC+7Rx546d3kQ3RAolj7U6MULJLJPd19Me
+	 f4gAL0goZAdJzm+WXoKaTs8UhdY5nMvLfwoiQzEp6B0pSr14J8oe0Mk/gitx6bNBLFrpf
+	 1xsyFRhVwrkaGZLG7aH1+MbdoLQGfMxlxShXhq9ACR22T/JMYlCbtZ35f8v6P7/SQ2A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ciGEVnWH;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dmarc=none header.from=kylinos.cn;
+	spf=pass smtp.mailfrom=kylinos.cn;
+	arc=none smtp.remote-ip=124.126.103.232
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BACE8606A68F
-	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 09:17:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BACE8606A68F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ciGEVnWH
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795598232;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cAYdqBNBEgg5h2s+5Nw6P6avYopE1k6reY3QHsLhPtk=;
-	b=ciGEVnWHm+m6pmaqeVd7C4zNrSasb5/wyhZP9jyIabcJ7+O+bSbHDGQLXuL1LUSFgqgl0B
-	umFC8NXHXe/TE0DSNV5kE+wJvOLcoiIZNFoARE6BbWMkGegSv/VaxX1sllsNp0ND0AiFEj
-	sWL9mx0JdcvSzslgMKWP/8azpLPkGC8=
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
- [209.85.210.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-541-ON3vwA8COt-vrY0utvhIYA-1; Wed, 25 Nov 2026 09:17:10 +0000
-X-MC-Unique: ON3vwA8COt-vrY0utvhIYA-1
-X-Mimecast-MFC-AGG-ID: ON3vwA8COt-vrY0utvhIYA_1795598230
-Received: by mail-ot1-f69.google.com with SMTP id 46e09a7af769-85d630e451aso5140264a34.2
-        for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 01:17:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795598230; x=1796203030;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=cAYdqBNBEgg5h2s+5Nw6P6avYopE1k6reY3QHsLhPtk=;
-        b=TjznbnBMvXFZWWpPiLbzwmsfflNptkyZt+xwSmahyqkh2Uktl7XqRSnYOOivJXXlY+
-         KL2BymQgLPFh+Zi7xQTEIlVAZA7BZvmY8NTp7tAB8gr1Q5vIC40Yngy47lh6OWuVtv4c
-         FgKPc3JL99qb3LseCFxRFtWeVvobEnL75AwCiODFVZb6GtTny6/MkfUTPThJqBOgdEQT
-         N4b8QpKJH56TxvvMpLPMil8z+LOxo+Vefw0h7a7YHNQQsZ5zx1rENgIDD07yMPUwPzKA
-         loT54ZAWKoe0e8p5kZhrN2GyRP1XQuv086H7JxAkPkYHM9g8kkd6IsOZYS08fHt77sUB
-         gMPA==
-X-Forwarded-Encrypted: i=1; AL+hErF5/ajgpE0RsXIq+wqGcwLl8US9CqzgB878cCEtuo66vaaGKWFfjhq1BfEfT9KRmk8hnvx/ttpQwOxrQvCrFQ==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9rH3BXvUtyKrtUJuWjDp6duAZuqCQrFa1wY5LDfKpqwd5T/br1
-	e1IzlVynsDNfuq54PiTRL7Ex4Bz9NWPmR8vrbfzx6QNn/7PLVj2kvrcMvapoMRTyCHuzc4+5GL8
-	84pccksupvWwwlyHr1ZGlzEKnwf69Tzyb4ZJtHfOElHtaiY6N2sP0J1N596aiVdHgp1rqARHmxv
-	V3wixrLx/LLDtJJjwdXisCQk3Ok+lvY9Q0YrZuAIpyXVc=
-X-Gm-Gg: AZFdTZfN0Mm1mrcOrEAEF7n27TFm/9D6jRkImOocM16fHNSoALPs+o2q7XkX9tX8IIW
-	5h7YAxyJBDBxVBAe8aBC+sLKGmwyv0yGCDmgAMZfvcKAejQekWK87OjUTD/hNLfNU9kE8yQN2LN
-	VnUC+pedw17u9CjtWkayY6cIneY4gg12vqh+qZI/+GL+tG85aau3JPWo/mAaYk4BESYMdq4RE+v
-	zax83s67w3z3pDP
-X-Received: by 2002:a05:6830:6816:b0:862:c3f1:634c with SMTP id 46e09a7af769-86315a059cbmr19500994a34.25.1795598229893;
-        Wed, 25 Nov 2026 01:17:09 -0800 (PST)
-X-Received: by 2002:a05:6830:6816:b0:862:c3f1:634c with SMTP id
- 46e09a7af769-86315a059cbmr19500980a34.25.1795598229514; Wed, 25 Nov 2026
- 01:17:09 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E221D606A336;
+	Wed, 25 Nov 2026 09:39:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E221D606A336
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 1fb90370e8b411f19a56ed5b684f684d-20261125
+X-CTIC-Tags:
+	HR_CC_CHARSET, HR_CC_CHARSET_NUM, HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME
+	HR_CC_NO_NAME, HR_CHARSET, HR_CHARSET_NUM, HR_CTE_8B, HR_CTT_MISS
+	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
+	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
+	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NAME, IP_TRUSTED
+	SRC_TRUSTED, SA_TRUSTED, SA_EXISTED, SN_EXISTED, SPF_NOPASS
+	DKIM_NOPASS, DMARC_NOPASS, UD_TRUSTED, CIE_BAD, CIE_GOOD_SPF
+	GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_GOOD, ABX_MISS_RDNS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:ba469694-0e2d-466e-8fc7-55d24415b2a8,IP:10,
+	URL:25,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACT
+	ION:release,TS:10
+X-CID-INFO: VERSION:1.3.19,REQID:ba469694-0e2d-466e-8fc7-55d24415b2a8,IP:10,UR
+	L:25,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:10
+X-CID-META: VersionHash:7db8b62,CLOUDID:c5b09dbcdd18cb4833e49ca365a6b0bb,BulkI
+	D:261125173937JK7RFES4,BulkQuantity:0,SF:17|19|38|66|78|102|127|153|865|89
+	8,TC:nil,Content:0|15|50|99,EDM:-3,IP:-2|1,URL:11|94|82|1,File:nil,RT:nil,
+	Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BR
+	R:1,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_ULN,TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,
+	TF_CID_SPAM_IBB
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 1fb90370e8b411f19a56ed5b684f684d-20261125
+X-User: liwang@kylinos.cn
+Received: from computer.. [(116.128.244.169)] by mailgw.kylinos.cn
+	(envelope-from <liwang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 901844680; Wed, 25 Nov 2026 17:39:34 +0800
+From: Li Wang <liwang@kylinos.cn>
+To: Miklos Szeredi <miklos@szeredi.hu>,
+	German Maglione <gmaglione@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	fuse-devel@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	virtio-fs@lists.linux.dev,
+	Li Wang <liwang@kylinos.cn>,
+	stable@vger.kernel.org,
+	Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH] virtiofs: fix lost reply due to unaligned cache line sharing
+Date: Wed, 25 Nov 2026 17:39:08 +0800
+Message-Id: <20261125093908.48619-1-liwang@kylinos.cn>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,42 +91,100 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261125083947.263216-1-afaria@redhat.com> <20261125083947.263216-2-afaria@redhat.com>
- <ad36d8e4-27af-4c6a-b3af-984118434797@wdc.com>
-In-Reply-To: <ad36d8e4-27af-4c6a-b3af-984118434797@wdc.com>
-From: Alberto Faria <afaria@redhat.com>
-Date: Wed, 25 Nov 2026 09:16:33 +0000
-X-Gm-Features: Aa3M54oSeBIW-vwAXD8TpkpgkEkcEGIL-t9H6mGs9BbDZ7mXBgrqV757jr0lyIM
-Message-ID: <CAELaAXwH8-gn+nuD96gDSeKZMgKZjX22Q-hVywXbQL8si6S1Pw@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] virtio_blk: add fua write support
-To: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc: linux-block@vger.kernel.org, virtualization@lists.linux.dev, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jens Axboe <axboe@kernel.dk>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowangio@gmail.com>, dlemoal@kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: H-rM-bdcgQNpIYP0ntmcPf8y-4iLxdFyU6uXW6awU5U_1795598230
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 25, 2026 at 9:07=E2=80=AFAM Johannes Thumshirn
-<johannes.thumshirn@wdc.com> wrote:
-> On 11/25/26 9:39 AM, Alberto Faria wrote:
-> > +     /*
-> > +      * Do not advertise FUA when the device is zoned, since we
-> > +      * would not be able to handle it on REQ_OP_ZONE_APPEND.
-> > +      */
-> > +     if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-> > +         virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
-> > +         !(lim.features & BLK_FEAT_ZONED))
-> > +             lim.features |=3D BLK_FEAT_FUA;
-> > +
->
-> Can you elaborate why?
+virtio_fs_enqueue_req() maps fuse_req::out.h for DMA_FROM_DEVICE in
+place. fuse_req comes from the "fuse_request" slab with no DMA-granule
+alignment, so out.h shares a CPU cache line with the waitq field.
+request_wait_answer() updates waitq while the DMA is active.
 
-The virtio spec currently only defines FUA for OUT requests, so there
-would be no way to pass on the REQ_FUA to the device on a zone append.
+Note: Sashiko correctly identified the bug, but the resulting behavior
+is not as described. Sashiko reported that unmap invalidates this shared
+cache line and drops the waitq updates made by request_wait_answer(),
+so wake_up() walks a damaged list, the waiter never runs, and a later
+wait-queue operation can panic. That is not what current arm64 does for
+this buffer. fuse_out_header is 16 bytes and does not cover a whole cache
+line. dcache_inval_poc() uses dc civac on that partial line: a dirty line
+is written back and then invalidated. The waitq update is kept, but the
+out.h written by the device is lost and reverts to its initial all-zero
+values. virtio_fs_verify_response() rejects that header, because
+its unique and length do not match, and the request finishes with -EIO.
 
-Alberto
+Place out.h on its own DMA granule and start waitq on the following
+one. Allocate the slab at __alignof__(struct fuse_req) so those
+offsets are granule-aligned in memory. Coherent architectures keep
+ARCH_DMA_MINALIGN at the natural alignment, so fuse_req does not grow
+there. The padding is compiled in only when virtiofs is enabled.
+
+Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+Cc: stable@vger.kernel.org
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://sashiko.dev/#/bug/linux-41eaaf0f-0eb9-4809-99cf-5f83439eb848
+Signed-off-by: Li Wang <liwang@kylinos.cn>
+---
+ fs/fuse/dev.c        |  3 ++-
+ fs/fuse/fuse_dev_i.h | 18 ++++++++++++++++--
+ 2 files changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index b198cc729cba..00e637d5e552 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -2342,7 +2342,8 @@ int __init fuse_dev_init(void)
+ 	int err = -ENOMEM;
+ 	fuse_req_cachep = kmem_cache_create("fuse_request",
+ 					    sizeof(struct fuse_req),
+-					    0, 0, NULL);
++					    __alignof__(struct fuse_req),
++					    0, NULL);
+ 	if (!fuse_req_cachep)
+ 		goto out;
+ 
+diff --git a/fs/fuse/fuse_dev_i.h b/fs/fuse/fuse_dev_i.h
+index a8eba46a3e51..e42f3dc30d3b 100644
+--- a/fs/fuse/fuse_dev_i.h
++++ b/fs/fuse/fuse_dev_i.h
+@@ -12,6 +12,18 @@
+ #include <linux/wait.h>
+ #include <linux/workqueue.h>
+ #include <linux/fs.h>
++#include <linux/cache.h>
++
++/*
++ * virtiofs DMA-maps fuse_req::out.h for DMA_FROM_DEVICE in place.
++ * Put @out on its own granule and start @waitq on the next one.
++ * fuse_dev_init() allocates the slab at this alignment.
++ */
++#if IS_ENABLED(CONFIG_VIRTIO_FS)
++#define FUSE_REQ_DMA_ALIGN __aligned(ARCH_DMA_MINALIGN)
++#else
++#define FUSE_REQ_DMA_ALIGN
++#endif
+ 
+ /* Ordinary requests have even IDs, while interrupts IDs are odd */
+ #define FUSE_INT_REQ_BIT (1ULL << 0)
+@@ -94,10 +106,10 @@ struct fuse_req {
+ 	struct {
+ 		/** @out.h: The request output header */
+ 		struct fuse_out_header h;
+-	} out;
++	} out FUSE_REQ_DMA_ALIGN;
+ 
+ 	/** @waitq: Used to wake up the task waiting for completion of request */
+-	wait_queue_head_t waitq;
++	wait_queue_head_t waitq FUSE_REQ_DMA_ALIGN;
+ 
+ #if IS_ENABLED(CONFIG_VIRTIO_FS)
+ 	/**
+@@ -118,6 +130,8 @@ struct fuse_req {
+ 	unsigned long create_time;
+ };
+ 
++#undef FUSE_REQ_DMA_ALIGN
++
+ /* One forget request */
+ struct fuse_forget_link {
+ 	struct fuse_forget_one forget_one;
+-- 
+2.34.1
 
