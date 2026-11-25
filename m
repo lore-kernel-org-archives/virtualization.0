@@ -1,66 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795596000;
-	b=gGLXMQLPpoPZFwb0v0AkQ+E3KFBLKciFllXX53VDfoFWmWJLEve3H5RbUihs41gZ+Cu+
-	 CACtVTrJztG6XecC1vQVA+dncDzqqsyYsgqV20BhJ79u716BXMF3kG1TSuhsVe3/QA1h9
-	 UlWsX1oHlpBC/ipMOb38N2r8a7icXHHgglVFVEsisHDKtiFPvbSIAugXBGbuqixylxdjS
-	 UcaQBx6Qls2HO2AbUoT6puAAxBdo4TBN2cq///TnxZgIvpSitVzHeGD6L5ljB6HC1Puqw
-	 cDGFsy+lHCDapN4bpseE3aw/isrZjaektXX6ZDgBgvTgSCXOOTwqDyu7qfgm5QXdn/Q==
+	t=1795596004;
+	b=Ly+owWur6JzASSghiEtctjvP2Gks93dy8ca6UhWQ98bU2v9Xiq8PHPWhR4Up+fkFLFv3
+	 ivN5PEgoM3Xuer2KVR+3Im9gnwjG/zMIWxudJ4BTd+vkWg+wBy37+7q8HX5X87n9qgUXw
+	 r8AeQvwqAPgNKWwfrWl8zUhy928n2uqq2eeoR7smimH29vtfsRCfSAVB3/QhotPr5L1ts
+	 vefhFfJsce7rfvr79CnVIGOoVreRipiJpJjp3UZKRWWdxVyDVzVWNy1Hb/TjI4nbJfoNf
+	 jhlFGw7NzqjPAb5eDQwizDFR8lLmUtqxGTZ98NqSxFaNVfoxcgWxC1ivwo90EdDc7FQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795596000;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795596004;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:Date:
 	 Message-ID:In-Reply-To:References:MIME-Version:X-Scanned-By:
 	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:
 	 Content-Transfer-Encoding:content-type;
-	bh=Nl1OpKmpAE9aeda5GwFas201AAnqAuxOH/eJWrqnPiU=;
-	b=FTg26ITw0dSFvd/+KxUZdBhuhncpv+FTM9Rtoe/BbLsZQnOqAKvPGaCw9og8tB3bh7AC
-	 xqRKHCiFQfcJCAAjFui4ALEYZQxSqC6P/p9kTw8mCWru8Qjkx4HlouuJ5RndygiDg6gjG
-	 bsde0XZ+oysg+1+u3UZxlSb12WpSxdDKCQbCks1wLGhwm3j+LH0mBxzQgiHvhcl3HMhNA
-	 JjpGZ6wtDyw0elhXLBvAUj65h1n4Q6/ndCP4TrhMoubSfHNPruztUFe967rk9Si3/rHcL
-	 UrFUxiMrIKbiWYxQfbD5eVc2HEM2FSSENw4lxGXmdDZlluRrvVVZ2NmW1fuDTNhOxXA==
+	bh=Cba8fS/ZVsj+QyvAYm2ReLCTwOe+j7JjbC25csY6/oU=;
+	b=BWfajt892CjU5NDqtVGKCFiX0fvySPXPIDfvO2zrf99CD9uui7U5vveK0QLmRz/AjpyM
+	 I8g+1T5RHvYl1oGd9thk25AikDccVvL7PnQ2xCyEPxFiTANoNpTHqtafpaKdKn2/0wQSC
+	 qZZRWNoXRK7+NE/t7VitE7sYp6uFXGkzzXboKPC6uKjtGvq1buGw+RHG2VmnjryHwMhkN
+	 R1ZmyDQFyI8c4sCe7aji0pbiRtlML5lYpYnyYWSGga86dVyqTEfn7u8yQ49d+U0g6RlQ3
+	 CA8WgV6jRZP7Ik5UxSFGoNbs793j3dpDnXypgvNlKD6phhzycMGD4phto1HRHrhyQFA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iXPYl3WA;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RT8cO27+;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 526A1606A323
-	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 08:40:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 526A1606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6003606A326
+	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 08:40:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6003606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iXPYl3WA
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RT8cO27+
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795595999;
+	s=mimecast20190719; t=1795596003;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Nl1OpKmpAE9aeda5GwFas201AAnqAuxOH/eJWrqnPiU=;
-	b=iXPYl3WAPLzEhThUZ5LjF3SloZtAWuALEUdRE8Khjbu0MB9P0uRSyuWrpZagMzLUYeCd/i
-	qKR660hD/dKtxlZEQJqccY4SrAJarj5JPRWHtbv/ayHjWeFu+1wFro4/2VHfIMxJD+EvvN
-	mJ6KKG+FGtFfQxTbTqhfogtIgafOYE8=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=Cba8fS/ZVsj+QyvAYm2ReLCTwOe+j7JjbC25csY6/oU=;
+	b=RT8cO27+a3w60/Anfx8556RyFPSRfr2wRqom76DIedllSI95tT5i4EMsSqDSkhMHjWCAol
+	p/bojFmxB/JyC56/55g6hI5lrRw4N1J8UwfNUFSBU1MN5b8Y2Mt6dDAMJ3mLyaKjRzemJL
+	EeKj485o1tsBgEWt4/RmzgbulbX9BgQ=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-516-RKTqqLQZNLS6KwAvfQd9LQ-1; Wed,
- 25 Nov 2026 08:39:55 +0000
-X-MC-Unique: RKTqqLQZNLS6KwAvfQd9LQ-1
-X-Mimecast-MFC-AGG-ID: RKTqqLQZNLS6KwAvfQd9LQ_1795595994
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-173-6jyNqfDFPs630dUezLSwdg-1; Wed,
+ 25 Nov 2026 08:39:58 +0000
+X-MC-Unique: 6jyNqfDFPs630dUezLSwdg-1
+X-Mimecast-MFC-AGG-ID: 6jyNqfDFPs630dUezLSwdg_1795595997
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5D488180047A;
-	Wed, 25 Nov 2026 08:39:54 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A016C195604E;
+	Wed, 25 Nov 2026 08:39:57 +0000 (UTC)
 Received: from desktop (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F2F061800550;
-	Wed, 25 Nov 2026 08:39:51 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B12841800550;
+	Wed, 25 Nov 2026 08:39:54 +0000 (UTC)
 From: Alberto Faria <afaria@redhat.com>
 To: linux-block@vger.kernel.org
 Cc: virtualization@lists.linux.dev,
@@ -72,9 +72,9 @@ Cc: virtualization@lists.linux.dev,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Jason Wang <jasowangio@gmail.com>,
 	Alberto Faria <afaria@redhat.com>
-Subject: [PATCH v3 1/2] virtio_blk: add fua write support
-Date: Wed, 25 Nov 2026 08:39:46 +0000
-Message-ID: <20261125083947.263216-2-afaria@redhat.com>
+Subject: [PATCH v3 2/2] vdpa_sim_blk: add support for FUA writes
+Date: Wed, 25 Nov 2026 08:39:47 +0000
+Message-ID: <20261125083947.263216-3-afaria@redhat.com>
 In-Reply-To: <20261125083947.263216-1-afaria@redhat.com>
 References: <20261125083947.263216-1-afaria@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
@@ -87,130 +87,118 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: 2iugXaUurNNrLQJbzYfBTgFgJGxLcTpelLwLVchTebQ_1795595994
+X-Mimecast-MFC-PROC-ID: 2A-CzrfxeZDjAaPzBf6RIQ6hTcErdBh5LxijUPT9drA_1795595997
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Add the new virtio-blk request FUA flag uapi definitions and
-corresponding virtio-blk support.
+Expose VIRTIO_BLK_F_REQ_FLAGS and VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA to
+drivers. The simulator is a ramdisk, so it handles FUA and non-FUA
+writes in the same way.
 
 Signed-off-by: Alberto Faria <afaria@redhat.com>
 ---
- drivers/block/virtio_blk.c      | 29 +++++++++++++++++++++++++++--
- include/uapi/linux/virtio_blk.h | 13 +++++++++++--
- 2 files changed, 38 insertions(+), 4 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c     | 15 ++++++++++++++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.h     |  1 +
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 14 +++++++++++++-
+ 3 files changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2b462005cdb68..7ee2e6a6a591b 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -248,7 +248,10 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
- 		return BLK_STS_NOTSUPP;
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index 97d437d89524a..bec348d3dd7d1 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -198,7 +198,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+ 	struct vdpa_device *vdpa;
+ 	struct vdpasim *vdpasim;
+ 	struct device *dev;
+-	int i, ret = -ENOMEM;
++	int i, ret = -ENOMEM, ret2;
  
- 	/* Set fields for all request types */
--	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
-+	if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS))
-+		vbr->out_hdr.flags = 0;
-+	else
-+		vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
+ 	if (!dev_attr->alloc_size)
+ 		return ERR_PTR(-EINVAL);
+@@ -209,6 +209,12 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+ 		if (config->device_features &
+ 		    ~dev_attr->supported_features)
+ 			return ERR_PTR(-EINVAL);
++		if (dev_attr->validate_features) {
++			ret2 = dev_attr->validate_features(
++				config->device_features);
++			if (ret2)
++				return ERR_PTR(ret2);
++		}
+ 		dev_attr->supported_features =
+ 			config->device_features;
+ 	}
+@@ -442,11 +448,18 @@ static u64 vdpasim_get_backend_features(const struct vdpa_device *vdpa)
+ static int vdpasim_set_driver_features(struct vdpa_device *vdpa, u64 features)
+ {
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
++	int ret;
  
- 	switch (req_op(req)) {
- 	case REQ_OP_READ:
-@@ -258,6 +261,11 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
- 	case REQ_OP_WRITE:
- 		type = VIRTIO_BLK_T_OUT;
- 		sector = blk_rq_pos(req);
-+		if ((req->cmd_flags & REQ_FUA) &&
-+		    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-+		    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA))
-+			vbr->out_hdr.flags |= cpu_to_virtio32(vdev,
-+				BIT(VIRTIO_BLK_REQ_FLAG_OUT_FUA));
- 		break;
- 	case REQ_OP_FLUSH:
- 		type = VIRTIO_BLK_T_FLUSH;
-@@ -1151,10 +1159,17 @@ cache_type_store(struct device *dev, struct device_attribute *attr,
- 	virtio_cwrite8(vdev, offsetof(struct virtio_blk_config, wce), i);
+ 	/* DMA mapping must be done by driver */
+ 	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+ 		return -EINVAL;
  
- 	lim = queue_limits_start_update(disk->queue);
++	if (vdpasim->dev_attr.validate_features) {
++		ret = vdpasim->dev_attr.validate_features(features);
++		if (ret)
++			return ret;
++	}
 +
- 	if (virtblk_get_cache_mode(vdev))
- 		lim.features |= BLK_FEAT_WRITE_CACHE;
- 	else
- 		lim.features &= ~BLK_FEAT_WRITE_CACHE;
-+
-+	if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-+	    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
-+	    !(lim.features & BLK_FEAT_ZONED))
-+		lim.features |= BLK_FEAT_FUA;
-+
- 	i = queue_limits_commit_update_frozen(disk->queue, &lim);
- 	if (i)
- 		return i;
-@@ -1575,6 +1590,15 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (virtblk_get_cache_mode(vdev))
- 		lim.features |= BLK_FEAT_WRITE_CACHE;
+ 	vdpasim->features = features & vdpasim->dev_attr.supported_features;
  
-+	/*
-+	 * Do not advertise FUA when the device is zoned, since we
-+	 * would not be able to handle it on REQ_OP_ZONE_APPEND.
-+	 */
-+	if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-+	    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
-+	    !(lim.features & BLK_FEAT_ZONED))
-+		lim.features |= BLK_FEAT_FUA;
+ 	return 0;
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+index bb137e4797633..70890974b6e56 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+@@ -45,6 +45,7 @@ struct vdpasim_dev_attr {
+ 	u32 nas;
+ 
+ 	void (*work_fn)(struct vdpasim *vdpasim);
++	int (*validate_features)(u64 features);
+ 	void (*get_config)(struct vdpasim *vdpasim, void *config);
+ 	void (*set_config)(struct vdpasim *vdpasim, const void *config);
+ 	int (*get_stats)(struct vdpasim *vdpasim, u16 idx,
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+index 4d3e36fb59d50..e0ed9eb729cf3 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+@@ -32,7 +32,9 @@
+ 				 (1ULL << VIRTIO_BLK_F_TOPOLOGY) | \
+ 				 (1ULL << VIRTIO_BLK_F_MQ)       | \
+ 				 (1ULL << VIRTIO_BLK_F_DISCARD)  | \
+-				 (1ULL << VIRTIO_BLK_F_WRITE_ZEROES))
++				 (1ULL << VIRTIO_BLK_F_WRITE_ZEROES)  | \
++				 (1ULL << VIRTIO_BLK_F_REQ_FLAGS)  | \
++				 (1ULL << VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA))
+ 
+ #define VDPASIM_BLK_CAPACITY	0x40000
+ #define VDPASIM_BLK_SIZE_MAX	0x1000
+@@ -371,6 +373,15 @@ static void vdpasim_blk_work(struct vdpasim *vdpasim)
+ 		vdpasim_schedule_work(vdpasim);
+ }
+ 
++static int vdpasim_blk_validate_features(u64 features)
++{
++	if ((features & BIT_ULL(VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA)) &&
++	    !(features & BIT_ULL(VIRTIO_BLK_F_REQ_FLAGS)))
++		return -EINVAL;
 +
- 	vblk->disk = blk_mq_alloc_disk(&vblk->tag_set, &lim, vblk);
- 	if (IS_ERR(vblk->disk)) {
- 		err = PTR_ERR(vblk->disk);
-@@ -1740,7 +1764,8 @@ static unsigned int features[] = {
- 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
- 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
- 	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
--	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_ZONED,
-+	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_ZONED, VIRTIO_BLK_F_REQ_FLAGS,
-+	VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA,
- };
- 
- static struct virtio_driver virtio_blk = {
-diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-index 3744e4da1b2a7..c5047e6a9a9bc 100644
---- a/include/uapi/linux/virtio_blk.h
-+++ b/include/uapi/linux/virtio_blk.h
-@@ -42,6 +42,8 @@
- #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
- #define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
- #define VIRTIO_BLK_F_ZONED		17	/* Zoned block device */
-+#define VIRTIO_BLK_F_REQ_FLAGS		18	/* Request flags supported */
-+#define VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA	19	/* FUA flag supported */
- 
- /* Legacy feature bits */
- #ifndef VIRTIO_BLK_NO_LEGACY
-@@ -211,6 +213,9 @@ struct virtio_blk_config {
- #define VIRTIO_BLK_T_BARRIER	0x80000000
- #endif /* !VIRTIO_BLK_NO_LEGACY */
- 
-+/* Request flag bits */
-+#define VIRTIO_BLK_REQ_FLAG_OUT_FUA	0
++	return 0;
++}
 +
- /*
-  * This comes first in the read scatter-gather list.
-  * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated,
-@@ -219,8 +224,12 @@ struct virtio_blk_config {
- struct virtio_blk_outhdr {
- 	/* VIRTIO_BLK_T* */
- 	__virtio32 type;
--	/* io priority. */
--	__virtio32 ioprio;
-+	union {
-+		/* io priority. */
-+		__virtio32 ioprio;
-+		/* Request flags. */
-+		__virtio32 flags;
-+	};
- 	/* Sector (ie. 512 byte offset) */
- 	__virtio64 sector;
- };
+ static void vdpasim_blk_get_config(struct vdpasim *vdpasim, void *config)
+ {
+ 	struct virtio_blk_config *blk_config = config;
+@@ -424,6 +435,7 @@ static int vdpasim_blk_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	dev_attr.nas = VDPASIM_BLK_AS_NUM;
+ 	dev_attr.alloc_size = sizeof(struct vdpasim_blk);
+ 	dev_attr.config_size = sizeof(struct virtio_blk_config);
++	dev_attr.validate_features = vdpasim_blk_validate_features;
+ 	dev_attr.get_config = vdpasim_blk_get_config;
+ 	dev_attr.work_fn = vdpasim_blk_work;
+ 	dev_attr.free = vdpasim_blk_free;
 -- 
 2.56.1
 
