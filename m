@@ -1,33 +1,33 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=182.48.54.220
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795622820;
-	b=sIRvEDu3p6Qep4eeu3TQThvb+Pq8kGrcCX2vPCh5MVXUTTS+CULHTseEwHwj+4zjw77n
-	 HC5+k/RTUdORkjaD+Q/XF4AzmqUv9pBQy0HtXjIN8jvnCY1C1s5eEsr78GuQNucYTg6kB
-	 3q1koZMoJdLuU6elOl+fTOtjvUt/ssYbY7iwdLcGl0uaCG0/flKiIhhaf6D/ei9HtdSWe
-	 jp2yr7GlH1by2y4inHx9ztYFnBj08kZckflyPEcmuADKHDqGCtUDcLD+ZgESDVSXFfnum
-	 uVfiZeQrE7WA5iWnfPtbi1u/4uLDn4Ph+wQLSxq4JxI/BfE1JHUY+XY7hoRTjKUY1pQ==
+	t=1795622823;
+	b=AdHlX4YerrVRx9y8j47BaarHoEs08Ra6Fer+kmSF2iWN+uYZxM7E4jcowLVK1sy2yXrV
+	 wojAiuGTf5yx2sDoDvPquTSLeTbzBVBjcczQf2SbT27lDBCH5g4biNFPZdCJNcBqPSqEr
+	 YHUvy6YlRXf0mWzQ83ch3bsqnxlq6dRoWMIYEbm0WuO/ifw4iUtrAUVYvWMLnbJTbvk1G
+	 y/dFU1XlDWR+6wvCbfQ41QaAvfrMUG1gUmnHz+vM0qACmqpkB8S65/AmAIQLL5z/UR5Hz
+	 ODWp+UEIjQbyC6QxAutf29zMiVCgZFMIb80ih4QStxYFc8WTQVo339sp+ovacC4lHFg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795622820;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795622823;
 	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
 	 References:MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=Jo4brAk8pZ44dB2D7iMlRmssmlqwyJvTKWacTh0/QBU=;
-	b=Yps0W2mNViEs8MG9q1InS1OLFvD7B2i82VDzyu3c2YgEh5FZQA8nVI9KdONOCZGN1F4A
-	 TMSsWhyZJu3gw+7yYDU03wOXMV1XIXfELx1ni2w26lsiE7fYJxn2/MsnuSn+D2N/ifcCU
-	 qcsY2gYpnIpwE3zGAlw1+47WW0v38emBxoO6OMoyLk3tqrZtFIDIiCGX7BkjVeEOEZgO2
-	 4HdpbkGnYBBduHz9/qWnqM4dRCOBZmKtDIc+DoilFZPLEHsaZ23P1TVJ0i3CpeklNmZJQ
-	 uuicR9ZfGQ9edAN54UZiGDXja6th+WoKfI+/J33A/Fa4fO2RjC1TdM0DJiSXxRIlgBg==
+	bh=G6T7jpstO8PkN3s/pf9ze2EnC64looMz52Ecp4aw0pc=;
+	b=TZAGAx1nS1qeT2aU9zoFPNUGy3NCtr9Zao5DpHzgAyS/uazp1K49dfxlf8Upz29Dwh5N
+	 Kjt2yuWK3x6JnCuGzZtNIr9xIkP3uamqsV2GH8aM803C/qkybNTXSe1flypKgcnZjfzc8
+	 TS2j40gFJnxyTv6Db51L7oVkZZqNKQixoe1eUhbbfDy+Gbo6z7jNzAYVsH1ElIL9LpTCY
+	 Unr/2Ac2lwak6RtLgzQ7/pnD9Ne/T/vC3tUfk1Wl1GYjPzdlRIpCdedw4zp0SwK8O4jhl
+	 OPnZF0BRfNnBu1whgaVvsQmG4COghwLAkEf1UlAvtLOkNC28A3hJff+lgH7Q/vk5m1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=snowrabbit.org;
 	spf=pass smtp.mailfrom=snowrabbit.org;
 	arc=none smtp.remote-ip=182.48.54.220
 Received: from bambi.snowrabbit.org (bambi.snowrabbit.org [182.48.54.220])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D53AF606A695
-	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 16:06:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D53AF606A695
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id EC6DF606A69A
+	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 16:07:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EC6DF606A69A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=snowrabbit.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=snowrabbit.org
 Received: by bambi.snowrabbit.org (Postfix, from userid 3001)
-	id 59579C9318; Thu, 26 Nov 2026 01:06:59 +0900 (JST)
+	id 6E425C935F; Thu, 26 Nov 2026 01:07:01 +0900 (JST)
 From: Showta Ishizaki <zakinko@snowrabbit.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>,
 	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
@@ -54,9 +54,9 @@ Cc: Eric Dumazet <edumazet@kernel.org>,
 	linux-um@lists.infradead.org,
 	linux-doc@vger.kernel.org,
 	Showta Ishizaki <zakinko@snowrabbit.org>
-Subject: [PATCH RFC net v8 2/6] um: vector: trim skbs before verifying the header
-Date: Thu, 26 Nov 2026 01:06:43 +0900
-Message-ID: <20261126.rfcv8.99797.2.zakinko@snowrabbit.org>
+Subject: [PATCH RFC net v8 3/6] virtio_net: parse tunnel csum_start little-endian
+Date: Thu, 26 Nov 2026 01:06:44 +0900
+Message-ID: <20261126.rfcv8.99797.3.zakinko@snowrabbit.org>
 In-Reply-To: <20261126.rfcv8.99797.0.zakinko@snowrabbit.org>
 References: <20261126.rfcv8.99797.0.zakinko@snowrabbit.org>
 X-Mailing-List: virtualization@lists.linux.dev
@@ -73,61 +73,45 @@ Content-Transfer-Encoding: 7bit
 
 From: "Michael S. Tsirkin" <mst@redhat.com>
 
-The vector receive path over-allocates the skb and only trims it
-to the received length after the transport header is verified.
+All tunnel related virtio features are > 32, so none of this
+functionality can be enabled on legacy mixed-endian device.
 
-A follow up patch will complete the packet checksum in software within
-virtio_net_hdr_to_skb so we need the packet trimmed (otherwise the
-checksum would be computed incorrectly over the unreceived tail of the
-buffer).
+Accordingly, all tunnel header fields, csum_start included, are
+little-endian.
 
-Trim first, so the import sees the packet as it was received.
+The nested virtio net header import parses csum_start that way, but the
+inner transport offset is parsed with the endianness specified by the
+interface.
 
-Reviewed-by: Willem de Bruijn <willemb@google.com>
+If tun is misconfigured to legacy big-endian mode while the tunnel
+features are enabled, the two parses of this field disagree, and the
+value stored in skb->inner_transport_header - which is only
+bounds-checked from below - can point past the end of the packet, where
+GSO segmentation later dereferences it.
+
+To fix, parse the field little-endian in both places.
+
+Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+Cc: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Showta Ishizaki <zakinko@snowrabbit.org>
 ---
- arch/um/drivers/vector_kern.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/virtio_net.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
-index e902e78c5..828bd6199 100644
---- a/arch/um/drivers/vector_kern.c
-+++ b/arch/um/drivers/vector_kern.c
-@@ -873,6 +873,7 @@ static int vector_legacy_rx(struct vector_private *vp)
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index fc9667176..3135dae03 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -490,7 +490,7 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+ 	inner_l3min = virtio_l3min(inner_isv6);
+ 	outer_l3min = ETH_HLEN + virtio_l3min(outer_isv6);
  
- 	if (skb != NULL) {
- 		if (pkt_len > vp->header_size) {
-+			pskb_trim(skb, pkt_len - vp->rx_header_size);
- 			if (vp->header_size > 0) {
- 				header_check = vp->verify_header(
- 					vp->header_rxbuffer, skb, vp);
-@@ -887,7 +888,6 @@ static int vector_legacy_rx(struct vector_private *vp)
- 					skb->ip_summed = CHECKSUM_UNNECESSARY;
- 				}
- 			}
--			pskb_trim(skb, pkt_len - vp->rx_header_size);
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			vp->dev->stats.rx_bytes += skb->len;
- 			vp->dev->stats.rx_packets++;
-@@ -989,6 +989,8 @@ static int vector_mmsg_rx(struct vector_private *vp, int budget)
- 	for (i = 0; i < packet_count; i++) {
- 		skb = (*skbuff_vector);
- 		if (mmsg_vector->msg_len > vp->header_size) {
-+			pskb_trim(skb,
-+				mmsg_vector->msg_len - vp->rx_header_size);
- 			if (vp->header_size > 0) {
- 				header_check = vp->verify_header(
- 					mmsg_vector->msg_hdr.msg_iov->iov_base,
-@@ -1013,8 +1015,6 @@ static int vector_mmsg_rx(struct vector_private *vp, int budget)
- 					skb->ip_summed = CHECKSUM_UNNECESSARY;
- 				}
- 			}
--			pskb_trim(skb,
--				mmsg_vector->msg_len - vp->rx_header_size);
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			/*
- 			 * We do not need to lock on updating stats here
+-	inner_th = __virtio16_to_cpu(little_endian, hdr->csum_start);
++	inner_th = __virtio16_to_cpu(true, hdr->csum_start);
+ 	inner_nh = le16_to_cpu(vhdr->inner_nh_offset);
+ 	outer_th = le16_to_cpu(vhdr->outer_th_offset);
+ 	if (outer_th < outer_l3min ||
 -- 
 2.54.0 (Apple Git-157)
 
