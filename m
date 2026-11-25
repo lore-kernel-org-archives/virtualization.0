@@ -1,49 +1,87 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795575606;
-	b=zFJRLhRvq0r+LsUQC/+D1du1hyGLzcZiOgorOmXcDBT3qdunLwsdDAt3oBPsXpuDxWEX
-	 r/OfsqcJ5wxHpHL49i3F84vBYzDrqutmoqICRy5p7kfkP420ZR54fypo0+fxoJB7rNtCg
-	 BjzDBCSsC7I0sOC3YEVy/UoDPXvBGuARnF/DRnhk6P3qbk43N+M5aOK8ANeDUx03I0iL7
-	 n583EW7RST38uGyVywQcFqztrcHaAIEOTYZmqvhF82MlTVMGH0wmMvqdajmqUnKYXYL1h
-	 MiS9eavAgpEFeZ+VUTeRlHKG0IXGzv46e6Lksv0omOEpISXhALBq5ArFalokLaJeM8A==
+	t=1795577108;
+	b=v16GOWG7WgiBdovi/VQLIH+2N4nBqTAnDFWo0vQrHP/qP2a/FK6o2xUN3Dd0qINBD29z
+	 i1peom51RKLlIZ/9rd6nVLOqLFOlzTNJBKCV32DzHVcT3KRgu71AaX90IA5UNjfdCDpc2
+	 ROADgT2oKP02FNDD5/yrCyuOPzEHDfISV0SH3mTQ/Ga7cEYxd6heTXJIOaOQeGCkd40H6
+	 cPnE1lHKK69OOgUzDHPW3lDH2kLwCDdPXZmCZeqfCBJbrl98gzG4dgeSdQTDyxooUyAUM
+	 8gtgi2hSB8lqwQBk610SXAr6t0ETPPbjV+MIv+LRV93x2V3HbqH+zWfk3X75YHYWX/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795575606;
-	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
-	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc;
-	bh=iNklBZQrLHYGAqU2RpzMvGdWtQQExSe7/qvrXqs5xNk=;
-	b=P03OEGaP0idNce1wkB/TDf1V87elqu1U/8OY6z4UtunoVnJnJ+MtdOHzVHJP5JKkodZz
-	 k1Ia5uMTh+EDYttEZ1OAjp/ApGTMt//UcbKyNUK/0JsvPJG+X2p0U8nwNY09c7yjeBQ4n
-	 qRwCA8Zs8VpVYG7cdWTNDepgKRtjnd5um7d5R5QDj9+H+UGkyYDfsweP9YFlUki6Ym7CM
-	 jV1Ug0p4hPIMN0Q3pDcrBZXM1xwwkSDHOjWrxC5TFbeCCqHz+2RvtUAsOMFWRkI6qQeqr
-	 6qQpnOAU6bRJmEv1xoF5qAcPWkxUfoBw1wpeiEbakF6rEba1QFC/5SMFaIflalip92Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795577108;
+	h=Received:DKIM-Signature:Date:Message-ID:From:To:Cc:Subject:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=jm765WKY/zC72jkI2x569XRAtZ95jMdKBRn4kx2NFXU=;
+	b=rrjW1BcU/nROFseWCk6q7Qo7TzWqkB3pNnX9HSi0VYG7k5tDQ44Mqhjh67DnGcGqTwhU
+	 yBovC1HEDZ2KwVLJToknA9iPCqzOIFV/NwfB8YHZJPRx+3iGlA6GCgDy98gYEGENx66Md
+	 uGMhpCZXZ32fWh6NMAR8SunISKW9k5xhlXGHznp4W9EiNYFXiCaNY5K5YfQY7E7H3rCld
+	 UiDAGOD2kfyh6j8MpLg2NacQQtt8dG5ahg8wZpRajOHLnjQCgQnauy9pHvziq9r1RmfMD
+	 WgheNPh033Kc+bld/QmlUJTkkEKWYDoJ93OQplN3Xp3znFUVrIxZ+qOySq11D2bmIbw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EdN4Lxkw;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4AGWGfe;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D8A606A327;
-	Wed, 25 Nov 2026 03:00:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057F4606A31E;
+	Wed, 25 Nov 2026 03:25:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EdN4Lxkw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 434051F000C4;
-	Wed, 25 Nov 2026 03:00:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4AGWGfe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 722391F00A3D;
+	Wed, 25 Nov 2026 03:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795575606;
-	bh=iNklBZQrLHYGAqU2RpzMvGdWtQQExSe7/qvrXqs5xNk=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=EdN4LxkwehIXVwzDyk+waCsirGjFWxfQDyUjxTugKiTk3t8wJ5SlSPJGs700sJ2km
-	 NNOyIU2Xpic4Amx+rkqJomUo6QnaD7cSooxxVJsaxT2kQbWbny8dbFw1fQBLY63S9C
-	 n9QSuchTj3Au+/yM3fVyDsag86y0Cl6MxxIpQB3L45kBfOAfx4wJOcZyLKU3nejZTO
-	 cXX8s4wiXQa5CFM8gCHjz6skHibdHZaNWKN9m/g5SjD9gcA4EKWD7R9sLGMqijd0gN
-	 ZPqK17+TMEV1xwM+2NlvhDl+1GU/G0FTfHeMFu0BwEoHM5dXNSUKa5fc1X768ZAES2
-	 ogkpSIIyuAQSw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3A3793808209;
-	Wed, 25 Nov 2026 03:00:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1795577107;
+	bh=jm765WKY/zC72jkI2x569XRAtZ95jMdKBRn4kx2NFXU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=V4AGWGfeZLmrhtquKRv6EviHYCknQ6uF6sSccjviJ4oFSvgpAICCuQyib02WKudKy
+	 WZzoevJXnvM5e8NOpUoL9Ig82rYSxXxmUF9Jr1DLDbm4EjtTfslgzFUp9UHxUlPTv9
+	 wrZwz+G0W0uX1L3CBHkaI1MEt38fA9MYeSZuWLQ37eiV+uutE2OGEeTf1isC4/809q
+	 ZNbCkMcYIXb3teD/R3X/bXjffIjQmZgy38Wakf++rKKgIEMtzE5TK9nhDC09ZhOLli
+	 riBulMJ56RdCaDMuJt8qSHKFWjz1+SQJPB/Yzgx1/6vGL5v3z03GsZeS1enRqA31wI
+	 ei8UTG7MewgQw==
+Date: Tue, 24 Nov 2026 17:25:06 -1000
+Message-ID: <8fefdabc4b1d9e0c0d0b3bae1995e784@kernel.org>
+From: Tejun Heo <tj@kernel.org>
+To: Alice Ryhl <aliceryhl@google.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
+ Boqun Feng <boqun@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
+ Danilo Krummrich <dakr@kernel.org>, Philipp Stanner <phasta@kernel.org>,
+ Matthew Brost <matthew.brost@intel.com>,
+ =?utf-8?q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>,
+ =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Boris Brezillon <boris.brezillon@collabora.com>,
+ Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>,
+ =?utf-8?q?Onur_=C3=96zkan?= <work@onurozkan.dev>,
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ rust-for-linux@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ Corey Minyard <corey@minyard.net>, openipmi-developer@lists.sourceforge.net,
+ Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+ Mikulas Patocka <mpatocka@redhat.com>,
+ Benjamin Marzinski <bmarzins@redhat.com>, dm-devel@lists.linux.dev,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, linux-arm-msm@vger.kernel.org,
+ linux-pm@vger.kernel.org,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>,
+ Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ Oder Chiou <oder_chiou@realtek.com>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>, linux-sound@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Subject: Re: [PATCH 2/2] workqueue: doc: clarify cancel_work_sync() cross-workqueue behavior
+In-Reply-To: <20261118-ordered-wq-cancel-v1-2-916e01f9affe@google.com>
+References: <20261118-ordered-wq-cancel-v1-0-916e01f9affe@google.com> <20261118-ordered-wq-cancel-v1-2-916e01f9affe@google.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -53,48 +91,34 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v7] tun: bound the NAPI receive queue
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <179557560477.185420.5263589507960471697.git-patchwork-notify@kernel.org>
-Date: Wed, 25 Nov 2026 03:00:04 +0000
-References: <20261119153056.353156-1-antonio@mandelbit.com>
-In-Reply-To: <20261119153056.353156-1-antonio@mandelbit.com>
-To: Antonio Quartulli <antonio@mandelbit.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
- andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
- eperezma@redhat.com, ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
- john.fastabend@gmail.com, sdf@fomichev.me, maheshb@google.com,
- peterpenkov96@gmail.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, bpf@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hello:
+Applied to wq/for-7.5.
 
-This patch was applied to netdev/net.git (main)
-by Willem de Bruijn <willemb@google.com>:
+Note that cancel_work_sync() and friends haven't been waiting for a work
+item which is still running from a different workqueue since 606a5020b9bd
+("workqueue: gut flush[_delayed]_work_sync()") which went in in v3.7. This
+has been broken for well over a decade and the documentation now says so.
 
-On Thu, 19 Nov 2026 16:30:55 +0100 you wrote:
-> With IFF_NAPI, tun_get_user() queues every written packet for NAPI on
-> an unbounded list. When the poll runs asynchronously (threaded NAPI or
-> ksoftirqd) and is slower than the writer, the queue grows until the
-> system runs out of memory. An unprivileged user can do this from its own
-> user and network namespaces, and the queued skbs are not charged to its
-> memcg: in a test VM, a uid 1000 process limited to 128 MB caused a
-> global OOM in ~6 seconds. The socket send buffer does not help: tun sets
-> it to INT_MAX by default, the build_skb() path is only used while it is
-> INT_MAX, and the XDP batch path never checks it.
-> 
-> [...]
+The following queue the same work item on more than one workqueue and then
+sync-cancel or flush it. As cancel_work_sync() doesn't guarantee that the
+work item is quiescent in that case, they need to make sure in some other
+way, e.g. by flushing the workqueues that are involved. Note that system_wq
+and system_percpu_wq, which schedule_work() uses, are different workqueues.
+cc'ing the maintainers.
 
-Here is the summary with links:
-  - [net,v7] tun: bound the NAPI receive queue
-    https://git.kernel.org/netdev/net/c/cc7fe6e74173
+- drivers/char/ipmi/ipmi_msghandler.c: smi_work
+- drivers/md/dm-mpath.c: trigger_event
+- net/smc/smc_llc.c: llc_event_work
+- sound/soc/codecs/rt5651.c: jack_detect_work
+- sound/soc/codecs/rt5682s.c: jack_detect_work
+- sound/soc/soc-jack.c: snd_soc_jack_gpio.work
+- drivers/input/misc/palmas-pwrbutton.c: input_work
+- drivers/cpufreq/qcom-cpufreq-hw.c: throttle_work
+- drivers/vdpa/vdpa_user/vduse_dev.c: vduse_virtqueue.inject
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Thanks.
 
-
+--
+tejun
