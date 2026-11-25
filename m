@@ -1,87 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795577108;
-	b=v16GOWG7WgiBdovi/VQLIH+2N4nBqTAnDFWo0vQrHP/qP2a/FK6o2xUN3Dd0qINBD29z
-	 i1peom51RKLlIZ/9rd6nVLOqLFOlzTNJBKCV32DzHVcT3KRgu71AaX90IA5UNjfdCDpc2
-	 ROADgT2oKP02FNDD5/yrCyuOPzEHDfISV0SH3mTQ/Ga7cEYxd6heTXJIOaOQeGCkd40H6
-	 cPnE1lHKK69OOgUzDHPW3lDH2kLwCDdPXZmCZeqfCBJbrl98gzG4dgeSdQTDyxooUyAUM
-	 8gtgi2hSB8lqwQBk610SXAr6t0ETPPbjV+MIv+LRV93x2V3HbqH+zWfk3X75YHYWX/Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795577108;
-	h=Received:DKIM-Signature:Date:Message-ID:From:To:Cc:Subject:
-	 In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=jm765WKY/zC72jkI2x569XRAtZ95jMdKBRn4kx2NFXU=;
-	b=rrjW1BcU/nROFseWCk6q7Qo7TzWqkB3pNnX9HSi0VYG7k5tDQ44Mqhjh67DnGcGqTwhU
-	 yBovC1HEDZ2KwVLJToknA9iPCqzOIFV/NwfB8YHZJPRx+3iGlA6GCgDy98gYEGENx66Md
-	 uGMhpCZXZ32fWh6NMAR8SunISKW9k5xhlXGHznp4W9EiNYFXiCaNY5K5YfQY7E7H3rCld
-	 UiDAGOD2kfyh6j8MpLg2NacQQtt8dG5ahg8wZpRajOHLnjQCgQnauy9pHvziq9r1RmfMD
-	 WgheNPh033Kc+bld/QmlUJTkkEKWYDoJ93OQplN3Xp3znFUVrIxZ+qOySq11D2bmIbw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4AGWGfe;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.66.22
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795578084;
+	b=nQJieJESPzIwXmrJ+t9WD4CnO7+SWM73cSSAAo8N+oo6fsQXhvR9D/V9xmM5dj6qkZ62
+	 CgRps7c2nyJBTMEh21VWuVn0CGeJQPVp4tmG2CnRViwgEgKyCBYn3QII2rqPSuP7nTuDT
+	 SVSCZ3XeolQ6aGcZp2equwtfzPBIUHq/nyo4R0AZbygaFE8Lvvna3cvq9lmUu4mSlfiXB
+	 bzGA7gKLsjvnLTLeSRvbh2K8zG5yO+z4Y4Le/MCRtffczJh2cLkbQGGtX/Kvkfduf0SSg
+	 ppSR3zLaobFK1ZMmcev5NFAEMZOkPqw1c7lZFVl//N8YBAEGMuElCsFO6fj4ZvjmYNg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795578084;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:Subject:
+	 Message-ID:To:Cc:In-Reply-To:References:Date:Content-Type:
+	 Content-Transfer-Encoding:X-ClientProxiedBy:
+	 X-Microsoft-Original-Message-ID:MIME-Version:
+	 X-MS-Exchange-MessageSentRepresentingType:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=uLwJmtMNRVbFSciTZpwkTI2KrkLEaxtyws44pWjXcnQ=;
+	b=1kwKnfVg4SpZ0q+ewad4UqTYP2Hj125NJ2WZcxcQg5foxydPtkFW992nqsy8IDZR2yD3
+	 oDJEReDUMscnAE8h1Ggr0k2onpu+GRJgncIIld3Pwz1OVoVW+tGEOolwCGaTd54vapC7y
+	 pQ9+R3SHtJxSGiTW4ACjOJfmo9+TnzM/C4SanfuwlTYgOcy9RiSWF/Td9XHo26F3db92Q
+	 xEolFFZctSIPfhfES1C192FG2Cx77YA55wVODMQYDboCM+v2XmSLOzAnf/RS5HxWDN/A9
+	 HTznax23ysu9lFrDDreLevmsJfWxQ1Sf6eqjPD8ygkezX6HeJ8zqSLbLOwDkSZE+AyA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=hotmail.com;
+	spf=pass smtp.mailfrom=hotmail.com;
+	dkim=pass header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b="H/5fJ/UZ";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.66.22
+Received: from OS0P286CU011.outbound.protection.outlook.com (mail-japanwestazolkn19010022.outbound.protection.outlook.com [52.103.66.22])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057F4606A31E;
-	Wed, 25 Nov 2026 03:25:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEB9C606A32C
+	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 03:41:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BEB9C606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hotmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4AGWGfe
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 722391F00A3D;
-	Wed, 25 Nov 2026 03:25:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795577107;
-	bh=jm765WKY/zC72jkI2x569XRAtZ95jMdKBRn4kx2NFXU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=V4AGWGfeZLmrhtquKRv6EviHYCknQ6uF6sSccjviJ4oFSvgpAICCuQyib02WKudKy
-	 WZzoevJXnvM5e8NOpUoL9Ig82rYSxXxmUF9Jr1DLDbm4EjtTfslgzFUp9UHxUlPTv9
-	 wrZwz+G0W0uX1L3CBHkaI1MEt38fA9MYeSZuWLQ37eiV+uutE2OGEeTf1isC4/809q
-	 ZNbCkMcYIXb3teD/R3X/bXjffIjQmZgy38Wakf++rKKgIEMtzE5TK9nhDC09ZhOLli
-	 riBulMJ56RdCaDMuJt8qSHKFWjz1+SQJPB/Yzgx1/6vGL5v3z03GsZeS1enRqA31wI
-	 ei8UTG7MewgQw==
-Date: Tue, 24 Nov 2026 17:25:06 -1000
-Message-ID: <8fefdabc4b1d9e0c0d0b3bae1995e784@kernel.org>
-From: Tejun Heo <tj@kernel.org>
-To: Alice Ryhl <aliceryhl@google.com>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
- Boqun Feng <boqun@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
- Danilo Krummrich <dakr@kernel.org>, Philipp Stanner <phasta@kernel.org>,
- Matthew Brost <matthew.brost@intel.com>,
- =?utf-8?q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>,
- =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Boris Brezillon <boris.brezillon@collabora.com>,
- Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>,
- =?utf-8?q?Onur_=C3=96zkan?= <work@onurozkan.dev>,
- dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- rust-for-linux@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- Corey Minyard <corey@minyard.net>, openipmi-developer@lists.sourceforge.net,
- Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
- Mikulas Patocka <mpatocka@redhat.com>,
- Benjamin Marzinski <bmarzins@redhat.com>, dm-devel@lists.linux.dev,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, linux-arm-msm@vger.kernel.org,
- linux-pm@vger.kernel.org,
- "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- Oder Chiou <oder_chiou@realtek.com>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, linux-sound@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
-Subject: Re: [PATCH 2/2] workqueue: doc: clarify cancel_work_sync() cross-workqueue behavior
-In-Reply-To: <20261118-ordered-wq-cancel-v1-2-916e01f9affe@google.com>
-References: <20261118-ordered-wq-cancel-v1-0-916e01f9affe@google.com> <20261118-ordered-wq-cancel-v1-2-916e01f9affe@google.com>
+	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=H/5fJ/UZ
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=SBKugKPp40r/l9I4k2NnJkcuQ9E0X2W81VpgKO8XYOwJYQF2EhELUdCloataDh3G5H/SkwvsUYH5aMZ5puV5KKHHcEJi7O8MTUpGCzkLwcvj1uzqvE7VqZlByK5KJX44CW1oGQ6EcHuplI9StXm6hEcAi0jT6/maLVws8mqyixYXidtiaU6tlAOhN3JDkQNEtt3+MtkmpmhsseXNBjpCNOt99Z0qCcnX9XcvI60knwOg8AfxGteAmlFNgIlwKeBZs704Qht7ABVCSQFBrz3Kh6UMJDxLEcG9tURuprhhh4SdCGwh+CJhFPmm00tDNBM1wSRrtK+Ru9/3NFZKUYxisg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uLwJmtMNRVbFSciTZpwkTI2KrkLEaxtyws44pWjXcnQ=;
+ b=FhBIiVhaO/OTiOXavz6qFNeHDKg8rX16SIpr26+HbaUuzjEpZJKI7QL6/EJk1OG3nAAVzd+9xUF4eXaBsjFoDrF1ESak7+/LavjIgN2onJFiK60zGRzbC2/7XzDKXJW+a5vAyeZAPIGyZ4ocVW6PBix6x6qQAw5orND/r0lqglKIJ07pxUztXqTonv+s+qnymuoJtdfLx0LVQNUOgXTH/JZ5bGiNF1uqCQ50EV2tAb9R90MtUQqjqLGmf/EX6gpWbd9rt/Vw5pSL9Kt8qC02xJcfx/EG27rLhgKfDygqYrCoaiFYYBuFbXR48Es+uiE4FrlRn6pJr4OXuCDC/c6yrw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uLwJmtMNRVbFSciTZpwkTI2KrkLEaxtyws44pWjXcnQ=;
+ b=H/5fJ/UZyiEoEi8WckWTHunedKHf2mF4W1K9GkyM6QeUKgz7kyk/ukC/qNdxgJ8u1YIYTihhh3lE1J568uol7/O3cWO51E5tFI8IwtHguXCm3bjbv7q6YbmLnb+hf4yK8XDlJldy7YSc7rvq1ow/bgXZe+2l29+ryKyyYH85sFGuRE/5y0Dw24OfcAUivbkv89u0gksnXlkXoTdaJMpui36xPaKPekGu4V9z4LxhJXIw8ijfsruH8XfZRVQlTZvRJcIlmuxHaPLENaIYC18DcAZ7JX2e7uGHxcC8VRjWnwZmkJpERthH1zzV02ipqZTATqGGc+ho8vblkPNiuVZwew==
+Received: from OS3PR01MB10251.jpnprd01.prod.outlook.com (2603:1096:604:1e1::9)
+ by OS9PR01MB16853.jpnprd01.prod.outlook.com (2603:1096:604:2ba::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.662.4; Wed, 25 Nov
+ 2026 03:41:18 +0000
+Received: from OS3PR01MB10251.jpnprd01.prod.outlook.com
+ ([fe80::7edc:2a40:7b8f:56f9]) by OS3PR01MB10251.jpnprd01.prod.outlook.com
+ ([fe80::7edc:2a40:7b8f:56f9%4]) with mapi id 15.21.0662.004; Wed, 25 Nov 2026
+ 03:41:18 +0000
+From: "Jiaming Fan" <fan.jiaming@hotmail.com>
+Subject: =?us-ascii?Q?Re:Re:_[PATCH_v2_0/3]_virtio=5Fnet:_introduce_an_R?=
+	=?us-ascii?Q?X_queue_watchdog_for_stuck_detection?=
+Message-ID:
+ <OS3PR01MB10251FF1A3BCDD5A03090CD19E7432@OS3PR01MB10251.jpnprd01.prod.outlook.com>
+To: "Lange Tang" <lange_tang@163.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, 
+	"Jakub Kicinski" <kuba@kernel.org>, "Eugenio Perez" <eperezma@redhat.com>, 
+	"jasowangio@gmail.com" <jasowangio@gmail.com>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"Tang Longjun" <tanglongjun@kylinos.cn>
+In-Reply-To: <413a69a4.746a.1a20cb9e72c.Coremail.lange_tang@163.com>
+References: <413a69a4.746a.1a20cb9e72c.Coremail.lange_tang@163.com>
+Date: Wed, 25 Nov 2026 03:41:10 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-ClientProxiedBy: TPYP295CA0007.TWNP295.PROD.OUTLOOK.COM
+ (2603:1096:7d0:9::12) To OS3PR01MB10251.jpnprd01.prod.outlook.com
+ (2603:1096:604:1e1::9)
+X-Microsoft-Original-Message-ID:
+ <9655d6a0-7dd1-4560-9391-51824e172897@milk.local>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -91,34 +101,107 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: OS3PR01MB10251:EE_|OS9PR01MB16853:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8d7fc3dc-486c-49bc-4724-08df4aa5f670
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|41001999006|6090799003|5072599009|24121999003|12121999013|15080799012|23021999003|24021099003|55001999006|25031999004|22091999003|8022599003|25010399006|19110799012|8060799015|3412199025|440099028|3071699003;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?QlFwQUMrNDlSelRTdWpyUmxPdEgyUDlIWmNyYU85bVlDaW9CS2ZyUGpOTXN3?=
+ =?utf-8?B?dDJ6MDEvTktyR3lNZEdkbWxFL3hEWWpPbTEzZ0ZrRzZBdG9OcERDZ1d6NzIr?=
+ =?utf-8?B?d0Yyd2FmRnA1RmdtN1hNNnhmUkZTcFhyS200VFY2K1B0ZkVLQ3NkbGM4cHA4?=
+ =?utf-8?B?YUtXV05QQUFTamxhZDNKZ1Z2a29GcktNMHJPTzZNdncycnpHbHRXWG5raDBW?=
+ =?utf-8?B?NmIyYm1tSjNhNmJ2TDl4WmcrdGJzWE5OS0lSelR4YVpLTGNZTlZEN3dMeThu?=
+ =?utf-8?B?eGlQSU5Cank1eHlYN2VLZWdlTU1aZ052ZEpIL1E5bVRnR3BCZCtVMHJoV0Z5?=
+ =?utf-8?B?SXhpODZRRFpQcTltTzJPZktGeFU2eU53VkNHdU44bUlwTFA2VG45b2h1WU9k?=
+ =?utf-8?B?RXRMZW5qN0xEM2ZpdmJHRTVidnkxaVFZWExrVE9YRzBYcEFOTTBPWFkyaXNT?=
+ =?utf-8?B?c0NPSFpqeHFEOXlra1BKaktZV1NIN1Jab293aUlDbG1XdjlzU29hOTRod3JI?=
+ =?utf-8?B?dktTcjlLK293UkZXYjBjSlhmUDVWcHhjT1Q2NldWbkJiWTkvbEdPb2VsRGNL?=
+ =?utf-8?B?MjFpNFErVHhGMjZLZ045dXRLOVBlOW0vUGxVUVVuTm1pZG52RmRJcFFCdVN5?=
+ =?utf-8?B?b01aL3pBeEU3OWtkeHF6ZHRNNFo2TSs4OXkzNUFDdm5lS0dwUUdFeVBlbFda?=
+ =?utf-8?B?VWtzQ1NWeUVjMy9Oa3VvR1Nack1Zano1d0FtVEhZUHN0WmZ3NEhYS0txNnV4?=
+ =?utf-8?B?V2xGMitnN1ZRdGxaTnBpVXBtS3AyWVorZ0o3N2Vmb2w0WHJYbWhPNENuNjRW?=
+ =?utf-8?B?dnBGOS9yQnQ0Y1RvUVdVTTNlRUV1UUV3RFhicDRBOHpJSDFySVgraFRvWnhW?=
+ =?utf-8?B?bVo1TWJLMURQT1BrdU8zbVBMVzhEaWdvLzN1MFcvTkFRblhmbFlrM3RraHU0?=
+ =?utf-8?B?SEV3OUVmVDNPc2F4SVJ1TDg0eXhaODdQMGNaOGpQSVNvTHo2Y1B0RDloMUtm?=
+ =?utf-8?B?WW5paEFLRmZIQjRDU0ZuYUZOSjZ0VU1vMzdMWjdNYWxFbGl2YnhuTXZUQ2Vv?=
+ =?utf-8?B?cloxdVZ2NDNCTU1uWmk4aUJ1cktSUzlHOUhrZEFQVnp2U2JoNmNwNkQ1c0lU?=
+ =?utf-8?B?TUd0MEFSQ1hYZmJ5aUVXWEdIRTdCbkdvQlpDRHZSSG5kZ2hZWGdwMjM3Y0Zr?=
+ =?utf-8?B?UFlFTHFrcXJPb3JUQzdCZVg0WU5DMjh3aGxjTTZyMy93WTVXYzQ2VjVMOGMr?=
+ =?utf-8?B?QnFrdURwQkIwQTFmYkdlb2IxYlJvQVhHcUJjSHRHRGc3V3YvTDRxdTl2OG01?=
+ =?utf-8?B?QjV2R2NsT08rMWN6d3RUVTB2bGVnN2Qza21UUnFhQXNveDVMaldrZTNaa1pF?=
+ =?utf-8?B?eDJGckJaUnpuUy9RVTQ2TVdEWVBkT2lRVk8xZE1ZVER2cmlUa0FxUEo2YmQ1?=
+ =?utf-8?B?RXVueG5YNExKMVErWGZIbjJrUjh0NUg2TXNTeFA4YTd1N21oamtESVNJRnl4?=
+ =?utf-8?B?V3lHSnRHdFJ2MlNaUUQ2SEJ4c3dMWGtnR3RVaHlXdVh2WnpsOHF3VGRxUTgx?=
+ =?utf-8?B?VlY3Zz09?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?c0hDaytzYUdoZUxHN29OZEVBemtmYkNGSDR1YzhWNk1qbFBCTytSY2VBZk1Y?=
+ =?utf-8?B?UnBaUldiOUhXdVE5bldKdkw0Q09lOXJ0WjNsVStFRjJJbU9qR3hnYkh0M1dZ?=
+ =?utf-8?B?TnlsVEQ2T1pJNU4vU3Y3aDJzTXFhdkF6TXViYjRRaDNYY1VwTWJFZHRBTEt5?=
+ =?utf-8?B?NGtmMlBybFd5OFVpZGtXQVVwQkVJN0hIZmhsMS9pVDYwdmhMT2NsTDRDSENN?=
+ =?utf-8?B?TWlqbWdDc2dZOHBOR1NaN0JLdUF2TFhVdW5RcTAvRERJWkFDZ1krLy93b2dL?=
+ =?utf-8?B?cHIzOEJLOUx4WEh4SURUN0hWdmpqTjBYUGE2KzQ0L0ZaNXhBZFhiQ1JUVHQy?=
+ =?utf-8?B?eVB4Y2tFbVZXMk5HdzNZRFd5aXhwbEVOQnJCVTZFZEVTUGtlZTJ5Z1owM1g1?=
+ =?utf-8?B?bXBwakVNWlAwS2d4VG1lSm1VR2gycngycVV2N0U3UzRuajJiVEp4Q2I4VDEy?=
+ =?utf-8?B?b3hiV0hveDlZYVNMOTZXNkNNNms0ZER1cE92NUF5UWhSNERGMTBDNHV0S051?=
+ =?utf-8?B?QnMrQkxYcEhwazR4aktoTStHVG5XV2IxYVRIMVFDNVZ0R1hVTlZKblhraDFu?=
+ =?utf-8?B?dEZwRWpxdWdsbzZUcEZCMi9Yd0N0NklqaDF1dmgyL21uWU9KdjZYUWhaWVFB?=
+ =?utf-8?B?ZjZha0dRVkJBV2J0aEdNUU5VNkdXTW55aHJkZ0N1SVZvTisrY1dEMzZ2VE1h?=
+ =?utf-8?B?dUpzVTVneE9uZHM0NXBDcnpVTXJqVG5RbE91UXk2ck54djJoczRyc2c5dHR5?=
+ =?utf-8?B?RXJYSEZBditmS1U0STZKNDNVOStuUk04UFVJTVlYMTl6UFIvaDJiYzdTaDcy?=
+ =?utf-8?B?VlNwNUZTbUtHVS9uNHJ6Nm5pSkhMdUtqdSs2ODNkUUxwZ29tdFVJWVJ1TnEy?=
+ =?utf-8?B?SWV1T3FsNzRZcWdSY1NmcXptMzhzWWNibnBORG5MOEd4UGdXdDhPeTBpSVZj?=
+ =?utf-8?B?RlVsRk5mZklwdkpWKzdONUswa0dwWmd5VmI3eGMrajBqTVZPcE9HS2JjNDJP?=
+ =?utf-8?B?d0RsVTR6cEVLQWcxeGM2VFlXQmpSdFZRZTBtRHphUU9YUW9PNm5OMW4zMyts?=
+ =?utf-8?B?THpqSjcxTDhpNHR2MzkwSjRNb3Z0bWlrWVlDOFhVQXpVOVY4RE1sL0h0R0x4?=
+ =?utf-8?B?azZ5dFdHd2hYY0tlQW5sVlFUeTBkNmJEc0hCUy9xbDAwYy91d2RTMDA5UVps?=
+ =?utf-8?B?WEttM1RQb2U3T205ZlFSeE4zK1VNZE5jZWFQMTNMZVN5MVNXZ2FFNFVUdExU?=
+ =?utf-8?B?VUI2c3I3YnV2TWZsZlJTVHVLdkJ5QlJSQ2VldGsrcnNMRTJ6N0hTaVJJQk53?=
+ =?utf-8?B?VS83a3ErQWxqazR6aG1ydUZkTDRESncvTVN2ZGluQzVFNlYxbldNLzAwd2Qz?=
+ =?utf-8?B?dGlLUUJwM0M4T1RGRmJRQUNxUUtqVThXNFFRdU1KTEFDWENlRzNRU1pEcStW?=
+ =?utf-8?B?VU9qckdBWklUZWx1SEZWcS8vSTc4cWphY0xXcDZicUphVkJ1QjdETWt6WTIv?=
+ =?utf-8?B?Q3lnYnh4U2VWekxDZnZ0SU1nUzlkdkVrOFNlSmxqWVUybEVuVzlSa2JvSXAw?=
+ =?utf-8?B?MnNkRmZuUUNZZjMra3I0WTRhUWY5alJEQ0FOK2t1d0FrcHhya0V0NVBSUXZh?=
+ =?utf-8?B?UzZYOTJhcU5PYXBFWFM2MEgwamt6RVFmUFhWRk15QW5idjhBRUNGRWtpS2s1?=
+ =?utf-8?B?cUFrZEJ1NjFxTUt6RkxVSitNU24vKy85aHpVTk5tZUdWT3dzbkNud0cyc0U1?=
+ =?utf-8?B?YWIxZlhJNVNwSlNVakRUVFVUVnFQQzdScDJDcURJcnNmWi9mcm9FU1JWTmpV?=
+ =?utf-8?B?NzJBQWN2Zkk3WWRxdmUvaC9sR0NHblRvZU9KNndlUUwycmwrbTdWMk11Wk1t?=
+ =?utf-8?Q?WVYAQi2wD0zR8?=
+X-OriginatorOrg: sct-15-20-9412-3-msonline-outlook-b83fc.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d7fc3dc-486c-49bc-4724-08df4aa5f670
+X-MS-Exchange-CrossTenant-AuthSource: OS3PR01MB10251.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Nov 2026 03:41:18.3300
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS9PR01MB16853
 
-Applied to wq/for-7.5.
+> If that notification is lost, the used ring is not drained,
+> buffers are never returned, the device runs out of descriptors and stops
+> publishing, so no further notification comes. The queue stays stuck.
 
-Note that cancel_work_sync() and friends haven't been waiting for a work
-item which is still running from a different workqueue since 606a5020b9bd
-("workqueue: gut flush[_delayed]_work_sync()") which went in in v3.7. This
-has been broken for well over a decade and the documentation now says so.
+I agree that a lost interrupt can stall the RX queue. The point is a basic =
+one of logic: A -> B does not mean B -> A.
+Observing a stall does not establish that an interrupt was lost.
+At least in the earlier messages, I didn't see evidence that an interrupt w=
+as actually lost in production.
+You explained what would happen *if* the notification was lost, not how you=
+ determined that it was.
 
-The following queue the same work item on more than one workqueue and then
-sync-cancel or flush it. As cancel_work_sync() doesn't guarantee that the
-work item is quiescent in that case, they need to make sure in some other
-way, e.g. by flushing the workqueues that are involved. Note that system_wq
-and system_percpu_wq, which schedule_work() uses, are different workqueues.
-cc'ing the maintainers.
+> I looked at Michael's patch and my case does not match it: at the time
+> of the stall the callbacks were enabled, and IRQ deferral was not enabled
+> (napi_defer_hard_irqs =3D 0, gro_flush_timeout =3D 0).
 
-- drivers/char/ipmi/ipmi_msghandler.c: smi_work
-- drivers/md/dm-mpath.c: trigger_event
-- net/smc/smc_llc.c: llc_event_work
-- sound/soc/codecs/rt5651.c: jack_detect_work
-- sound/soc/codecs/rt5682s.c: jack_detect_work
-- sound/soc/soc-jack.c: snd_soc_jack_gpio.work
-- drivers/input/misc/palmas-pwrbutton.c: input_work
-- drivers/cpufreq/qcom-cpufreq-hw.c: throttle_work
-- drivers/vdpa/vdpa_user/vduse_dev.c: vduse_virtqueue.inject
+I appreciate the clarification. That addresses the IRQ deferral scenario I =
+suggested.
 
-Thanks.
+Adding a watchdog may only take a few lines of code, but once it's in, we h=
+ave to account for it whenever the queue changes state, including when it i=
+s stopped, reset, or resized.
+That's a long-term maintenance cost.
 
---
-tejun
