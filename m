@@ -1,47 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795597757;
-	b=LkyhhrXXmWfudKCBivmIt5Jz9DWAhgnN+mI97qugbmjMSgL7B09lUcxX2ek6TV3PetZz
-	 /Sx8NcklX4j8P5ijR2Waq4A4uBs9931I3WosCVYIoqtPp2uh6kG7VDs+vfPziQTV8Msi1
-	 N5nBFkAz/XlXmke6mVBjQL3t4L84UkIiWs/+EsAgTn6oZ4RWa6ctdnab0yGhsbKqWcbrr
-	 1ZsWzXF2Mhf/rpJOp29c8m6aR07pzuQkR57eQa3uuDsXq2vJBjWdFjhH8XJFQrQTFmKWm
-	 L5D6IMF8B5X4FvEWRUhkm75fAYzCu5FKC6maXlqz/S/t7R9t5rzg1tyS1OYI3SZZsIQ==
+	t=1795598234;
+	b=P6gAiT6G3qCO+n7VUGZIjjP/NUPpYEczg2lNVdsRtaTFiSO8wrX1UlXXjKbteRdcaexm
+	 ZH5uJ69a4pd5UFrwDQqkpug1ciD0ldwOw6JSASWJsUZLwsD6j2wLcAyMPssOrQV3iLKoZ
+	 O4x/BuR0EH+hVic0ZRYGg+8VcrjwuGrqx3IxxF4b4C8GzZQJ9CJZ4LbRs8rgCaZwCAnr0
+	 zE4qptvxm9v3We7yhGMoBMwoq+DeG6zLciNVqCtLdyHTdVS558vkQqubLZafoRTMSI0MP
+	 4odHgwoqb6Tds13h+DOdvMH8+xWCmYSTc7YWOkrmQ7k/kGnCD1uY/hNuzZjy2Fqc5iQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795597757;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Organization:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=vt+EhBcZZWmdLvvCDDQxXdt+x1JKxTJJeVjjo8w0SQY=;
-	b=1hCB+PQac4UKmVwqzLWCE5MiLCYwZwGqz2uUFdlpAWYCjCSssghEUd9/ua0XQNNrNez6
-	 Cii3KfrA5yboTyCSXRffMJFrF0ZniE8Iy2CjkK1555c6Cv2FPRWLlyp+NSZMPL3EJPrlB
-	 Ev8yQpfBy2DkwhZZKaVW8vmoY3GelNWsGJi+Th10sjKM7hYFKfWh+uRIiISYeIem1jmwf
-	 LPr5bcR8nCGuQBbIPdHYLl+7TTrYSkxk7dKVc4RPqRNyGNFBia/++FyBTD645xO7+Q2m/
-	 ChlrzDHaJV1bP0imoHWZ3eOmZX93fmnDaFcIhRfaBzZa53a+rkC5ytbjocpNAEffmQw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795598234;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=cAYdqBNBEgg5h2s+5Nw6P6avYopE1k6reY3QHsLhPtk=;
+	b=ZvM7RWPbYEAwA6F6gckLN5xD5Qr7qi+dwNgepqTOIhh1EiPUtbX42sNbmG2bV3HFbQbv
+	 bdjpmyP2Sj9q9V7Kvli5ldEAjsNUObWW0XlUa2bcLMTxW79YodzXE37Z4E4VJT6eUQ8qx
+	 wb184ID80SSFgOLyAci/1TdArZMO24lGE6YoZdSlBQeU72abuwIUfrX5xYfS6EwheOT2G
+	 XtrYWaXc7DDlaIRiIm5nhBGeedyRwsywQTi2fVvGobA6bxQJCh8NL4Pj3oeSveZM68psH
+	 iNx2v6laxiuTJcbe2HYJuVnLUDnAqaFp2vX/G1kGpPsqfXYyKBLwhBZq9GdR/lAn1ug==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U4ohL1Mo;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ciGEVnWH;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CB6D606A32E;
-	Wed, 25 Nov 2026 09:09:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BACE8606A68F
+	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 09:17:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BACE8606A68F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U4ohL1Mo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51FA91F000CA;
-	Wed, 25 Nov 2026 09:09:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795597756;
-	bh=vt+EhBcZZWmdLvvCDDQxXdt+x1JKxTJJeVjjo8w0SQY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=U4ohL1MoCwf/mUMK44EMt6WtVaZ3YkM38HV+QAE+i0sC8sqwrCUS+08Gq/OdlKSyy
-	 chbyQ5/rdMxKL4cWo5zaLrlZDJ7iy7/EG917JBRcPL8vRuc34EuquSue04doeKK3jD
-	 jRevyzrv1kxTZEvPUfN3ZEaUztY49Pexi+IusSPfCmlcGGwq7kYVcGs1rD/MfrhfCs
-	 WOkGeu7pxhP20u+6eTJHAzZExkELZWmcQY6a4WRgowtoPF8/63789TItYLaVUmw8DH
-	 Gu+l/oFVKWUT0xG4Pr+rFux5kD2MCyqjIrQwf0WIWd8SWGkNunfIfvuRwqbOncnUPI
-	 dvlhjrqB8ayXg==
-Message-ID: <b274eaac-4bf3-4d6e-8451-461c02c1fad7@kernel.org>
-Date: Wed, 25 Nov 2026 18:09:13 +0900
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ciGEVnWH
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795598232;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cAYdqBNBEgg5h2s+5Nw6P6avYopE1k6reY3QHsLhPtk=;
+	b=ciGEVnWHm+m6pmaqeVd7C4zNrSasb5/wyhZP9jyIabcJ7+O+bSbHDGQLXuL1LUSFgqgl0B
+	umFC8NXHXe/TE0DSNV5kE+wJvOLcoiIZNFoARE6BbWMkGegSv/VaxX1sllsNp0ND0AiFEj
+	sWL9mx0JdcvSzslgMKWP/8azpLPkGC8=
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
+ [209.85.210.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-541-ON3vwA8COt-vrY0utvhIYA-1; Wed, 25 Nov 2026 09:17:10 +0000
+X-MC-Unique: ON3vwA8COt-vrY0utvhIYA-1
+X-Mimecast-MFC-AGG-ID: ON3vwA8COt-vrY0utvhIYA_1795598230
+Received: by mail-ot1-f69.google.com with SMTP id 46e09a7af769-85d630e451aso5140264a34.2
+        for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 01:17:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795598230; x=1796203030;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cAYdqBNBEgg5h2s+5Nw6P6avYopE1k6reY3QHsLhPtk=;
+        b=TjznbnBMvXFZWWpPiLbzwmsfflNptkyZt+xwSmahyqkh2Uktl7XqRSnYOOivJXXlY+
+         KL2BymQgLPFh+Zi7xQTEIlVAZA7BZvmY8NTp7tAB8gr1Q5vIC40Yngy47lh6OWuVtv4c
+         FgKPc3JL99qb3LseCFxRFtWeVvobEnL75AwCiODFVZb6GtTny6/MkfUTPThJqBOgdEQT
+         N4b8QpKJH56TxvvMpLPMil8z+LOxo+Vefw0h7a7YHNQQsZ5zx1rENgIDD07yMPUwPzKA
+         loT54ZAWKoe0e8p5kZhrN2GyRP1XQuv086H7JxAkPkYHM9g8kkd6IsOZYS08fHt77sUB
+         gMPA==
+X-Forwarded-Encrypted: i=1; AL+hErF5/ajgpE0RsXIq+wqGcwLl8US9CqzgB878cCEtuo66vaaGKWFfjhq1BfEfT9KRmk8hnvx/ttpQwOxrQvCrFQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9rH3BXvUtyKrtUJuWjDp6duAZuqCQrFa1wY5LDfKpqwd5T/br1
+	e1IzlVynsDNfuq54PiTRL7Ex4Bz9NWPmR8vrbfzx6QNn/7PLVj2kvrcMvapoMRTyCHuzc4+5GL8
+	84pccksupvWwwlyHr1ZGlzEKnwf69Tzyb4ZJtHfOElHtaiY6N2sP0J1N596aiVdHgp1rqARHmxv
+	V3wixrLx/LLDtJJjwdXisCQk3Ok+lvY9Q0YrZuAIpyXVc=
+X-Gm-Gg: AZFdTZfN0Mm1mrcOrEAEF7n27TFm/9D6jRkImOocM16fHNSoALPs+o2q7XkX9tX8IIW
+	5h7YAxyJBDBxVBAe8aBC+sLKGmwyv0yGCDmgAMZfvcKAejQekWK87OjUTD/hNLfNU9kE8yQN2LN
+	VnUC+pedw17u9CjtWkayY6cIneY4gg12vqh+qZI/+GL+tG85aau3JPWo/mAaYk4BESYMdq4RE+v
+	zax83s67w3z3pDP
+X-Received: by 2002:a05:6830:6816:b0:862:c3f1:634c with SMTP id 46e09a7af769-86315a059cbmr19500994a34.25.1795598229893;
+        Wed, 25 Nov 2026 01:17:09 -0800 (PST)
+X-Received: by 2002:a05:6830:6816:b0:862:c3f1:634c with SMTP id
+ 46e09a7af769-86315a059cbmr19500980a34.25.1795598229514; Wed, 25 Nov 2026
+ 01:17:09 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -51,151 +91,42 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20261125083947.263216-1-afaria@redhat.com> <20261125083947.263216-2-afaria@redhat.com>
+ <ad36d8e4-27af-4c6a-b3af-984118434797@wdc.com>
+In-Reply-To: <ad36d8e4-27af-4c6a-b3af-984118434797@wdc.com>
+From: Alberto Faria <afaria@redhat.com>
+Date: Wed, 25 Nov 2026 09:16:33 +0000
+X-Gm-Features: Aa3M54oSeBIW-vwAXD8TpkpgkEkcEGIL-t9H6mGs9BbDZ7mXBgrqV757jr0lyIM
+Message-ID: <CAELaAXwH8-gn+nuD96gDSeKZMgKZjX22Q-hVywXbQL8si6S1Pw@mail.gmail.com>
 Subject: Re: [PATCH v3 1/2] virtio_blk: add fua write support
-To: Alberto Faria <afaria@redhat.com>, linux-block@vger.kernel.org
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
- Jens Axboe <axboe@kernel.dk>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowangio@gmail.com>
-References: <20261125083947.263216-1-afaria@redhat.com>
- <20261125083947.263216-2-afaria@redhat.com>
-From: Damien Le Moal <dlemoal@kernel.org>
-Content-Language: en-US
-Organization: Western Digital Research
-In-Reply-To: <20261125083947.263216-2-afaria@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux.dev, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jens Axboe <axboe@kernel.dk>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowangio@gmail.com>, dlemoal@kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: H-rM-bdcgQNpIYP0ntmcPf8y-4iLxdFyU6uXW6awU5U_1795598230
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2026/11/25 17:39, Alberto Faria wrote:
-> Add the new virtio-blk request FUA flag uapi definitions and
-> corresponding virtio-blk support.
-> 
-> Signed-off-by: Alberto Faria <afaria@redhat.com>
-> ---
->  drivers/block/virtio_blk.c      | 29 +++++++++++++++++++++++++++--
->  include/uapi/linux/virtio_blk.h | 13 +++++++++++--
->  2 files changed, 38 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 2b462005cdb68..7ee2e6a6a591b 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -248,7 +248,10 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
->  		return BLK_STS_NOTSUPP;
->  
->  	/* Set fields for all request types */
-> -	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
-> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS))
-> +		vbr->out_hdr.flags = 0;
-> +	else
-> +		vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
->  
->  	switch (req_op(req)) {
->  	case REQ_OP_READ:
-> @@ -258,6 +261,11 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
->  	case REQ_OP_WRITE:
->  		type = VIRTIO_BLK_T_OUT;
->  		sector = blk_rq_pos(req);
-> +		if ((req->cmd_flags & REQ_FUA) &&
-> +		    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-> +		    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA))
-> +			vbr->out_hdr.flags |= cpu_to_virtio32(vdev,
-> +				BIT(VIRTIO_BLK_REQ_FLAG_OUT_FUA));
->  		break;
->  	case REQ_OP_FLUSH:
->  		type = VIRTIO_BLK_T_FLUSH;
-> @@ -1151,10 +1159,17 @@ cache_type_store(struct device *dev, struct device_attribute *attr,
->  	virtio_cwrite8(vdev, offsetof(struct virtio_blk_config, wce), i);
->  
->  	lim = queue_limits_start_update(disk->queue);
-> +
+On Wed, Nov 25, 2026 at 9:07=E2=80=AFAM Johannes Thumshirn
+<johannes.thumshirn@wdc.com> wrote:
+> On 11/25/26 9:39 AM, Alberto Faria wrote:
+> > +     /*
+> > +      * Do not advertise FUA when the device is zoned, since we
+> > +      * would not be able to handle it on REQ_OP_ZONE_APPEND.
+> > +      */
+> > +     if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
+> > +         virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
+> > +         !(lim.features & BLK_FEAT_ZONED))
+> > +             lim.features |=3D BLK_FEAT_FUA;
+> > +
+>
+> Can you elaborate why?
 
-White line change.
+The virtio spec currently only defines FUA for OUT requests, so there
+would be no way to pass on the REQ_FUA to the device on a zone append.
 
->  	if (virtblk_get_cache_mode(vdev))
->  		lim.features |= BLK_FEAT_WRITE_CACHE;
->  	else
->  		lim.features &= ~BLK_FEAT_WRITE_CACHE;
-> +
-> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-> +	    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
-> +	    !(lim.features & BLK_FEAT_ZONED))
-> +		lim.features |= BLK_FEAT_FUA;
-> +
->  	i = queue_limits_commit_update_frozen(disk->queue, &lim);
->  	if (i)
->  		return i;
-> @@ -1575,6 +1590,15 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	if (virtblk_get_cache_mode(vdev))
->  		lim.features |= BLK_FEAT_WRITE_CACHE;
->  
-> +	/*
-> +	 * Do not advertise FUA when the device is zoned, since we
-> +	 * would not be able to handle it on REQ_OP_ZONE_APPEND.
-> +	 */
+Alberto
 
-Why is that? I do not see any reason for this.
-
-> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
-> +	    virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
-> +	    !(lim.features & BLK_FEAT_ZONED))
-> +		lim.features |= BLK_FEAT_FUA;
-> +
->  	vblk->disk = blk_mq_alloc_disk(&vblk->tag_set, &lim, vblk);
->  	if (IS_ERR(vblk->disk)) {
->  		err = PTR_ERR(vblk->disk);
-> @@ -1740,7 +1764,8 @@ static unsigned int features[] = {
->  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
->  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
->  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
-> -	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_ZONED,
-> +	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_ZONED, VIRTIO_BLK_F_REQ_FLAGS,
-> +	VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA,
->  };
->  
->  static struct virtio_driver virtio_blk = {
-> diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-> index 3744e4da1b2a7..c5047e6a9a9bc 100644
-> --- a/include/uapi/linux/virtio_blk.h
-> +++ b/include/uapi/linux/virtio_blk.h
-> @@ -42,6 +42,8 @@
->  #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
->  #define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
->  #define VIRTIO_BLK_F_ZONED		17	/* Zoned block device */
-> +#define VIRTIO_BLK_F_REQ_FLAGS		18	/* Request flags supported */
-> +#define VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA	19	/* FUA flag supported */
->  
->  /* Legacy feature bits */
->  #ifndef VIRTIO_BLK_NO_LEGACY
-> @@ -211,6 +213,9 @@ struct virtio_blk_config {
->  #define VIRTIO_BLK_T_BARRIER	0x80000000
->  #endif /* !VIRTIO_BLK_NO_LEGACY */
->  
-> +/* Request flag bits */
-> +#define VIRTIO_BLK_REQ_FLAG_OUT_FUA	0
-> +
->  /*
->   * This comes first in the read scatter-gather list.
->   * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated,
-> @@ -219,8 +224,12 @@ struct virtio_blk_config {
->  struct virtio_blk_outhdr {
->  	/* VIRTIO_BLK_T* */
->  	__virtio32 type;
-> -	/* io priority. */
-> -	__virtio32 ioprio;
-> +	union {
-> +		/* io priority. */
-> +		__virtio32 ioprio;
-> +		/* Request flags. */
-> +		__virtio32 flags;
-> +	};
->  	/* Sector (ie. 512 byte offset) */
->  	__virtio64 sector;
->  };
-
-
--- 
-Damien Le Moal
-Western Digital Research
