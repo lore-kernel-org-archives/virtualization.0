@@ -1,164 +1,141 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.137
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795586749;
-	b=mi9hfQmYu9LAjDLDSsOh4aHuAEML19yku7V+LSiLHG17am6rnY46fm+LZrBg/XugtqC9
-	 sLGSZ5wE1b8dw+qNnkccYQMib9axqkUuUuIrPP4kmvpV81JkHpBY337qvn8i/9fWTyT4i
-	 aGowxrJtJqaZxXwmrxeRZrefEiOA9Z5oM5MTpsDGNdqWOyKsmLRrhHTeew8KltKNHYSvZ
-	 mgGabBeTkEICRYHC7JxAfq6SK3djQ5LHhFsAyuxJF3zZLjN+P7D6gV5Z3cwEaR9ZUFsbm
-	 nmjEx55EATQ/HCQUCgaYNGZnt0sHIsEVm/o2e09+pRQp7FI5G67/WevD297dM655ZbQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795586749;
-	h=Received:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Spam-Status:Received:ARC-Filter:Received-SPF:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795587230;
+	b=3wgU8ksfJEuHNRnrsb959h6NjxvHDOGaNvNF/FIfVcmuLanpcgpKgW3lgFq6LhCL2Lji
+	 gGAsQ9KWXRV6Q7EFlZ5FXCNhOhmTN415NrmOBuveJekasPgjR3N6ArcLHJHY0bNDqIPc8
+	 EUVqyS6/tsrZ5rk24j33ODQWbLtuIn+UFJhP2TkhDniTPnz5AFztTsAQD635doft92MUQ
+	 4U7LyklBN71/VhUNW2Oos61EbNcKqLo/oBuyXrnRvGrSqYUjLhx0iMMeS9dYH4cWM6VkI
+	 o9M5xHizDXDLhs8I7I+YZAjp082d2VEFtFgqDJYzFZJ5Ckc8lYY2euBowtxVscA5Elw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795587230;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=uvWUvSzQGWdU0amQGudBjE2MMEoWKQd9zyN2yG8Iybk=;
-	b=k66swoTXmfwHT56zATQ8BqbffsDKe+CkUbO3kOcJRYgBlsecl6MeS/KkL4TIlu2NIK7P
-	 q8hjF4IGQwYSgZ63tUvtXRFEbbTuX8Z9wsNNObzSXXS63kw2lrp+OGenIRIba+uwwR7r6
-	 esHeE8c/41LaxvYbd2n47PU6oQpDSH75LdF9o66IpgY6LLUJeTiaOj7Kbv3Y9emkdoUgg
-	 KT8NFQtx7eHYnCv8Czf1CdbQImScjuGvvaiVNjnOY+C8wJulOOh1b0oQDestSb3UgUdR4
-	 aXlU6bRD8/Qxf8Q9JpLV8yNT7pCpR40CSfRoMEJgNrOQxd8FCt3I/O0M2AIjRzaXlIw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TiQH7oa8;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.137
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	bh=1lJ3K/EilkHlytmEnlIWdtZUx18zfJBzx5n6NoVgMZA=;
+	b=IETCTbMrlrJwwETGjpYASCVYLHGHQcwtvBvXPzN0s/iZBgrXf4yj3YwDVcPDc4/0qlyL
+	 oeGaysoyHcZvNmx0nzcUSwAdPAPmJmnJZH6W3BulFJ436L46/u6SsqYG+114C+kCyfPX/
+	 pk6Dkn6gs5mD9PG+PHb2e/XtTO5dGP5jJb8fLqmaGrCNKWbHa7qggEVRMDj3Rz9f/7WQS
+	 dfyaxY/9q8DXo05eUbKM5hVRSzSnslY/xgtO3yRT7t6je2UjvQMJ10QHMmGQA9pzbQjtw
+	 zX65xKTtGPRQQaYmPgsvdkur42FVBsV/Wj/+Jfd9o1GNNyl7xUNpk/s5EKTMcN9DMIg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=RqltCb+4;
+	arc=none smtp.remote-ip=198.137.202.133
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7381A606A336
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Nov 2026 06:05:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEE95606A31E;
+	Wed, 25 Nov 2026 06:13:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EEE95606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TiQH7oa8
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 14491405A1
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Nov 2026 06:05:49 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -0.348
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 3Xrz0tgDl6LC for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2026 06:05:48 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.2 smtp4.osuosl.org 6C6D04059E
-Authentication-Results: smtp4.osuosl.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::132f"
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1795586748;
-	b=mCcixlGFZ9Vg3CV3mpI6nI7SIGt4zoLev2RoYei36GtbnzPH8JT4ZE0sMs7Fm+wvR+U4
-	 Xf1i5u8wFO4jSDpOQ+8L9OXUepx0OL8NhltHSo9JsD+8ODm51Vw1OqQGVc3N8prJverbk
-	 6KCm18UQhapLBkf2B71PS+u4/ji4s2EmHHFMarCA1G4SnGbrcMnFSt4iplyel/jjG6oXO
-	 sElcgZhK5VMMz7zEVNdVR5wZuR7b5j/X+R5htUWLTZOEF03Hh0R93/Zm57mY/XjygHO+S
-	 dcXZaeC9n+NvC82qxVBNhHq+3tN7rC9wmsuMPu8xqDbRVv7y+Cs1xA/SLCv+g3VMtjQ==
-ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795586748;
-	h=Received-SPF:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=uvWUvSzQGWdU0amQGudBjE2MMEoWKQd9zyN2yG8Iybk=;
-	b=kxOiwpP4h2fMJ1gLgMS2OnokdtZXibVCizouHwmr92tAa8Bog/r1FhCTrWBIR14u6396
-	 w7EmlkyiUGj7+882vy7a9fMQY73Gm9aX/X+VpnNjUS7VxEyPxJi9Qvol/yMCb5BPSypCu
-	 RrOZR+fEL8UB0N5M6xO6hQxIMfQ1TQVqmZ4v1sZ5cuxRltdbjZTH8MaNZd22o+SqM5qDl
-	 ZxqPuXmdWYTKaezRswU8rsJI90pNz60StlGdBnfnJIM+HOJE2v8ibTsxc7Kui1MqGjwOW
-	 3RKKVpuf0MwvwRi1ix/h2/FdvlplG2esJMv6P/X9WyE5d9S7CniEfRXg7dHpEz4tS5w==
-ARC-Authentication-Results: i=1; smtp4.osuosl.org; 
-	dmarc=pass header.from=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TiQH7oa8;
-	arc=none smtp.remote-ip="2607:f8b0:4864:20::132f"
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::132f; helo=mail-dy1-x132f.google.com; envelope-from=longpareto@gmail.com; receiver=<UNKNOWN> 
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TiQH7oa8
-Received: from mail-dy1-x132f.google.com (mail-dy1-x132f.google.com [IPv6:2607:f8b0:4864:20::132f])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6C6D04059E
-	for <virtualization@lists.linux-foundation.org>; Wed, 25 Nov 2026 06:05:47 +0000 (UTC)
-Received: by mail-dy1-x132f.google.com with SMTP id 5a478bee46e88-38644aedba1so8252120eec.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 24 Nov 2026 22:05:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795586747; x=1796191547; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=uvWUvSzQGWdU0amQGudBjE2MMEoWKQd9zyN2yG8Iybk=;
-        b=TiQH7oa8A+X1ELpf/WU2K3WKThb9XKMbKYD/f9wjhrssElLgM6rK8ii9wNHzjdlZoL
-         M00LTD3vHeUOzwrKs0EELXBekkN8Nzkyzneu6T6my/tcAryHZb6awvGppkV9cjzeSbwR
-         XoH4e2Usmn4Q8obUxe3n3HZ3QPsDlWNatPPcO0LPmzDNyzxz18FcJJLgZeO1YUaf2KQ1
-         W4+Fl+ThLRX/iF5d7ZoA4YLhhym3LJnaCtP3lGhLlT18fS9WZwx4290jCBiv9abfxkWe
-         pIGwynCZ2HLmBpx3cJ3G7J0gXn5DSC0rDBuStzyQtAi2jdep/4RPFwLrrbI+wp6PjpMt
-         7qoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795586747; x=1796191547;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uvWUvSzQGWdU0amQGudBjE2MMEoWKQd9zyN2yG8Iybk=;
-        b=BjkBZX2LU/3LA5dpP6mOdh73PQeGIoAjqlYXC9YjX8DzT9mK/KFtonRUhQrDpFRHUs
-         26HnuPRve0EclqRQFLfkKUQoP6r5pK9WftNtxxIsTwQQ/pEPKJ06FYdsp9ZnTHUqIm56
-         Gl35MnNaYpFHDWaf3ffNYb222ENqnEUR4OwI0siHa/4SzorWZuc3Bn7WRFA39+jIyEfQ
-         VW7FzaQzIXfoB7mFwrFJsu1NKZ/Ho75+K84gKE1Tor8qtliZq6W+YI/oi06N0CBOVD1O
-         gJ4XyjoP5NUBhHZqlu2pZsUmNKnYnYjaHJAHbizx7tjapwwBk6RWiQ2TR+3guC1cii5j
-         4Ajg==
-X-Forwarded-Encrypted: i=1; AL+hErGbNCrM0U3C3osqFHTvCsjNBui0w1zK8XIaoqpAD1GpTbvDgtESdAY+q/AwH1plhdGC8hyi8icEPsWPQTzwEg==@lists.linux-foundation.org
-X-Gm-Message-State: APuU4Z91wpDaawhGDfuvf2uZXvrC6zgeueRhcbHBFS/lg31nUw2+Eqf6
-	141OLfKs5QlPWxgHNHA5wtcQzieDvUPGPG+YY0uF7hSoDooJYYsE5xIM
-X-Gm-Gg: AZFdTZcqnBJGlf7pvr1VkwyvvWd2QIqbo/MGFDhjOPL2+A69RlbNO+0GlmrCArgZ8Jg
-	mEdtS95UHipHU4vVU7akaUUbH8QzrFVLpGccLAt+meb62mzDl1hgfVgq6FvueJ5+92BmvIJBOlH
-	5cSSzeqdCO9h5TRlBCNM4CQzfSchoxPbvAGuLn6ZOU/SaxIeJ31w7ywrtYhsrFp1wIsNOhi9JZ4
-	FwEeMrBE8Q2eqZ3VZA8IoZ1do0Bvgo6ra9NPYR4Gr7IdZdOFeCWMI8qQVMcIhVc00dkITOezs6h
-	ymckm0ff5UPJyn3iISaBZCAFSdproMlBwfm6c+RDny2zj56uLOsXYOwUv0WNrVPtDmcPtEw2qP8
-	LriI9EkhfAPddNkDjzcJvuFTNwhF1hGBZUZznpVmKk8+gmQBf9wVGk5gTlm5c4f27SXm1YO8HdD
-	V7onE/1zNxhmPjXppEl3uvsw5Rv75rEfGyxtqdhjh1DBXI3iscMt2KSOM6UikY+2t3On4Hk/k8q
-	+gAnxA0J2ttAm5fQp9iflsFiHVtYlwtCT2q3zj6CTCtc6ZEez7Ug25+eTMGjhlSzRwiM//+D+qh
-	VFxPgMgct9DIJUym9ZmvMIrW35h2TQnj985cLdKfMGW5PFRivPeZ8KS7DQngQ3w1cax7jgFpdpf
-	r
-X-Received: by 2002:a05:693c:8948:20b0:386:b08e:4b7b with SMTP id 5a478bee46e88-386b08e4e93mr8414503eec.29.1795586747002;
-        Tue, 24 Nov 2026 22:05:47 -0800 (PST)
-Received: from O1PCCC03033100.cn.corp.seagroup.com ([143.92.127.241])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567cafec4sm57080152eec.26.2026.11.24.22.05.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 22:05:46 -0800 (PST)
-From: "chenglong.ma" <longpareto@gmail.com>
-To: Lorenzo Stoakes <ljs@kernel.org>,
-	"Michael S . Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=RqltCb+4
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=1lJ3K/EilkHlytmEnlIWdtZUx18zfJBzx5n6NoVgMZA=; b=RqltCb+47NdqyaEvOeyiNTu41X
+	84FUK7YH1lzhc+XRDU7RDe1ATmwD2JLDQQHYXSptW+C8cOoyJXaeMMoxDrj52mgJbJABc7Wp7C6Ek
+	yMmn7sxUNjG9+JacqyjWHOLLSx44CbPR/BUHV3axpjiiSm5gCjQQXyxxA7H3gdH1t4MGWdJOzFgY/
+	LdhuYc4NBwg0ll800pMNrxw416aXG455yKA7ZRyCJXxDYUE7E96+EFTBNvaDVaODEWfUflZDK22Vc
+	WudMF3wjFMpxyZ/vO15PD+q5sQEnuA9btI8rOSE+Z/fRZgBFloydCASmKFi4tcauXjXpi+0t0+GV5
+	I+QiQsxQ==;
+Received: from [50.53.43.113] (helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xW6GF-00000008Wvh-2FgZ;
+	Wed, 25 Nov 2026 06:13:43 +0000
+From: Randy Dunlap <rdunlap@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: Randy Dunlap <rdunlap@infradead.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	linux-doc@vger.kernel.org,
+	David Hildenbrand <david@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jason Gunthorpe <jgg@nvidia.com>,
+	Leon Romanovsky <leonro@nvidia.com>,
+	linux-mm@kvack.org,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
+	linux-sound@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>,
+	linux-block@vger.kernel.org,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	linux-bluetooth@vger.kernel.org,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	David Heidelberg <david@ixit.cz>,
+	oe-linux-nfc@lists.linux.dev,
+	Chas Williams <3chas3@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
 	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	2312891301@qq.com,
-	blum@kernel.org,
-	co+6dcbccedc9ec6452@bugs.sh,
-	eperezma@redhat.com,
-	fangxy@xiaopeng.com,
-	jasowangio@gmail.com,
-	kmehltretter@gmail.com,
-	linfeng.sun.dev@gmail.com,
-	lirongqing@baidu.com,
-	oss.patchbox@gmail.com,
-	p@1g4.org,
-	phx0fer@gmail.com,
-	physicalmtea@gmail.com,
-	sergiiushakov@google.com,
-	shubham@octane.security,
-	stable@vger.kernel.org,
-	stjepan.poljak@gmail.com,
-	syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com,
-	tavhadia@gmail.com,
-	tjdqudcks0424@naver.com,
-	tz2294@columbia.edu,
-	xieyongji@bytedance.com,
-	xmei5@asu.edu,
-	yuz08559@gmail.com,
-	zenghui.yu@linux.dev,
-	zhaimingbing@cmss.chinamobile.com,
-	zhangjiao2@cmss.chinamobile.com
-Subject: Re: [GIT PULL] vhost,virtio,vdpa: bugfixes
-Date: Wed, 25 Nov 2026 14:05:32 +0800
-Message-ID: <20261125060533.1296-1-longpareto@gmail.com>
-X-Mailer: git-send-email 2.45.2.windows.1
-In-Reply-To: <awWOpS3HR_2FTN3I@gremlin>
-References: <20261104081535-mutt-send-email-mst@kernel.org> <awWOpS3HR_2FTN3I@gremlin>
+	Helge Deller <deller@gmx.de>,
+	linux-fbdev@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	MPT-FusionLinux.pdl@broadcom.com,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K. Petersen" <mkp@kernel.org>,
+	linux-scsi@vger.kernel.org,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>,
+	Vignesh Raghavendra <vigneshr@ti.com>,
+	Zhihao Cheng <chengzhihao1@huawei.com>,
+	linux-mtd@lists.infradead.org,
+	Neill Kapron <nkapron@google.com>,
+	Andrey Konovalov <andreyknvl@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	linux-usb@vger.kernel.org,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	xen-devel@lists.xenproject.org,
+	Hans de Goede <hansg@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Jan Kara <jack@suse.cz>,
+	linux-fsdevel@vger.kernel.org,
+	"Theodore Ts'o" <tytso@mit.edu>,
+	linux-ext4@vger.kernel.org,
+	Mike Marshall <hubcap@omnibond.com>,
+	devel@lists.orangefs.org,
+	Paulo Alcantara <pc@manguebit.org>,
+	Namjae Jeon <linkinjeon@kernel.org>,
+	linux-cifs@vger.kernel.org,
+	Jaegeuk Kim <jaegeuk@kernel.org>,
+	Chao Yu <chao@kernel.org>,
+	linux-f2fs-devel@lists.sourceforge.net,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	Benson Leung <bleung@chromium.org>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	amd-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	intel-gfx@lists.freedesktop.org,
+	Matthew Brost <matthew.brost@intel.com>,
+	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	intel-xe@lists.freedesktop.org
+Subject: [PATCH v3 00/12] docs: ioctl-number: update entries
+Date: Tue, 24 Nov 2026 22:13:27 -0800
+Message-ID: <20261125061340.3402300-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -168,20 +145,121 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 24, 2026 at 01:51:29PM +0000, Lorenzo Stoakes (ARM) wrote:
-> It looks like it doesn't need VM_IO anyway, the other changes in the patch
-> make it redundant AFAICT, so you should send something like the below with
-> a Fixes pointing at bb2e6f166547:
+Update file names that define ioctls and update the range of
+ioctl function numbers that are used where they have changed.
 
-Sorry about that: it went to security@kernel.org (hence no lore thread),
-I did not test it on 7.4-rc, and you're right that VM_IO is redundant,
-since vduse_domain_set_map() is the only way vhost-vdpa entries reach
-the domain iotlb and it already rejects anything backed by the domain
-file.
+[Since having multiple maintainers trying to merge these would
+cause some conflicts, it would be more manageable for Jon to
+take all of these through the docs-next tree.]
 
-I'll send the one-liner with Fixes: bb2e6f166547 and your Reported-by
-and Suggested-by once I have actually run it on current mainline.
+ [PATCH 01/12 v2] docs: ioctl-number: update MM entries
+ [PATCH 02/12 v2] docs: ioctl-number: update sound entries
+ [PATCH 03/12 v2] docs: ioctl-number: update block entries
+ [PATCH 04/12 v2] docs: ioctl-number: update networking entries
+ [PATCH 05/12 v2] docs: ioctl-number: update video/fbdev entries
+ [PATCH 06/12 v2] docs: ioctl-number: update SCSI entries
+ [PATCH 07/12 v2] docs: ioctl-number: update MTD entries
+ [PATCH 08/12 v2] docs: ioctl-number: update USB entries
+ [PATCH 09/12 v2] docs: ioctl-number: update virtualization entries
+ [PATCH 10/12 v2] docs: ioctl-number: update FS entries
+ [PATCH 11/12 v2] docs: ioctl-number: update platform entries
+ [PATCH 12/12 v2] docs: ioctl-number: update DRM entries
 
-Thanks for catching this.
+ Documentation/userspace-api/ioctl/ioctl-number.rst |   91 ++++++++---
+ 1 file changed, 72 insertions(+), 19 deletions(-)
+
+v2 changes:
+- address sashiko review comments
+- drop addition of arch/x86/kvm/x86.c (Sean Christopherson)
+- drop moderated mailing lists
+v3 changes:
+- update the scarlett2 sound driver ioctl range (sashiko)
+- rebase all patches in the series
+
+
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: linux-doc@vger.kernel.org
+Cc: David Hildenbrand <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Leon Romanovsky <leonro@nvidia.com>
+Cc: linux-mm@kvack.org
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: linux-sound@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc: linux-bluetooth@vger.kernel.org
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Jason Wang <jasowangio@gmail.com>
+Cc: David Heidelberg <david@ixit.cz>
+Cc: oe-linux-nfc@lists.linux.dev
+Cc: Chas Williams <3chas3@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: MPT-FusionLinux.pdl@broadcom.com
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: "Martin K. Petersen" <mkp@kernel.org>
+Cc: linux-scsi@vger.kernel.org
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: linux-mtd@lists.infradead.org
+Cc: Neill Kapron <nkapron@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: xen-devel@lists.xenproject.org
+Cc: Hans de Goede <hansg@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Eugenio Pérez <eperezma@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux.dev
+Cc: Jan Kara <jack@suse.cz>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-ext4@vger.kernel.org
+Cc: Mike Marshall <hubcap@omnibond.com>
+Cc: devel@lists.orangefs.org
+Cc: Paulo Alcantara <pc@manguebit.org>
+Cc: Namjae Jeon <linkinjeon@kernel.org>
+Cc: linux-cifs@vger.kernel.org
+Cc: Jaegeuk Kim <jaegeuk@kernel.org>
+Cc: Chao Yu <chao@kernel.org>
+Cc: linux-f2fs-devel@lists.sourceforge.net
+Cc: Florian Fainelli <florian.fainelli@broadcom.com>
+Cc: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: Tzung-Bi Shih <tzungbi@kernel.org>
+Cc: Benson Leung <bleung@chromium.org>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tursulin@ursulin.net>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: intel-xe@lists.freedesktop.org
