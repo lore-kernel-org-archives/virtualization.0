@@ -1,82 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795596004;
-	b=Ly+owWur6JzASSghiEtctjvP2Gks93dy8ca6UhWQ98bU2v9Xiq8PHPWhR4Up+fkFLFv3
-	 ivN5PEgoM3Xuer2KVR+3Im9gnwjG/zMIWxudJ4BTd+vkWg+wBy37+7q8HX5X87n9qgUXw
-	 r8AeQvwqAPgNKWwfrWl8zUhy928n2uqq2eeoR7smimH29vtfsRCfSAVB3/QhotPr5L1ts
-	 vefhFfJsce7rfvr79CnVIGOoVreRipiJpJjp3UZKRWWdxVyDVzVWNy1Hb/TjI4nbJfoNf
-	 jhlFGw7NzqjPAb5eDQwizDFR8lLmUtqxGTZ98NqSxFaNVfoxcgWxC1ivwo90EdDc7FQ==
+	t=1795596495;
+	b=EkXFkPx6hbOQbxl13JsDb3aZdMzjTGJhyGnbWA1sAwprtf6oQXnmSFYl8Z+WqXNn6SxE
+	 QYdYCRGw/DhmS9+HN5RbSdrXYOtTPvpBn9vzhCnSJ2zpJ2dJ40GQmmYAIxjfJpFlcjiFc
+	 emzZOVElDyfeQLONytetCLMX4bxaQ123hM1bqK5m/iF2Mr/+VkEo1ODU+eD0GVB5XHVRZ
+	 4BOHmnQgPqWM5P0oK0zsQBoFR8JizVnLaOJdCr+3S+Htu/riNsmspvHO6o5hBzOYKe1SU
+	 jFO4ROaHrKpExiw7gDwqZ9iAJhtvxB6NibZ5Edu344iDF9eqff6uu2oM9bnR9z6s0Jw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795596004;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:In-Reply-To:References:MIME-Version:X-Scanned-By:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:
-	 Content-Transfer-Encoding:content-type;
-	bh=Cba8fS/ZVsj+QyvAYm2ReLCTwOe+j7JjbC25csY6/oU=;
-	b=BWfajt892CjU5NDqtVGKCFiX0fvySPXPIDfvO2zrf99CD9uui7U5vveK0QLmRz/AjpyM
-	 I8g+1T5RHvYl1oGd9thk25AikDccVvL7PnQ2xCyEPxFiTANoNpTHqtafpaKdKn2/0wQSC
-	 qZZRWNoXRK7+NE/t7VitE7sYp6uFXGkzzXboKPC6uKjtGvq1buGw+RHG2VmnjryHwMhkN
-	 R1ZmyDQFyI8c4sCe7aji0pbiRtlML5lYpYnyYWSGga86dVyqTEfn7u8yQ49d+U0g6RlQ3
-	 CA8WgV6jRZP7Ik5UxSFGoNbs793j3dpDnXypgvNlKD6phhzycMGD4phto1HRHrhyQFA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795596495;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=TX9WG0g9dwAwAUYSi1S1P+kJfwb7b2Nw75I22DPb2HY=;
+	b=HJ69l1ge5T6fmf5J69X+THZYQUTjcYvOpJn0g2GaEVHVR8d0VTBd7UQ1JHmxcJsvXSlT
+	 qfRKw3FsZ8Ho5B5zJ3fciM8W9NNVubBCyIvwUIauymP6NESQB4FIoAMozkRSkWumO7Ga3
+	 hswxICBBh4Q13eH928iOKVBzNKYNsefEBtGtp5OFNvQrOvOvJsnpNSEwz3JJ1ZbUdNYS2
+	 jXy6ABbHxzV7W4HxnQ8YP66XYkN5jmZzjDM1w4+cu39bmCOMEg+kq7/H5saXxu7zbbZ8j
+	 0PHESQjqA4VYJ1fJllDcuK5bU/xr3XTVtmGVkhJsgR6GP37Di5r4JNKvrTVbJDsj8jg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RT8cO27+;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gdtteylv;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6003606A326
-	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 08:40:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6003606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5373606A332
+	for <virtualization@lists.linux.dev>; Wed, 25 Nov 2026 08:48:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RT8cO27+
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795596003;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Cba8fS/ZVsj+QyvAYm2ReLCTwOe+j7JjbC25csY6/oU=;
-	b=RT8cO27+a3w60/Anfx8556RyFPSRfr2wRqom76DIedllSI95tT5i4EMsSqDSkhMHjWCAol
-	p/bojFmxB/JyC56/55g6hI5lrRw4N1J8UwfNUFSBU1MN5b8Y2Mt6dDAMJ3mLyaKjRzemJL
-	EeKj485o1tsBgEWt4/RmzgbulbX9BgQ=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-173-6jyNqfDFPs630dUezLSwdg-1; Wed,
- 25 Nov 2026 08:39:58 +0000
-X-MC-Unique: 6jyNqfDFPs630dUezLSwdg-1
-X-Mimecast-MFC-AGG-ID: 6jyNqfDFPs630dUezLSwdg_1795595997
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A016C195604E;
-	Wed, 25 Nov 2026 08:39:57 +0000 (UTC)
-Received: from desktop (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B12841800550;
-	Wed, 25 Nov 2026 08:39:54 +0000 (UTC)
-From: Alberto Faria <afaria@redhat.com>
-To: linux-block@vger.kernel.org
-Cc: virtualization@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Alberto Faria <afaria@redhat.com>
-Subject: [PATCH v3 2/2] vdpa_sim_blk: add support for FUA writes
-Date: Wed, 25 Nov 2026 08:39:47 +0000
-Message-ID: <20261125083947.263216-3-afaria@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gdtteylv
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC33C1F000C0;
+	Wed, 25 Nov 2026 08:48:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795596495;
+	bh=TX9WG0g9dwAwAUYSi1S1P+kJfwb7b2Nw75I22DPb2HY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GdtteylvG6y+mn6mDiiNtZidALLO0CDYrjO1D+MOWzPy+lhQD1ZWl5A2cY6RQz2m2
+	 1NmyIkkXZp+rn0LPSG9qhxVakqGZwf6T8MF+L7l5sWKT3FmBr9A5XRQHPH2E9hJ4uT
+	 ADGY0doUoYc8EmTHZpYs0m2nEBursefI+K2Uba1QCD8YH9v1Zu0SkIOGJOqBPUIxrj
+	 XIkwQp1KCk0LM4ZJzYEO+7ZaWUti2TFaxGzTvvLapf7uXAoZyNHQQT3wxzpRbsyoLh
+	 pK36JnMH1poFmXEeYcO+LIb+FVZGp8/UP52V7aWnfy/QBx9x9KuKFQBVATXK0wpY93
+	 oTVmPRmahRbpA==
+Message-ID: <sashiko-outbox-232942@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 0/2] virtio_blk: add FUA write support
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Alberto Faria" <afaria@redhat.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
 In-Reply-To: <20261125083947.263216-1-afaria@redhat.com>
 References: <20261125083947.263216-1-afaria@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 25 Nov 2026 08:48:14 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -85,120 +59,9 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: 2A-CzrfxeZDjAaPzBf6RIQ6hTcErdBh5LxijUPT9drA_1795595997
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Expose VIRTIO_BLK_F_REQ_FLAGS and VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA to
-drivers. The simulator is a ramdisk, so it handles FUA and non-FUA
-writes in the same way.
+Sashiko has reviewed this 2-patch series and found no issues.
 
-Signed-off-by: Alberto Faria <afaria@redhat.com>
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c     | 15 ++++++++++++++-
- drivers/vdpa/vdpa_sim/vdpa_sim.h     |  1 +
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 14 +++++++++++++-
- 3 files changed, 28 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 97d437d89524a..bec348d3dd7d1 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -198,7 +198,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
- 	struct vdpa_device *vdpa;
- 	struct vdpasim *vdpasim;
- 	struct device *dev;
--	int i, ret = -ENOMEM;
-+	int i, ret = -ENOMEM, ret2;
- 
- 	if (!dev_attr->alloc_size)
- 		return ERR_PTR(-EINVAL);
-@@ -209,6 +209,12 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
- 		if (config->device_features &
- 		    ~dev_attr->supported_features)
- 			return ERR_PTR(-EINVAL);
-+		if (dev_attr->validate_features) {
-+			ret2 = dev_attr->validate_features(
-+				config->device_features);
-+			if (ret2)
-+				return ERR_PTR(ret2);
-+		}
- 		dev_attr->supported_features =
- 			config->device_features;
- 	}
-@@ -442,11 +448,18 @@ static u64 vdpasim_get_backend_features(const struct vdpa_device *vdpa)
- static int vdpasim_set_driver_features(struct vdpa_device *vdpa, u64 features)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-+	int ret;
- 
- 	/* DMA mapping must be done by driver */
- 	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
- 		return -EINVAL;
- 
-+	if (vdpasim->dev_attr.validate_features) {
-+		ret = vdpasim->dev_attr.validate_features(features);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	vdpasim->features = features & vdpasim->dev_attr.supported_features;
- 
- 	return 0;
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-index bb137e4797633..70890974b6e56 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-@@ -45,6 +45,7 @@ struct vdpasim_dev_attr {
- 	u32 nas;
- 
- 	void (*work_fn)(struct vdpasim *vdpasim);
-+	int (*validate_features)(u64 features);
- 	void (*get_config)(struct vdpasim *vdpasim, void *config);
- 	void (*set_config)(struct vdpasim *vdpasim, const void *config);
- 	int (*get_stats)(struct vdpasim *vdpasim, u16 idx,
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-index 4d3e36fb59d50..e0ed9eb729cf3 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-@@ -32,7 +32,9 @@
- 				 (1ULL << VIRTIO_BLK_F_TOPOLOGY) | \
- 				 (1ULL << VIRTIO_BLK_F_MQ)       | \
- 				 (1ULL << VIRTIO_BLK_F_DISCARD)  | \
--				 (1ULL << VIRTIO_BLK_F_WRITE_ZEROES))
-+				 (1ULL << VIRTIO_BLK_F_WRITE_ZEROES)  | \
-+				 (1ULL << VIRTIO_BLK_F_REQ_FLAGS)  | \
-+				 (1ULL << VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA))
- 
- #define VDPASIM_BLK_CAPACITY	0x40000
- #define VDPASIM_BLK_SIZE_MAX	0x1000
-@@ -371,6 +373,15 @@ static void vdpasim_blk_work(struct vdpasim *vdpasim)
- 		vdpasim_schedule_work(vdpasim);
- }
- 
-+static int vdpasim_blk_validate_features(u64 features)
-+{
-+	if ((features & BIT_ULL(VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA)) &&
-+	    !(features & BIT_ULL(VIRTIO_BLK_F_REQ_FLAGS)))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- static void vdpasim_blk_get_config(struct vdpasim *vdpasim, void *config)
- {
- 	struct virtio_blk_config *blk_config = config;
-@@ -424,6 +435,7 @@ static int vdpasim_blk_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 	dev_attr.nas = VDPASIM_BLK_AS_NUM;
- 	dev_attr.alloc_size = sizeof(struct vdpasim_blk);
- 	dev_attr.config_size = sizeof(struct virtio_blk_config);
-+	dev_attr.validate_features = vdpasim_blk_validate_features;
- 	dev_attr.get_config = vdpasim_blk_get_config;
- 	dev_attr.work_fn = vdpasim_blk_work;
- 	dev_attr.free = vdpasim_blk_free;
--- 
-2.56.1
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125083947.2632=
+16-1-afaria@redhat.com
