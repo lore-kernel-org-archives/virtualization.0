@@ -1,113 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795687443;
-	b=QzVQUMfRUoy33/r7VtkVPLWs0z5Wy7fXQ+jOA18pokFLBxgsLFSzZENuW63AgjI5WCuK
-	 PZmdCoxaY+BUpbLVaAqOLI6LgCa5zuciXfWb11t7aYV3Z/gjNGj6A0Hl5tJi9MDgc1OaT
-	 7/j1mF6MIfORSlEV5sxMzTBxslXBJjTe/ilLan0U/LdqE8rZiEXyeo/6owlFaMJj29evQ
-	 B3LAI2kxK1uCR7vNXMMGOJdNgLbVi5/L3kEwd3u7JJMipRuAXm2lxssyabvtUWBAnEvfT
-	 Ok7lJlPdbu0vQFFjZCWqYzYbQHHxSkJSaTv9qWJLDMaVeNa5hEZ/VoEX1XuTjGFezQA==
+	t=1795687704;
+	b=aJ70el5WK8dxeoa23RNX+1PG0+Oj+TXqu4B/z4JmsPM6izmf74sOHApnmAj0Vqw2Cz8V
+	 FIq81Jx0CD38eXwQ7rs5RZwRKtzy562orJ2fYLucvzNObnUwsFPf4UEhv/9fJ4V6m/URA
+	 gvYNh7GoWlqJdwsYbyGb0jA9B05Y4G1WlIASAquR46YwOHyIvGkLjq3kldyTP6EQamszX
+	 wPSSRPUpny4lAv4Ljju8wh0UXb+m70rxDQhVpphYlYvAZ/G6c5Oq8FOWHlYnqKFPzJRNw
+	 z1jsQjVX+x5ozzKUfoUv0giaSpIFRgeVc61yG4Gbdm0A9KtXtdBS4zFB3Mbl2mBG/xQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795687443;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:
-	 X-Google-Original-From:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=AnhYG98epmOlL/nJZmae6Tnb19IOlGihaMzySm6TLlY=;
-	b=OYuH/9P3LvCsR/583SY1oWlhmjoDM5E+a6BffqIXCUmhNtPz6F4mpQ/paYtVABLEYvH8
-	 BSq9dfIV3XvQPqgwDyYOWBUzicChWhqB1vjBunNwvxiwV4NSmEa+sw7cThPCNg0tyGd3i
-	 PSylE0szjVj4DxvZ0Ab6DPxDFVljxsvINeyiX6sM8VxrzXQcgxMt/T8BfHXNl31UFUQ4Z
-	 wUM82b11bIrsgoY81i7Nl21rKG8yH8KJq/G2RSZLl/axkpZfgP4VD8ze+lVHxJfQdqpF2
-	 zgx3XYjDxr1TawBNCTStIG0PA6GaU3WBOE0sidhwVWy3m/y94MDt1ilzjJxQl6lMK+g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795687704;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=kza1kqE4hyx4X8fklpeFk/tscl8P/9S0B2tiXMLcW1A=;
+	b=gTWT7hyi4LN2mO/GqgdmHYdsmB5wpyrxQJ0KNhDhQPktEIK/G6Y+7YswLmac/Ar7/cY2
+	 7HN60E9y0rMkpCWA/VsFIs2l86V5P8ewTg+MDwNQOEO7it0S5z4yiqcyU3CV9NnMFZPD3
+	 Mpfh8+k9Umlz5s7xanFJgrLComl60KIezpPppcFVs+ZiX9SWL23/gPr/SW6cXV1AVcIx0
+	 64AGQ/wrJJKwBBfGhbDxX1+MK9Ckw6sUXrSabb4Zm+RHDN5kkcjU1VfCghu5NpNkuHQhZ
+	 RYpJyXUJ+eC5lOoc1JkCG8vgwTUOu/mfeFIJuodz38Abel5GhGUv/0t1T/ZOabt1Eeg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=YvCNB1KV;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b="YUtu2/tN";
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JqjkXmuv;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24412606A31C
-	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 10:04:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 24412606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1CFE606A331
+	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 10:08:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D1CFE606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=YvCNB1KV;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=YUtu2/tN
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AQ7B4aU2595120
-	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 10:04:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	AnhYG98epmOlL/nJZmae6Tnb19IOlGihaMzySm6TLlY=; b=YvCNB1KVTF4sdh2Q
-	uiTkomCtxUq/ILFO/ztOnZcJUKany0NwCoRajo2x4lDXeosmopZfFsRounVGJby9
-	UQ1VanPnOS6FogxKw8JUCP5IwiIyMBg+BuJtHU4NTy5GDhcTO1TCxkGFXsgHJvvh
-	z+rG3huR5rwgFpLjyBnAEM2kAudGCTpFzdg7p0plSsVQTuWUeKcPxHehH0GHcEpv
-	iAh7yEtyxyp14QopM1zyhtFElEnhB1ZRMkMj0+a+Thc/ra/csD4Wj31FyhIpW3vv
-	NBsW4MtOM4UdSJ149BYVUNJopXLXH2oEtOfeXtoROMO+onq60Lv2VhQzD1frmpcA
-	AdT+4w==
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4j662sam6u-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 10:04:01 +0000 (GMT)
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3ae7faf4ff7so8134171a91.3
-        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 02:04:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1795687440; x=1796292240; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=AnhYG98epmOlL/nJZmae6Tnb19IOlGihaMzySm6TLlY=;
-        b=YUtu2/tNhJK9xgt+ZRSBCvI6H4Ao9sN2nEL5kodZhZIE9zUvepTTSk/RT+ykDeVcY5
-         uLTyF5E45J6iN1cplZc1W0RtcAQip+tzp9gxPaBfsplOec/dwQyyoAIsamLSyZqoSlfV
-         AezB7AplZgTMGSZPAeRttfYOq3LLmWlo1qwC/ZuzSmL/G1nkDq/1SF+DM+IlSlVxPyPu
-         5Nq0DucjcMRFQxKIvT43yg9EBruIGVL392q4ImOO9rx9s0/rHaXm9n27Q/VFaC/UzHb8
-         D6Zll6+NAhQLneaYszQ55MPX3nc1os45/ilI8h3xq1s1+FD4bv85DUcGuwyO/F61JQKr
-         UmkA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JqjkXmuv
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1795687702;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kza1kqE4hyx4X8fklpeFk/tscl8P/9S0B2tiXMLcW1A=;
+	b=JqjkXmuveIWJz0Jz5PUcZTDZapXjxckSl3fnnCh9jOWwtt/SmYgLnTwur25hjTCKBhe8/Q
+	od5kE6Uw3puX26kxdZgNACnwCHb/pbFWA4Fxdt0KkR8lK0nB57Vhody3vqwaE250oVejib
+	q3MdLXcbbAtZcdK0bOadHIhieFwCtJw=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-55-v2sng_vuM-ewLxviv3-D5w-1; Thu, 26 Nov 2026 10:08:21 +0000
+X-MC-Unique: v2sng_vuM-ewLxviv3-D5w-1
+X-Mimecast-MFC-AGG-ID: v2sng_vuM-ewLxviv3-D5w_1795687700
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4a82fb7e71eso3800822f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 02:08:21 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795687440; x=1796292240;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=AnhYG98epmOlL/nJZmae6Tnb19IOlGihaMzySm6TLlY=;
-        b=wUPlQh2oSNYOIcwZSkQTWpz6E44XboykVD1fR/AM6Z8O1OIMHXDnAL7wHVTwFWvCZP
-         sEUHr7E9ka5Z2wKyzQ3ucMMZjM5uak3+dOau5BdaJ5B/WPO8gtR5XJldqbsUSq1E7MGv
-         6uLc5n1s0Ijrrn3x6yN+Vd4Mq3O7Pb4YwhRZzHWO+mFt6+3UYFGRJpV0XhyqAO9uz4Lm
-         bYL74Hpbc6U61BqFlBP0/AzNjTcY/OM/aIrgW321mSLUPnHZ/a2Xq6UfItjLY8Tk3jAm
-         HvASN/fs1sOmH5Q5e8tx/mNPopNiIKChGkgwPgiLoXpipji9g3UUnH3PdlWB5c+JrpEi
-         6NYQ==
-X-Forwarded-Encrypted: i=1; AL+hErGbVG6IqL0p1ps6ZdCujqqot6wLWkNUrgMRgj6e7cA+Qc5k02U4dw72CFtNvUmVEtWrDUDFFNCfEz+rwE5w3A==@lists.linux.dev
-X-Gm-Message-State: APuU4Z83AlLBMyoqpNl61l2uz03gvvNO5s/L/QiMF7reI1qt9s6UpgkK
-	kgh4ZC4Rxwx4XmUZOeD1c6DwRuJc6hN3/Imb8zUEkNlbLb/XYHXN5PtEGxNCeq6H2NBQQY4FkZL
-	K7kaiQxe7l7Rhx7LY1BxlQ4zriPDJIak3JxPFuYwly2DieTkXtaekeL9mxVN31XMdOEGI8g==
-X-Gm-Gg: AZFdTZcDl2bCNN+gPQJdO8lxaQXQs69cLO/VeeoGGAknFMC9lWeXMqn+zM6NAo2hiFt
-	ShpXCVl3DUKJ/iJdBsZJBSxVtEjIOByAsUgiEVcRmJstVDUngvnMNI/zTucWimacOclH2Duxs0I
-	QgV0fOL51a0e4FYgiqQt6YfFr/jAW8/umgQ4+qOcZ3risPT6BBdRjcUPz6/R3k2NAYVJGDCifce
-	OS67f+v55fIrwPJeDWzpPejHOJVcqtDYB3pMJWFvDqL7siuD96IGn7DCughyl41rdPAmr8p7WyC
-	KwOD98ax65xN5db7eGLlsZYJNMYWo/ZjfbWFRsTK1EQ/cuGVXncAJBEgO7qvXa37ixbAZx+YH7/
-	0z0mdJVNMOyDD3gEeFIkCIgqCqTeWzo3k4D2Mo3sEYHBoOl4j/tozTtssbkSiCHDABvugQZ8IhE
-	UqGMjjvYKb
-X-Received: by 2002:a17:90b:50:b0:3b4:139d:33ba with SMTP id 98e67ed59e1d1-3b41c7e166amr20648440a91.4.1795687440222;
-        Thu, 26 Nov 2026 02:04:00 -0800 (PST)
-X-Received: by 2002:a17:90b:50:b0:3b4:139d:33ba with SMTP id 98e67ed59e1d1-3b41c7e166amr20648396a91.4.1795687439486;
-        Thu, 26 Nov 2026 02:03:59 -0800 (PST)
-Received: from [10.91.115.190] ([202.46.23.19])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b4dfbe54a2sm11254010a91.17.2026.11.26.02.03.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Nov 2026 02:03:59 -0800 (PST)
-From: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
-X-Google-Original-From: Jayant Shekhar <jshekhar.shekhar@oss.qualcomm.com>
-Message-ID: <1515086f-ff6c-4a4e-b74e-f43b13eed713@oss.qualcomm.com>
-Date: Thu, 26 Nov 2026 15:33:53 +0530
+        d=1e100.net; s=20260707; t=1795687700; x=1796292500;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kza1kqE4hyx4X8fklpeFk/tscl8P/9S0B2tiXMLcW1A=;
+        b=mISJQuOlzNcToA4AVcdPBAc49djXCWaB/sC08x9Jawdm0VE8Ytyj/2y5nPZC6ZXPUV
+         XjH79qVkWi78s37wLopb3W8z0x+IB14uCB5LFTctNT4CNB4mPAr/iiiwKKrc3qofII5I
+         lazVmMYmXuRiHzM4P0Rmom3TsguoajHI4UC/m4xJXFcigS1AgjyHfftAReet+bGzPeVo
+         1cRwzBeAVvneEUxkQN4htL4kfjskUmWGvKlB521dB33vFQXu44bAR5IUo7bbARTXD1dK
+         b+6/gFZA9Gomzr35yElL9w6w6xkChuIApAGNp69PJUhWtX+1oSbBE6FYNf/otR0AanqP
+         S1zw==
+X-Forwarded-Encrypted: i=1; AL+hErHbA33ULHSi0Wc8INTHj1stvs54ES14Cp4nEhWcjf3zmEHOSDV5Dyd8iECwg/W3TL6WMTtrs06hawiMdetLLQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+qB9fjFTFN1kDUHn11oh1arQvK+GwP1x6cZmkC/qbIOLedz8aR
+	aESDDLxl5PEXBnHZEZYL0EezQ6xNSMFjcDdeEI1FvwE6WGuYbd77cz60FIG+8WLvfd/bs5s9Jyh
+	YQj88NjN7Qtf1PJ8hXeVKdjj3GR6PkRlzavoU/X6RPmhFwSkT7bnwTnB6efBdHWd9VGcX
+X-Gm-Gg: AZFdTZde0S9oNQxYWsod5ym2B2RKOci1/5fP3wGTj/B1JADHcT0GXepXmL6k2kE7uS+
+	EIYmB73B1TSrMWahjHHkl+9zBgVGUeJAgt05kL4FFTZyNEsCeB72yVGu71OnrrpslExtrj6B2no
+	rOwxiybKTnPcsz4aDizpY87gfgU3Lq7d21p3773qL5IlMTXWOyerjaf23vUo0yAFeONI3FjkDiL
+	79o7c9W4jhMb07gHoU1exlKcpkT+WE59EBziBmQv+lEaOF5ok+6Flt5XcyXaedkqCSiu/VOLcbX
+	KHyxkIV/aOTEg5IknnAzK+NL1laEYzC98MUtx27Jy0B6tgEwqgppIJK7wlxa/VQtoioELQGvGMS
+	0ZGHQTGyzT12zLX3h3tWIZb1aBUs8KS9bUUtftOlVwbaopYPcPCzorA==
+X-Received: by 2002:a05:600c:4e0d:b0:4bb:5f07:10d7 with SMTP id 5b1f17b1804b1-4bb8882445cmr395519385e9.26.1795687699797;
+        Thu, 26 Nov 2026 02:08:19 -0800 (PST)
+X-Received: by 2002:a05:600c:4e0d:b0:4bb:5f07:10d7 with SMTP id 5b1f17b1804b1-4bb8882445cmr395518535e9.26.1795687699094;
+        Thu, 26 Nov 2026 02:08:19 -0800 (PST)
+Received: from sgarzare-redhat ([80.116.143.202])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bba6a0d65fsm117617215e9.3.2026.11.26.02.08.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Nov 2026 02:08:18 -0800 (PST)
+Date: Thu, 26 Nov 2026 11:08:11 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: netdev@vger.kernel.org, stefanha@redhat.com, bobbyeshleman@gmail.com, 
+	mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com, 
+	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, horms@kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v5 3/5] vsock/virtio: amortize RX socket locking
+ for stream packets
+Message-ID: <awgCqpU1HZ5-iTtv@sgarzare-redhat>
+References: <20261103041134.33310-1-physicalmtea@gmail.com>
+ <20261103041134.33310-4-physicalmtea@gmail.com>
+ <auxDWISLHB8Ln1x7@sgarzare-redhat>
+ <CAJwVaMJbzzK8Sj8DvLjiAyqS8TNgRQ3tjRpGcBNC+anQECg5yw@mail.gmail.com>
+ <avXn6E8y5OPtdikQ@sgarzare-redhat>
+ <CAJwVaM+SEhbFtORYgVYNayiQED63sCLO5ibwgkcjBRVvMd=KsA@mail.gmail.com>
+ <avdAV2RholA4ana_@sgarzare-redhat>
+ <CAJwVaMLtt1iKCWbhz2T4BbjqseTxjOb8S7vbvX3845LL8GHEBQ@mail.gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -117,747 +112,349 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] virtio: Add Qualcomm VirtIO transport wrapper
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-        Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Dmitry Baryshkov <lumag@kernel.org>,
-        Flemin Jose <flemin.jose@oss.qualcomm.com>,
-        linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261126-jshekhar-qcom-virtio-dcp-v1-0-7b49bda74916@oss.qualcomm.com>
- <20261126-jshekhar-qcom-virtio-dcp-v1-3-7b49bda74916@oss.qualcomm.com>
- <20261126012921-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-In-Reply-To: <20261126012921-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=B54sQ+tM c=1 sm=1 tr=0 ts=6b080411 cx=c_pps
- a=0uOsjrqzRL749jD1oC5vDA==:117 a=j4ogTh8yFefVWWEFDRgCtg==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
- a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=2bmipTvaJngT8L5-zw0A:9 a=QEXdDO2ut3YA:10
- a=mQ_c8vxmzFEMiUWkPHU9:22
-X-Proofpoint-GUID: dNJQH2FDNKCw8Jsvs18JuXWSzU1OyZov
-X-Proofpoint-ORIG-GUID: dNJQH2FDNKCw8Jsvs18JuXWSzU1OyZov
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI2MDAzOCBTYWx0ZWRfXxBhZQICNSeA9
- e/1B226Hu7n7NsSBH+hbH9SGvv14cr94Ycc6GT4oiywwZLjfNp3Cmbb89ywm2/oInnPjldOVQVS
- QjSQ17ADu0twRPCy4JWXFvE28nMFapda9ByI8kKPvKdbV71Qxwb5flE9RS7DvD+PyBpPvuMYsqj
- vDtr3a7C0oIzH66kwIP3OwRMlHgRAInGpE6za0Q5Q56Pp3rldZsfCXBYFxDyYEUDk1TuNlQrMgU
- 817JMcoUUADKSXT2YvbppzMab2Bp2d7p5XxDeSK5b+ymYdtH7Vb7nDuxo36KEQtLu3GwN/NTIZ1
- ps62JjEx7rqdV6syr/hBIUflrGVdqgpt0hDUBdTXDeEtcI4QGvz2KLmmplWYVT3SEdqDuFL8RFg
- go6qZnnKjM8oBvWduXZMqjoTGXO/Sp8X+ypvUgrL7vVDtwMV/+0ZaZnrPv7POnnPZQoYFXCeNTz
- RshIhbiLQrvWsKPHTCw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI2MDAzOCBTYWx0ZWRfXzHjWWl3/B/7s
- Y9R5+ufRf70oqEaoNXYnbi64EatXaOfMY9hMCT6Mcxv+XnyZxnTlzcQ7rMse31E9AjCwjWrrkyl
- 5yUr195Go4E0RGAVsPFFPbwJ1HxvFdE=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-26_02,2026-11-25_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 spamscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- phishscore=0 clxscore=1015 malwarescore=0 adultscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611260038
+In-Reply-To: <CAJwVaMLtt1iKCWbhz2T4BbjqseTxjOb8S7vbvX3845LL8GHEBQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YFslkBYcbmrust_zSzETdKmQB90c9Ns0efDuKWvrBYI_1795687700
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Sat, Nov 14, 2026 at 07:10:26PM +0800, Jia Jia wrote:
+> >
+> > On Fri, Nov 13, 2026 at 04:09:48PM +0800, Jia Jia wrote:
+> > > >
+> > > > On Fri, Nov 06, 2026 at 08:27:51PM +0800, Jia Jia wrote:
+> > > > >>
+> > > > >> On Tue, Nov 03, 2026 at 12:11:32PM +0800, Jia Jia wrote:
+> >
+> > [...]
+> >
+> > > > >> >+
+> > > > >> >+/* The caller holds sk's socket lock. */
+> > > > >> >+static bool
+> > > > >> >+virtio_transport_rx_batch_can_continue(struct virtio_transport *t,
+> > > > >> >+                                     struct sock *sk, u32 len)
+> > > > >> >+{
+> > > > >> >+      struct virtio_vsock_sock *vvs;
+> > > > >> >+      struct vsock_sock *vsk;
+> > > > >> >+
+> > > > >> >+      vsk = vsock_sk(sk);
+> > > > >> >+      vvs = vsk->trans;
+> > > > >> >+
+> > > > >> >+      /*
+> > > > >> >+       * Keep a connected lookup reference only for the native, established
+> > > > >> >+       * STREAM path. Sockets outside ESTABLISHED can change table membership;
+> > > > >> >+       * a completed or reassigned socket must resume the per-packet path.
+> > > > >> >+       */
+> > > > >> >+      if (sk->sk_state != TCP_ESTABLISHED ||
+> > > > >> >+          sk->sk_type != SOCK_STREAM ||
+> > > > >> >+          sock_flag(sk, SOCK_DONE) ||
+> > > > >> >+          vsk->transport != &t->transport || !vvs)
+> > > > >> >+              return false;
+> > > > >> >+
+> > > > >> >+      /*
+> > > > >> >+       * Do not admit a packet that would hit an existing RX limit while the
+> > > > >> >+       * worker owns the socket lock. The caller holds that lock, so no reader can
+> > > > >> >+       * dequeue until the batch is released.
+> > > > >> >+       */
+> > > > >> >+      return (u64)vvs->buf_used + len <= vvs->buf_alloc &&
+> > > > >> >+             !virtio_transport_rx_buf_full(vvs);
+> > > > >>
+> > > > >
+> > > > >Hi Stefano,
+> > > > >
+> > > > >> I don't understand this. We recently introduce the collapse, so when we
+> > > > >> will call virtio_transport_recv_enqueue(), all the queue will be
+> > > > >> collapsed, including packets in the batch.
+> > > > >>
+> > > > >> Or am I missing something?
+> > > > >>
+> > > > >
+> > > > >Yes, collapse operates on the same receive queue, which also contains
+> > > > >skbs queued earlier in the current batch.
+> > > > >
+> > > > >The rx_buf_full() check is not intended to bypass collapse. It prevents
+> > > > >the batch from retaining the socket lock while processing a packet when
+> > > > >there is no metadata room for another skb. Collapse is best effort:
+> > > > >some skbs cannot be merged, and allocation of a replacement skb can
+> > > >
+> > > > IIUC batches are enabled only for SOCK_STREAM, so, which skbs can't be
+> > > > merged?
+> > >
+> > > My wording in the previous reply may not have been precise. What I meant
+> > > is that collapse is not guaranteed to free the skb slot needed for the
+> > > incoming packet for every valid receive-buffer configuration.
+> > >
+> > > With the default 256K receive buffer, a queue of small STREAM skbs will
+> > > normally contain multiple collapse candidates by the time it reaches
+> > > the metadata limit, so collapse will normally make room.
+> > >
+> > > However, SO_VM_SOCKETS_BUFFER_SIZE is configurable through setsockopt().
+> > > A sufficiently small but valid receive buffer can make queue_max equal
+> > > to one. After the first small packet has been queued, that skb is
+> > > eligible for collapse, but there is no adjacent skb to merge it with.
+> > > virtio_transport_collapse_size() therefore returns only that skb's own
+> > > length, and the skb is kept unchanged.
+> > >
+> > > The incoming second skb is not in rx_queue yet. Provided that the two
+> > > packets combined payload still fits within buf_alloc, the payload check
+> > > passes, but virtio_transport_inc_rx_pkt() rejects the second packet on
+> > > the metadata check. This happens before the later tail-copy optimization
+> > > is reached.
+> >
+> > I'm lost to be honest, why the secondo skb is not collapsed?
+> >
+> 
+> The second skb triggers the collapse, but it is not itself an input to
+> that collapse.
+> 
+> The concrete case is a valid receive-buffer configuration where setting
+> SO_VM_SOCKETS_BUFFER_SIZE makes:
+> 
+>       queue_max = vvs->buf_alloc / SKB_TRUESIZE(0);
+> 
+> equal to one. Assume that rx_queue is initially empty and that two small
 
-On 26-11-2026 12:05, Michael S. Tsirkin wrote:
-> On Thu, Nov 26, 2026 at 11:54:01AM +0530, Jayant Shekhar wrote:
->> Add the Qualcomm-specific VirtIO transport required by DCP firmware.
->>
->> The transport sends an IPCC power notification before accessing the
->> VirtIO MMIO registers, then registers a VirtIO device directly.
->>
->> Implement MMIO configuration access, feature negotiation, virtqueue
->> setup, interrupt handling, reset, DMA setup, and suspend/resume
->> sequencing in the transport. Keep power-management ordering in the
->> transport so VirtIO queues are quiesced before DCP power changes.
->>
->> Assisted-by: LLM
->> Signed-off-by: Jayant Shekhar<jayant.shekhar@oss.qualcomm.com>
-> So VIRTIO_ID_VENDOR you defined in patch 2 is completely unused?
-> Why did you bother?
->
+But this looks like a corner case of the metadata check we added with
+commit 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue"),
+not something related to batching.
 
-I have split the DCP driver series into two:
+Also, with a buffer smaller than SKB_TRUESIZE(0) (allowed, the default
+min is 128), queue_max is 0 and every RW packet resets the connection,
+with or without batching. So small buffers are already broken.
 
-1) Adds Add the Qualcomm-specific VirtIO transport (this one)
+> STREAM/RW packets for the same flow are available in the same RX
+> virtqueue drain. Their combined payload still fits within buf_alloc.
+> 
+> The first packet passes the metadata check:
+> 
+>       u64 skb_overhead =
+>               (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
+> 
+> It is then queued, so rx_queue contains one skb.
+> 
+> When the second packet enters virtio_transport_recv_enqueue(), the
+> relevant order is:
+> 
+>       queue_len = skb_queue_len(&vvs->rx_queue);
+>       if (queue_len >= queue_max)
+>               virtio_transport_collapse_rx_queue(vvs, ...);
+> 
+>       can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
+>       if (!can_enqueue)
+>               goto out;
+> 
+>       /* tail-copy is attempted here */
+> 
+> At the point where virtio_transport_collapse_rx_queue() runs, the second
+> skb is still only the skb argument passed to
+> virtio_transport_recv_enqueue(). It has not been linked into
+> vvs->rx_queue, so the collapse sees only the first skb.
+> 
+> For that skb, virtio_transport_collapse_size() cannot find a next queue
+> element:
+> 
+>       while ((skb = skb_peek_next(skb, queue)) &&
+>              virtio_transport_can_collapse(skb))
+>               ...
+> 
+> It therefore returns only the length of the first skb, and the collapse
+> code keeps it unchanged:
+> 
+>       if (alloc_size <= src_len) {
+>               keep = true;
+>               goto next;
+>       }
+> 
+> The queue length remains one. virtio_transport_inc_rx_pkt() then
+> accounts for the existing skb plus the incoming one:
+> 
+>       (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0)
+> 
+> With queue_max == 1, this exceeds the metadata budget and returns false.
+> This check happens before the tail-copy code, so the second skb cannot
+> be copied into the first skb even if the first skb has sufficient
+> tailroom.
+> 
+> virtio_transport_recv_enqueue() then returns false, and the existing
+> error path resets the connection and sets ENOBUFS:
+> 
+>       if (!virtio_transport_recv_enqueue(vsk, skb)) {
+>               virtio_transport_reset(vsk, skb);
+>               virtio_transport_do_close(vsk, true);
+>               sk->sk_err = ENOBUFS;
+>               ...
+>       }
+> 
+> > >
+> > > Therefore, this case does not require an ineligible STREAM skb or an
+> > > allocation failure. Collapse simply cannot reduce a one-element queue.
+> > >
+> > > If my understanding is wrong, please correct me. Thanks.
+> > >
+> > > >
+> > > > If allocation fails, I guess we have other issues, no?
+> > > >
+> > >
+> > > Yes. I thought about that again, and allocation failure is not the
+> > > reason for this check. Thanks
+> > >
+> > > > >fail. If the packet remained in the batch and collapse did not make
+> > > > >enough room, virtio_transport_inc_rx_pkt() would fail and
+> > > > >virtio_transport_recv_connected() would reset the socket with ENOBUFS
+> > > > >while a waiting reader was still unable to drain the queue.
+> > > > >
+> > > > >When the check makes can_continue() return false before the current
+> > > > >packet has been handled, the caller releases the socket lock and passes
+> > > > >the packet to virtio_transport_recv_pkt(). This gives a waiting reader a
+> > > > >chance to make progress. If the queue is still at the metadata limit,
+> > > > >the normal enqueue path attempts collapse. If that still cannot make
+> > > > >enough room, the existing ENOBUFS reset occurs.
+> > > >
+> > > > I really don't see the difference without batching :-(
+> > > >
+> > > > I may be missing something.
+> > > >
+> > >
+> > > The difference is the release_sock() boundary between packets.
+> > >
+> > > In the regular per-packet path, the socket lock is released after the
+> > > first packet. A reader woken by that packet can compete for the lock and
+> > > fully dequeue the only skb before RX locks the socket for the second
+> > > packet. If it succeeds, the second packet can be accepted. If it does
+> > > not acquire the lock in time, or only partially consumes the skb, the
+> > > queue length remains one and the regular path can still reach the
+> > > existing ENOBUFS reset.
+> > >
+> > > Without the rx_buf_full() check, two same-flow packets processed in the
+> > > same active batch remain under one uninterrupted socket-lock ownership
+> > > interval. Once the first packet leaves the only skb in the queue, the
+> > > reader cannot dequeue it before the second packet is processed.
+> >
+> > Why?
+> >
+> 
+> Because an active RX batch retains the socket lock across the two
+> packets:
+> 
+>       lock_sock(sk);
+>       ...
+>       batch->sk = sk;
+>       virtio_transport_rx_batch_process(...);
+> 
+> The lock is released only when the batch is finished:
+> 
+>       void virtio_transport_rx_batch_finish(...)
+>       {
+>               ...
+>               release_sock(sk);
+>               sock_put(sk);
+>       }
+> 
+> The receive side needs the same socket lock before it can call
+> stream_dequeue():
+> 
+>       lock_sock(sk);
+>       ...
+>       read = transport->stream_dequeue(...);
+>       ...
+>       release_sock(sk);
+> 
+> Waking the reader after the first packet does not allow it to dequeue
+> while the RX batch still owns that lock. Without the rx_buf_full()
+> boundary, and assuming the other batch-continuation conditions remain
+> true, RX processes the second packet under the same uninterrupted lock
+> ownership.
+> 
+> > > Collapse cannot reduce that one-element queue, so the second packet
+> > > fails the metadata check and resets the connection.
+> >
+> > What is unclear to me is why this is not happening without batching.
+> >
+> 
+> It can also happen without batching. The difference is that it is not
+> unavoidable there.
+> 
+> The regular per-packet path executes this sequence for every packet:
+> 
+>       lock_sock(sk);
+>       virtio_transport_recv_pkt_locked(...);
+>       release_sock(sk);
+> 
+> Therefore, even when both packets come from the same virtqueue drain,
+> the first packet is followed by release_sock(). A waiting reader can
+> compete for the lock and fully dequeue the first skb before RX locks the
+> socket for the second packet.
+> 
+> If the reader wins, the second packet sees an empty queue and can be
+> accepted. If RX wins the race, or the reader consumes only part of the
+> skb, the regular path can still reach the same ENOBUFS reset.
+> 
+> Without the rx_buf_full() check, the post-processing check after the
+> first packet only sees that the payload limit has not been exceeded:
+> 
+>       return (u64)vvs->buf_used + len <= vvs->buf_alloc;
+> 
+> At this point len is zero, so the batch continues to hold the socket
+> lock and processes the second packet immediately. Under the conditions
+> described above, the reader cannot intervene and the metadata failure
+> is deterministic.
+> 
+> With the current check:
+> 
+>       return (u64)vvs->buf_used + len <= vvs->buf_alloc &&
+>              !virtio_transport_rx_buf_full(vvs);
+> 
+> the metadata slot is already exhausted after the first packet. The
+> post-processing check returns false,
+> virtio_transport_rx_batch_finish() releases the socket lock, and the
+> next packet returns to the regular per-packet path.
+> 
+> This restores the lock-acquisition opportunity. It does not guarantee
+> that the reader wins it.
+> 
+> > And, why we can't collapse the batch it self...
+> >
+> 
+> I am not sure whether I understood your suggestion. Do you mean
+> changing the enqueue order so that the incoming skb can participate in
+> tail-copy or collapse before the metadata check?
 
-2) Add Qualcomm DCP display support (separate series)
+I was thinking about something like that, but honestly I don't think
+it's worth it. With a buffer that small (less than 2 * SKB_TRUESIZE(0))
+the user should expect issues, and without batching it already fails
+most of the time, as your test shows.
 
-https://lore.kernel.org/all/20261126-jshekhar-v3-dcp-v3-0-f1e9d7505039@oss.qualcomm.com/
+So I don't think we should add complexity in the batching path for
+this case. Let's start simple.
 
-Below patch uses the VIRTIO_ID_VENDOR
+> 
+> The current implementation does not attempt that change. Its purpose
+> here is only to preserve the behavior of the existing per-packet path
+> in this boundary case.
+> 
+> The earlier targeted A/B test also illustrates why I added the
+> rx_buf_full() check. On a 2-vCPU guest with queue_max == 1, I ran 100
+> trials in which two STREAM/RW packets for the same flow were available
+> in the same RX virtqueue drain. With the rx_buf_full() boundary, the
+> connection continued in 22 trials and reached ENOBUFS in the other 78.
+> Without the boundary, all 100 trials reached ENOBUFS.
 
-https://lore.kernel.org/all/20261126-jshekhar-v3-dcp-v3-18-f1e9d7505039@oss.qualcomm.com/
+So without batching it works only if the reader wins the race, and it
+fails 78% of the time. IMO we should not add complexity in the batching
+path just to preserve that race.
 
+> 
+> The check does not guarantee that the reader wins the lock race. It
+> preserves the opportunity that exists in the per-packet path. Without
+> it, batching removes that opportunity and turns a case that could
+> previously continue into a deterministic reset when both packets are
+> processed in the same uninterrupted batch. I consider that a functional
+> regression from the existing behavior.
 
->> ---
->>   drivers/virtio/Kconfig                |  11 ++
->>   drivers/virtio/Makefile               |   2 +
->>   drivers/virtio/virtio_mmio.c          |  17 +--
->>   drivers/virtio/virtio_mmio.h          |  21 +++
->>   drivers/virtio/virtio_qcom_dcp.c      | 273 ++++++++++++++++++++++++++++++++++
->>   drivers/virtio/virtio_qcom_dcp_ipcc.c | 193 ++++++++++++++++++++++++
->>   drivers/virtio/virtio_qcom_dcp_ipcc.h |  41 +++++
->>   7 files changed, 544 insertions(+), 14 deletions(-)
-> Oh great a pile of vendor specific code in virtio, with the vendor
-> explicitly saying on the virtio ML that no specs will be published,
-> ever.  And it seems to be your assumption that I'll be signing up to
-> maintain this?
->
->
-The transport uses the standard VirtIO-MMIO register layout and 
-virtqueue operations; it does not define a new MMIO protocol. IPCC is a 
-Qualcomm platform sideband needed to wake DCP before MMIO access and to 
-signal response-queue notifications.
+Sorry to be honest, but your answers are incredibly long and lengthy. 
+It's fine to use AI for translation, etc., but please let's not go to 
+extremes, otherwise, it becomes impossible for me to follow your line of 
+reasoning... 
 
-I agree that the maintenance ownership is separate concern that need to 
-be addressed.
-
-
->> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
->> index ce5bc0d9ea28..838ae5671c28 100644
->> --- a/drivers/virtio/Kconfig
->> +++ b/drivers/virtio/Kconfig
->> @@ -160,6 +160,17 @@ config VIRTIO_MMIO
->>   
->>    	 If unsure, say N.
->>   
->> +config VIRTIO_QCOM_DCP
->> +	tristate "Qualcomm DCP VirtIO transport"
->> +	depends on VIRTIO_MMIO
->> +	depends on QCOM_IPCC
->> +	depends on OF
->> +	help
->> +	  This driver provides the Qualcomm DCP-specific platform transport for
->> +	  QPSFI VirtIO devices. It reuses the standard VirtIO-MMIO configuration
->> +	  and virtqueue support, and handles the IPCC power-notification channel
->> +	  used to wake DCP and forward response notifications.
->> +
->>   config VIRTIO_MMIO_CMDLINE_DEVICES
->>   	bool "Memory mapped virtio devices parameter parsing"
->>   	depends on VIRTIO_MMIO
->> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
->> index eefcfe90d6b8..c922fb5bff16 100644
->> --- a/drivers/virtio/Makefile
->> +++ b/drivers/virtio/Makefile
->> @@ -3,6 +3,8 @@ obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
->>   obj-$(CONFIG_VIRTIO_ANCHOR) += virtio_anchor.o
->>   obj-$(CONFIG_VIRTIO_PCI_LIB) += virtio_pci_modern_dev.o
->>   obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
->> +obj-$(CONFIG_VIRTIO_QCOM_DCP) += qcom_dcp_virtio.o
->> +qcom_dcp_virtio-y := virtio_qcom_dcp.o virtio_qcom_dcp_ipcc.o
->>   obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
->>   obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
->>   virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
->> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
->> index c403a025006e..348809b9ebfe 100644
->> --- a/drivers/virtio/virtio_mmio.c
->> +++ b/drivers/virtio/virtio_mmio.c
->> @@ -71,7 +71,7 @@
->>   #include <uapi/linux/virtio_mmio.h>
->>   #include <linux/virtio_ring.h>
->>   
->> -
->> +#include "virtio_mmio.h"
->>   
->>   /* The alignment to use between consumer and producer parts of vring.
->>    * Currently hardcoded to the page size. */
->> @@ -81,18 +81,6 @@
->>   
->>   #define to_virtio_mmio_device(_plat_dev) \
->>   	container_of(_plat_dev, struct virtio_mmio_device, vdev)
->> -
->> -struct virtio_mmio_device {
->> -	struct virtio_device vdev;
->> -	struct platform_device *pdev;
->> -
->> -	void __iomem *base;
->> -	unsigned long version;
->> -
->> -	/* True if enable_irq_wake() succeeded for the shared IRQ. */
->> -	bool wake_irq_enabled;
->> -};
->> -
->>   /* Configuration interface */
->>   
->>   static u64 vm_get_features(struct virtio_device *vdev)
->> @@ -536,7 +524,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
->>   	return true;
->>   }
->>   
->> -static const struct virtio_config_ops virtio_mmio_config_ops = {
->> +const struct virtio_config_ops virtio_mmio_config_ops = {
->>   	.get		= vm_get,
->>   	.set		= vm_set,
->>   	.generation	= vm_generation,
->> @@ -551,6 +539,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
->>   	.get_shm_region = vm_get_shm_region,
->>   	.synchronize_cbs = vm_synchronize_cbs,
->>   };
->> +EXPORT_SYMBOL_GPL(virtio_mmio_config_ops);
->>   
->>   #ifdef CONFIG_PM_SLEEP
->>   static int virtio_mmio_freeze(struct device *dev)
->> diff --git a/drivers/virtio/virtio_mmio.h b/drivers/virtio/virtio_mmio.h
->> new file mode 100644
->> index 000000000000..a80904ed73e2
->> --- /dev/null
->> +++ b/drivers/virtio/virtio_mmio.h
->> @@ -0,0 +1,21 @@
->> +/* SPDX-License-Identifier: GPL-2.0-only */
->> +#ifndef _DRIVERS_VIRTIO_VIRTIO_MMIO_H
->> +#define _DRIVERS_VIRTIO_VIRTIO_MMIO_H
->> +
->> +#include <linux/io.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/virtio.h>
->> +#include <linux/virtio_config.h>
->> +
->> +struct virtio_mmio_device {
->> +	struct virtio_device vdev;
->> +	struct platform_device *pdev;
->> +	void __iomem *base;
->> +	unsigned long version;
->> +	/* True if enable_irq_wake() succeeded for the shared IRQ. */
->> +	bool wake_irq_enabled;
->> +};
->> +
->> +extern const struct virtio_config_ops virtio_mmio_config_ops;
->> +
->> +#endif /* _DRIVERS_VIRTIO_VIRTIO_MMIO_H */
->> diff --git a/drivers/virtio/virtio_qcom_dcp.c b/drivers/virtio/virtio_qcom_dcp.c
->> new file mode 100644
->> index 000000000000..a5443f2dbc4b
->> --- /dev/null
->> +++ b/drivers/virtio/virtio_qcom_dcp.c
->> @@ -0,0 +1,273 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +/*
->> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
->> + *
->> + * Qualcomm DCP VirtIO transport.
->> + */
->> +
->> +#include <linux/dma-mapping.h>
->> +#include <linux/io.h>
->> +#include <linux/module.h>
->> +#include <linux/of.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/pm.h>
->> +#include <linux/slab.h>
->> +#include <linux/string.h>
->> +#include <linux/virtio.h>
->> +#include <linux/virtio_config.h>
->> +#include <uapi/linux/virtio_mmio.h>
->> +
->> +#include "virtio_mmio.h"
->> +#include "virtio_qcom_dcp_ipcc.h"
->> +
->> +struct dcp_virtio_transport {
->> +	struct virtio_mmio_device mmio;
->> +	struct virtio_config_ops config_ops;
->> +	struct dcp_ipcc ipcc;
->> +};
->> +
->> +static struct dcp_virtio_transport *
->> +to_dcp_virtio_transport(struct virtio_mmio_device *mmio)
->> +{
->> +	return container_of(mmio, struct dcp_virtio_transport, mmio);
->> +}
->> +
->> +static void dcp_virtio_synchronize_cbs(struct virtio_device *vdev)
->> +{
->> +	struct virtio_mmio_device *mmio =
->> +		container_of(vdev, struct virtio_mmio_device, vdev);
->> +	struct dcp_virtio_transport *transport = to_dcp_virtio_transport(mmio);
->> +
->> +	virtio_mmio_config_ops.synchronize_cbs(vdev);
->> +	dcp_ipcc_synchronize(&transport->ipcc);
->> +}
->> +
->> +static int dcp_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->> +			       struct virtqueue *vqs[],
->> +			       struct virtqueue_info vqs_info[],
->> +			       struct irq_affinity *desc)
->> +{
->> +	struct virtio_mmio_device *mmio =
->> +		container_of(vdev, struct virtio_mmio_device, vdev);
->> +	struct dcp_virtio_transport *transport = to_dcp_virtio_transport(mmio);
->> +	unsigned int i;
->> +	int ret;
->> +
->> +	ret = virtio_mmio_config_ops.find_vqs(vdev, nvqs, vqs, vqs_info, desc);
->> +	if (ret)
->> +		return ret;
->> +
->> +	for (i = 0; i < nvqs; i++) {
->> +		if (vqs[i] && vqs_info[i].name && !strcmp(vqs_info[i].name, "resp")) {
->> +			dcp_ipcc_set_resp_vq(&transport->ipcc, vqs[i]);
->> +			break;
->> +		}
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static void dcp_virtio_del_vqs(struct virtio_device *vdev)
->> +{
->> +	struct virtio_mmio_device *mmio =
->> +		container_of(vdev, struct virtio_mmio_device, vdev);
->> +	struct dcp_virtio_transport *transport = to_dcp_virtio_transport(mmio);
->> +
->> +	dcp_ipcc_set_resp_vq(&transport->ipcc, NULL);
->> +	virtio_mmio_config_ops.del_vqs(vdev);
->> +}
->> +
->> +static void dcp_virtio_release_dev(struct device *dev)
->> +{
->> +	struct virtio_device *vdev = container_of(dev, struct virtio_device, dev);
->> +	struct virtio_mmio_device *mmio =
->> +		container_of(vdev, struct virtio_mmio_device, vdev);
->> +	struct dcp_virtio_transport *transport = to_dcp_virtio_transport(mmio);
->> +
->> +	kfree(transport);
->> +}
->> +
->> +static int dcp_virtio_init_device(struct dcp_virtio_transport *transport,
->> +				  struct platform_device *pdev)
->> +{
->> +	struct virtio_mmio_device *mmio = &transport->mmio;
->> +	unsigned long magic;
->> +	int ret;
->> +
->> +	mmio->vdev.dev.parent = &pdev->dev;
->> +	mmio->vdev.config = &transport->config_ops;
->> +	mmio->pdev = pdev;
->> +
->> +	mmio->base = devm_platform_ioremap_resource(pdev, 0);
->> +	if (IS_ERR(mmio->base))
->> +		return PTR_ERR(mmio->base);
->> +
->> +	magic = readl(mmio->base + VIRTIO_MMIO_MAGIC_VALUE);
->> +	if (magic != ('v' | 'i' << 8 | 'r' << 16 | 't' << 24)) {
->> +		dev_warn(&pdev->dev, "Wrong magic value 0x%08lx!\n", magic);
->> +		return -ENODEV;
->> +	}
->> +
->> +	mmio->version = readl(mmio->base + VIRTIO_MMIO_VERSION);
->> +	if (mmio->version < 1 || mmio->version > 3) {
->> +		dev_err(&pdev->dev, "Version %ld not supported!\n", mmio->version);
->> +		return -ENXIO;
->> +	}
->> +
->> +	mmio->vdev.id.device = readl(mmio->base + VIRTIO_MMIO_DEVICE_ID);
->> +	if (!mmio->vdev.id.device)
->> +		return -ENODEV;
->> +
->> +	mmio->vdev.id.vendor = readl(mmio->base + VIRTIO_MMIO_VENDOR_ID);
->> +
->> +	if (mmio->version == 1) {
->> +		writel(PAGE_SIZE, mmio->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
->> +		ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
->> +		if (!ret)
->> +			dma_set_coherent_mask(&pdev->dev,
->> +					      DMA_BIT_MASK(32 + PAGE_SHIFT));
->> +	} else {
->> +		ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
->> +	}
->> +	if (ret)
->> +		ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
->> +	if (ret)
->> +		dev_warn(&pdev->dev,
->> +			 "Failed to enable 64-bit or 32-bit DMA. Trying to continue, but this might not work.\n");
->> +
->> +	return 0;
->> +}
->> +
->> +static int dcp_virtio_transport_probe(struct platform_device *pdev)
->> +{
->> +	struct dcp_virtio_transport *transport;
->> +	struct virtio_mmio_device *mmio;
->> +	int ret;
->> +
->> +	transport = kzalloc_obj(*transport);
->> +	if (!transport)
->> +		return -ENOMEM;
->> +
->> +	mmio = &transport->mmio;
->> +	mmio->vdev.dev.release = dcp_virtio_release_dev;
->> +	transport->config_ops = virtio_mmio_config_ops;
->> +	transport->config_ops.find_vqs = dcp_virtio_find_vqs;
->> +	transport->config_ops.del_vqs = dcp_virtio_del_vqs;
->> +	transport->config_ops.synchronize_cbs = dcp_virtio_synchronize_cbs;
->> +
->> +	ret = dcp_ipcc_init(&transport->ipcc, &pdev->dev, 1);
->> +	if (ret) {
->> +		kfree(transport);
->> +		return ret;
->> +	}
->> +
->> +	/* Wake DCP before the first access to the VirtIO MMIO registers. */
->> +	ret = dcp_ipcc_send_power_notify(&transport->ipcc);
->> +	if (ret)
->> +		goto err_ipcc;
->> +
->> +	ret = dcp_virtio_init_device(transport, pdev);
->> +	if (ret)
->> +		goto err_ipcc;
->> +
->> +	platform_set_drvdata(pdev, transport);
->> +
->> +	ret = register_virtio_device(&mmio->vdev);
->> +	if (ret) {
->> +		platform_set_drvdata(pdev, NULL);
->> +		dcp_ipcc_deinit(&transport->ipcc);
->> +		put_device(&mmio->vdev.dev);
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +
->> +err_ipcc:
->> +	dcp_ipcc_deinit(&transport->ipcc);
->> +	kfree(transport);
->> +	return ret;
->> +}
->> +
->> +static void dcp_virtio_transport_remove(struct platform_device *pdev)
->> +{
->> +	struct dcp_virtio_transport *transport = platform_get_drvdata(pdev);
->> +
->> +	/* Keep the embedded virtio_device alive until IPCC teardown is complete. */
->> +	get_device(&transport->mmio.vdev.dev);
->> +	unregister_virtio_device(&transport->mmio.vdev);
->> +	platform_set_drvdata(pdev, NULL);
->> +	dcp_ipcc_deinit(&transport->ipcc);
->> +	put_device(&transport->mmio.vdev.dev);
->> +}
->> +
->> +#ifdef CONFIG_PM_SLEEP
->> +static int dcp_virtio_transport_suspend(struct device *dev)
->> +{
->> +	struct dcp_virtio_transport *transport = dev_get_drvdata(dev);
->> +	int ret;
->> +
->> +	ret = virtio_device_freeze(&transport->mmio.vdev);
->> +	if (ret)
->> +		return ret;
->> +
->> +	ret = dcp_ipcc_enable_irq_wake(&transport->ipcc);
->> +	if (ret)
->> +		goto err_restore;
->> +
->> +	ret = dcp_ipcc_send_power_notify(&transport->ipcc);
->> +	if (ret) {
->> +		dcp_ipcc_disable_irq_wake(&transport->ipcc);
->> +		goto err_restore;
->> +	}
->> +
->> +	return 0;
->> +
->> +err_restore:
->> +	virtio_device_restore(&transport->mmio.vdev);
->> +	return ret;
->> +}
->> +
->> +static int dcp_virtio_transport_resume(struct device *dev)
->> +{
->> +	struct dcp_virtio_transport *transport = dev_get_drvdata(dev);
->> +	struct virtio_mmio_device *mmio = &transport->mmio;
->> +	int ret;
->> +
->> +	ret = dcp_ipcc_send_power_notify(&transport->ipcc);
->> +	if (ret) {
->> +		dcp_ipcc_disable_irq_wake(&transport->ipcc);
->> +		return ret;
->> +	}
->> +
->> +	dcp_ipcc_disable_irq_wake(&transport->ipcc);
->> +	if (mmio->version == 1)
->> +		writel(PAGE_SIZE, mmio->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
->> +
->> +	return virtio_device_restore(&mmio->vdev);
->> +}
->> +
->> +#endif
->> +static const struct dev_pm_ops dcp_virtio_transport_pm_ops = {
->> +	SET_SYSTEM_SLEEP_PM_OPS(dcp_virtio_transport_suspend,
->> +				dcp_virtio_transport_resume)
->> +};
->> +
->> +static const struct of_device_id dcp_virtio_transport_of_match[] = {
->> +	{ .compatible = "qcom,dcp-virtio" },
->> +	{ }
->> +};
->> +MODULE_DEVICE_TABLE(of, dcp_virtio_transport_of_match);
->> +
->> +static struct platform_driver dcp_virtio_transport_driver = {
->> +	.probe = dcp_virtio_transport_probe,
->> +	.remove = dcp_virtio_transport_remove,
->> +	.driver = {
->> +		.name = "qcom-dcp-virtio",
->> +		.of_match_table = dcp_virtio_transport_of_match,
->> +		.pm = pm_sleep_ptr(&dcp_virtio_transport_pm_ops),
->> +	},
->> +};
->> +module_platform_driver(dcp_virtio_transport_driver);
->> +
->> +MODULE_DESCRIPTION("Qualcomm DCP VirtIO transport");
->> +MODULE_LICENSE("GPL");
->> diff --git a/drivers/virtio/virtio_qcom_dcp_ipcc.c b/drivers/virtio/virtio_qcom_dcp_ipcc.c
->> new file mode 100644
->> index 000000000000..1d83bcc69d5c
->> --- /dev/null
->> +++ b/drivers/virtio/virtio_qcom_dcp_ipcc.c
->> @@ -0,0 +1,193 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +/*
->> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
->> + *
->> + * DCP IPCC power-notify mailbox client. It wakes DCP during power
->> + * transitions and routes firmware notifications to the VirtIO response
->> + * queue.
->> + */
->> +
->> +#include <linux/device.h>
->> +#include <linux/err.h>
->> +#include <linux/jiffies.h>
->> +#include <linux/interrupt.h>
->> +#include <linux/mailbox_client.h>
->> +#include <linux/mutex.h>
->> +#include <linux/of_irq.h>
->> +#include <linux/string.h>
->> +#include <linux/virtio.h>
->> +#include <linux/virtio_ring.h>
->> +
->> +#include "virtio_qcom_dcp_ipcc.h"
->> +
->> +#define DCP_IPCC_POWER_NOTIFY_TIMEOUT_MS	10000
->> +
->> +static void dcp_ipcc_handle_rx(struct dcp_ipcc *ipcc)
->> +{
->> +	unsigned long flags;
->> +
->> +	spin_lock_irqsave(&ipcc->state_lock, flags);
->> +	if (ipcc->shutting_down) {
->> +		spin_unlock_irqrestore(&ipcc->state_lock, flags);
->> +		return;
->> +	}
->> +
->> +	complete(&ipcc->power_notify_done);
->> +	if (ipcc->resp_vq)
->> +		vring_interrupt(0, ipcc->resp_vq);
->> +
->> +	spin_unlock_irqrestore(&ipcc->state_lock, flags);
->> +}
->> +
->> +static irqreturn_t dcp_ipcc_power_notify_irq(int irq, void *data)
->> +{
->> +	struct dcp_ipcc *ipcc = data;
->> +
->> +	dcp_ipcc_handle_rx(ipcc);
->> +
->> +	return IRQ_HANDLED;
->> +}
->> +
->> +static void dcp_ipcc_rx_callback(struct mbox_client *cl, void *data)
->> +{
->> +	struct dcp_ipcc *ipcc = container_of(cl, struct dcp_ipcc, client);
->> +
->> +	dcp_ipcc_handle_rx(ipcc);
->> +}
->> +
->> +static void dcp_ipcc_free_channel(void *data)
->> +{
->> +	mbox_free_channel(data);
->> +}
->> +
->> +int dcp_ipcc_init(struct dcp_ipcc *ipcc, struct device *dev, unsigned int irq_index)
->> +{
->> +	int irq, ret;
->> +
->> +	memset(ipcc, 0, sizeof(*ipcc));
->> +	init_completion(&ipcc->power_notify_done);
->> +	mutex_init(&ipcc->power_notify_lock);
->> +	spin_lock_init(&ipcc->state_lock);
->> +
->> +	ipcc->client.dev          = dev;
->> +	ipcc->client.tx_block     = false;
->> +	ipcc->client.tx_tout      = 0;
->> +	ipcc->client.knows_txdone = true;
->> +	ipcc->client.rx_callback  = dcp_ipcc_rx_callback;
->> +
->> +	ipcc->power_chan = mbox_request_channel(&ipcc->client, 0);
->> +	if (IS_ERR(ipcc->power_chan)) {
->> +		ret = PTR_ERR(ipcc->power_chan);
->> +		if (ret != -EPROBE_DEFER)
->> +			dev_err(dev, "IPCC: failed to get DCP power channel: %d\n", ret);
->> +		return ret;
->> +	}
->> +
->> +	ret = devm_add_action_or_reset(dev, dcp_ipcc_free_channel,
->> +				       ipcc->power_chan);
->> +	if (ret) {
->> +		ipcc->power_chan = NULL;
->> +		return ret;
->> +	}
->> +
->> +	irq = of_irq_get(dev->of_node, irq_index);
->> +	if (irq <= 0) {
->> +		ret = dev_err_probe(dev, irq ? irq : -EINVAL,
->> +				    "failed to get required power notify IRQ\n");
->> +		goto err_free_channel;
->> +	}
->> +
->> +	ret = devm_request_irq(dev, irq, dcp_ipcc_power_notify_irq, 0,
->> +			       "dcp-power-notify", ipcc);
->> +	if (ret) {
->> +		ret = dev_err_probe(dev, ret,
->> +				    "failed to request power notify IRQ %d\n", irq);
->> +		goto err_free_channel;
->> +	}
->> +
->> +	ipcc->power_notify_irq = irq;
->> +
->> +	return 0;
->> +
->> +err_free_channel:
->> +	devm_release_action(dev, dcp_ipcc_free_channel, ipcc->power_chan);
->> +	ipcc->power_chan = NULL;
->> +	return ret;
->> +}
->> +
->> +void dcp_ipcc_set_resp_vq(struct dcp_ipcc *ipcc, struct virtqueue *resp_vq)
->> +{
->> +	unsigned long flags;
->> +
->> +	spin_lock_irqsave(&ipcc->state_lock, flags);
->> +	if (!ipcc->shutting_down)
->> +		ipcc->resp_vq = resp_vq;
->> +	spin_unlock_irqrestore(&ipcc->state_lock, flags);
->> +}
->> +
->> +void dcp_ipcc_synchronize(struct dcp_ipcc *ipcc)
->> +{
->> +	unsigned long flags;
->> +
->> +	spin_lock_irqsave(&ipcc->state_lock, flags);
->> +	spin_unlock_irqrestore(&ipcc->state_lock, flags);
->> +}
->> +
->> +void dcp_ipcc_deinit(struct dcp_ipcc *ipcc)
->> +{
->> +	struct device *dev = ipcc->client.dev;
->> +	unsigned long flags;
->> +
->> +	mutex_lock(&ipcc->power_notify_lock);
->> +
->> +	spin_lock_irqsave(&ipcc->state_lock, flags);
->> +	ipcc->shutting_down = true;
->> +	ipcc->resp_vq = NULL;
->> +	spin_unlock_irqrestore(&ipcc->state_lock, flags);
->> +
->> +	devm_free_irq(dev, ipcc->power_notify_irq, ipcc);
->> +	devm_release_action(dev, dcp_ipcc_free_channel, ipcc->power_chan);
->> +	mutex_unlock(&ipcc->power_notify_lock);
->> +}
->> +
->> +int dcp_ipcc_enable_irq_wake(struct dcp_ipcc *ipcc)
->> +{
->> +	return enable_irq_wake(ipcc->power_notify_irq);
->> +}
->> +
->> +void dcp_ipcc_disable_irq_wake(struct dcp_ipcc *ipcc)
->> +{
->> +	disable_irq_wake(ipcc->power_notify_irq);
->> +}
->> +
->> +int dcp_ipcc_send_power_notify(struct dcp_ipcc *ipcc)
->> +{
->> +	unsigned long timeout;
->> +	int ret;
->> +
->> +	mutex_lock(&ipcc->power_notify_lock);
->> +
->> +	reinit_completion(&ipcc->power_notify_done);
->> +
->> +	ret = mbox_send_message(ipcc->power_chan, NULL);
->> +	mbox_client_txdone(ipcc->power_chan, ret);
->> +	if (ret < 0) {
->> +		dev_err(ipcc->client.dev,
->> +			"IPCC TX: power notify failed: %d\n", ret);
->> +		goto out_unlock;
->> +	}
->> +
->> +	timeout = wait_for_completion_timeout(&ipcc->power_notify_done,
->> +					      msecs_to_jiffies(DCP_IPCC_POWER_NOTIFY_TIMEOUT_MS));
->> +	if (!timeout) {
->> +		dev_err(ipcc->client.dev,
->> +			"IPCC power notify acknowledgment timed out\n");
->> +		ret = -ETIMEDOUT;
->> +	} else {
->> +		ret = 0;
->> +	}
->> +
->> +out_unlock:
->> +	mutex_unlock(&ipcc->power_notify_lock);
->> +	return ret;
->> +}
->> diff --git a/drivers/virtio/virtio_qcom_dcp_ipcc.h b/drivers/virtio/virtio_qcom_dcp_ipcc.h
->> new file mode 100644
->> index 000000000000..f855fe8adec1
->> --- /dev/null
->> +++ b/drivers/virtio/virtio_qcom_dcp_ipcc.h
->> @@ -0,0 +1,41 @@
->> +/* SPDX-License-Identifier: GPL-2.0-only */
->> +/*
->> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
->> + *
->> + * IPCC power-notify mailbox interface for DCP firmware.
->> + *
->> + */
->> +
->> +#ifndef __VIRTIO_QCOM_DCP_IPCC_H__
->> +#define __VIRTIO_QCOM_DCP_IPCC_H__
->> +
->> +#include <linux/completion.h>
->> +#include <linux/mailbox_client.h>
->> +#include <linux/mutex.h>
->> +#include <linux/spinlock.h>
->> +
->> +struct device;
->> +struct virtqueue;
->> +
->> +struct dcp_ipcc {
->> +	struct mbox_client client;
->> +	struct mbox_chan *power_chan;
->> +	struct virtqueue *resp_vq;
->> +	struct completion power_notify_done;
->> +	/* Serializes concurrent power-notify transactions. */
->> +	struct mutex power_notify_lock;
->> +	/* Protects callback state and response queue access. */
->> +	spinlock_t state_lock;
->> +	bool shutting_down;
->> +	int power_notify_irq;
->> +};
->> +
->> +int dcp_ipcc_init(struct dcp_ipcc *ipcc, struct device *dev, unsigned int irq_index);
->> +void dcp_ipcc_set_resp_vq(struct dcp_ipcc *ipcc, struct virtqueue *resp_vq);
->> +void dcp_ipcc_synchronize(struct dcp_ipcc *ipcc);
->> +void dcp_ipcc_deinit(struct dcp_ipcc *ipcc);
->> +int dcp_ipcc_send_power_notify(struct dcp_ipcc *ipcc);
->> +int dcp_ipcc_enable_irq_wake(struct dcp_ipcc *ipcc);
->> +void dcp_ipcc_disable_irq_wake(struct dcp_ipcc *ipcc);
->> +
->> +#endif /* __VIRTIO_QCOM_DCP_IPCC_H__ */
->>
->> -- 
->> 2.43.0
+Stefano
