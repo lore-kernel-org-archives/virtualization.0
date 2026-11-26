@@ -1,79 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795674988;
-	b=TjB2DRbPcuBF7J22MpUxzo8rCINJb4nDVWNGoVxRSSH5bnfjanGipgLDUvMRzP7KBIsK
-	 CyHwv7QvPvqEZ0Ajs6NzHpY8hD/6LTE8yujLhFPYjTY9PJPHTiU44EGoP+dlUybPt/3YZ
-	 LPHF/ZPH8ZLNhuGCfIuAmqz/Rer+tadTIXXcFTDZJU7oiv5n5hZzXhSb1S59KzxDdORfw
-	 x1QMNpbxlYIiy0smxYXUHpWjsQ4zwME0RiXyTWa41hKptsBuVWv5uQtF+9RWGxaRdPuka
-	 3e97QPxgmDawiZhpqb3nBBN4N02ujR/2QUEK70NEg1P51UshGFL7w65mKowsLmzshWw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795674988;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=pX+a3pAm0+kczIi67t1E7b8PvmEcUnVZOk0Q1Sv3XT8=;
-	b=R75qYSZYwBxKz0oy1+QhD7tBVj/g2cCK4DASZookriqd0+a9p3duOHAyHjPoR/pFu9VA
-	 wDDquEcpyUd/kYmcj7EfCDdcTHOWhfQufbQrPLsesl9VmLlbvZtHbzlH/LBSTEdWKtfA2
-	 p2hj0cJXud0MowbgIS8X8U9w6E+9p9AFS+nXGHYmZjbIV54qPhzei5YDU3Xkq9uyOIpAz
-	 s8vbFwUfvV3hUoWRs626onf7DKmMd71xynpVY9H/8rhLmYmZVeEyjoLM7T1pECauPyRNf
-	 J4JjHcj52ZO3VQqG/cHSp7JoWl/uAhIL+GBTzFRkyGJzoZsWCuEP0D33GCrLUdotyVw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gklqrzc2;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795675012;
+	b=rJC1kWOFX/Xz3je4wCUeOhHkfVRYBvyEX3Md83+B7sHWfIsSHtjmql97xkksLUvzjspw
+	 7zQlcRAiEeL9vFumYrYAdjdztAHbAA5xfNbaOWQxUIixEZgVeQW6BqKowiay5EOlRL4R5
+	 3ruM14GXotvTI6AX+bLSrlOBPCERGMzH17pdkQR0W9VLgHOLzfy5I1HFI3b9QfIHN+c88
+	 SjbtE7IPp5dcJSA1ESTbCm3V7cUVcNQKZtfbuAVKm1zk71nxrMZEscj3xktQ8NlxROKBz
+	 0TxXh8tCZBt42YbSdZQ7DeDp+da3aOEq8ok000WWNB7QwfAYOq7UbR3pNachG5yOsyg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795675012;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=TQ0bhFNxLA5rNozi+byxc3f4+9nmmzwZDoF/bNfDYMk=;
+	b=EeyqXqOqvmO/lEbLnfL3VDOVw6CeIbF0QYFUzRSEEE7C+lUI4VaQmeUVgTXIqe6mySSI
+	 IpGWgFvyxwpudZdRgh2r+Hnj287Lrb5pcVJY4tH7rc1I9WCcWdsYUpQrSAD+8cEKYtJWJ
+	 zVu39Ov2/Q9DY5LFAyvcSucjwT9WJc93Yw1XeGFTEBZChQW5FZ8we4JtZARJTXjKn+HdU
+	 bHlEn8e+61bzXVku6WEi45NHGFsqLZUYq2QKQQSDzy+40u77+eBO7HyeszQJ7D3XFFG8r
+	 TVvbhirYAEB54686q/kXapT9QHAvIHoqsol+cU4NW7eY5HVZiln3frF/9q8rHcaAeRA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kPU4u94Y;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B53C3606A326;
-	Thu, 26 Nov 2026 06:36:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11320606A31C;
+	Thu, 26 Nov 2026 06:36:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gklqrzc2
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795674987;
-	b=0drhnaBOOVEbovWxwefSpn/MQiSOHydl5wnEQt0FWddc/RQdxF5QFE5grWX7FNomSXV+
-	 Khz4u1mC74dHDtn5SiTOV+onEzxaWZJhZu9cU8wdUzkz2yhRwf6IQv5IHqhRieVaH1nB1
-	 oWCsIN6wAGQZKxs1hRdoS66zWvHgdSk0yidBjeIYK3w0TlvmcavbDTHNSRtQ++/RMd5vT
-	 f/h334o9vabDvZP67QgYrIjPKMvkJtrgKix+k2pqjJxWjCEEuEkUO1lmdzySfKEH9Q4QI
-	 IqH5Dez8uQ6ad5ZbFGentJiA4KcHMgRymEGw16gP2BXs+i64LEo/z6RtVL1ZvzQMhQw==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795674987;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=pX+a3pAm0+kczIi67t1E7b8PvmEcUnVZOk0Q1Sv3XT8=;
-	b=JD0Dj8QWJ+l19caxHVC8o4Iy/C61w18RDCjt8TDDmXlNu5r54lb5BlQWw00emxOBPXiw
-	 IzPLcqwTDOFBf3Yre7nMs29k/4alqk0aolsvN3/RHMEaYaeLswxWPBxzSUnegkXdpuWpc
-	 ZSStJn2EiH30/hWf3Ac/R5PKZ8ejEAVFkXUo4mg2mrvUWBIeXNppVEBe+HuqK/rWYSKx/
-	 6hWGuRRszurURuWg9Q9eWeywUjwaDjEXdgRtX3dPXPeFdshzE4tPH4y/2mEGuiJnSa8Ec
-	 fzXOWUIzSNWFs4D76RYKcAbt+aLp+RYt6c4Q3rZxrkjiWHMGUSMl4YRicI8iGP7J+cw==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id C9FE01F000D2;
-	Thu, 26 Nov 2026 06:36:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kPU4u94Y
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47E441F000C0;
+	Thu, 26 Nov 2026 06:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795674987;
-	bh=pX+a3pAm0+kczIi67t1E7b8PvmEcUnVZOk0Q1Sv3XT8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=gklqrzc2drXwT7t916+t/fxi27+aVgQ+O/gq4SZS76Z8MO/QlmswRxPYh6AMFzSLO
-	 s7QcvZYheoXw9u9P3yreFNr6qBCvelByywzdnDI5Y/Xa/mpoYrAAYCEkfnncPReesk
-	 oe+qUNR98mgWhnXPxMs/Hr1sYFZc7UhfOwlo2/Ok9F/ezG20MOo5ySGKFvgjGaJB3x
-	 JrXCEqWqQTfGItsnmJCDovJJc0kaa24RO8NbhLFaYTZu6sy3Dr3IHxaE890BjXCb1g
-	 RAUKvRsC8hq6ynbEuvS0cN/I8FwFMwF+9xgrcSYn5MuFF+8z0/BrPj2CM6SBhPGk3f
-	 YxqRRGj0f/QOA==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 32EC14D291;
-	Thu, 26 Nov 2026 06:35:57 +0000 (UTC)
-From: Dickson Wu via B4 Relay <devnull+dickson.wu.certik.com@kernel.org>
-Date: Thu, 26 Nov 2026 06:18:44 +0000
-Subject: [PATCH 6.12.y v2 4/4] virtio_balloon: quiesce balloon work before
- device shutdown
+	s=k20260515; t=1795675011;
+	bh=TQ0bhFNxLA5rNozi+byxc3f4+9nmmzwZDoF/bNfDYMk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kPU4u94Yq4TsHgPOm98jjn2zduSDCmoU/IC0UYg4rPZ6lg9F7SLkNa63vEDLb/lFF
+	 IRZ4A1vrXwSxSJxcBt66O5UcGMYRWfHWvuZ0gjfoad8EzvLIZ1qSJfMtP5nM9U+8RN
+	 NXwhfGzA/cVADV6ZLytnGfSgZG6UyPGaQRXNXVsCAkjaKsVZLQinLv8GeCMJXhvG0M
+	 CD2PDqxuC6fZYvhLfA/Q+LgxRK3DfoMx/6pt84GT0SGxRnQfQVFB+8lwgApFvn3x/t
+	 GhMDe8wJqrbA5ir9qUo6APV3bEiGDkjNzZD8TjO+SfSeczZuwlmhr6zKZFwh2j+0Q6
+	 68eIlyOluL8tA==
+Message-ID: <sashiko-outbox-234870@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: virtio: Add Qualcomm DCP transport
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jayant Shekhar" <jayant.shekhar@oss.qualcomm.com>
+Cc: virtualization@lists.linux.dev, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <20261126-jshekhar-qcom-virtio-dcp-v1-1-7b49bda74916@oss.qualcomm.com>
+References: <20261126-jshekhar-qcom-virtio-dcp-v1-0-7b49bda74916@oss.qualcomm.com>
+ <20261126-jshekhar-qcom-virtio-dcp-v1-1-7b49bda74916@oss.qualcomm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 26 Nov 2026 06:36:50 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -82,102 +60,126 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-virtio-final-v2-4-4cfd5590e924@certik.com>
-References: <20261126-virtio-final-v2-0-4cfd5590e924@certik.com>
-In-Reply-To: <20261126-virtio-final-v2-0-4cfd5590e924@certik.com>
-To: stable@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
- "Denis V. Lunev" <den@openvz.org>, David Hildenbrand <david@kernel.org>, 
- Eric Auger <eric.auger@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- virtualization@lists.linux.dev
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795673921; l=3090;
- i=dickson.wu@certik.com; s=dickson-b4; h=from:subject:message-id;
- bh=YxT0JEcZt8be1Aod6X8plRSlx7+82SPoYFncZ9ti8IE=;
- b=UgO1apl0z0LJE8kVRiZ9zir503rVvLFWs8V6CuuHmaeib+SvAPyv1AFZA3rdymu7RxtiqSiJP
- xs6LPUIMkX8Au/Y6X6+61gROyuFmnawCJvKoLCtaPjsnOkTdwaQZdUe
-X-Developer-Key: i=dickson.wu@certik.com; a=ed25519;
- pk=fxH7FS4FdojeJSGLJzgKdfO51Rvr4EW30yinj2mc1vg=
-X-Endpoint-Received: by B4 Relay for dickson.wu@certik.com/dickson-b4 with
- auth_id=1647
-X-Original-From: Dickson Wu <dickson.wu@certik.com>
-Reply-To: dickson.wu@certik.com
 
-From: "Denis V. Lunev" <den@openvz.org>
+Thank you for your contribution! Sashiko AI review found 4 potential
+issues to consider:
+- [Medium] dt-bindings: virtio: missing referenced qcom,dcp.yaml schema
+- [Medium] dt-bindings: virtio: invalid per-item uint32 ref in
+  iommu-ranges
+- [Low] dt-bindings: virtio: use per-entry items list for interrupts
+- [Low] dt-bindings: virtio: DTS example fails dt-check-style strict
+  checks
+--
 
-commit 7e17eef04600c399c7e0f5ce765da5cf9d40d8e1 upstream.
+commit 32acdab74d03f0d1136a352cb6b5c3095b26176f
+Author: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 
-Commit 8bd2fa086a04 ("virtio: break and reset virtio devices on
-device_shutdown()") added a generic virtio bus .shutdown handler that
-breaks and resets every virtio device during device_shutdown(), i.e. on
-reboot and kexec.
+dt-bindings: virtio: Add Qualcomm DCP transport
 
-virtio_balloon provides no .shutdown of its own, so that generic path
-runs while the balloon's asynchronous work is still armed. Once the
-device has been broken, virtqueue_add_inbuf() in
-virtballoon_free_page_report() returns -EIO and trips its
-WARN_ON_ONCE(). On a kernel booted with panic_on_warn that turns an
-ordinary reboot, for example a kexec based upgrade, into a fatal panic
-in the middle of device_shutdown(), so the machine never reaches the
-new kernel.
+This commit adds a Device Tree binding schema for the Qualcomm DCP VirtIO
+transport wrapper.
 
-Relaxing that single WARN_ON_ONCE() would only hide the symptom: the
-inflate/deflate and OOM paths do not warn, they call
-wait_event(vb->acked, ...) and would instead block forever on a broken
-queue that can no longer complete. The device has to be quiesced, not
-just kept quiet.
+> diff --git a/Documentation/devicetree/bindings/virtio/qcom,dcp-virtio.yam=
+l b/Documentation/devicetree/bindings/virtio/qcom,dcp-virtio.yaml
+> new file mode 100644
+> index 0000000000000..46b0e53468be0
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/virtio/qcom,dcp-virtio.yaml
+> @@ -0,0 +1,147 @@
 
-Add a .shutdown handler that quiesces the balloon via the shared
-virtballoon_quiesce() helper while the device is still alive, and only
-then breaks and resets it via virtio_device_shutdown(). Unlike
-virtballoon_remove() the balloon workqueue is not destroyed, as shutdown
-does not free the device and cancel_work_sync() together with stop_update
-already prevent any further work from being queued.
+[ ... ]
 
-Fixes: 8bd2fa086a04 ("virtio: break and reset virtio devices on device_shutdown()")
-Signed-off-by: Denis V. Lunev <den@openvz.org>
-Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-ID: <20260624140846.2616797-4-den@openvz.org>
-Signed-off-by: Dickson Wu <dickson.wu@certik.com>
----
- drivers/virtio/virtio_balloon.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+> +  interrupts-extended:
+> +    minItems: 2
+> +    maxItems: 2
+> +    description: The VirtIO-MMIO and DCP power-notify interrupts, in tha=
+t order.
 
-Changes in v2
-v2: resent through a whitespace-safe path; v1 <CAFaZ9epp-Y8efod8a7CQuQqYEjk5L_ruwP+c1SoBRPjdu9uGyQ@mail.gmail.com> was damaged by my mail client and does not apply.
+[Severity: Low]
+When a property has a fixed set of ordered entries, DT binding schemas
+describe each entry in an items list instead of using minItems/maxItems
+with a combined description.  Defining interrupts (in properties and
+required) with two per-entry description items also lets dtschema accept
+interrupts-extended automatically in DTS nodes and examples.
 
-The backport and the test runs were prepared with AI coding tools
-(OpenAI Codex agents, with review by Claude). I went over the result
-before signing off.
+> +
+> +  iommus:
+> +    maxItems: 1
+> +
+> +  iommu-ranges:
+> +    $ref: /schemas/types.yaml#/definitions/uint32-array
+> +    description: |
+> +      The firmware-visible IOVA range, specified using the parent bus's
+> +      #address-cells followed by its #size-cells. The DCP transport uses=
+ two
+> +      cells for each, encoding a 64-bit IOVA base followed by a 64-bit r=
+ange
+> +      size.
+> +    items:
+> +      - description: IOVA base, high cell
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +      - description: IOVA base, low cell
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +      - description: IOVA range size, high cell
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +      - description: IOVA range size, low cell
+> +        $ref: /schemas/types.yaml#/definitions/uint32
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 726aef5be178..efa77daa93b8 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -1159,6 +1159,12 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	kfree(vb);
- }
- 
-+static void virtballoon_shutdown(struct virtio_device *vdev)
-+{
-+	virtballoon_quiesce(vdev->priv);
-+	virtio_device_shutdown(vdev);
-+}
-+
- #ifdef CONFIG_PM_SLEEP
- static int virtballoon_freeze(struct virtio_device *vdev)
- {
-@@ -1229,6 +1235,7 @@ static struct virtio_driver virtio_balloon_driver = {
- 	.validate =	virtballoon_validate,
- 	.probe =	virtballoon_probe,
- 	.remove =	virtballoon_remove,
-+	.shutdown =	virtballoon_shutdown,
- 	.config_changed = virtballoon_changed,
- #ifdef CONFIG_PM_SLEEP
- 	.freeze	=	virtballoon_freeze,
+[Severity: Medium]
+Does make dt_binding_check fail on the per-item uint32 $ref entries under
+iommu-ranges?
 
+Because iommu-ranges already has $ref:
+/schemas/types.yaml#/definitions/uint32-array, each entry under items
+describes a single 32-bit cell validated against meta-schemas/cell.yaml,
+which does not permit $ref (and /schemas/types.yaml#/definitions/uint32 is
+a property-level type).  Dropping the per-item $ref lines and keeping only
+the description entries avoids the schema validation failure.
 
+> +
+> +  dma-coherent: true
+> +
+> +  mboxes:
+> +    maxItems: 1
+> +
+> +  mbox-names:
+> +    const: dcp-power-tx
+> +
+> +  display-subsystem:
+> +    $ref: ../display/msm/qcom,dcp.yaml#
+
+[Severity: Medium]
+Does make dt_binding_check fail to resolve ../display/msm/qcom,dcp.yaml#?
+
+Documentation/devicetree/bindings/display/msm/qcom,dcp.yaml is not present
+in the tree, so validating this schema and the display-subsystem child
+node in the example fails with an unresolvable reference error.  The
+qcom,dcp.yaml schema needs to be present before this binding (and
+referenced as /schemas/display/msm/qcom,dcp.yaml#).
+
+[ ... ]
+
+> +    / {
+> +        compatible =3D "qcom,hawi-mtp", "qcom,hawi";
+> +        model =3D "Qualcomm Technologies, Inc. Hawi MTP";
+> +        #address-cells =3D <2>;
+> +        #size-cells =3D <2>;
+
+[ ... ]
+
+> +                    port@1 {
+> +                        reg =3D <1>;
+> +                        dcp_intf1_out: endpoint {
+> +                            remote-endpoint =3D <&panel_dcp_in>;
+> +                        };
+> +                    };
+
+[Severity: Low]
+In the example, scripts/dtc/dt-check-style --mode=3Dstrict reports two style
+warnings: in a root node model should precede compatible (or a simple soc
+bus node can be used instead of /), and in port@1 a blank line is needed
+between reg =3D <1>; and the dcp_intf1_out: endpoint child node.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261126-jshekhar-q=
+com-virtio-dcp-v1-0-7b49bda74916@oss.qualcomm.com?part=3D1
