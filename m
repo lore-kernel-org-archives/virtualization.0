@@ -1,47 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795644197;
-	b=ApT120zjYwVMD1aETxcUq7goFQ2md0IUiYILM9RSZJoaNpQEZPaTKuT1J+W+WPXDhymN
-	 1yf+TOrxOsNkakCBo2y2dOJ7yYCX6glcfiN0LJkIu9/psb2uZ2JT2/WXZf9uErhXVAQZk
-	 qcMpvKS6SHeH26D4BFy3wgQLEarbgzhmuvEOx6wg7iTqIXZOcEA9TVFAUuQ7zXyETnI9+
-	 18r+CvC+5/IO4dDalFRpSCz6Bg/k+SgpOZK6W5VNWJQvWz9l3fU63V+oSo6kdxJZhPQI9
-	 j8rCFpl0fDoFZXvtUB+MdpjSdB/5bJ5J4Bx4w2W2ePVBYGgXEgjBmAw8pz/EBrNdQVQ==
+	t=1795655411;
+	b=0nZEptYrCdVjNB6wEF+grTUMCt5liERAxWCTzf3soznm4FhkOpHXuxfWMdWYH5gRvNTM
+	 ktt+sdW2+JIThcUR+jccclztioBl5OjZqgHOHfdIDdDrQYEQGfPAsQHUbgw57waq5AgOs
+	 qwkgKjbDL2wffmsYSW8dqGo59O/SaHrqfKSNBSAQTRHY3fyBF82fKlAFoc/9e7+TSvkX/
+	 /rnp+oL1CBpaF5kHjRQD8pXGaHv3gHHVwKsc0NomJ/XwehJF9tYVBv+Njmx7v77+j7S5P
+	 crjutNYDwaFWBp02D23hCcce3Hz74LjU1WlU2GCu+ClIwnyGCgoUB9jbgpMesoqamWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795644197;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:Organization:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=vUeq5LteBRvwR4Wuc6WX9RogAMz5eXkXkWOEBxiQ1EM=;
-	b=2I5+KBBhKyRji3S+ZSw309i/zmtw4KW03aUIyG1/6vF2eAPZOO3RMYk67Ig0vJg5M17l
-	 l/RAOPHQHXc3k8oYGOuUEk7iRqBA64IyXwZO/MzFjhQ+SKsUYeuNbHssEOKwGZZA8Xzuy
-	 PdtooThnswACIKSQxhsSn0gkmXn7iKeE6o/f2t0YwBUeG/pqA5gNa7X/MKj3ScpRV7Dcg
-	 RcOQH8bBK9deJZ7dsC3UeKq3H1+58eb8kGLV8pQG6U/GYNZggRUp0IGReB267PclD7Gwm
-	 fcxuOvtZ5qKIoCXh9/dpOaLA7enVrKvM29egbidOg1AnbePRglp1AVDp0RlFAfqqc5Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795655411;
+	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
+	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc;
+	bh=hLqcqMJze4p895PyhjSSj+Tnxq3rn5mo+PGedMdTRNQ=;
+	b=FZmAwSTTZawtBFA7/6OehCElzSUzSm8j+MOTu/fDWjh4/N5wnsV6+z2NKvPAaVE0UZkO
+	 K2m6P+XqEU25zLNsD958N9JMJtwQq+H70x6hGf67GAgRliJYqOnRg7FMSs0ouGqWXcyzl
+	 MnrE2bSg0ASaTMT1K3KDlGBf8p0Nq/rm2CwZjU3ZW4GcMEyMt4urdxvZ58bQcKDjj97r8
+	 282ydvnNuZhIrW8rdTJrudtJJjq8h9n/HA+kMQxZQGCA2g9QoFr8vBzyNs2No877CdlVP
+	 UvHiXei00UmZkH2ZeWROlGn6+zNIaiwnc96Ddk/TwUCbxKdZBd6mxN08kBt4XzYFStg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UB+RbUBB;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VkAOY2HH;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7F01606A31E;
-	Wed, 25 Nov 2026 22:03:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 859FB606B74B;
+	Thu, 26 Nov 2026 01:10:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UB+RbUBB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94D71F000C6;
-	Wed, 25 Nov 2026 22:03:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VkAOY2HH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427B91F000E0;
+	Thu, 26 Nov 2026 01:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795644197;
-	bh=vUeq5LteBRvwR4Wuc6WX9RogAMz5eXkXkWOEBxiQ1EM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=UB+RbUBBtKIA30H5GdjQc20xPbyAQorjOzKDIRLOwGZ6IYuTYgvNXdJTWrt/Pu0GL
-	 JTjQGLR2nSvl9s9buKqgU7DSOrLRn6BzE6syepE5VXJCu2PFBp5zcKQi9HfvnXchXq
-	 5KH3xQnvNDSrHu9EglqE+CFB8o6vwf2Y+G8mDT4zW7JBmT6WbFt1FJePH0fTmdRlkQ
-	 U07atZlDbuwA2gzLppS+360UUjKlsjNuoDyKu5j3hTx5nmMXfdxku7jk1YPqwjAPBC
-	 I773QPAZ2QQatrzp7awp3NE+udNyHwQcPCDhuEXoY4SVegsGplYw38wNXFd8XpoU88
-	 VLYnJCzbADKiQ==
-Message-ID: <6c33dae1-2f63-4583-b322-bc4c4139e25c@kernel.org>
-Date: Thu, 26 Nov 2026 07:03:14 +0900
+	s=k20260515; t=1795655411;
+	bh=hLqcqMJze4p895PyhjSSj+Tnxq3rn5mo+PGedMdTRNQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=VkAOY2HHQuDGOkhEX07xSs9Sbgj5AzCwb6MVURp1N7KzgV8N7bCUO7HktDtB5gNTP
+	 mmbgWuHHYUwQIwdpmjKPaDcgqAIfO1J3us2t7qWPrgg0RfKrBfbkAN3JccGxsC2tCR
+	 y4T/GGTy2ZuOsa4DGRtYx+eHDbawNQs+kuRNzcon4rkDYyAyEbQkyy5anQB4K0Z376
+	 a85nk1vGqopCXkkyCtP8Oyjr5NfkoN9qtBZsC1Nx5qPJg14SKSihH5q5itqpcUqDOP
+	 dgX2v6EyO8dVnTCgRubw7OsCJA7gEPa4vOwQM2jO7pGiNmPbTHJrzd8u1LQDYQRiLg
+	 s9VhpJxLlAhEA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3A3243809A24;
+	Thu, 26 Nov 2026 01:10:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -51,53 +53,48 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/2] virtio_blk: add fua write support
-To: Alberto Faria <afaria@redhat.com>,
- Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc: linux-block@vger.kernel.org, virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>, Jens Axboe <axboe@kernel.dk>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowangio@gmail.com>
-References: <20261125083947.263216-1-afaria@redhat.com>
- <20261125083947.263216-2-afaria@redhat.com>
- <ad36d8e4-27af-4c6a-b3af-984118434797@wdc.com>
- <CAELaAXwH8-gn+nuD96gDSeKZMgKZjX22Q-hVywXbQL8si6S1Pw@mail.gmail.com>
-Content-Language: en-US
-From: Damien Le Moal <dlemoal@kernel.org>
-Organization: Western Digital Research
-In-Reply-To: <CAELaAXwH8-gn+nuD96gDSeKZMgKZjX22Q-hVywXbQL8si6S1Pw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] vhost/net: Fix receive queue test in busy poll
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <179565540977.1427026.8052845055528929913.git-patchwork-notify@kernel.org>
+Date: Thu, 26 Nov 2026 01:10:09 +0000
+References: <1B3A1B72438119BC+20261120033824.681219-1-raoxu@uniontech.com>
+In-Reply-To: <1B3A1B72438119BC+20261120033824.681219-1-raoxu@uniontech.com>
+To: raoxu <raoxu@uniontech.com>
+Cc: mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com,
+ davem@davemloft.net, kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 
-On 11/25/26 18:16, Alberto Faria wrote:
-> On Wed, Nov 25, 2026 at 9:07 AM Johannes Thumshirn
-> <johannes.thumshirn@wdc.com> wrote:
->> On 11/25/26 9:39 AM, Alberto Faria wrote:
->>> +     /*
->>> +      * Do not advertise FUA when the device is zoned, since we
->>> +      * would not be able to handle it on REQ_OP_ZONE_APPEND.
->>> +      */
->>> +     if (virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS) &&
->>> +         virtio_has_feature(vdev, VIRTIO_BLK_F_REQ_FLAGS_OUT_FUA) &&
->>> +         !(lim.features & BLK_FEAT_ZONED))
->>> +             lim.features |= BLK_FEAT_FUA;
->>> +
->>
->> Can you elaborate why?
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Willem de Bruijn <willemb@google.com>:
+
+On Fri, 20 Nov 2026 11:38:24 +0800 you wrote:
+> From: Xu Rao <raoxu@uniontech.com>
 > 
-> The virtio spec currently only defines FUA for OUT requests, so there
-> would be no way to pass on the REQ_FUA to the device on a zone append.
+> sock_has_rx_data() returns a positive value when receive data is
+> available. For sockets without a peek_len() callback, however, its
+> fallback returns skb_queue_empty(), which has the opposite meaning.
+> 
+> An AF_PACKET SOCK_RAW socket is accepted by get_raw_socket() as a
+> vhost-net backend, and its socket operations do not provide peek_len().
+> With busy polling enabled for this backend, an empty receive queue is
+> treated as ready and a nonempty queue as not ready. This can make
+> vhost_net_busy_poll() stop polling prematurely or fail to stop for
+> queued receive data, and invert its receive-side scheduling decision.
+> TUN and TAP backends provide peek_len() and are unaffected.
+> 
+> [...]
 
-Still very confused. What does OUT requests mean ? Is it the data transfer
-direction (device to host)? If yes and an OUT request indicates a "read", then
-why single out zone append? Why not all write commands?
+Here is the summary with links:
+  - [net,v2] vhost/net: Fix receive queue test in busy poll
+    https://git.kernel.org/netdev/net/c/cdf84b850584
 
-If on the other hand this flags indicates that the command cdb is one way only
-and cannot return data (e.g. the written location that zone append returns),
-then OK, I understand. But the comment should clarify that.
-
+You are awesome, thank you!
 -- 
-Damien Le Moal
-Western Digital Research
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
