@@ -1,101 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795681455;
-	b=0Jz0tKmcSwbuL8ifO+bOBsaBNbPHjJ217Nmo2p0WgiM23Sot/CmSl5GV6wSDlvktWfQa
-	 pIl5gFhtf4d8Zkc6pJFWEgMpZDrumcl0Cf5L3rKVG502Htgtuf/6TugVwG5YCSaQcMQqb
-	 bxdS5qIMz0CaYlNilsCb9F+PZkMxQK9+69Zcgf1vkiSWg/0QbzFxsO3SLBNXIdNuFSCTF
-	 Y1iFCQxseNrJHYLTCHXbpbydgVOaPbZC+4oLi6i4M8Lp+pnZL+wYEgvW12Ce14uFFzClK
-	 qAJqNnFPCicB6HKVJNk0NTZ0S5lFMCOcWg/Au8AwkyM8PNGQK5HHTxorRKQjCJglH6w==
+	t=1795682533;
+	b=EkPewt0W90UAOZWuVgPW4HqLWG8aC8rtUdYOnVT3mXmEPgw/9/iiFiLxEmHgnfOZBW2Q
+	 WeTFZdTxRm0Y8/ulPuAY+uSwDMZkaqGQTdI4D++tvk7IVK67fQhvzP2WyJQ7z/Wdr3FnZ
+	 p+xZfRBfKbcg38Yti9deD9brWHhjODeAgOHcPfWx+nuIXGH4AnurPBj2zH8feSyuDtBrq
+	 9/N0j2vgqXHhgsdd29Aa1UG/RAha9lvBfd58xDB289nAsxGJtzB8e9T1nXOAqGbb1/m9s
+	 FpxPqGV6dAaU6wXL6YtraOSL8ZeNEB3kBn9lhdE3jZvLZrH9paqXi3xYNDtEHRA/TGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795681455;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795682533;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition:
+	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=pQJTlolp/xi+6o7OlGu/nUrAFYiUGZO4XF4cHJ5blEU=;
-	b=G/uBpVBPQMA3UWEK9G0MiDBKrB2SYs2bneJ0lgs4nAtyf4lTM04ZDTkVutMulUGBI6CW
-	 HV3zSZkjtCJ+/QU2tz1juG9i1no2nIpnEPj1yrYRaFZugcpmk3JANzmw+pUiS9L8BDZvq
-	 Cgpg9eua1tfo+vb/pu2Bz3jBTZf/QgrWNH7yCFIAbWIfhjg6huJbsnkCRqOMjf40WgJOz
-	 8peXtrm+gsS8vI1KJdj8ZRn9bX2oJrR9+cc3IRkjk1x+eD+iufL+jGPjDrdcuzJTPf999
-	 N2PzMV5URMWHzxVD7GbrjLsc0OKysDS8y8HWAX2Fk5BWiE/z/Tpt2qj8/xjfbHugfZQ==
+	bh=agS5P/JTf/k+ModOLh2I/Nqq+33l1qwMQtHX2aNGzD0=;
+	b=Br+3t4KYlo101/HJ9SzjiSU/+VMFoRguICi8w/3Iv7dDCq3LhBAkLZm0JoA8bZKoUsDx
+	 CPIfY8omZIwevqYrMTzLItWHtGodwB3XDDBgp6XzN5SuFNc1IDI+hlS844xxIu9jgyoWP
+	 WCRxh4F6jdbbtrLuQ+pnSIO1scj//J75fI3jBCIhY1w5bVA4gpry3Vyoj1avD5Ze3kHSr
+	 Um5Gw9OcNnXjmGCSJXHojFFuXux61lcHR/PX/R4wZFSNL8sWRTtMBTF3DZKaOrYRyOwyr
+	 JaM+Ni01B7eevZMaHtTz+QO5GvTLtdCwhRddgRF78Y7Zynw293VCBa/IK7us7xstjUA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SHtlFf09;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CZ2k+VFy;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95125606A33A
-	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 08:24:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 95125606A33A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5564606A31C
+	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 08:42:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E5564606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SHtlFf09
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CZ2k+VFy
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795681450;
+	s=mimecast20190719; t=1795682531;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=pQJTlolp/xi+6o7OlGu/nUrAFYiUGZO4XF4cHJ5blEU=;
-	b=SHtlFf09Ngl0LzHzD5lYELKzzePUE6NJuF6MkrDojCziKSI4N8Tj8WrfnKgnnIHuxW2ZUA
-	k3Xtmz27IgU6nlye1WF8SfDxsVds58aAksEcvewP12ktGFgp+KEtkOQOpxuRQyMlwfwEEI
-	TJ2SG4OFAvLK6UDHCy+y0oTmgKMD8LY=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=agS5P/JTf/k+ModOLh2I/Nqq+33l1qwMQtHX2aNGzD0=;
+	b=CZ2k+VFyGdRS6ERrTgaPByBzZA5VFm3XN9KvXfhjIASP+zt9Alw6n2GKcXQLbhdp+y+9pm
+	a0hZ7BNgYpnBa2L6yn1plvlntNUrpGBkPuJC3FzFJ4wrN/G3da8MosyxKH6GJkw/M0az6v
+	zLBGDBzQJsSxtiq6+UsClJB0pTZ0XsU=
+Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
+ [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-150-Gub5swCSO8uiE8dqa7lVrg-1; Thu, 26 Nov 2026 08:24:08 +0000
-X-MC-Unique: Gub5swCSO8uiE8dqa7lVrg-1
-X-Mimecast-MFC-AGG-ID: Gub5swCSO8uiE8dqa7lVrg_1795681447
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e0ef019a4so4158102f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 00:24:07 -0800 (PST)
+ us-mta-133-vCeAohpOOc-IXCnX6HhYvg-1; Thu, 26 Nov 2026 08:42:09 +0000
+X-MC-Unique: vCeAohpOOc-IXCnX6HhYvg-1
+X-Mimecast-MFC-AGG-ID: vCeAohpOOc-IXCnX6HhYvg_1795682529
+Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-67dc4e966b5so6459682d50.0
+        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 00:42:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795681447; x=1796286247;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=pQJTlolp/xi+6o7OlGu/nUrAFYiUGZO4XF4cHJ5blEU=;
-        b=zk4VCwaTY1dfCAZBw4WtqlX7S8RIRHNdRcdkjHDULGoSbtCnQyYLNKLPtJZtfB2+pa
-         6vv/4kFNN2RHdLQOiB35fd7z7lvfBb5s3E0pZUpQSUsVDbb9Tf26s9AyLoEOKBJsOluV
-         hTuShepSgFkeSIqu5Fgohc9VWzrGn0eYetMIwTMBp+8LYSb433QSzfo6jJf0ZPiz+9su
-         i4ayUD0jxempu+YhfqcvgMA2j13UD3+HAJSsUd4xtYaNpFN/Ljiq8BX9UBjVqU38StzK
-         PfPgTI5gM3UZu6WR/loC7LPscusVWsv1/hWw8AcP9j2/0dP/WRdEkAs9/JYaBMsutQqC
-         /EqQ==
-X-Forwarded-Encrypted: i=1; AL+hErFe+FGx1hj/JXeLSyGnFvXckujwEwKIx3g60k2+Vt/Rt5QLJScGJhezszG0BysHUYwY870xI0jMOI2Y8nfMJQ==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/J+yF11i73HEv50XQUap2+5qe9EN+aaLrrj8LFda4xAS1rBJjL
-	ifhWYuKn9JSwxut90wXv91pGXZjoXmcSdUO5Rqt5E7edGh7ozJWA3boPf1Zgt2HkbQNRS0SRp+b
-	PpiTERLtkLltZh/AoW//rVpPNNgDhupZigZlEn3KcpazHo8SpMNggrTdqelohArs/SJdC
-X-Gm-Gg: AZFdTZcGevLJ1fu+Rt4/3DX9mHv3OribZvip8TYFF0DxHsFX3ppPaSzptY5Itooxb2S
-	r7+S+EQNKAUXC5GzMyhqDXMHzEi7ZIyoL98WQEabmbIPBeCMEnwCOScgafjDoYdd4o7G8QNHKcr
-	UPeZBUGYT86qhZDSKRwE/grGb4vwOAEdUiXz9zjaE2/UKSwO/erPdIGoF2mVN1R+C/SuPqyVaXH
-	JiBfm+TTjJujPZUi1w5kz1BqG+fhcqYuCZNaj48lS3IA505gFyvRj5CIUALQEe7WbtwkAD35dRi
-	YfYkfW9bD6eImClbY9DNb7XgsEkSI5q9yUV7h9Zjn6zUf24z/0fp0p22zEWtGFXuoLzPFsyQ9fk
-	Voa7teuqR4MVVkLcRCsCRnBs/2tJoFWGH07hPG2ak6pQ=
-X-Received: by 2002:a05:6000:26ca:b0:492:3176:3d64 with SMTP id ffacd0b85a97d-4abad5ac748mr39978327f8f.8.1795681446889;
-        Thu, 26 Nov 2026 00:24:06 -0800 (PST)
-X-Received: by 2002:a05:6000:26ca:b0:492:3176:3d64 with SMTP id ffacd0b85a97d-4abad5ac748mr39978266f8f.8.1795681446308;
-        Thu, 26 Nov 2026 00:24:06 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:1529:2e00:86ec:bef7:c309:ba1f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab65cb4341sm39200632f8f.4.2026.11.26.00.24.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 00:24:05 -0800 (PST)
-Date: Thu, 26 Nov 2026 03:24:03 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Seojin An <love09010224@uos.ac.kr>, Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, security@kernel.org
-Subject: Re: [PATCH] virtio_ring: reject unrepresentable split indirect tables
-Message-ID: <20261126032258-mutt-send-email-mst@kernel.org>
-References: <20261126080209.2898344-1-love09010224@uos.ac.kr>
- <CAJaqyWdLXzosXuFs8iafx0x1moGsOZuWuAQCJqCQUrOt++FCBQ@mail.gmail.com>
+        d=1e100.net; s=20260707; t=1795682529; x=1796287329;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=agS5P/JTf/k+ModOLh2I/Nqq+33l1qwMQtHX2aNGzD0=;
+        b=GE+myj1zFQv22xUXkvHmG2M6CIQkTIlwzomSOCUDFObD2CLoX2ECoQGJlRk7w5yQDs
+         AaBsW1paxAI/AJUrMBJTlpz4Dn81Xey0kODRLJ9PD6z380Zw4ObdnQqNlbSe7BXWayET
+         dZUOtHTNIMPYK3tZNqn53f69XkIVcsiN7zEy8Pf3Sqv6Tql6c7y1AGumAywpvVZVD2xj
+         AeMjg1wK7/3EAI1S51/7a+MbSZzvpLOdPXG0jZxSnH22JldjVXFsmyAdECDa/9R3tAK+
+         TvxymBEfAXXkZfdlvDbACZbNXmSqUDCA4NUPkYNhsy/hlX5h8NVw3MCEZN2YQso42h6v
+         6B7w==
+X-Forwarded-Encrypted: i=1; AL+hErEyk7afalQuxFkEPS9jDjD0TiaNCaXzMXZMEJKDLU8NnX3xbFubT9KxGx5C4CxyrU/QwEHMTjjCbnQlf5sQ4g==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/7LjqgUU1wo1JaSjiYaFjfNDZ74w2xh/P/eIxjfGGlSWDlc2Lb
+	8mXo+ZvjiQuk8aR9bOvU/DkBshjPPN3dlE7u3uvicEq2ufj3lbgSjq2Dow3iUcs6SuswYvYfZsD
+	aPJ0en1HJA5vtza/RD90Tj49Lt93qW5cRRwroGTBiK7gOWdLaQzz6buL96XFxDo00g1tvckaqpp
+	zErRqwj2RqBB01di0ev27LcR1vxWH9fz9nUAZANTTs1WQ=
+X-Gm-Gg: AZFdTZdw/ENW6lyRlqLXsnYnorbYlNDD3mRVzJt87wdYXhWfpYBSxkF0Rcu0VTeZHUc
+	B65f9j5OoaflvdyUJvmPh/U5Yw4epXnE2S1N3vhlskM2qA3fFrqoUChDjfRtoMRvuYdbUusaJuL
+	2xhXXvC20vS5MIJt0ixf8a85E8QglV9/jB5Uj4+YSXNkMqCJYxhd9otZl7iew+klYyPXFEieMu6
+	I+xcYhSORAsVEpKKx6I68QAj5+B6fR/2r0LU8kGKbKVVMu3jTNUNtLG6hE=
+X-Received: by 2002:a05:690e:4004:b0:67d:a5bf:ac87 with SMTP id 956f58d0204a3-67df44107b5mr8692690d50.52.1795682528914;
+        Thu, 26 Nov 2026 00:42:08 -0800 (PST)
+X-Received: by 2002:a05:690e:4004:b0:67d:a5bf:ac87 with SMTP id
+ 956f58d0204a3-67df44107b5mr8692678d50.52.1795682528461; Thu, 26 Nov 2026
+ 00:42:08 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,88 +91,123 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <CAJaqyWdLXzosXuFs8iafx0x1moGsOZuWuAQCJqCQUrOt++FCBQ@mail.gmail.com>
+References: <20261126080209.2898344-1-love09010224@uos.ac.kr>
+ <CAJaqyWdLXzosXuFs8iafx0x1moGsOZuWuAQCJqCQUrOt++FCBQ@mail.gmail.com> <20261126032258-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261126032258-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 26 Nov 2026 09:41:31 +0100
+X-Gm-Features: Aa3M54rBmdF2p1Wx64RTupxMxbXYZVFoPE5aS-36qL-hbFzwuw_b_yIEr4zroro
+Message-ID: <CAJaqyWcJe+sSudFs8aNvzLn5YR1wvCYTDRT3AhdPgfMQTRLCzQ@mail.gmail.com>
+Subject: Re: [PATCH] virtio_ring: reject unrepresentable split indirect tables
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Seojin An <love09010224@uos.ac.kr>, Jason Wang <jasowangio@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	security@kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jqcYgCK48beyodlNpJl7lYbFuA-mHubAHytYw6zklWM_1795681447
+X-Mimecast-MFC-PROC-ID: WNwYCzqpYE1qDZSJ1Urt89jIU9d8CeZX0Y-vH4HyiWg_1795682529
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 26, 2026 at 09:14:36AM +0100, Eugenio Perez Martin wrote:
-> On Thu, Nov 26, 2026 at 9:02 AM Seojin An <love09010224@uos.ac.kr> wrote:
+On Thu, Nov 26, 2026 at 9:24=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Thu, Nov 26, 2026 at 09:14:36AM +0100, Eugenio Perez Martin wrote:
+> > On Thu, Nov 26, 2026 at 9:02=E2=80=AFAM Seojin An <love09010224@uos.ac.=
+kr> wrote:
+> > >
+> > > Split descriptors store the next index as u16. alloc_indirect_split()=
+ can
+> > > allocate a larger table, but virtqueue_add_split() feeds the truncate=
+d next
+> > > value back into its construction index. With more than 65,536 SG entr=
+ies,
+> > > the index wraps and later entries replace descriptors at the start of=
+ the
+> > > table. The device then consumes a chain different from the caller's S=
+G
+> > > sequence.
+> > >
+> > > Reject split indirect tables whose entry count exceeds the representa=
+ble
+> > > index range. Keep the existing compatibility policy that permits
+> > > representable indirect chains longer than Queue Size, and leave packe=
+d
+> > > indirect descriptors unchanged.
+> > >
+> > > A virtio-gpu render client can reach this condition with a vmalloc-ba=
+cked
+> > > EXECBUFFER. In a no-vIOMMU QEMU/virgl guest, the resulting command
+> > > substitution provided guest physical read/write and initial-namespace
+> > > uid/euid 0. The virtio-gpu producer needs its own Queue-Size check be=
+cause
+> > > its current queue error path warns about an add failure but advances
+> > > pending state and reports success.
+> > >
+> > > AI tools assisted the source audit, reproducer construction and patch
+> > > drafting.
+> > >
+> > > Fixes: 9fa29b9df32b ("virtio: indirect ring entries (VIRTIO_RING_F_IN=
+DIRECT_DESC)")
+> > > Reported-by: Hyeonjun Hong <hyeonjunhong330@gmail.com>
+> > > Reported-by: GEONWOO HAN <gunwoo9643@uos.ac.kr>
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Seojin An <love09010224@uos.ac.kr>
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 14 ++++++++++++--
+> > >  1 file changed, 12 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+> > > index f683a2d6a2002..ad9e52584fb52 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -686,9 +686,19 @@ static inline int virtqueue_add_split(struct vri=
+ng_virtqueue *vq,
+> > >
+> > >         head =3D vq->free_head;
+> > >
+> > > -       if (virtqueue_use_indirect(vq, total_sg))
+> > > +       if (virtqueue_use_indirect(vq, total_sg)) {
+> > > +               /*
+> > > +                * The core historically permits an indirect chain to=
+ exceed the
+> > > +                * queue size.  Preserve that policy, but do not let =
+its 16-bit
+> > > +                * split descriptor links wrap within the allocated t=
+able.
+> > > +                */
 > >
-> > Split descriptors store the next index as u16. alloc_indirect_split() can
-> > allocate a larger table, but virtqueue_add_split() feeds the truncated next
-> > value back into its construction index. With more than 65,536 SG entries,
-> > the index wraps and later entries replace descriptors at the start of the
-> > table. The device then consumes a chain different from the caller's SG
-> > sequence.
+> > Seems like the same code path in the packed vqs also needs this check?
 > >
-> > Reject split indirect tables whose entry count exceeds the representable
-> > index range. Keep the existing compatibility policy that permits
-> > representable indirect chains longer than Queue Size, and leave packed
-> > indirect descriptors unchanged.
-> >
-> > A virtio-gpu render client can reach this condition with a vmalloc-backed
-> > EXECBUFFER. In a no-vIOMMU QEMU/virgl guest, the resulting command
-> > substitution provided guest physical read/write and initial-namespace
-> > uid/euid 0. The virtio-gpu producer needs its own Queue-Size check because
-> > its current queue error path warns about an add failure but advances
-> > pending state and reports success.
-> >
-> > AI tools assisted the source audit, reproducer construction and patch
-> > drafting.
-> >
-> > Fixes: 9fa29b9df32b ("virtio: indirect ring entries (VIRTIO_RING_F_INDIRECT_DESC)")
-> > Reported-by: Hyeonjun Hong <hyeonjunhong330@gmail.com>
-> > Reported-by: GEONWOO HAN <gunwoo9643@uos.ac.kr>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Seojin An <love09010224@uos.ac.kr>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 14 ++++++++++++--
-> >  1 file changed, 12 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index f683a2d6a2002..ad9e52584fb52 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -686,9 +686,19 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
-> >
-> >         head = vq->free_head;
-> >
-> > -       if (virtqueue_use_indirect(vq, total_sg))
-> > +       if (virtqueue_use_indirect(vq, total_sg)) {
-> > +               /*
-> > +                * The core historically permits an indirect chain to exceed the
-> > +                * queue size.  Preserve that policy, but do not let its 16-bit
-> > +                * split descriptor links wrap within the allocated table.
-> > +                */
-> 
-> Seems like the same code path in the packed vqs also needs this check?
-> 
-> Also, a question for everybody: is it really too late to forbid
-> indirect tables bigger than the queue size? It is not guaranteed that
-> the device will be able to handle it anyway, should we just add a if
-> (total_sg > vq.split.vring.num) return -E2BIG?
+> > Also, a question for everybody: is it really too late to forbid
+> > indirect tables bigger than the queue size? It is not guaranteed that
+> > the device will be able to handle it anyway, should we just add a if
+> > (total_sg > vq.split.vring.num) return -E2BIG?
+>
+> It's not too late in that the spec forbids it.  But a bunch of drivers
+> are broken, so for now the best place for this check is in the driver.
+>
 
-It's not too late in that the spec forbids it.  But a bunch of drivers
-are broken, so for now the best place for this check is in the driver.
+Doesn't it make sense to add in virtio_ring as hardening? Fewer places
+where we can miss the check.
 
-> > +               if (unlikely(total_sg > (1U << 16))) {
-> > +                       END_USE(vq);
-> > +                       return -E2BIG;
-> > +               }
-> > +
-> >                 desc = alloc_indirect_split(vq, total_sg, gfp);
-> > -       else {
-> > +       } else {
-> >                 desc = NULL;
-> >                 WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
-> >         }
-> >
-> > base-commit: 40212b29a6f718d4e7fb3275cede181cb8e137cf
-> > --
-> > 2.43.0
-> >
+> > > +               if (unlikely(total_sg > (1U << 16))) {
+> > > +                       END_USE(vq);
+> > > +                       return -E2BIG;
+> > > +               }
+> > > +
+> > >                 desc =3D alloc_indirect_split(vq, total_sg, gfp);
+> > > -       else {
+> > > +       } else {
+> > >                 desc =3D NULL;
+> > >                 WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->i=
+ndirect);
+> > >         }
+> > >
+> > > base-commit: 40212b29a6f718d4e7fb3275cede181cb8e137cf
+> > > --
+> > > 2.43.0
+> > >
+>
 
