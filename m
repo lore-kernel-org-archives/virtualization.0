@@ -1,103 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795704450;
-	b=kq/K/Xcx2adFTOgU59hOuV8ZUSkYg8rSstXMx3c3d+7JYUliv5yReY7edskh+92g2bPM
-	 wkXwghfCv6crdR4Oh2CLHLCjuQkMo7B6I2jTfhGyWUNdcykW3L4jvOOre3peLc/k9m8/x
-	 WanBJOJOvkvcQPld76sza4xoSlZMI+Ob31FqiMpRfV3bccq99VMNiJ3futgX7FOIAtMsn
-	 gUkkM9eLk35D8nZZHIPg0h5aDLoplJnrSSY8cNI58OSYGTnF0d3+7ueoGN8ZRwK3gMMEd
-	 KOo0O/Br1Rpsp0KQ5/4KdBFvn/JknTg7dPr3hSuTgtFavIsOp5ApijF+lJT2Zr9e3jw==
+	t=1795709234;
+	b=DzPMR2F8yEDau67doe2pGTuGqy/urx9p1VYy8ZzD7JdmT/o2l4z6+25xaGFiR7NCRGn/
+	 1jWLayEil9ogVo8v8mTtlegFuTOUv22D0ALqhbJ2OjsG3HiYtL3A1opV9/PNilOBKuuRw
+	 v7Ef+9Y+8qLwehVRkQhobecLrBNXjZ69bDOePelRj8TCQV/3pIKtBw9EUd99+NSWXG6Jr
+	 Fmc43BzXPsU6Eot3Dl5ju0cFhVm1Pimekop/VuknJzz/pvxKYM7KCdAir9j5Ciaf/xn8i
+	 j2C/nwv+s8k8hh+sYVEdlFKA3zTHAFJH6DCxgTid8I3A/pth1MP2y3+o/8Zgwqi/DvQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795704450;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:
-	 Content-Transfer-Encoding:content-type;
-	bh=YMtn23cPSjwohaR+qdTwIVB0MrBuoBWTZnklOfs8KQw=;
-	b=WmRleo73A8p4bbkJ/xsZc/aseqW8MEjPzmYX/abcljvuX6sUYrb5HfliKLiaGJw0BIIF
-	 R3r4GECFuygbu7xpbINFIIIiLGyC4B4lwetqAdMZUE8ZZe2UfgLCUwbcFBEiwSRNI65Kh
-	 6NYw8l2HIJDOQ3G4KokvOkkbjsM0bQTwoqE3HEPncXTPBQxFIxiZ1grlFIiTwlhO1tR7N
-	 /P1BY4KBqvDpiSW+z5IuczcMWa45y8dB7Ap/AxKdrSVYvdXl3U90eTwiQWJzfsZkoc/PU
-	 PSrcnCxNeLI38Z4ZdaqinkU8+aBkBPUDQxs1pe96XFeNMe/U1a9n15pLoxuM2EMPnkw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795709234;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=ERh6nOxAFDVCRhKfHQCmQuJurhpbxgAslUy/9JN2wyc=;
+	b=NryKknVtqMiyAdZriSy9R6JaXBf5PqnfgckiivFJv7msDxt3twVhehzrlExMJxxanSBd
+	 v8XWpdwEAIRNa7pQNqPcce6HnNqAPvwpq3VaoQVikwD0GLujxfsgpyp4gZNdUdEC3pe9A
+	 F9saL82iUQ1l4ysRRbuZITTEJwdtMYLUSUkYCx0CSWuo3N15C5V3wpULYa7eWPGL1MjSv
+	 JEVPPsjPhv6l3Ns1+E0yLNmhw80eJJQ12nVOteqhQGJxa4WIruB/47q85fqDmScnRiV5R
+	 pHgWp+le9ui7tPji94IDBn3fadatGEQ5ytUmHrInunAl0KW3pjXYQHiRiG9xQ62lxew==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yyj9hibV;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TQ6eO0Gc;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6587B606A338
-	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 14:47:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6587B606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 870A3606A326
+	for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 16:07:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yyj9hibV
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795704449;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YMtn23cPSjwohaR+qdTwIVB0MrBuoBWTZnklOfs8KQw=;
-	b=Yyj9hibV5/FxtHP0zPP8EoicH7UMRsb7XySl3mpqNq6ev4tHOZAivq04Yts2D37+VaUMzS
-	Pumn3l3UdrJWHOs4UqXulXCWhEW6OKUTl0rCgWRdLs7cSq3SpslCaCshVRobugbMMFAni5
-	jbx0giFz72cFf2q2U+I54HxFMVia+qE=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-689-S5Y_XhJoNI-4u00-UCI-hQ-1; Thu, 26 Nov 2026 14:47:27 +0000
-X-MC-Unique: S5Y_XhJoNI-4u00-UCI-hQ-1
-X-Mimecast-MFC-AGG-ID: S5Y_XhJoNI-4u00-UCI-hQ_1795704446
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-4a3705ea6ccso3965669f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 06:47:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795704446; x=1796309246;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YMtn23cPSjwohaR+qdTwIVB0MrBuoBWTZnklOfs8KQw=;
-        b=bsZXJuEV/dxNkMXX28a9KpXxdzkg/x1H0U1FjRLclKbdnqSlG2tn1uHOSBw4yHulrg
-         123o7oOAkROAU7zcJcmHjeLk6+9iR+dW7G5Hjj2sRNtk0yd8xVK2oHE9NmPjMFL9WnZ5
-         vP3gxZx1Ay2dhaROrNPmhMPcDEKLmlzHgWc1iWsJBsFsPqzscPgSUtKYsEZWeVo8AskZ
-         4dSQ3g1gjHSU8mKu9HX3ZzCKx43KiTaICH36hOK1QjwweDzil88BSpko5WUO9n6/O2n/
-         oCCrrf01l+y96ieY31Cum/T81eEgDRuld8WfwDlqJv0/pDX8TEBIp7j0iR4/CzUlNpYk
-         zjdw==
-X-Forwarded-Encrypted: i=1; AL+hErGAUFSLgzh0BZZCIAXSShncW7yaIm0qd5o0YWvpn10IoDKctAPaa9EA5igSuYXOx0M0SI2gyj1UpZEOm3apcw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+LUsD02SbG1EBwTBnPKVo7uC9mmAtO7t1ZRM2j4xc7c10mYx/Y
-	sozRxgJ5tBMWFJXolmncoZkN78E3vxnVmWtHDjwQdmWp3Er4Y1GIEwaRJAERH+tIZZ3WqBoheMl
-	TW/qUuWbLaQjBEBMUBNxzE2vLWlT+Zgf19WgMsShio11kAZiNVW6oqfm/H78Dbbr9cOee
-X-Gm-Gg: AZFdTZfs9WxiAEcQDWWpQIszXbzLfW0k+vJvOIfwVqS5gUNvQ/UCmbH0xwSfIAwhbqI
-	S4ZeWdvmqqVU7vwzHqPzSJQUKPzYfEysFNTXANbgVUn2QUOIbeWUNP0rzPSiE87IXOED4l96ert
-	YlDsPkrH6kJcEeGgRG0QQbAissu2SxeKm+2ILcCtxUpF7d9rc6WFpixRP2+Lk27ko7c6rk7SmoS
-	4Rl6A0S3UX+VQcGtKTX3P1zO90zqXdmgex9IMul+V1ofV5e/ct4J9sdu2ZjKzWNZ8LhPG90i4jU
-	bu+cwA5E2eKaN0JOzHm6/cf6COMv3bD2NfSkD8hviqtxZAwPcpY7LqIV+AtMG2+WrKJbQ3eyDrw
-	DS53LSaZBUON30dNvdXPYiG9VF6OghBj5B/sPio3HlNMJsJlGKgbj+cA9FbECR/aw+vNP3tcz/I
-	hQ/aqsoyVlOqVkmdHMAGYVbIMV81lPnk9jlOTajw41
-X-Received: by 2002:a05:600c:848d:b0:4ac:86c9:b09c with SMTP id 5b1f17b1804b1-4bb88811da9mr444341685e9.13.1795704446327;
-        Thu, 26 Nov 2026 06:47:26 -0800 (PST)
-X-Received: by 2002:a05:600c:848d:b0:4ac:86c9:b09c with SMTP id 5b1f17b1804b1-4bb88811da9mr444341335e9.13.1795704445882;
-        Thu, 26 Nov 2026 06:47:25 -0800 (PST)
-Received: from mszeredi-thinkpadt14gen6.redhat.corp (193-226-214-34.pool.digikabel.hu. [193.226.214.34])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb905f1489sm388114905e9.0.2026.11.26.06.47.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 06:47:25 -0800 (PST)
-From: Miklos Szeredi <mszeredi@redhat.com>
-To: fuse-devel@lists.linux.dev,
-	virtualization@lists.linux.dev
-Cc: Li Wang <liwang@kylinos.cn>,
-	German Maglione <gmaglione@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH 5/5] virtiofs: fix forget leak on submount unmount
-Date: Thu, 26 Nov 2026 15:47:18 +0100
-Message-ID: <20261126144719.232329-5-mszeredi@redhat.com>
-X-Mailer: git-send-email 2.56.1
-In-Reply-To: <20261126144719.232329-1-mszeredi@redhat.com>
-References: <20261126144719.232329-1-mszeredi@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TQ6eO0Gc
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD7B61F000C4;
+	Thu, 26 Nov 2026 16:07:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795709233;
+	bh=ERh6nOxAFDVCRhKfHQCmQuJurhpbxgAslUy/9JN2wyc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TQ6eO0GcNIsLVKF6uFcDQV09UA5s4aLGRgeKQsw2XcvOnz0NrjnvLHuFmcnha0FVo
+	 PxoNvja/IQe2iSUDw5mhOzw6kGy0y6B9llwapXEQUfnzLaV1DVuguY/k8bqNoNUdbA
+	 KF5MkzHRoVdTUWr7EK6q0alhxACu2RDoImpXq2Y0PETePxSQByUafTiOs9Knhs+wbX
+	 L9VT8BPZcxI2eH2yEXgj7xSKB/GlNs0ABkdTpw0d5Q10V6zc0zbC7PiJS4slI9MK2O
+	 DaZbaBTIlIlj29JisxpBp0N7dkRKRX00pe5QzW7sMfdHTn+eVfm6ew+Q2S0fxq3yGh
+	 LxKlG6fBNdhEQ==
+Message-ID: <sashiko-outbox-235877@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RFC net v8 4/6] net: resolve uncommon partial checksums
+ at ingress
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Showta Ishizaki" <zakinko@snowrabbit.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261126.rfcv8.99797.4.zakinko@snowrabbit.org>
+References: <20261126.rfcv8.99797.0.zakinko@snowrabbit.org>
+ <20261126.rfcv8.99797.4.zakinko@snowrabbit.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 26 Nov 2026 16:07:13 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,93 +61,118 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Zt8zuztOcVmbmP-T9iCNvxww7wta57wAjQFl7CTD3LU_1795704446
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-generic_shutdown_super() clears SB_ACTIVE before calling evict_inodes(),
-so fuse_evict_inode() skipped both the FUSE_FORGET for fi->nlookup and
-fuse_cleanup_submount_lookup() for every remaining inode.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Medium] net/packet: framing mismatch in packet_vnet_hdr_to_skb() via
+  dev->type
+- [Medium] net: packet: skb->protocol set after validation in
+  packet_vnet_hdr_to_skb()
+--
 
-For a full unmount that is mostly fine: FUSE_DESTROY has already told the
-server to drop everything.  But a submount unmount takes the same path
-with the connection still alive: fuse_mount_remove() returns false, so
-fuse_conn_destroy() is not called and no FUSE_DESTROY is sent.  The
-server then keeps the lookup count of every inode of the submount for the
-lifetime of the connection, which can be arbitrarily long if the parent
-mount stays around and submounts come and go.
+commit 4a97d36173ad7a2c090af1623638b2b508d7f3b0
+Author: Michael S. Tsirkin <mst@redhat.com>
 
-fuse_submount_lookup is worse, because it is freed nowhere else: the
-object and its embedded forget are leaked on any unmount, including a
-full one, for every inode that has one.
+net: resolve uncommon partial checksums at ingress
 
-Queue both regardless of SB_ACTIVE.  This is safe on the paths where the
-connection is already gone: both fuse_dev_queue_forget() and
-virtio_fs_send_forget() just free the link when the queue is
-disconnected, and fc->chan stays valid until fuse_free_conn(), well after
-evict_inodes().
+This commit validates virtio_net_hdr csum_start and csum_offset against
+parsed TCP or UDP headers at ingress, retaining CHECKSUM_PARTIAL only when
+they match and completing non-GSO checksums or dropping GSO packets when
+they do not.
 
-Fixes: c4d361f66ac9 ("fuse: share lookup state between submount and its parent")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
----
- fs/fuse/inode.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+> diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+> index 930e85e4bf739..c07a0196911b5 100644
+> --- a/net/packet/af_packet.c
+> +++ b/net/packet/af_packet.c
+> @@ -2778,6 +2778,16 @@ static int tpacket_parse_header(struct packet_sock=
+ *po, void *frame,
+>  	return tp_len;
+>  }
+> =20
+> +/* The device says how its frames start. */
+> +static int packet_vnet_hdr_to_skb(struct sk_buff *skb,
+> +				  const struct virtio_net_hdr *vnet_hdr)
+> +{
+> +	bool has_eth =3D skb->dev->type =3D=3D ARPHRD_ETHER ||
+> +		       skb->dev->type =3D=3D ARPHRD_LOOPBACK;
+> +
+> +	return virtio_net_hdr_to_skb(skb, vnet_hdr, has_eth, vio_le());
+> +}
 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 344fcb55a64b..81ee6c96203c 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -141,6 +141,7 @@ static void fuse_cleanup_submount_lookup(struct fuse_conn *fc,
- static void fuse_evict_inode(struct inode *inode)
- {
- 	struct fuse_inode *fi = get_fuse_inode(inode);
-+	struct fuse_conn *fc = get_fuse_conn(inode);
- 
- 	/* Will write inode on close/munmap and in all other dirtiers */
- 	WARN_ON(inode_state_read_once(inode) & I_DIRTY_INODE);
-@@ -157,19 +158,27 @@ static void fuse_evict_inode(struct inode *inode)
- 	 */
- 	if (FUSE_IS_VDAX(inode))
- 		fuse_vdax_inode_cleanup(inode);
--	if (inode->i_sb->s_flags & SB_ACTIVE) {
--		struct fuse_conn *fc = get_fuse_conn(inode);
-+	/*
-+	 * Must be done unconditionally as well: on a submount unmount the
-+	 * connection stays alive and no FUSE_DESTROY is sent, so without
-+	 * this the server keeps the lookup counts of every inode in the
-+	 * submount for the lifetime of the connection.  The
-+	 * fuse_submount_lookup object is freed nowhere else, so skipping it
-+	 * leaks that too.  If the connection is already gone (full unmount,
-+	 * failed mount) fuse_chan_queue_forget() just frees the forget.
-+	 */
-+	if (fi->nlookup) {
-+		fuse_chan_queue_forget(fc->chan, fi->forget, fi->nodeid,
-+				       fi->nlookup);
-+		fi->forget = NULL;
-+	}
- 
--		if (fi->nlookup) {
--			fuse_chan_queue_forget(fc->chan, fi->forget, fi->nodeid,
--					       fi->nlookup);
--			fi->forget = NULL;
--		}
-+	if (fi->submount_lookup) {
-+		fuse_cleanup_submount_lookup(fc, fi->submount_lookup);
-+		fi->submount_lookup = NULL;
-+	}
- 
--		if (fi->submount_lookup) {
--			fuse_cleanup_submount_lookup(fc, fi->submount_lookup);
--			fi->submount_lookup = NULL;
--		}
-+	if (inode->i_sb->s_flags & SB_ACTIVE) {
- 		/*
- 		 * Evict of non-deleted inode may race with outstanding
- 		 * LOOKUP/READDIRPLUS requests and result in inconsistency when
--- 
-2.56.1
+[Severity: Medium]
+Can deriving has_eth from skb->dev->type cause packet_vnet_hdr_to_skb() to
+parse a different frame layout than packet_snd(), tpacket_fill_skb() and
+packet_parse_headers()?
 
+As noted above virtio_net_l3_start(), ioctl(TUNSETLINK) changes dev->type on
+a tun or tap device without changing dev->hard_header_len or dev->header_op=
+s.
+On an IFF_TUN device whose dev->type is set to ARPHRD_ETHER via TUNSETLINK,
+packet_snd() places the L3 header at offset 0, but packet_vnet_hdr_to_skb()
+passes has_eth =3D true.  virtio_net_l3_start() then treats the first 14 by=
+tes
+of the L3 header as an Ethernet header and validates csum_start and
+csum_offset against a fake L3/L4 header inside the payload, retaining
+CHECKSUM_PARTIAL while packet_parse_headers() leaves skb->network_header at
+offset 0 and derives skb->protocol from the real L3 header via
+ip_tunnel_parse_protocol().
+
+In addition, packet_vnet_hdr_to_skb() includes ARPHRD_LOOPBACK in has_eth, =
+so
+virtio_net_l3_start() walks past VLAN tags at ETH_HLEN when validating the
+headers, whereas packet_parse_headers() only advances skb->network_header p=
+ast
+VLAN tags when skb->dev->type =3D=3D ARPHRD_ETHER:
+
+net/packet/af_packet.c:packet_parse_headers() {
+	...
+	if (likely(skb->dev->type =3D=3D ARPHRD_ETHER) &&
+	    eth_type_vlan(skb->protocol) &&
+	    vlan_get_protocol_and_depth(skb, skb->protocol, &depth) !=3D 0)
+		skb_set_network_header(skb, depth);
+	...
+}
+
+> @@ -2941,7 +2951,7 @@ static int tpacket_snd(struct packet_sock *po, stru=
+ct msghdr *msg)
+>  		}
+> =20
+>  		if (has_vnet_hdr) {
+> -			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le()) < 0) {
+> +			if (packet_vnet_hdr_to_skb(skb, &vnet_hdr) < 0) {
+>  				tp_len =3D -EINVAL;
+>  				goto tpacket_error;
+>  			}
+> @@ -3163,7 +3173,7 @@ static int packet_snd(struct socket *sock, struct m=
+sghdr *msg, size_t len)
+>  		skb->no_fcs =3D 1;
+> =20
+>  	if (vnet_hdr_sz) {
+> -		err =3D virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
+> +		err =3D packet_vnet_hdr_to_skb(skb, &vnet_hdr);
+>  		if (err < 0)
+>  			goto out_free;
+>  		len +=3D vnet_hdr_sz;
+
+[Severity: Medium]
+Should packet_parse_headers() and virtio_net_hdr_set_proto() run before
+packet_vnet_hdr_to_skb() in tpacket_snd() and packet_snd()?
+
+When the caller passes proto =3D=3D htons(ETH_P_ALL) or 0, skb->protocol is=
+ still
+0 when packet_vnet_hdr_to_skb() runs, so virtio_net_l3_start() skips its
+skb->protocol consistency check.  After validation succeeds and retains
+CHECKSUM_PARTIAL and GSO, packet_parse_headers() and
+virtio_net_hdr_set_proto() populate skb->protocol.  Whenever
+packet_parse_headers() leaves skb->protocol as 0 (for example on SOCK_DGRAM
+sockets, or on SOCK_RAW sockets bound to devices without
+header_ops->parse_protocol), virtio_net_hdr_set_proto() unconditionally sets
+skb->protocol =3D htons(ETH_P_IP) for VIRTIO_NET_HDR_GSO_UDP_L4 and
+VIRTIO_NET_HDR_GSO_UDP even when virtio_net_csum_partial_ok() just validated
+an IPv6 packet, causing downstream GSO and transmit paths to process the IP=
+v6
+packet as IPv4.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261126.rfcv8.9979=
+7.0.zakinko@snowrabbit.org?part=3D4
