@@ -1,78 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795674982;
-	b=kroVGdOL1f1JhYQKtb8c+8c2cqZ843sFQqbQEgHxMRUdzvVdl2z7tOA1qjue7tyTvBCN
-	 WiLdzwRIMr/hl+VziDGgKdhkKRPUc/gOYu2BRrin17EgJGnkIdFuhc1lAPSMErth8JStL
-	 P8IBmZlK8bSCwV+MzKYnbftPX9gKxbtpHT8GHIp9/W0yyHzJC66Vk6ncy913TcC3rwFud
-	 wcHdNORLbLWTlo14dNrvKhybrWH1jA41e3bCe2XTMydDToYnRcTWsK+mF5fru9RuKMvwc
-	 rfj/Nr3gIL+GXRYoreInQ3FFicV0sJXLaPfGJGT8JhitBOUfQffL8cvO9bm8XcfTHVQ==
+	t=1795674986;
+	b=pfRPv7ms0jjWlpRs1gqZe2lBLQ4y9wDzViag3nouaEREgJ0LP7bumOZCxtEEYJc1wwLT
+	 4zCHQSBN0M/hT5qPzWEzwZS49C+B6MlYfIPjP7CMDMpwwsjHRGRfMAX8boCH0dbhjnHz6
+	 90okPCyk+FG55evfrfrf4xr5YZMrJE6cstoa5VznkU8s4N3bCuV+ARbovCoJMxf4Gaef5
+	 S5MLXXnV8EKDPQHc+i1lmHihy9lpF+2ELcKkDiMOgyaJEVzzDXjO4LFqsx1bwGf77K8rj
+	 OUqYc8cuyBNoU8FXI/8AJL813obCDHtHTM5lbjCbflqB7SNie8+yqiCANnV9KQeWI9w==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795674982;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795674986;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
 	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=VJsAMOF2rkfJ3G8mJjIbcPeXjvkmAyKckkfRPNeTBjg=;
-	b=5iL1b/kpAwH331xZIPyv2Y+hZSX+B0ogrYW+OhhVqim43+dj7LvlEbeKRPaaYprusHgx
-	 BXXuYlxzs91h4qLv84sSELcEe8yX6X49UKYYffIwk+vYttLbeHNJZIV8ygeVSyoMd3OTZ
-	 vbRLtvOhAXVoouU/zV7WIfShRDbneFlG6pQwrtchG0jIWzwZCSNL8A+K86zVTRaa+EVec
-	 i0B6p5ww2/bUeSBHmkLUCOJ4VWfuiYCfU1g9VHfC4bmW8wnYpI0hAIN/H2wmIf4KyjNVD
-	 Dj7+3rLDoJnPK05mtrqfuBP9Z2rVRVjVkvoqG36c5IwREGOXLKsocBGDdVJ/rx49h0w==
+	bh=ac1Ikm+0oUYJ7NoGwgsIR9r0KMDjWbZv2G87ig7VjRE=;
+	b=tykwdYNvolTnpOmcBCFW6ZnQczTIf+sqgb008+8CXNwGe9ID/xmUA0YSokPDQ4ct2G00
+	 xKURjr6g2j+WR1LlMBz6foiYLZ5glqrgrLKx5jUztJGGusfwJFd7gbBHmRK5EWVwheiMY
+	 3f6FS4Llr9WYAR165EA1w8bB7Hy73foGYQYI4V0QoP3B+vZo4zn1JANJSN5rI/40EWxeu
+	 9oIQvRbxYejHItRWFDVXG2AoceAQj9k8J/IHY2lFX8nf0zx4pyeJlmGRbXYRxilnwTi27
+	 a9XrfYai4n3tpH6yhfVcPPxLA+qffCtgnkUVgyD9BCauvpHeD34LqFBXy6kjjYpUiag==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hL6RAxIl;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dm8Vdzys;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3AE606A321;
-	Thu, 26 Nov 2026 06:36:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0389606A31C;
+	Thu, 26 Nov 2026 06:36:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hL6RAxIl
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dm8Vdzys
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795674982;
-	b=S46bG9yg79TzA3/AgvpbgSaQX9KFpMQIysJyDDuL7VOsUGY/GB1wzBwVS3dJo0/rpuHW
-	 bSfyWEQ1x03QlKVrg+OTc5KTAc/rsgsrQ3TGZ82Oj7FxQrX1D6Cj40J6Vfdf00t4oWHFM
-	 al3Lp6jfA69V5H2Vg27z8Ed9fdJQ25pG8BkuoaYseFE7eEWnkpu7loE8RacwElo1UqhpZ
-	 4d2Xx7Kfvx9MlH81uun8lFfWb2Dzl3Mvv2JRp9k7QtQuzj57zaiuCr0jd0daWtVgLbZmO
-	 SyWc6F/IWzDCWhG3M0pxcCTcmqFepBmXSP3wM8Ed28ezQEohM58VqL5UJ1awle1HGLw==
+	t=1795674986;
+	b=HYwoYTV7VCyWdr1zsXsjaxEhSVbD/hvEOen4zJh/+7cLZEmtDhi/dU4zcS4WtQ7N90Pd
+	 bi/F9R5o6ycDwP/k7zQf88ksRZNEFDNJ701lWhxOuDTn/cWYgcWUPjtoTVmNW4/5LC9x7
+	 E8sUzYaV46UhJJ+vWY/qwFKmfnrPdfJUKGH82SGFSsMgGMO0Vt9un3JCNYRKs8oQZpGxY
+	 4Mos4r4H/OKv6fcmliUiXPbvnfQiD5DESrS6PJ5wo+O8J5TyrRjgsvXNerSZr3FPnKAde
+	 ocwiavFaDyJNs1lZLAV5DieKHHJqa/J4mqQR8XdlfFYxS7l2xhDdBplfPylbgKrhWTA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795674982;
+	c=relaxed/relaxed; t=1795674986;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To;
-	bh=VJsAMOF2rkfJ3G8mJjIbcPeXjvkmAyKckkfRPNeTBjg=;
-	b=kI8zrSOL7DngcdMUjWCDHdMJg1eyclI5wD9c7uuPsTavnM54MZwGNq2w0iP6LeVrN086
-	 XYKq4/F2wKhcqvzCCuH155bJ1bgc8J9t8tsJwMXZpBZZ7xip0h+rOdUpKN3fTuz9v5KRE
-	 /jaEQvfwC6JUf4krbn2bUMjxY2HAYgJVmlw4zjM8WZuSQwOvteKHlCRcmwHKCcHzXeTmv
-	 uqyBynwDaRZfGLcGW0LOkSRqlVHRllhdCQRJdFW2Hvo+dVL6fUGsrkqKimfZ6lc5IH2FX
-	 6gFpc0caGixYmscXRJFj4ucv4cCgVpUQfrGLYcDbHX64nRZPD0Xl3SY+KUfki+ed7QQ==
+	bh=ac1Ikm+0oUYJ7NoGwgsIR9r0KMDjWbZv2G87ig7VjRE=;
+	b=mSrXut7+j3Mcc6KnKxnhlh6s1su8sj9qsZKx+psZO/KiANaGCG/d2kuKslJlebPJZicj
+	 WOIRI4r0QG9ElObOZHp9aRLR9OvFoo2lqo0AQ6qucZwv4SjsJ32lD4k2rc7ZY4OsHUvH7
+	 K+7whiDdt2L4MQe68cUrmUqouyL68uSq+tfysbziflJRHuALQVv1xhHYKk+IZvMRDFGEq
+	 iqh3sBbr/CyaTdNq7WbUMvbHPuh1iYlos0FXQ23PZ68OKKM6+mxaUgEHzSOaZr0dtSSqF
+	 Q9PfQyCYtQ6oz5w4zHJImkN6Uz9kejD4dU6uTaRL7JbvjiOsZx7xOnsVzHTblL2go0Q==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 812731F000D0;
-	Thu, 26 Nov 2026 06:36:12 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id C3DFC1F000CF;
+	Thu, 26 Nov 2026 06:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795674982;
-	bh=VJsAMOF2rkfJ3G8mJjIbcPeXjvkmAyKckkfRPNeTBjg=;
+	s=k20260515; t=1795674986;
+	bh=ac1Ikm+0oUYJ7NoGwgsIR9r0KMDjWbZv2G87ig7VjRE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=hL6RAxIlMQ/71cANW2iih9bYKzAxc+uyzKqtAWMzRga9gTDg93G90ABDJ+CAqH7bY
-	 y8iEMzZfiQDgTLTo32Qe+zA3KGedQg4eBkef6HZ9Plb16zR6FD3/OyvkVEHae7epJI
-	 5QpUv9MnrQXBrqX5VDbH0vkHJQN6i4WDI+ipETnr9DfyVK4in/nsvcOBw5OC7YZl78
-	 BVXLYufqX3/TK1vYkrwNJD9ZP7GlpJMoKpsB3rhDs0w8WF0yXIMuAycQeyZGKPkxGs
-	 n9f0zYH8bHvfR0W1vrFOd5zDlmvZZw36J7UGauymUTjWDVGj6ME1fOJLRYwiI5pdQO
-	 eDlJtwQIdd26A==
+	b=dm8Vdzys+IyPKd71LRZ81B0Uc1OswETRrg/mcvejV0FeIs/PcLUevILJeJxkwgEn9
+	 gkx3tCWiK45uRxooTyjCASwGN64KfafLSTIvK2QUXNEnz6vcaiQ3T1y8snhopRN3BF
+	 lmbyUXEYDc4l5vYAhkMVlzmnVpqKwaSiM6FEkJlS89TmZwCz3qQRkbUtnNOnMvBb7+
+	 uSJHmlxFvsJNei2/Pq+kmPIkuuwioPvSP81bq4vTjNiM7IvMk5h+rn1JWygVpUQOJc
+	 Z12K8rvYnAiB2MofTptxyZ+RncEBtu+Tys7LwMwyXsjh3lctLM6HkQd4SMKUrKlnHH
+	 Bambavahz1rnw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id E98E84D289;
-	Thu, 26 Nov 2026 06:35:56 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id 146F74D28D;
+	Thu, 26 Nov 2026 06:35:57 +0000 (UTC)
 From: Dickson Wu via B4 Relay <devnull+dickson.wu.certik.com@kernel.org>
-Date: Thu, 26 Nov 2026 06:18:42 +0000
-Subject: [PATCH 6.12.y v2 2/4] virtio: add virtio_device_shutdown() helper
+Date: Thu, 26 Nov 2026 06:18:43 +0000
+Subject: [PATCH 6.12.y v2 3/4] virtio_balloon: factor out
+ virtballoon_quiesce()
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,7 +85,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-virtio-final-v2-2-4cfd5590e924@certik.com>
+Message-Id: <20261126-virtio-final-v2-3-4cfd5590e924@certik.com>
 References: <20261126-virtio-final-v2-0-4cfd5590e924@certik.com>
 In-Reply-To: <20261126-virtio-final-v2-0-4cfd5590e924@certik.com>
 To: stable@vger.kernel.org
@@ -93,11 +94,11 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
  Eric Auger <eric.auger@redhat.com>, Jason Wang <jasowang@redhat.com>, 
  virtualization@lists.linux.dev
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795673921; l=3867;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795673921; l=3100;
  i=dickson.wu@certik.com; s=dickson-b4; h=from:subject:message-id;
- bh=IcRCbKCQ8/HNKH9FULxInqnnyB/eMIUHgoJ8eusL0Kw=;
- b=rC4KBoBX5N4hV6jb97hQRvcrTjezt/PyFAPDtSODnOGqv9FIRQiL0SD9YvMyJMo96S/9bIy8C
- BwLoujBMBLNCRIHaEa6khzswu6ngAVE3A9X/DDbaWL2A/LHfjRR6RS0
+ bh=Y4oTZs4IcsIFztVC2+YESkhgwty/uTkVeQ1e6nZ6dz4=;
+ b=qcdJBRYmbcXtqUu829O7b9u5P6UaWBHYczeECADq2OQHpdNioD/XsyoLiv70jw7bwszYUeAgY
+ DGoI7CTXSMXDHdG24+K8PTWibQzI/bzg/3nWMQuihsOslkFRgZiudUd
 X-Developer-Key: i=dickson.wu@certik.com; a=ed25519;
  pk=fxH7FS4FdojeJSGLJzgKdfO51Rvr4EW30yinj2mc1vg=
 X-Endpoint-Received: by B4 Relay for dickson.wu@certik.com/dickson-b4 with
@@ -107,108 +108,82 @@ Reply-To: dickson.wu@certik.com
 
 From: "Denis V. Lunev" <den@openvz.org>
 
-commit 0d8aebe089b4ba887e792884cf041ce9f1040ff4 upstream.
+commit 29536a923a9412812eb3e378258019b54538a220 upstream.
 
-The generic virtio bus .shutdown handler, virtio_dev_shutdown(), breaks
-and resets a device once it has established that the driver has no
-.shutdown of its own. A driver that does implement .shutdown, to quiesce
-its own activity first, still needs the same break and reset afterwards
-and would otherwise have to open code it.
-
-Factor the break + synchronize_cbs + reset sequence out of
-virtio_dev_shutdown() into an exported virtio_device_shutdown() helper so
-such drivers can reuse it instead of duplicating the core logic.
+virtballoon_remove() stops all of the balloon's asynchronous work (the
+free page reporting worker, the inflate/deflate and stats workers, the
+OOM notifier and the free page shrinker) before tearing the device
+down. A following change needs the same teardown from a .shutdown
+handler, so move it into a virtballoon_quiesce() helper.
 
 No functional change.
 
 Signed-off-by: Denis V. Lunev <den@openvz.org>
 Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-ID: <20260624140846.2616797-2-den@openvz.org>
-[ adapted to 6.12: no virtio_irq_get_affinity(), put the helper above virtio_dev_shutdown() ]
+Message-ID: <20260624140846.2616797-3-den@openvz.org>
 Signed-off-by: Dickson Wu <dickson.wu@certik.com>
 ---
- drivers/virtio/virtio.c |   41 +++++++++++++++++++++++++++--------------
- include/linux/virtio.h  |    1 +
- 2 files changed, 28 insertions(+), 14 deletions(-)
+ drivers/virtio/virtio_balloon.c |   27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
 Changes in v2
-v2: resent through a whitespace-safe path; v1 <CAFaZ9eovUow4CR0U-iaUtFHbvf2Dk97Vs6hz6hZWh747R6Xr-Q@mail.gmail.com> was damaged by my mail client and does not apply.
+v2: resent through a whitespace-safe path; v1 <CAFaZ9eopsb3vgcpzOjiZ500oafv02QzNV3dEUrvOMN1vV90RuQ@mail.gmail.com> was damaged by my mail client and does not apply.
 
 The backport and the test runs were prepared with AI coding tools
 (OpenAI Codex agents, with review by Claude). I went over the result
 before signing off.
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 8241024f0890..f70ae3a672f7 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -379,6 +379,32 @@ static void virtio_dev_remove(struct device *_d)
- 	of_node_put(dev->dev.of_node);
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index c67b29e5f799..726aef5be178 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1121,26 +1121,39 @@ static void remove_common(struct virtio_balloon *vb)
+ 	vb->vdev->config->del_vqs(vb->vdev);
  }
  
-+/**
-+ * virtio_device_shutdown - break and reset a device on shutdown
-+ * @dev: the device
-+ *
-+ * Drivers with their own .shutdown method should quiesce their activity and
-+ * then call this to stop the device the way the generic shutdown path does.
+-static void virtballoon_remove(struct virtio_device *vdev)
++/*
++ * Stop all asynchronous balloon work. The device must still be alive so that
++ * in-flight requests can drain via the host before it is reset or freed.
 + */
-+void virtio_device_shutdown(struct virtio_device *dev)
-+{
-+	/*
-+	 * Some devices get wedged if you kick them after they are
-+	 * reset. Mark all vqs as broken to make sure we don't.
-+	 */
-+	virtio_break_device(dev);
-+	/*
-+	 * Guarantee that any callback will see vq->broken as true.
-+	 */
-+	virtio_synchronize_cbs(dev);
-+	/*
-+	 * As IOMMUs are reset on shutdown, this will block device access to memory.
-+	 * Some devices get wedged if this happens, so reset to make sure it does not.
-+	 */
-+	dev->config->reset(dev);
-+}
-+EXPORT_SYMBOL_GPL(virtio_device_shutdown);
-+
- static void virtio_dev_shutdown(struct device *_d)
++static void virtballoon_quiesce(struct virtio_balloon *vb)
  {
- 	struct virtio_device *dev = dev_to_virtio(_d);
-@@ -397,20 +423,7 @@ static void virtio_dev_shutdown(struct device *_d)
- 		return;
- 	}
+-	struct virtio_balloon *vb = vdev->priv;
++	struct virtio_device *vdev = vb->vdev;
  
--	/*
--	 * Some devices get wedged if you kick them after they are
--	 * reset. Mark all vqs as broken to make sure we don't.
--	 */
--	virtio_break_device(dev);
--	/*
--	 * Guarantee that any callback will see vq->broken as true.
--	 */
--	virtio_synchronize_cbs(dev);
--	/*
--	 * As IOMMUs are reset on shutdown, this will block device access to memory.
--	 * Some devices get wedged if this happens, so reset to make sure it does not.
--	 */
--	dev->config->reset(dev);
-+	virtio_device_shutdown(dev);
- }
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING))
+ 		page_reporting_unregister(&vb->pr_dev_info);
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+ 		unregister_oom_notifier(&vb->oom_nb);
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		virtio_balloon_unregister_shrinker(vb);
++
+ 	spin_lock_irq(&vb->stop_update_lock);
+ 	vb->stop_update = true;
+ 	spin_unlock_irq(&vb->stop_update_lock);
+ 	cancel_work_sync(&vb->update_balloon_size_work);
+ 	cancel_work_sync(&vb->update_balloon_stats_work);
  
- static const struct bus_type virtio_bus = {
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 2759e2c24d6e..2d8820c0832a 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -180,6 +180,7 @@ int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
- #endif
- void virtio_reset_device(struct virtio_device *dev);
-+void virtio_device_shutdown(struct virtio_device *dev);
+-	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		cancel_work_sync(&vb->report_free_page_work);
++}
++
++static void virtballoon_remove(struct virtio_device *vdev)
++{
++	struct virtio_balloon *vb = vdev->priv;
++
++	virtballoon_quiesce(vb);
++
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		destroy_workqueue(vb->balloon_wq);
+-	}
  
- size_t virtio_max_dma_size(const struct virtio_device *vdev);
- 
+ 	remove_common(vb);
+ 	kfree(vb);
 
 
