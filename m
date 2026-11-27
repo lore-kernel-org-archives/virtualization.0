@@ -1,61 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795798931;
-	b=pbv+5EBfGCjuxusdpbiNafrCyPi22dwH6Zv2LcP87xUEKEpv/MxcvA68uY+MjIouvE0A
-	 WXUBSmqFuf51LnVF/YcT+JVhSbwg+l3nfTMi4b7fxB0BKJEFIF07k9T2211SKEAbqFkxC
-	 plIiGJAY7EorOJeBKyZnXcUrN55F7AHLP/JLH6d4LlD7mg+86d7Z8RVDR5fuPFs5Ob0t+
-	 6/G+bhXJiSiVpSk+uwhKKIiNtcO7QKWuenwk43iuOXkNQQrZMDTf9M7cbxFEBmwhqeE1n
-	 r/z51HeQc3CfyqT4iiYH6wSyuMK8oebs1rpW2mGyXL7sJSvRUXmTvFNEjLqAFkq00XA==
+	t=1795817824;
+	b=3To/WewxyF2J6UmfFmaD5YrpatPKP0VfBsSkgdVgIS7KXqP2uLABxIIAg30W9M+rff/G
+	 xAtCW81JpFpdBtVpWyXTBGW7Zj+JG3rzNoh8GJFzEV0kDHN0ZUSjTyObcOj/JUOi/2GfW
+	 WQRi6iNbkl7OzkdAP1MBUkkHWfq2LWYK6/6NSWF+kJzgr7iYDNIt7RVcueq/gMhIHVRGS
+	 vmxY3/ODQ7PCFLoidtmdnhHlaIzfUxUdZEsgmfkMOHHQsTVOHfvTHaYJu0085a9wXx+eg
+	 mz9I5KHATViWKi22cxk46g1zFf8ht60AHAy36RXswUCw/SL1hRX7SwIsJP8L7qcz0tw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795798931;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=fBOQ8bcz894+s0OfOxgXJhS5ssbK9PxKSOd26HM3S8Q=;
-	b=5i9UCzbXs75gQ8oghRrSmYVWlUzi2I/u0dt8zO4ozscdLccoav8DIC39eOfILuFpt50X
-	 hEw+FadL6xS5VTKBaMFMbWKyk9wwyijTdt3XDDR8dHQGyVvb/dhes5Ki7zZ2bhJ0NJz92
-	 Bm5Jxvb7B5DSQIsclld2Kn5mQ7IVySYSc8OFE8dax9KKPdWgMeZJu48Scrkx7yitc0pU7
-	 zYUHMV/kbfASSvKd33Y6JZiSlWzIFAJo60S66+YkWpYJMiTDeyBapQpHuj8XiKiS6ZZWN
-	 3hIfeRu0wN2RI3xTgvgdu87fXjkpuwerkams3ZbfWN5lJ0nYuMAzelsCuiLHEe01O5A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795817824;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=3bjnl3x1uRBJpCoTy6jJV187S3SL1Isxb5UBvBIQ2N0=;
+	b=0L8LJ/iGAnvqosyXV3L+Us56sK/f4evxq7gJ12q4geHtpUm2F8SWY3cR77sYhb70NOPS
+	 Bnp2MDNTMjiOwfOEw6/f9kwI8uWLzrVTmsTpvAFiz770bVPjdC8BRCtRfpELXnOV9Gn3I
+	 1esT5PqPZdA0AN5W/9MVuzUPMF6dQa1/0Xj+qH+wOVZogWO6yYOBlZ0hyw6t2nNK7c9wp
+	 i5QG1yx3M0cRIfg/dqdSwOjD+sp67sFudooz+rR2CsqJe6/8zE6SHTTO4ZK6CNP8ZOxUz
+	 6cAa+khlvVuLAQzF/zfXyeRVTiZKihkOANSWrwU5EiA8WBK0VIjTfgeKd824/OAnftg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cUYGGJR+;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8YqIaa2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8575C606A684;
-	Fri, 27 Nov 2026 17:02:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48306606A31C;
+	Fri, 27 Nov 2026 22:17:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cUYGGJR+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 236A71F00A1C;
-	Fri, 27 Nov 2026 17:02:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8YqIaa2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC811F00898;
+	Fri, 27 Nov 2026 22:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795798931;
-	bh=fBOQ8bcz894+s0OfOxgXJhS5ssbK9PxKSOd26HM3S8Q=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=cUYGGJR+/0H5jxODAar/rMsEEg14BX6AwKp1phQTmIn0Y4zpR89jOm4LYFgT9i+KM
-	 NOtlQCuxy/HB6Y7n0xYyulJC0MPm4jfpJwMl2uD7SKY0Awi+cFgarU6i1Kp9XKYSfK
-	 fcVUaktBzonAPwnH9E/TOsSfIUkdFetq4O4FM68LhbKql9IZwmGqro/4+Fvk087mTI
-	 mXeHiJfyvaHk66a9Z67B/gSaY2E7ZNYoPGdhqfNDn+ZKOiLQZsAQ6ArFzHvmaUD4EW
-	 snbS14Tvg6F/eLFuaJI3rfQ0wgHRj6FDuZOXbBszq7okNPQb7wuPTpNz8Qhj73sagz
-	 fxeaDLDI8Z2ww==
-From: Sasha Levin <sashal@kernel.org>
-To: stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	"Denis V. Lunev" <den@openvz.org>,
-	David Hildenbrand <david@kernel.org>,
-	Eric Auger <eric.auger@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	virtualization@lists.linux.dev,
-	Dickson Wu via B4 Relay <devnull+dickson.wu.certik.com@kernel.org>,
-	Dickson Wu <dickson.wu@certik.com>
-Subject: Re: [PATCH 6.12.y v2 0/4] virtio_balloon: quiesce balloon work before device shutdown
-Date: Fri, 27 Nov 2026 12:01:10 -0500
-Message-ID: <2026-11-26-1-daily-reply-0022@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261126-virtio-final-v2-0-4cfd5590e924@certik.com>
-References: <20261126-virtio-final-v2-0-4cfd5590e924@certik.com>
+	s=k20260515; t=1795817823;
+	bh=3bjnl3x1uRBJpCoTy6jJV187S3SL1Isxb5UBvBIQ2N0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=P8YqIaa2RBHZML1s0S1G51PbgmVxbhoDyDpkAKV70uwOWagJnFFB6HU6q1/UH8dBg
+	 RdaxW60DcdONludbExlgsffvuze6jrGemLoAu+j4PvqrTe1YJ4qA3OIrp+MCM5fivQ
+	 Py7XQm/Y/JgIoUcKvurQxDO8X3QKgY118UBNvC0HRIRX69gcP7VE8WDR68rNwSY+dz
+	 MOOsQ0/HR56/ZpsnElcTcoOXcNiXHRjRD9Fo4zBgb9ofzu2S+gS2ag/FHwj1vZG3FH
+	 qgfGO0hdHWMxWZWhQniTZ06Yb7BV+GBJUPXPv5StwQfZGwH3QTwuQi0IpIgzum5Fuo
+	 K61apGAhB0ZLQ==
+Date: Fri, 27 Nov 2026 22:17:37 +0000
+From: Jean-Philippe Brucker <jpb@kernel.org>
+To: Cam Miller <cam@linux.ibm.com>
+Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
+	iommu@lists.linux.dev, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, schnelle@linux.ibm.com,
+	mjrosato@linux.ibm.com
+Subject: Re: [RFC linux v1 3/3] iommu/virtio: Add device links for endpoints
+Message-ID: <20261127221737.GA1603267@myrica>
+References: <20261124155410.768743-1-cam@linux.ibm.com>
+ <20261124155410.768743-4-cam@linux.ibm.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -65,13 +59,44 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261124155410.768743-4-cam@linux.ibm.com>
 
-> This backports the fix for CVE-2026-90129 to 6.12.y, the same four
-> commits 6.18.y has:
+On Tue, Nov 24, 2026 at 10:54:10AM -0500, Cam Miller wrote:
+> Make each endpoint a consumer of the virtio-iommu device, so that the
+> driver core unbinds each endpoint driver before viommu_remove() runs.
+> 
+> Before this change, removing a virtio-iommu (for example via "echo 1 >
+> /sys/bus/pci/devices/<dev>/remove") tears down the IOMMU groups of all
+> its endpoints while their drivers are still bound. The endpoints keep
+> stale IOVAs and their later dma_free_contiguous() leads to WARNs in
+> __iommu_group_free_device(), endpoint IO hanging, and crash at shutdown.
+> 
+> Make each endpoint a consumer of the viommu with device_link_add(), as
+> arm-smmu and other IOMMU drivers do. The driver core then unbinds the
+> endpoint drivers before viommu_remove() runs, so that their DMA teardown
+> will still see an intact domain.
+> 
+> Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
+> Suggested-by: Jean-Philippe Brucker <jpb@kernel.org>
+> Signed-off-by: Cam Miller <cam@linux.ibm.com>
+> ---
+>  drivers/iommu/virtio-iommu.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index dd10c3e98a3d..a84a653f269e 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -1044,6 +1044,9 @@ static struct iommu_device *viommu_probe_device(struct device *dev)
+>  			goto err_free_dev;
+>  	}
+>  
+> +	if (!device_link_add(dev, viommu->dev, DL_FLAG_AUTOREMOVE_SUPPLIER))
+> +		dev_dbg(dev, "could not add device link\n");
 
-Queued the series for 6.12, thanks.
+Could you return -ENODEV? The rest looks good
 
--- 
 Thanks,
-Sasha
+Jean
