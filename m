@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795756770;
-	b=lRF9L3/TfuctE+mSSncIGo5yHNnjB2T0u0Vmi0tulxNgqefH02bbG5kHDCKrcXfv1QRz
-	 QXfGop+2n8+uQnvdlXMz4z7Z9GIjd9TAtcWHhzUlTf/sZCHtzBFRk9QGHV5i0T2KC0DKM
-	 Oz7gIL5PB3IoxcIC00rf14eFODqn9u9XNPzs2HO81uisaFExkZOkccbByqZprzc7BjdoY
-	 4BVVNp+8CmumUiHL7ElOV2xH6So7RlsUJ5RgRMBW69dnHDQkUjL7qHAixKmHI9cB4iL2C
-	 iYU538Zvm3WDdXbFmlGTDjNR2depmWu2biqEI8ElSxv2JCSIZk8Us7Bw0pKAM7LT0Jg==
+	t=1795756767;
+	b=S+Y6d9O1rLvothtfkXchazBD7jN9xVlq2uLClr2IerfzU2D+sCSOH8T2z8VKh5jNdJPz
+	 8NNvSXsuWut/mISnT9ruj/T0Qtz2SCuGDXhFdd+oK/d0xIz1ZrNjCMhJg6FwaoT1LugHD
+	 85ts4Yv37fhMOlX/bZEaXYL9GN1CJtVLrK5SzHF2SNxBnljLaSAj/dzex8hLLFsRtlKkD
+	 tNezBJpM41ZvUkkY2ELJdYm1JrsSvka4UjURzUXzompp/UYVlIRLl9HRxhWznChw84jrL
+	 FUBXyvBOo42By9le3fzAlDudSDdm855y7QQkAhUwcv64chlBQEtz3vcleZI9zVGi9Fg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795756770;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795756767;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=rNWMVT2gHiNq7DFh40B5BMuJHnSTLGiieTCWA+72rZ0=;
-	b=BkM4EPwA7omoeaGZWY/A/bWWVL432vVgcwGH+1Jt7Mv91Dn+obYI1YtPk8TcOFUZzbCe
-	 JIZQFQVZ0MddG3nsRLvglAfF2tLk6cMS+ig5G3w4VDbhOWbXse2AcC/fiVXz05dtr581a
-	 aI2/E5+5EFA3YiEZtr9VuhKRROZ+ZzCwg4ASFyW7h5h8d2m2y0KS2zKT1T74tjwQZ/mdf
-	 2k/VDAMNzRfxnyz4ihwwNU5UbfAnI8B/mYJS83ejU+9Wyqs6o2S77Uz/x4WlRM7buJbjJ
-	 oV5qXPBfre3q0aNB/6tW+9GfIk+VrrvNwM6jG9PJ99i7iGWK26kMGg4oRw1H75wus9w==
+	bh=Xq34tF7uqfa/4VrlGe9UW8XH7BMcoCHDPzLg9RgEtLg=;
+	b=4xWOfYIawJIjmFcVu5l2cOPJc1rENBH4MW150XY/XgZ2QmlZiOYZg8pnqQWCVhbslmZC
+	 q8B1Lo+d/0ZSgpUoWEyGeufXIo4rFjzITk+C6JwUSPhh6qNkTbN6pIL+iSW1m81kwdoLg
+	 HIMpJFIdHZ/R0Z0ZoGbHFFcjAJFxE9GDDSzMkHLyVmQ+dbc6Z3Sh0AOPWspl4ojW4gOZq
+	 YSKv0BPwU9HVPoCpn9cqY+uGzlYFwpiO8xcxCQoMc8iTU4aQAUmyaTa5HFKCk5QqReAjg
+	 PrhBlv8sjp/ioixxmC6dWXYXEWUFXwgucdmMNprEt+gGU8JZ2cwuc12cZmxdPIPGIiA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nebusec.ai;
 	spf=pass smtp.mailfrom=nebusec.ai;
-	dkim=pass header.d=nebusec.ai header.i=@nebusec.ai header.a=rsa-sha256 header.s=google header.b=umg0FCNw;
-	arc=none smtp.remote-ip=74.125.82.48
-Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+	dkim=pass header.d=nebusec.ai header.i=@nebusec.ai header.a=rsa-sha256 header.s=google header.b=ijpXej9w;
+	arc=none smtp.remote-ip=74.125.82.171
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62FBA606A323
-	for <virtualization@lists.linux.dev>; Fri, 27 Nov 2026 05:19:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62FBA606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C860606A31E
+	for <virtualization@lists.linux.dev>; Fri, 27 Nov 2026 05:19:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C860606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nebusec.ai
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nebusec.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.a=rsa-sha256 header.s=google header.b=umg0FCNw
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1b50a4bd2f3so6664615c88.1
-        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 21:19:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.a=rsa-sha256 header.s=google header.b=ijpXej9w
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-386bd881d39so8331605eec.1
+        for <virtualization@lists.linux.dev>; Thu, 26 Nov 2026 21:19:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nebusec.ai; s=google; t=1795756769; x=1796361569; darn=lists.linux.dev;
+        d=nebusec.ai; s=google; t=1795756766; x=1796361566; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=rNWMVT2gHiNq7DFh40B5BMuJHnSTLGiieTCWA+72rZ0=;
-        b=umg0FCNwb6Xj50D11z6vFXBlisYUwJMrzDXMT9Myir6+Mk+gEvOHwEpJtt+A8rsh+r
-         kMUZcT2HL05351WNtXG2Yt29z/zYM2boy3gm03plIlOezFXBiwQfjX/kDKPOeYWUyGwx
-         r5ZisqKhvOpP8ipPgbPbzz+nznVBi6J8E+qPjdTCSOzupjN6C/xk312lUaSE/IcLuO3c
-         0LMWG5rX62KRG/rzPSpcqjvS04e2O2vu6Y19Bfh1+u34riMFp6zr3I3t0woD3ewtsSk6
-         QGZG8aTzbqMaMMJtdOkZpSQKumILvCv8GIM0MX2fwl+0Bt5gPy4iMWkN6puTobBfeY+i
-         F5Nw==
+        bh=Xq34tF7uqfa/4VrlGe9UW8XH7BMcoCHDPzLg9RgEtLg=;
+        b=ijpXej9wttosaGNaw0QJkE8GBHc32BohueaB6ivqzC8Q4ZL9C5jMVCsweC+/LkRsoL
+         7DnhCIVWlKK8VXEIEi+mbHCijEOIZLMqGuFJJ0oGfIA3FJ5rciORqjt0rlb7tUJCZHFT
+         GmtyeNHruoVLdHdFXLXm+2UNqK7oh6TqRjpL2CqYADshRrf/aMh4vf0AlmEWP5pOu3JC
+         qnPv4tv9D0bQtpFVouBbCrCCEDFvlt8Al7qD3UhtoFp8eHzW+YCK+cpnct8740Fu2feQ
+         6FXLScPKuvSjb1Vc4oZeMiS6C0e4c0Qm5wnHLl4wNlBpJkm2jtbfYD9d0/XDuS7sNrCB
+         QrZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795756769; x=1796361569;
+        d=1e100.net; s=20260707; t=1795756766; x=1796361566;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rNWMVT2gHiNq7DFh40B5BMuJHnSTLGiieTCWA+72rZ0=;
-        b=F9gk2BuT//jfVtOekUT5oOYqszvwuN37i7m82ra3xhq0v7LR4+++FVbGLIQMJe5vIa
-         I03XPS4LLhDK1OzY2LISdoNvGEu5q1jGCEHbBQcNCbO4FiReA8XRXJuUbbaOmRgUiyFP
-         AKmpxu0pGj27Mt54i6Rh9E0Zz+rYnsPKRLGz0+QQIlO4ZfrwrVcXaqAD/dFiv4Q0szL0
-         LmsbU1JTsFc2HtCvpgc/tYve6SF/IYxcunrebKpa5OE8Ksbq2YfAZqazWgLKRsFhcB1o
-         GUJ6syagp/VR4phRLNt5/2ValK5XjXpghk7jhLVAwr7DSVoEoggRW3vf0po/Qk1MxSwa
-         HODg==
-X-Gm-Message-State: APuU4Z8yY9Yl5BrgKp8Jq+2Ja6PsqHgBJfjnQDBaYw8e/WPJjMhuqzdg
-	wRcyJ++1sM76hhT64rdh2SWraFVDhHnGirYgCA63GtEVANeQgRAFYdqe+K4psLoqDTB5iLBoY83
-	VBWmbZA==
-X-Gm-Gg: AZFdTZfloTj3PJJ2mmzWgzhKLe1mtWRB+n6pFgIfLpWCcCPFxqLvRrew4Sm76tgBIqO
-	xDimgtawE6Mr6cw4ILFFpz77j/C4Xqz63PtQRTFqcq8fhKxg8obx4Dx4ws5w/sAL6FZxEUMP7ba
-	Aug0ri8uX8VEoEzyh6Iw0euMxs+Mfu9XR3hdOpJ3HkCTtI2gIST8NdUKu9dxnZwAmULVz/JU5iH
-	BsLeqh1yWBRyqWec+WYt0qUtZm9gULzeXIFaXiPCuOmcUep1gPlcIBBFECQDzsW0eA5vSsFbp7i
-	HzylBQmJF/So9m7x2t+g45nEaohL//m9Am+SdGUkP0LwjHZ/ak1kYj9CvJQg2Sz/MASPZLNuLry
-	DpqF0LWKMB4cW9uMmC24l/xOPfuE34/LCoCS8WxeT/I2l+j+kuGk4Y40X5rGPcjgVv0ezzZSwNK
-	+Dxl/VGI/UuGbFsJwNpHse48zx/8MoElQW8WtD+LNsDXLq6iDmq5HEBtehFMuhv76dK8tu2BUjO
-	UiPVUar4q/3o0m4GGXXx87ngiTzvfCAbOCcke7X/5SkAp7IO1ra/4jy78NOCrNc2iFeMnvgsNNh
-	Kv408KsZ8AXAai2lubFj3jYivPHKVRqhEwnmI9o=
-X-Received: by 2002:a05:7022:b044:10b0:181:73fc:e53 with SMTP id a92af1059eb24-1b5568e7699mr26233910c88.29.1795756769479;
-        Thu, 26 Nov 2026 21:19:29 -0800 (PST)
+        bh=Xq34tF7uqfa/4VrlGe9UW8XH7BMcoCHDPzLg9RgEtLg=;
+        b=UhhT7l9RwhfqiZqr7GUlVGL1VFioCxitBFSbM6Co6VPvnbRMGZYuir9cRrCz0L54bT
+         J0YIJkXNkx5+VWNyk42W10/JR6TqRQeEXkI3+WoS84l+oC7/6XT78NHCOQG/VzCLSu9Q
+         7HhLjLm6jAU7Z0AXF5mUPjdvzWcCPfxZ4YTXzgBtEzhpI2qGtYEMU9+WfFtci4aimgZ+
+         DOqbywPv2l0HaPI1qy1H8GTqFR1XVbEJx/oSqlOeRmc4iq/0FbhgQxgO7vjfl9V/4KWC
+         dy65zM3/eyw6+TTKTbBJNuRSUTNDXhqkaGSq4kyWk2ivIw2O2aE98ElhqPPAtGvVrQIe
+         wB2w==
+X-Gm-Message-State: APuU4Z9nnzOU+Kloq20JLkkeu23ZDqy+mIRdhMMNyX9hDtDG9wXIZkmq
+	F/4LEpBgAH53bYHq/9dHU3l7d5TO6iMCyJrBiEuGk2eDVzHtl5V3xbm1KVbTpFmAxvPvUJjEFcN
+	qAz2ZGA==
+X-Gm-Gg: AZFdTZfKtfr/AsJCCM5SF3TSHrZBwu/vyHWCV6IP0RQqYLSXS+z0w4JSVOgbHrMFwA1
+	vsxXujHWBnqLQ96YTVURYPf6ToylseKMbNGDVGO3a/gJncMDa5EfLUhL4eCJsh5GPqVwgDYJsMy
+	VXOTRS+aSJoXaWw6RH+W1zBrQNqxwUZ5G177UDzx5jhfj4BUk9Hy7l8/Zw4lRWsTKkMEOfFUI34
+	faaKBo055jUHo2kOCiWdit/waNgV7fCtHsHG4VtXHBoI7UIbSO85lqZoK1XlTHqeMW4aGAm4c7t
+	4hhlxFMy2kwUe4ulIlHrYQSaRAovrmst7eK2VX9jO7X/W408/7hCcxXXekGZ0Ogs6CKP6BST8ox
+	xFo4uSPUO53klWarBaFsN0QjHQbHqAWBXWCiyVV6IcVnL6Pw48tzhg6YkxuI/MjSyP5j8uQZnbZ
+	WgYtuTE03YFr9PwTWYfkB7HIuvrdsL2P/qTz0m+/DtMFER0KcUphAFv5a5ozfZaKfbLJ39uinse
+	OWNzncUJusNdgyRE1iMIULcQRPPkPvf92sEtFDzOnsPffV9Y175h+kchVnfzLcDwWBweYgW0bE9
+	AEPiRi6IGnIM1+W/N1ReLpDS7Hs4FTAFqTneeg4=
+X-Received: by 2002:a05:7300:4721:b0:386:da66:671f with SMTP id 5a478bee46e88-386da66762cmr4664632eec.28.1795756765613;
+        Thu, 26 Nov 2026 21:19:25 -0800 (PST)
 Received: from enjou-Legion-Y7000P-2019 ([174.136.206.51])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38566cd40c5sm82950093eec.10.2026.11.26.21.19.25
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38566cd40c5sm82950093eec.10.2026.11.26.21.19.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 21:19:29 -0800 (PST)
+        Thu, 26 Nov 2026 21:19:25 -0800 (PST)
 From: Ren Wei <weir@nebusec.ai>
 To: virtualization@lists.linux.dev,
 	netdev@vger.kernel.org
@@ -93,9 +93,9 @@ Cc: sgarzare@redhat.com,
 	vega@nebusec.ai,
 	caoruide123@gmail.com,
 	weir@nebusec.ai
-Subject: [PATCH net 2/2] vsock/test: add stream MSG_WAITALL receive timeout test
-Date: Fri, 27 Nov 2026 13:19:14 +0800
-Message-ID: <503c1d5538f5b41f8eda756f5ea4491f0bd44518.1795591531.git.caoruide123@gmail.com>
+Subject: [PATCH net 1/2] vsock: preserve receive timeout across partial reads
+Date: Fri, 27 Nov 2026 13:19:13 +0800
+Message-ID: <e8c2a7015710acbd5fb1832fd03659414465a399.1795587333.git.caoruide123@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <cover.1795587333.git.caoruide123@gmail.com>
 References: <cover.1795587333.git.caoruide123@gmail.com>
@@ -112,158 +112,91 @@ Content-Transfer-Encoding: 8bit
 
 From: Ruide Cao <caoruide123@gmail.com>
 
-test_seqpacket_timeout covers SOCK_SEQPACKET with SO_RCVTIMEO, but there
-is no SOCK_STREAM test for a cumulative receive timeout across partial
-reads.
+__vsock_stream_recvmsg() passes its receive timeout by value to
+vsock_connectible_wait_data(). schedule_timeout() therefore updates only
+the helper's local copy. After a partial dequeue, the stream receive loop
+calls the helper again with the original timeout, allowing a peer to
+restart SO_RCVTIMEO with periodic short writes.
 
-Have the peer drip-feed one byte every 0.8s while the client issues
-recv(MSG_WAITALL) with a 1s SO_RCVTIMEO. Without the timeout being
-preserved, the wait budget is restarted after each byte and the recv
-completes after several intervals. With the fix, the call must return
-around the original timeout, either with EAGAIN or with a partial read
-shorter than the MSG_WAITALL request.
+This was found with LLM assistance on the Vega platform and reproduced
+with the platform PoC in QEMU as an unprivileged user on
+VMADDR_CID_LOCAL. recv(MSG_WAITALL, 6) with SO_RCVTIMEO=1s returned 6
+bytes after ~4.8s while the peer sent one byte every 0.8s:
 
-Keep the data socket open until both sides confirm: the client writes
-WAITDONE after recv returns, the server finishes sending all six bytes
-and acknowledges, and only then is the socket closed. Failure paths
-complete the same handshake so the server does not hang.
+    client: recv(MSG_WAITALL, 6) returned 6 after 4.816 s (timeout=1 s)
+    RESULT: bug observed. Finite SO_RCVTIMEO did not cap total wait time.
 
+Pass the timeout by reference so the remaining time is retained across
+partial reads. This makes the receive wait budget cumulative without
+changing the existing blocking behavior. The seqpacket call site is
+updated the same way; it only waits once, so the change is mechanical.
+
+Fixes: b3f7fd54881b ("af_vsock: separate wait data loop")
+Cc: stable@vger.kernel.org
+Reported-by: Vega <vega@nebusec.ai>
 Signed-off-by: Ruide Cao <caoruide123@gmail.com>
 Signed-off-by: Ren Wei <weir@nebusec.ai>
 ---
- tools/testing/vsock/vsock_test.c | 112 +++++++++++++++++++++++++++++++
- 1 file changed, 112 insertions(+)
+ net/vmw_vsock/af_vsock.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index 10b9074fb87f..868792f7729c 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -662,6 +662,113 @@ static void test_seqpacket_timeout_server(const struct test_opts *opts)
- 	close(fd);
- }
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 1d7d53542724..99542ac080b4 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2406,7 +2406,7 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
  
-+#define STREAM_RCVTIMEO_DRIP_BYTES	6
-+#define STREAM_RCVTIMEO_DRIP_USEC	800000 /* 0.8s, inside the 1s timeout */
-+
-+/* Keep the data socket open until both sides confirm. The client
-+ * writes WAITDONE when recv() returns, but must not close until the
-+ * server has finished drip-feeding all 6 bytes and acknowledged;
-+ * otherwise later sends hit EPIPE. Failure paths complete the same
-+ * handshake so the server is not left in control_expectln("WAITDONE").
-+ */
-+static void test_stream_timeout_waitall_done(int fd)
-+{
-+	control_writeln("WAITDONE");
-+	control_expectln("SRVDONE");
-+	close(fd);
-+}
-+
-+static void test_stream_timeout_waitall_client(const struct test_opts *opts)
-+{
-+	char buf[STREAM_RCVTIMEO_DRIP_BYTES];
-+	time_t read_enter_ns;
-+	struct timeval tv;
-+	time_t read_ns;
-+	int failed = 0;
-+	ssize_t n;
-+	int fd;
-+
-+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	tv.tv_sec = RCVTIMEO_TIMEOUT_SEC;
-+	tv.tv_usec = 0;
-+
-+	setsockopt_timeval_check(fd, SOL_SOCKET, SO_RCVTIMEO, tv,
-+				 "setsockopt(SO_RCVTIMEO)");
-+
-+	/* Enter recv() before the peer starts drip-feeding, so the first
-+	 * byte cannot already be queued.
-+	 */
-+	control_writeln("CLNSENT");
-+
-+	read_enter_ns = current_nsec();
-+	n = recv(fd, buf, sizeof(buf), MSG_WAITALL);
-+	read_ns = current_nsec() - read_enter_ns;
-+
-+	/* Unfixed kernels restart the full SO_RCVTIMEO after each partial
-+	 * read, so this recv() returns 6 bytes after ~4.8s. A cumulative
-+	 * 1s timeout returns much sooner; use 2s as the cap so the two
-+	 * outcomes cannot be confused.
-+	 */
-+	if (read_ns >= 2ULL * NSEC_PER_SEC * RCVTIMEO_TIMEOUT_SEC) {
-+		fprintf(stderr,
-+			"recv(MSG_WAITALL) exceeded SO_RCVTIMEO, %lu ns\n",
-+			read_ns);
-+		failed = 1;
-+	}
-+
-+	if (n == sizeof(buf)) {
-+		fprintf(stderr,
-+			"recv(MSG_WAITALL) completed under drip-feed\n");
-+		failed = 1;
-+	}
-+
-+	if (n < 0 && errno != EAGAIN) {
-+		perror("EAGAIN expected");
-+		failed = 1;
-+	}
-+
-+	if (n == 0) {
-+		fprintf(stderr, "unexpected EOF on recv(MSG_WAITALL)\n");
-+		failed = 1;
-+	}
-+
-+	test_stream_timeout_waitall_done(fd);
-+	if (failed)
-+		exit(EXIT_FAILURE);
-+}
-+
-+static void test_stream_timeout_waitall_server(const struct test_opts *opts)
-+{
-+	int fd;
-+	int i;
-+
-+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("CLNSENT");
-+
-+	/* Drip-feed all 6 bytes even after the client times out, so an
-+	 * unfixed kernel still collects a full 6-byte recv and fails.
-+	 * The client keeps the data socket open until SRVDONE.
-+	 */
-+	for (i = 0; i < STREAM_RCVTIMEO_DRIP_BYTES; i++) {
-+		timeout_usleep(STREAM_RCVTIMEO_DRIP_USEC);
-+		send_byte(fd, 1, 0);
-+	}
-+
-+	control_expectln("WAITDONE");
-+	control_writeln("SRVDONE");
-+	close(fd);
-+}
-+
- static void test_seqpacket_bigmsg_client(const struct test_opts *opts)
+ static int vsock_connectible_wait_data(struct sock *sk,
+ 				       struct wait_queue_entry *wait,
+-				       long timeout,
++				       long *timeout,
+ 				       struct vsock_transport_recv_notify_data *recv_data,
+ 				       size_t target)
  {
- 	unsigned long long sock_buf_size;
-@@ -2739,6 +2846,11 @@ static struct test_case test_cases[] = {
- 		.run_client = test_seqpacket_timeout_client,
- 		.run_server = test_seqpacket_timeout_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM MSG_WAITALL timeout",
-+		.run_client = test_stream_timeout_waitall_client,
-+		.run_server = test_stream_timeout_waitall_server,
-+	},
- 	{
- 		.name = "SOCK_SEQPACKET invalid receive buffer",
- 		.run_client = test_seqpacket_invalid_rec_buffer_client,
+@@ -2432,7 +2432,7 @@ static int vsock_connectible_wait_data(struct sock *sk,
+ 		}
+ 
+ 		/* Don't wait for non-blocking sockets. */
+-		if (timeout == 0) {
++		if (*timeout == 0) {
+ 			err = -EAGAIN;
+ 			break;
+ 		}
+@@ -2444,13 +2444,13 @@ static int vsock_connectible_wait_data(struct sock *sk,
+ 		}
+ 
+ 		release_sock(sk);
+-		timeout = schedule_timeout(timeout);
++		*timeout = schedule_timeout(*timeout);
+ 		lock_sock(sk);
+ 
+ 		if (signal_pending(current)) {
+-			err = sock_intr_errno(timeout);
++			err = sock_intr_errno(*timeout);
+ 			break;
+-		} else if (timeout == 0) {
++		} else if (*timeout == 0) {
+ 			err = -EAGAIN;
+ 			break;
+ 		}
+@@ -2509,7 +2509,7 @@ static int __vsock_stream_recvmsg(struct sock *sk, struct msghdr *msg,
+ 	while (1) {
+ 		ssize_t read;
+ 
+-		err = vsock_connectible_wait_data(sk, &wait, timeout,
++		err = vsock_connectible_wait_data(sk, &wait, &timeout,
+ 						  &recv_data, target);
+ 		if (err <= 0)
+ 			break;
+@@ -2565,7 +2565,7 @@ static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
+ 
+ 	timeout = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+ 
+-	err = vsock_connectible_wait_data(sk, &wait, timeout, NULL, 0);
++	err = vsock_connectible_wait_data(sk, &wait, &timeout, NULL, 0);
+ 	if (err <= 0)
+ 		goto out;
+ 
 -- 
 2.47.3
 
