@@ -1,55 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795817824;
-	b=3To/WewxyF2J6UmfFmaD5YrpatPKP0VfBsSkgdVgIS7KXqP2uLABxIIAg30W9M+rff/G
-	 xAtCW81JpFpdBtVpWyXTBGW7Zj+JG3rzNoh8GJFzEV0kDHN0ZUSjTyObcOj/JUOi/2GfW
-	 WQRi6iNbkl7OzkdAP1MBUkkHWfq2LWYK6/6NSWF+kJzgr7iYDNIt7RVcueq/gMhIHVRGS
-	 vmxY3/ODQ7PCFLoidtmdnhHlaIzfUxUdZEsgmfkMOHHQsTVOHfvTHaYJu0085a9wXx+eg
-	 mz9I5KHATViWKi22cxk46g1zFf8ht60AHAy36RXswUCw/SL1hRX7SwIsJP8L7qcz0tw==
+	t=1795838250;
+	b=H+lIc0SdzN3KmgmYVi6IBHunQyp0NSIAMGSVuKNX6CEJu0Gzp5RsffVIfs3WZAgyfuDK
+	 KY3b5+fE5Bn69QvN2AvJD6FKAIm+pzDuXP+VZplsxDO+VkoZdX8zE3MouuQo9IY7dpj74
+	 2HIaG+yStRuV4lgcdJBZTMcLJoWGXa4FsAcM9hwKHl6Ak+EQCvXeZFbuUNNzDsiqMsBI2
+	 pnG4TiYpd0xXtUAI+EdhUnS+cNFTKx6rxgT7/Rk0BPnCG7iGsqZXI9dRAqHRLShjZaiQw
+	 8KElHhMMx+pC3RRB29emUTmzV7hS954d4rTqz6U7A+J+P+J3DhOkLkS4q4AVT+r9sDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795817824;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=3bjnl3x1uRBJpCoTy6jJV187S3SL1Isxb5UBvBIQ2N0=;
-	b=0L8LJ/iGAnvqosyXV3L+Us56sK/f4evxq7gJ12q4geHtpUm2F8SWY3cR77sYhb70NOPS
-	 Bnp2MDNTMjiOwfOEw6/f9kwI8uWLzrVTmsTpvAFiz770bVPjdC8BRCtRfpELXnOV9Gn3I
-	 1esT5PqPZdA0AN5W/9MVuzUPMF6dQa1/0Xj+qH+wOVZogWO6yYOBlZ0hyw6t2nNK7c9wp
-	 i5QG1yx3M0cRIfg/dqdSwOjD+sp67sFudooz+rR2CsqJe6/8zE6SHTTO4ZK6CNP8ZOxUz
-	 6cAa+khlvVuLAQzF/zfXyeRVTiZKihkOANSWrwU5EiA8WBK0VIjTfgeKd824/OAnftg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795838250;
+	h=DMARC-Filter:X-UUID:X-CID-P-RULE:X-CID-O-INFO:X-CID-META:X-CID-BVR:
+	 X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=+tjbZ0Tt0mS++AXqyM3n2X9WGHosrOQfrSVYXA5YiWc=;
+	b=dsFKL8SicUFBNM3H/npDab78s5muE57Jc8fx9xqDQV8YVi7TDP7Uziqwl6AJE9vvYZ0o
+	 kRI2jDrx+Pd4oXs4xhTFSmyqPoGmjM/9n9jOhFuNtWrf1sJrf+/1Yb60JC0jPTN0weBfj
+	 MsZHRZpJbapJ4x9EF+xP5KSd4SIlCWOhVwRJosbGNuhuBJa7mmkcMIXtbk7iKaTJKehbD
+	 g9WxsZjGIDomgVTxAB7BJ8XE8VpmOl1q2V9u9WeKSs9bW6qmlthsmO6acEs6AZ8AOZiUg
+	 91LVzry5GqYnrF72Avw0sXtC4cH06iGGQOa3dIIjhuVDBB0W8bz9jhgW/sPmBBrsIWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8YqIaa2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=kylinos.cn;
+	spf=pass smtp.mailfrom=kylinos.cn;
+	arc=none smtp.remote-ip=124.126.103.232
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48306606A31C;
-	Fri, 27 Nov 2026 22:17:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8YqIaa2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC811F00898;
-	Fri, 27 Nov 2026 22:17:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795817823;
-	bh=3bjnl3x1uRBJpCoTy6jJV187S3SL1Isxb5UBvBIQ2N0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=P8YqIaa2RBHZML1s0S1G51PbgmVxbhoDyDpkAKV70uwOWagJnFFB6HU6q1/UH8dBg
-	 RdaxW60DcdONludbExlgsffvuze6jrGemLoAu+j4PvqrTe1YJ4qA3OIrp+MCM5fivQ
-	 Py7XQm/Y/JgIoUcKvurQxDO8X3QKgY118UBNvC0HRIRX69gcP7VE8WDR68rNwSY+dz
-	 MOOsQ0/HR56/ZpsnElcTcoOXcNiXHRjRD9Fo4zBgb9ofzu2S+gS2ag/FHwj1vZG3FH
-	 qgfGO0hdHWMxWZWhQniTZ06Yb7BV+GBJUPXPv5StwQfZGwH3QTwuQi0IpIgzum5Fuo
-	 K61apGAhB0ZLQ==
-Date: Fri, 27 Nov 2026 22:17:37 +0000
-From: Jean-Philippe Brucker <jpb@kernel.org>
-To: Cam Miller <cam@linux.ibm.com>
-Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-	iommu@lists.linux.dev, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, schnelle@linux.ibm.com,
-	mjrosato@linux.ibm.com
-Subject: Re: [RFC linux v1 3/3] iommu/virtio: Add device links for endpoints
-Message-ID: <20261127221737.GA1603267@myrica>
-References: <20261124155410.768743-1-cam@linux.ibm.com>
- <20261124155410.768743-4-cam@linux.ibm.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C09FF606A31C;
+	Sat, 28 Nov 2026 03:57:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C09FF606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: d0dacddceadf11f19a56ed5b684f684d-20261128
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:3060b4d1-5f9c-4aa3-8977-fd3f71cc0855,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:7db8b62,CLOUDID:cf68d98a61e0ee5d1a96911ae18466ab,BulkI
+	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0|15|50|99,
+	EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OS
+	A:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: d0dacddceadf11f19a56ed5b684f684d-20261128
+X-User: liwang@kylinos.cn
+Received: from [10.42.16.85] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <liwang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
+	with ESMTP id 2017823991; Sat, 28 Nov 2026 11:57:22 +0800
+Message-ID: <6a3d5a9d-9b38-4f6f-be4d-43515c72f8ac@kylinos.cn>
+Date: Sat, 28 Nov 2026 11:57:20 +0800
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,44 +62,61 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261124155410.768743-4-cam@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/5] virtiofs: abort the connection if the server fails to
+ unmap a DAX range
+To: Miklos Szeredi <mszeredi@redhat.com>, fuse-devel@lists.linux.dev,
+ virtualization@lists.linux.dev
+Cc: German Maglione <gmaglione@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>
+References: <20261126144719.232329-1-mszeredi@redhat.com>
+ <20261126144719.232329-4-mszeredi@redhat.com>
+Content-Language: en-GB
+From: Li Wang <liwang@kylinos.cn>
+In-Reply-To: <20261126144719.232329-4-mszeredi@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 24, 2026 at 10:54:10AM -0500, Cam Miller wrote:
-> Make each endpoint a consumer of the virtio-iommu device, so that the
-> driver core unbinds each endpoint driver before viommu_remove() runs.
-> 
-> Before this change, removing a virtio-iommu (for example via "echo 1 >
-> /sys/bus/pci/devices/<dev>/remove") tears down the IOMMU groups of all
-> its endpoints while their drivers are still bound. The endpoints keep
-> stale IOVAs and their later dma_free_contiguous() leads to WARNs in
-> __iommu_group_free_device(), endpoint IO hanging, and crash at shutdown.
-> 
-> Make each endpoint a consumer of the viommu with device_link_add(), as
-> arm-smmu and other IOMMU drivers do. The driver core then unbinds the
-> endpoint drivers before viommu_remove() runs, so that their DMA teardown
-> will still see an intact domain.
-> 
-> Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
-> Suggested-by: Jean-Philippe Brucker <jpb@kernel.org>
-> Signed-off-by: Cam Miller <cam@linux.ibm.com>
-> ---
->  drivers/iommu/virtio-iommu.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index dd10c3e98a3d..a84a653f269e 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -1044,6 +1044,9 @@ static struct iommu_device *viommu_probe_device(struct device *dev)
->  			goto err_free_dev;
->  	}
->  
-> +	if (!device_link_add(dev, viommu->dev, DL_FLAG_AUTOREMOVE_SUPPLIER))
-> +		dev_dbg(dev, "could not add device link\n");
+Hi Miklos,
 
-Could you return -ENODEV? The rest looks good
+On 26/11/2026 22:47, Miklos Szeredi wrote:
+> If FUSE_REMOVEMAPPING fails, at least one range is still mapped on the
+> server side.  Both callers return the ranges to the free pool regardless,
+> so the next allocation can hand one to a different inode while the server
+> still has it mapped, exposing one file's data in another.
+> 
+> The ranges cannot be reused, but they also cannot usefully be tracked.
+> The requests are sent in batches and the first failure aborts the rest, so
+> it is not known which of them the server did drop; and a server that
+> refuses a request it is required to honour will keep refusing, so every
+> range ends up retired one by one, with nothing to replenish the pool.
+> __fuse_dax_fault() then waits uninterruptibly in wait_event() for a free
+> range that can never arrive.  Quietly retiring ranges only delays the
+> failure and makes it worse when it comes.
+> 
+
+As far as I understand it—please correct me if I'm wrong:
+reclaim_one_dmap_locked() first calls dmap_writeback_invalidate() to write back 
+and invalidate the pages in the file range corresponding to the DAX window on the 
+old inode, tearing down any userspace page table entries pointing to this DAX window. 
+Then interval_tree_remove() ensures the old inode can no longer look up this window. 
+Both steps happen before dmap_removemapping_one().
+
+The same applies to inode eviction: fuse_evict_inode() calls dax_break_layout_final() 
+and fuse_vdax_inode_cleanup() before sending FUSE_REMOVEMAPPING.
+
+Therefore, even if FUSE_REMOVEMAPPING is skipped or fails and a subsequent FUSE_SETUPMAPPING 
+is issued for the same DAX window, the guest page tables of the old inode no longer 
+point to it. When mapping that same DAX window to another inode via FUSE_SETUPMAPPING, 
+the legacy implementation (the C version of virtiofsd and the out-of-tree DAX patches in QEMU) 
+directly mmaps the new inode over the same virtual address range backing the DAX window, 
+and guest virtiofs only inserts the DAX window into the new inode's interval tree after 
+FUSE_SETUPMAPPING succeeds. Thus, stale data from the old file will not leak into the new file. 
+As for the latest Rust virtiofsd implementation, it simply returns -ENOSYS for any 
+FUSE_SETUPMAPPING / FUSE_REMOVEMAPPING requests from guest virtiofs.
+
+Given this, I feel FUSE_REMOVEMAPPING can just be best-effort, without needing to abort 
+the connection.
 
 Thanks,
-Jean
+Li Wang
