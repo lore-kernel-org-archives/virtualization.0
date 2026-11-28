@@ -1,58 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795843031;
-	b=OEGYxgHgcrgL8OLMpxMLPRFBt6N0dk7bwku1MisnrNeVV/B4w+Y9b08Tqj7MHBWVjW8R
-	 KDBgmeelAGaknSmDeg4Mk0ZfZJ5z5MBWQIOMoU5NHCiib0olnXxaK0PlyM2ART3ySusXh
-	 7/3UKmxJ/e+FOhwSgYZhO/diXGRZhjLIyRSNMdpy8PO2mqDzHvGKt3yc4no6R2UFeupip
-	 RLqAKV/bwBu9n51JYp5dhNcEtnN5sJAGZhYGTlWPKcCb3s1xvIS+85JyBJISVUtQHeATu
-	 E+6xyh9+IfC+/Sdt96s9hrq+jVAW++cSw9iP26bMcWW7ad3H5EzJj3fyPD1mW3GKu3w==
+	t=1795843176;
+	b=t/h4t/EygfT9hW1MQzqmFgCFiqzkSH0sHyDMaqv2ED4DK+VU0VotT5MxIcJza223Q0uS
+	 EY1asBRg6Xlvo/3jmgzGmt3Uq1EOSj3NBkvwKjtwWZxKuMghn+IUooyT8No4nt9/GKDqJ
+	 QL0MWBPdb0V6G3cQmUjw72Ge/CkHofxB2LbNFL6+2l2i50pBn+905yoxf/QTpYCg4Yo1u
+	 DAyWZry0k06SLBLjhV9wZY3rfdD2HKschccV5sffOzRyjpOc3Qm+RJb6PN/rr4VRREFk6
+	 2wWbpgKqEJP6i6YxJLuTXopCnTgnMmCvSIwSQsOrPP3wgyxPIA0PtUaMqFhR+jMbq+w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795843031;
-	h=DMARC-Filter:X-UUID:X-CID-P-RULE:X-CID-O-INFO:X-CID-META:X-CID-BVR:
-	 X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=SARcJ4OiEbkM6r9haDpTIZ07Si5ySupOLHDXUH9bBw0=;
-	b=hPlsVpzvsI/zu9rn17sIRcYg7yq8B0BVLubG2FFR2Hq5xX8b91O7DunGVQTthUc4UR1V
-	 OSiXK5P/nCQ0uB5uP9gOyJ3MMbV7jcR+hus6zZZ3DwsYhWGWuQa17dD4lEkYvO6xEJZEr
-	 jE3TKqdgXGAy7kA7VitNNsILhth0km5dI1u0SVEYCAvt20l4DkZqfMpFdMfM+AHLiNSBY
-	 U2nhY+wOPFJ3/AV+B2UeiPkTuAQNTEmUPMeR5Geg0/7O/XuGfW1V49NXye8GAwC6jvfi0
-	 gtCiV1sZpSyW241xZkYWTZDnp8/oicTZpj+eqmkWcHuOCz4ZNIkfMtc/ccD0eulCqLQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795843176;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=xGN7LVdkKHGQx1MpnuDSn6mI6jqoBhY6IEYd/gQNzLk=;
+	b=2jkBc15fjPdyDSkrb3ux5FqKKRVq61HvfIvlc9txPNeTICK6jDET8Lp8OmLfQEmGCxzR
+	 iR6+wmBv63H3wmk+e38ON0jRaN48TGNpKV60nJZ2IlqvLyC96mJF4Gr3jdgDTIGMRZDcX
+	 0FqDKe9GeNVdW5md+XR3QX3QSeGckG6viJ/PuaCb58qvbUOPM0CYY25Nb6n8ckaEg6M2X
+	 AioWvjNAuHFnJLf+1y3zkvSZed9prU2EwuTVv1xHX2ZacNZztzvUv/EN9TfgB3eoi2/8O
+	 7s3q2F/T/SxSM1v6aZ1ZSz3CCjmJ38SMBXndS93qT7aJIE+RakNRAdTq3q9iIrg5B+Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=kylinos.cn;
-	spf=pass smtp.mailfrom=kylinos.cn;
-	arc=none smtp.remote-ip=124.126.103.232
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="G+/RvX7z";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E5D6606A31C;
-	Sat, 28 Nov 2026 05:17:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3E5D6606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: efd334f8eaea11f19a56ed5b684f684d-20261128
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:c5859302-451f-498d-9b52-5039b7b646be,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:7db8b62,CLOUDID:5efc92fc8fdee016395d3e281a84327a,BulkI
-	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0|15|50|99,
-	EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OS
-	A:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: efd334f8eaea11f19a56ed5b684f684d-20261128
-X-User: liwang@kylinos.cn
-Received: from [10.42.16.85] [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <liwang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
-	with ESMTP id 126678896; Sat, 28 Nov 2026 13:16:59 +0800
-Message-ID: <00909830-f4ee-4573-97d2-792fce9fc74d@kylinos.cn>
-Date: Sat, 28 Nov 2026 13:16:56 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E16CE606A31C
+	for <virtualization@lists.linux.dev>; Sat, 28 Nov 2026 05:19:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G+/RvX7z
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A0501F000C1;
+	Sat, 28 Nov 2026 05:19:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795843175;
+	bh=xGN7LVdkKHGQx1MpnuDSn6mI6jqoBhY6IEYd/gQNzLk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=G+/RvX7zlWHbK69q8otYITJ3I9Bh7IbTuCt/V3c6xxFgMFjnu9xpAkvuhlv8x27Tc
+	 26/W7Wsqif7Xr71O0oRB/Ui5tXjOKX1BGh43e/PJAAd3HQgccMrJFfH6b1Txl5N9kd
+	 aHbYbYSbXdgJd/vaP86BWt/v1WZsiatFPHwmx5jQYX7TmWaVbpNvBH+SP7r13m9m0D
+	 wVK+4fz423Drj8Q9Dm/vxfgeKzJ2MIoo+FatopdEhcreq60hsAp/CC19IGQd2oUMnM
+	 1ZumMwiOrgzMqufnikCRCvK5EWeko3Li7PUhKw4ELkR6w7xyvlmy7FRKSRhwBxu4il
+	 C2fbMnvdY8nuA==
+Message-ID: <sashiko-outbox-238470@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net 2/2] vsock/test: add stream MSG_WAITALL receive
+ timeout test
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ren Wei" <weir@nebusec.ai>, virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <503c1d5538f5b41f8eda756f5ea4491f0bd44518.1795591531.git.caoruide123@gmail.com>
+References: <cover.1795587333.git.caoruide123@gmail.com>
+ <503c1d5538f5b41f8eda756f5ea4491f0bd44518.1795591531.git.caoruide123@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 28 Nov 2026 05:19:34 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,45 +60,66 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/5] virtiofs: fix DAX range leak on unmount
-To: Miklos Szeredi <mszeredi@redhat.com>, fuse-devel@lists.linux.dev,
- virtualization@lists.linux.dev
-Cc: German Maglione <gmaglione@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>
-References: <20261126144719.232329-1-mszeredi@redhat.com>
-Content-Language: en-GB
-From: Li Wang <liwang@kylinos.cn>
-In-Reply-To: <20261126144719.232329-1-mszeredi@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Hi Miklos,
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] vsock/test: inserting test in test_cases[] shifts IDs and
+  breaks vmtest.sh
+--
 
-On 26/11/2026 22:47, Miklos Szeredi wrote:
-> generic_shutdown_super() clears SB_ACTIVE before calling evict_inodes(),
-> so at unmount time fuse_evict_inode() skipped fuse_vdax_inode_cleanup()
-> for every remaining inode.  The DAX ranges owned by those inodes stay on
-> fc->vdax->busy_ranges instead of being returned to the free pool, and
-> fuse_vdax_conn_free() only frees free_ranges before kfree()ing the
-> connection, so the busy fuse_dax_mapping objects are leaked.  Nothing
-> warns about it: fuse_free_inode() kfree()s fi->vdax without checking
-> that the interval tree is empty.
-> 
-> Call fuse_vdax_inode_cleanup() regardless of SB_ACTIVE.  That is what
-> virtio_fs_conn_destroy() has always assumed ("Soon evict_inodes() will
-> be called which will free all memory ranges belonging to all inodes").
-> Unlike the FORGET in the same block, which is pointless once DESTROY has
-> been sent, the DAX cleanup is the only thing there that owns memory.
-> 
+commit 3fdae506954ede6076a29bc4c547728169cd474c
+Author: Ruide Cao <caoruide123@gmail.com>
 
-Minor nit: should we consider adding 
-"WARN_ON(!list_empty(&fc->vdax->busy_ranges));" 
-in fuse_vdax_conn_free()? Since as you noted, 
-fuse_vdax_conn_free() only frees free_ranges.
+vsock/test: add stream MSG_WAITALL receive timeout test
 
-Reviewed-by: Li Wang <liwang@kylinos.cn>
+This commit adds a SOCK_STREAM receive timeout test that verifies
+recv(MSG_WAITALL) enforces a cumulative SO_RCVTIMEO timeout across
+partial drip-fed reads.
 
-Thanks,
-Li Wang
+> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock=
+_test.c
+> index 10b9074fb87f7..868792f7729cf 100644
+> --- a/tools/testing/vsock/vsock_test.c
+> +++ b/tools/testing/vsock/vsock_test.c
+
+[ ... ]
+
+> @@ -2739,6 +2846,11 @@ static struct test_case test_cases[] =3D {
+>  		.run_client =3D test_seqpacket_timeout_client,
+>  		.run_server =3D test_seqpacket_timeout_server,
+>  	},
+> +	{
+> +		.name =3D "SOCK_STREAM MSG_WAITALL timeout",
+> +		.run_client =3D test_stream_timeout_waitall_client,
+> +		.run_server =3D test_stream_timeout_waitall_server,
+> +	},
+>  	{
+>  		.name =3D "SOCK_SEQPACKET invalid receive buffer",
+>  		.run_client =3D test_seqpacket_invalid_rec_buffer_client,
+
+[Severity: Medium]
+Does inserting this entry in the middle of test_cases[] shift the numeric
+test IDs and break tools/testing/selftests/vsock/vmtest.sh?
+
+test_ns_same_local_host_connect_to_local_vm_ok() in vmtest.sh passes
+--skip=3D29 to skip "SOCK_STREAM transport release use-after-free":
+
+tools/testing/selftests/vsock/vmtest.sh:test_ns_same_local_host_connect_to_=
+local_vm_ok() {
+    ...
+	# virtio-vsock (G2H) does not support local namespaces, so skip test 29
+	# (SOCK_STREAM transport release use-after-free) which requires a
+	# local listener in the same namespace.
+	host_vsock_test "${ns}" "127.0.0.1" "${VSOCK_CID}" "${TEST_HOST_PORT}" --s=
+kip=3D29
+    ...
+}
+
+Inserting the new test here shifts that test from index 29 to 30, so
+--skip=3D29 skips "SOCK_STREAM MSG_ZEROCOPY leak completion skb" instead
+and runs the incompatible test.  Appending the new entry at the end of
+test_cases[] keeps the existing test IDs stable.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1795587333.gi=
+t.caoruide123@gmail.com?part=3D2
